@@ -1,0 +1,1458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coach Onboarding — The Founder's Sprint</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,600&display=swap" rel="stylesheet">
+
+    <style>
+        /* ═══════════════════ TOKENS ═══════════════════ */
+        :root {
+            --ink:       #1A1A1A;
+            --ink-mute:  #5A564F;
+            --paper:     #EFE7D8;
+            --terra:     #C8531F;
+            --ochre:     #C9923A;
+            --sage:      #8AAB5C;
+            --moss:      #3D4A2E;
+            --stone:     #777770;
+            --mute:      #8C8880;
+            --border:    #D5CFC4;
+            --err:       #B33A2E;
+            --serif:     'Cormorant Garamond', Georgia, serif;
+            --sans:      'Josefin Sans', system-ui, sans-serif;
+        }
+
+        /* ═══════════════════ RESET ═══════════════════ */
+        *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+        fieldset { border:none; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: var(--serif);
+            font-size: 17px;
+            line-height: 1.7;
+            color: var(--ink);
+            background: var(--paper);
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ═══════════════════ HEADER ═══════════════════ */
+        .site-header {
+            position: sticky; top:0; z-index:100;
+            padding: 16px 0;
+            background: rgba(26,26,26,0.96);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(200,83,31,0.15);
+        }
+        .site-header .wrap {
+            max-width: 800px; margin:0 auto; padding:0 24px;
+            display:flex; align-items:center; justify-content:space-between;
+        }
+        .brand {
+            font-family: var(--sans); font-size:11px; font-weight:600;
+            letter-spacing:0.22em; text-transform:uppercase; color:var(--paper);
+            text-decoration:none;
+        }
+        .header-badge {
+            font-family: var(--sans); font-size:9px; font-weight:600;
+            letter-spacing:0.18em; text-transform:uppercase;
+            color: var(--ochre);
+        }
+
+        /* ═══════════════════ HERO ═══════════════════ */
+        .hero {
+            background: var(--ink); color:var(--paper);
+            padding: 72px 24px 56px; text-align:center;
+        }
+        .hero .eyebrow {
+            font-family: var(--sans); font-size:10px; font-weight:600;
+            letter-spacing:0.3em; text-transform:uppercase;
+            color: var(--ochre); margin-bottom:14px;
+        }
+        .hero h1 {
+            font-family: var(--serif); font-weight:300;
+            font-size: clamp(32px, 6vw, 48px); line-height:1.15;
+            margin-bottom:12px;
+        }
+        .hero h1 em { font-style:italic; color: var(--ochre); font-weight:400; }
+        .hero .lead {
+            font-family: var(--serif); font-size:17px; line-height:1.65;
+            color: rgba(239,231,216,0.55); max-width:560px; margin:0 auto;
+        }
+
+        /* ═══════════════════ FORM CONTAINER ═══════════════════ */
+        .form-wrap {
+            max-width: 740px; margin: 0 auto;
+            padding: 0 24px 80px;
+        }
+
+        /* ═══════════════════ SECTIONS ═══════════════════ */
+        .form-section {
+            margin-top: 48px;
+            padding-top: 40px;
+            border-top: 1px solid var(--border);
+        }
+        .form-section:first-child { border-top:none; margin-top:40px; }
+
+        .section-number {
+            font-family: var(--sans); font-size:9px; font-weight:700;
+            letter-spacing:0.25em; text-transform:uppercase;
+            color: var(--terra); margin-bottom:6px;
+        }
+        .section-title {
+            font-family: var(--serif); font-size:28px; font-weight:500;
+            line-height:1.2; margin-bottom:6px; color: var(--ink);
+        }
+        .section-desc {
+            font-size:15px; color: var(--mute); line-height:1.6;
+            margin-bottom:28px;
+        }
+
+        /* ═══════════════════ FIELD ROWS ═══════════════════ */
+        .field-row {
+            margin-bottom: 22px;
+        }
+        .field-row-pair {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+            margin-bottom: 22px;
+        }
+        @media (max-width: 560px) {
+            .field-row-pair { grid-template-columns: 1fr; }
+        }
+
+        label {
+            display: block;
+            font-family: var(--sans); font-size:11px; font-weight:600;
+            letter-spacing:0.08em; text-transform:uppercase;
+            color: var(--ink); margin-bottom:6px;
+        }
+        label .req { color: var(--terra); margin-left:2px; }
+        .field-hint {
+            font-family: var(--sans); font-weight:400; text-transform:none;
+            letter-spacing:0; font-size:11px; color: var(--mute);
+            display:block; margin-top:4px; line-height:1.4;
+        }
+
+        input[type="text"],
+        input[type="email"],
+        input[type="tel"],
+        input[type="url"],
+        input[type="number"],
+        input[type="date"],
+        select,
+        textarea {
+            width:100%; padding: 15px 0 11px;
+            font-family: var(--sans); font-size:13px; font-weight:300;
+            letter-spacing:0.5px; line-height:1.5;
+            color: var(--ink); background: transparent;
+            border: none; border-bottom: 1px solid rgba(26,26,26,0.15);
+            transition: border-color 0.25s;
+            appearance: none; -webkit-appearance: none;
+        }
+        input::placeholder, textarea::placeholder, select option[value=""] {
+            color: var(--mute); font-weight: 300;
+        }
+        input:focus, select:focus, textarea:focus {
+            outline: none;
+            border-bottom-color: var(--terra);
+        }
+        textarea {
+            min-height: 100px; resize: vertical;
+            border: 1px solid rgba(26,26,26,0.15);
+            padding: 12px 0;
+        }
+        textarea:focus {
+            border-color: var(--terra);
+        }
+
+        select {
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238C8880' stroke-width='1.5' fill='none'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 0 center;
+            padding-right: 24px;
+        }
+
+        /* ═══════════════════ CHECKBOX / RADIO ═══════════════════ */
+        .check-group { margin-bottom: 22px; }
+        .check-group legend {
+            font-family: var(--sans); font-size:13px; font-weight:700;
+            letter-spacing:0.02em;
+            color: var(--ink); margin-bottom:10px;
+        }
+        .check-item {
+            display:flex; align-items:flex-start; gap:10px;
+            margin-bottom:8px; cursor:pointer;
+        }
+        .check-item input[type="checkbox"],
+        .check-item input[type="radio"] {
+            width:18px; height:18px; margin-top:2px; flex-shrink:0;
+            accent-color: var(--terra);
+        }
+        .check-label {
+            font-family: var(--serif); font-size:16px; line-height:1.5;
+            color: var(--ink);
+            text-transform: none; letter-spacing: 0;
+        }
+        .check-label small {
+            display:block; font-size:13px; color: var(--ink-mute); line-height:1.4;
+            text-transform: none; letter-spacing: 0;
+        }
+
+        /* ═══════════════════ FILE UPLOAD ═══════════════════ */
+        .file-upload {
+            position:relative; padding:24px; border:2px dashed var(--border);
+            text-align:center; background: transparent;
+            transition: border-color 0.25s;
+        }
+        .file-upload:hover { border-color: var(--ochre); }
+        .file-upload input[type="file"] {
+            position:absolute; inset:0; opacity:0; cursor:pointer;
+        }
+        .file-upload .file-label {
+            font-family: var(--sans); font-size:12px; font-weight:600;
+            letter-spacing:0.06em; color: var(--terra);
+        }
+        .file-upload .file-hint {
+            font-family: var(--serif); font-size:13px; color: var(--mute);
+            margin-top:4px;
+        }
+
+        /* ═══════════════════ SPECIALTIES SUB-SECTION ═══════════════════ */
+        .specialties-section {
+            margin-top: 28px; padding-top: 24px;
+            border-top: 1px dashed var(--border);
+        }
+        .specialties-title {
+            font-family: var(--serif); font-size: 20px; font-weight: 500;
+            color: var(--ink); margin-bottom: 4px;
+        }
+        .specialties-desc {
+            font-family: var(--serif); font-size: 14px; color: var(--ink-mute);
+            line-height: 1.6; margin-bottom: 22px;
+        }
+
+        /* ═══════════════════ COHORT SLOT BLOCK ═══════════════════ */
+        .cohort-slot-block {
+            display: flex; align-items: center; gap: 10px;
+            padding: 8px 12px; margin: 4px 0 4px 28px;
+            background: rgba(61,74,46,0.06);
+            border: 1px solid rgba(61,74,46,0.15);
+        }
+        .cohort-slot-label {
+            font-family: var(--serif); font-size: 15px;
+            color: var(--moss); font-weight: 500;
+        }
+        .cohort-slot-tag {
+            font-family: var(--sans); font-size: 9px; font-weight: 700;
+            letter-spacing: 0.12em; text-transform: uppercase;
+            color: var(--moss); background: rgba(61,74,46,0.12);
+            padding: 2px 8px;
+        }
+
+        /* ═══════════════════ PHONE INPUT GROUP ═══════════════════ */
+        .phone-input-group {
+            display: grid;
+            grid-template-columns: 120px 1fr;
+            gap: 0;
+        }
+        .country-code-select {
+            padding-right: 28px !important;
+            font-size: 14px !important;
+            background-position: right 0 center !important;
+        }
+
+        /* ═══════════════════ VERIFICATION INDICATOR ═══════════════════ */
+        .verify-badge {
+            display: inline-flex; align-items: center; gap: 4px;
+            font-family: var(--sans); font-size: 9px; font-weight: 600;
+            letter-spacing: 0.1em; text-transform: uppercase;
+            color: var(--moss); background: rgba(61,74,46,0.08);
+            padding: 2px 8px; margin-left: 6px;
+        }
+        .verify-badge::before {
+            content: '✓'; font-size: 10px;
+        }
+
+        /* ═══════════════════ MULTI-SELECT BOXES ═══════════════════ */
+        .multi-select-box {
+            background: transparent;
+            border: 1px solid rgba(26,26,26,0.15);
+            padding: 10px 14px;
+        }
+        .multi-select-box .check-item { margin-bottom:4px; }
+        .multi-select-box .check-item:last-child { margin-bottom:0; }
+        .multi-select-box .check-label { font-size:15px; }
+        .multi-select-box .check-label small { font-size:12px; }
+        .multi-select-empty {
+            font-family: var(--serif); font-size:15px; color: var(--mute);
+            font-style:italic; margin:2px 0;
+        }
+        .multi-select-box .check-item.is-disabled {
+            opacity: 0.4; pointer-events: none;
+        }
+        .l3-group {
+            background: transparent;
+            border: 1px solid rgba(26,26,26,0.15);
+            padding: 10px 14px;
+            margin-bottom: 12px;
+        }
+        .l3-group:last-child { margin-bottom: 0; }
+        .l3-group-title {
+            font-family: var(--sans); font-size:10px; font-weight:700;
+            letter-spacing:0.15em; text-transform:uppercase;
+            color: var(--terra); margin-bottom:8px;
+        }
+        .l3-group .check-item { margin-bottom:4px; }
+        .l3-group .check-item:last-child { margin-bottom:0; }
+        .l3-group .check-label { font-size:15px; }
+        .multi-select-count {
+            font-family: var(--sans); font-size:10px; font-weight:600;
+            color: var(--mute); margin-top:6px; text-align:right;
+        }
+        .multi-select-count.at-limit { color: var(--terra); }
+
+        /* Founder addendum styles removed — addendum moved to coach dashboard */
+
+        /* ═══════════════════ READONLY FIELDS ═══════════════════ */
+        .readonly-field {
+            background: rgba(61,74,46,0.06) !important;
+            color: var(--moss) !important;
+            font-weight: 500;
+            border-color: rgba(61,74,46,0.15) !important;
+            cursor: default;
+        }
+
+        /* ═══════════════════ ADMIN-ONLY CALLOUT ═══════════════════ */
+        .admin-note {
+            display:flex; gap:10px; align-items:flex-start;
+            padding: 14px 16px; margin-bottom:22px;
+            background: rgba(201,146,58,0.08);
+            border-left: 3px solid var(--ochre);
+        }
+        .admin-note .admin-icon {
+            font-size:14px; flex-shrink:0; margin-top:2px;
+        }
+        .admin-note p {
+            font-family: var(--sans); font-size:11px; line-height:1.5;
+            color: var(--mute); margin:0;
+        }
+
+        /* ═══════════════════ PROGRESS BAR ═══════════════════ */
+        .progress-bar {
+            position:sticky; top:53px; z-index:90;
+            height:3px; background: rgba(26,26,26,0.06);
+        }
+        .progress-fill {
+            height:100%; width:0%;
+            background: linear-gradient(90deg, var(--terra), var(--ochre));
+            transition: width 0.3s ease;
+        }
+
+        /* ═══════════════════ SUBMIT ═══════════════════ */
+        .submit-section {
+            margin-top:48px; padding-top:40px;
+            border-top: 1px solid var(--border);
+            text-align:center;
+        }
+        .btn-submit {
+            display:inline-block; padding: 17px 48px;
+            font-family: var(--sans); font-size:11px; font-weight:700;
+            letter-spacing:4px; text-transform:uppercase;
+            color: var(--paper); background: var(--terra);
+            border: none; cursor:pointer;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+        .btn-submit:hover { opacity: 0.88; }
+        .btn-submit:active { transform: scale(0.985); }
+        .submit-note {
+            font-family: var(--serif); font-size:14px; color: var(--mute);
+            margin-top:14px; line-height:1.5;
+        }
+
+        /* ═══════════════════ STEP WIZARD ═══════════════════ */
+        .form-section { display: none; }
+        .form-section.active { display: block; }
+        .submit-section { display: none; }
+        .submit-section.active { display: block; }
+
+        .step-nav {
+            display: flex; justify-content: space-between; align-items: center;
+            margin-top: 36px; padding-top: 28px;
+            border-top: 1px solid var(--border);
+        }
+        .step-btn {
+            display: inline-flex; align-items: center; gap: 8px;
+            padding: 14px 28px;
+            font-family: var(--sans); font-size: 11px; font-weight: 700;
+            letter-spacing: 3px; text-transform: uppercase;
+            border: none; cursor: pointer;
+            transition: opacity 0.2s, transform 0.1s;
+        }
+        .step-btn:hover { opacity: 0.85; }
+        .step-btn:active { transform: scale(0.985); }
+        .step-btn-next {
+            color: var(--paper); background: var(--terra);
+            margin-left: auto;
+        }
+        .step-btn-back {
+            color: var(--ink-mute); background: transparent;
+            border: 1px solid var(--border);
+        }
+        .step-btn-back:hover { border-color: var(--ink-mute); }
+
+        .step-indicator {
+            font-family: var(--sans); font-size: 10px; font-weight: 600;
+            letter-spacing: 0.1em; color: var(--mute);
+        }
+
+        /* ═══════════════════ FOOTER ═══════════════════ */
+        .site-footer {
+            background: var(--ink); color: rgba(239,231,216,0.4);
+            padding: 32px 24px; text-align:center;
+            font-family: var(--sans); font-size:10px;
+            letter-spacing:0.1em;
+        }
+
+        /* ═══════════════════ VISIBILITY TOGGLE ═══════════════════ */
+        .visibility-tag {
+            display:inline-block;
+            font-family: var(--sans); font-size:8px; font-weight:700;
+            letter-spacing:0.15em; text-transform:uppercase;
+            padding: 2px 6px; margin-left:8px;
+            vertical-align: middle;
+        }
+        .visibility-tag.public {
+            color: var(--moss); background: rgba(61,74,46,0.1);
+        }
+        .visibility-tag.admin {
+            color: var(--ochre); background: rgba(201,146,58,0.1);
+        }
+
+        /* ═══════════════════ RESPONSIVE ═══════════════════ */
+        @media (max-width: 560px) {
+            .hero { padding: 56px 20px 40px; }
+            .form-wrap { padding: 0 16px 60px; }
+            /* .founder-addendum removed */
+        }
+    </style>
+</head>
+<body>
+
+<!-- ════════════════ HEADER ════════════════ -->
+<header class="site-header">
+    <div class="wrap">
+        <a href="index.html" class="brand">The Founder's Sprint</a>
+        <span class="header-badge">Coach Onboarding</span>
+    </div>
+</header>
+
+<!-- ════════════════ PROGRESS ════════════════ -->
+<div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+<!-- ════════════════ HERO ════════════════ -->
+<section class="hero">
+    <div class="eyebrow">Coach Application</div>
+    <h1>Welcome to <em>the team.</em></h1>
+    <p class="lead">This form collects everything we need to build your public coach profile, set up your payments, and meet statutory requirements. Takes about 15 minutes.</p>
+</section>
+
+<!-- ════════════════ FORM ════════════════ -->
+<div class="form-wrap">
+<form id="coachForm" novalidate>
+
+    <!-- ─────────── § 1  PERSONAL IDENTITY ─────────── -->
+    <div class="form-section" data-section="1">
+        <div class="section-number">Section 1 of 8</div>
+        <h2 class="section-title">Personal identity</h2>
+        <p class="section-desc">Legal name and contact details. Used for contracts, payments, and admin communications.</p>
+
+        <div class="field-row-pair">
+            <div class="field-row">
+                <label for="firstName">First name <span class="req">*</span>
+                    <span class="visibility-tag admin">Admin</span>
+                </label>
+                <input type="text" id="firstName" name="first_name" required placeholder="e.g. Barry">
+            </div>
+            <div class="field-row">
+                <label for="lastName">Last name <span class="req">*</span>
+                    <span class="visibility-tag admin">Admin</span>
+                </label>
+                <input type="text" id="lastName" name="last_name" required placeholder="e.g. Wojega">
+            </div>
+        </div>
+
+        <div class="field-row">
+            <label for="displayName">Display name <span class="req">*</span>
+                <span class="visibility-tag public">Public</span>
+            </label>
+            <input type="text" id="displayName" name="display_name" required placeholder="e.g. Barry Wojega">
+            <span class="field-hint">How your name appears on your public profile</span>
+        </div>
+
+        <div class="field-row-pair">
+            <div class="field-row">
+                <label for="email">Email address <span class="req">*</span>
+                    <span class="visibility-tag admin">Admin</span>
+                    <span class="verify-badge">Verified</span>
+                </label>
+                <input type="email" id="email" name="email" required placeholder="you@example.com">
+                <span class="field-hint">A verification link will be sent to confirm this address</span>
+            </div>
+            <div class="field-row">
+                <label for="phone">Phone number <span class="req">*</span>
+                    <span class="visibility-tag admin">Admin</span>
+                    <span class="verify-badge">Verified</span>
+                </label>
+                <div class="phone-input-group">
+                    <select id="phoneCountry" name="phone_country" class="country-code-select" required>
+                        <option value="+256" selected>🇺🇬 +256</option>
+                        <option value="+254">🇰🇪 +254</option>
+                        <option value="+250">🇷🇼 +250</option>
+                        <option value="+243">🇨🇩 +243</option>
+                        <option value="+255">🇹🇿 +255</option>
+                        <option value="+211">🇸🇸 +211</option>
+                        <option value="+257">🇧🇮 +257</option>
+                    </select>
+                    <input type="tel" id="phone" name="phone" required inputmode="tel" placeholder="7XX XXX XXX">
+                </div>
+                <span class="field-hint">Verification SMS will be sent to this number</span>
+            </div>
+        </div>
+
+        <div class="field-row-pair">
+            <div class="field-row">
+                <label for="nationality">Nationality <span class="req">*</span>
+                    <span class="visibility-tag admin">Admin</span>
+                </label>
+                <input type="text" id="nationality" name="nationality" required placeholder="e.g. Ugandan">
+            </div>
+            <div class="field-row">
+                <label for="location">City &amp; country <span class="req">*</span>
+                    <span class="visibility-tag public">Public</span>
+                </label>
+                <input type="text" id="location" name="location" required placeholder="e.g. Kampala, Uganda">
+                <span class="field-hint">Where you're based (shown on profile)</span>
+            </div>
+        </div>
+
+        <div class="field-row">
+            <label for="timezone">Primary timezone <span class="req">*</span>
+                    <span class="visibility-tag admin">Admin</span>
+            </label>
+            <select id="timezone" name="timezone" required>
+                <option value="">Select timezone</option>
+                <option value="EAT" selected>East Africa Time (UTC+3) — Uganda, Kenya, Tanzania, South Sudan</option>
+                <option value="CAT">Central Africa Time (UTC+2) — Rwanda, Burundi, DRC</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- ─────────── § 2  AREA OF EXPERTISE ─────────── -->
+    <div class="form-section" data-section="2">
+        <div class="section-number">Section 2 of 8</div>
+        <h2 class="section-title">Area of expertise</h2>
+        <p class="section-desc">Your position in the coaching constellation. This determines your coaching day, what founders can book you for, and how you appear in the taxonomy explorer.</p>
+
+        <div class="field-row">
+            <label for="l1Discipline">Primary discipline <span class="req">*</span>
+                <span class="visibility-tag public">Public</span>
+            </label>
+            <select id="l1Discipline" name="taxonomy_l1" required>
+                <option value="">Select your primary discipline</option>
+                <option value="marketing_branding">Marketing &amp; Branding</option>
+                <option value="financial_modelling">Financial Modelling &amp; Business Finance</option>
+                <option value="strategy_team">Strategy &amp; Team Building</option>
+                <option value="investment_readiness">Investment Readiness &amp; Fundraising</option>
+                <option value="product_pricing">Product Development &amp; Pricing</option>
+            </select>
+            <span class="field-hint">Your core coaching domain — this sets your coaching day and cohort assignment</span>
+        </div>
+
+        <div class="field-row">
+            <label>Sub-categories <span class="req">*</span>
+                <span class="visibility-tag public">Public</span>
+            </label>
+            <div class="multi-select-box" id="l2Container">
+                <p class="multi-select-empty">Select your primary discipline first</p>
+            </div>
+            <span class="field-hint" id="l2Hint">Select up to 2 — these are the topics you'll offer as individual coaching sessions</span>
+        </div>
+
+        <div class="field-row" id="l3Container" style="display:none;">
+            <label>Specialties
+                <span class="visibility-tag public">Public</span>
+            </label>
+            <div id="l3Groups"></div>
+            <span class="field-hint">Select up to 3 per sub-category — each becomes a bookable session in the coach finder</span>
+        </div>
+    </div>
+
+    <!-- ─────────── § 3  PUBLIC PROFILE ─────────── -->
+    <div class="form-section" data-section="3">
+        <div class="section-number">Section 3 of 8</div>
+        <h2 class="section-title">Public coach profile</h2>
+        <p class="section-desc">This information builds your public-facing profile on the platform. Founders use this to discover, evaluate, and book you.</p>
+
+        <div class="field-row">
+            <label>Profile photo <span class="req">*</span>
+                <span class="visibility-tag public">Public</span>
+            </label>
+            <div class="file-upload">
+                <input type="file" id="profilePhoto" name="profile_photo" accept="image/jpeg,image/png" required>
+                <span class="field-hint">Square format, at least 400 &times; 400px. JPG or PNG.</span>
+                <div class="file-label">Drop photo here or click to upload</div>
+                <div class="file-hint">Max 5 MB</div>
+            </div>
+        </div>
+
+        <div class="field-row">
+            <label for="headline">Professional headline <span class="req">*</span>
+                <span class="visibility-tag public">Public</span>
+            </label>
+            <input type="text" id="headline" name="headline" required placeholder="e.g. Financial Modelling &amp; Startup Valuation" maxlength="80">
+            <span class="field-hint">One line that captures your expertise — shown under your name in search results</span>
+        </div>
+
+        <div class="field-row">
+            <label for="bio">Bio <span class="req">*</span>
+                <span class="visibility-tag public">Public</span>
+            </label>
+            <textarea id="bio" name="bio" required rows="6" placeholder="Tell founders who you are, what you've done, and why you coach..."></textarea>
+            <span class="field-hint">150–300 words. What's your coaching approach? What outcomes can founders expect?</span>
+        </div>
+
+        <div class="field-row">
+            <label for="geographies">Geographic expertise
+                <span class="visibility-tag public">Public</span>
+            </label>
+            <input type="text" id="geographies" name="geographies" placeholder="e.g. Uganda, Kenya, Rwanda, Pan-Africa">
+            <span class="field-hint">Markets where you have hands-on experience</span>
+        </div>
+
+        <div class="field-row">
+            <label for="languages">Languages
+                <span class="visibility-tag public">Public</span>
+            </label>
+            <input type="text" id="languages" name="languages" placeholder="e.g. English, Luganda, Swahili">
+        </div>
+
+        <div class="field-row-pair">
+            <div class="field-row">
+                <label for="linkedin">LinkedIn
+                    <span class="visibility-tag public">Public</span>
+                </label>
+                <input type="url" id="linkedin" name="linkedin_url" placeholder="https://linkedin.com/in/yourname">
+            </div>
+            <div class="field-row">
+                <label for="twitter">X / Twitter
+                    <span class="visibility-tag public">Public</span>
+                </label>
+                <input type="url" id="twitter" name="twitter_url" placeholder="https://x.com/yourhandle">
+            </div>
+        </div>
+        <div class="field-row-pair">
+            <div class="field-row">
+                <label for="instagram">Instagram
+                    <span class="visibility-tag public">Public</span>
+                </label>
+                <input type="url" id="instagram" name="instagram_url" placeholder="https://instagram.com/yourhandle">
+            </div>
+            <div class="field-row">
+                <label for="website">Personal website
+                    <span class="visibility-tag public">Public</span>
+                </label>
+                <input type="url" id="website" name="website_url" placeholder="https://yoursite.com">
+            </div>
+        </div>
+    </div>
+
+    <!-- ─────────── § 4  CREDENTIALS & EXPERIENCE ─────────── -->
+    <div class="form-section" data-section="4">
+        <div class="section-number">Section 4 of 8</div>
+        <h2 class="section-title">Credentials &amp; experience</h2>
+        <p class="section-desc">Evidence of your expertise. Helps us verify your qualifications and build trust signals for your public profile.</p>
+
+        <div class="field-row">
+            <label for="currentRole">Current role &amp; organisation <span class="req">*</span>
+                <span class="visibility-tag public">Public</span>
+            </label>
+            <input type="text" id="currentRole" name="current_role" required placeholder="e.g. CEO, Raintree Farms / Partner, XYZ Advisory">
+        </div>
+
+        <div class="field-row">
+            <label for="experience">Relevant professional experience <span class="req">*</span>
+                <span class="visibility-tag admin">Admin</span>
+            </label>
+            <textarea id="experience" name="experience" required rows="5" placeholder="• Led marketing for X, grew revenue from $Y to $Z&#10;• Built financial models for 20+ funded startups&#10;• 8 years in venture capital across East Africa"></textarea>
+            <span class="field-hint">Key roles and achievements that qualify you to coach in your discipline. 3–5 bullet points.</span>
+        </div>
+
+        <div class="field-row">
+            <label for="notableClients">Notable clients, portfolio companies, or case studies
+                <span class="visibility-tag public">Public</span>
+            </label>
+            <textarea id="notableClients" name="notable_clients" rows="3" placeholder="e.g. Coached 3 Y Combinator-backed East African startups, advised SafeBoda's Series A"></textarea>
+            <span class="field-hint">Names you can share publicly (with permission)</span>
+        </div>
+
+        <div class="field-row">
+            <label>CV / resume
+                <span class="visibility-tag admin">Admin</span>
+            </label>
+            <div class="file-upload">
+                <input type="file" id="cvUpload" name="cv_file" accept=".pdf">
+                <span class="field-hint">PDF format, max 10 MB</span>
+                <div class="file-label">Upload CV (PDF)</div>
+                <div class="file-hint">For internal verification only — not published</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─────────── § 5  COACHING PREFERENCES ─────────── -->
+    <div class="form-section" data-section="5">
+        <div class="section-number">Section 5 of 8</div>
+        <h2 class="section-title">Coaching preferences</h2>
+        <p class="section-desc">How you want to coach on the platform. This configures your availability, session types, and pricing.</p>
+
+        <div class="field-row">
+            <label>Session types you're available for <span class="req">*</span></label>
+            <div class="multi-select-box">
+                <label class="check-item">
+                    <input type="checkbox" name="session_types" value="group_cohort">
+                    <span class="check-label">Group cohort sessions
+                        <small>5-week structured programme, one session per week with a group of founders</small>
+                    </span>
+                </label>
+                <label class="check-item">
+                    <input type="checkbox" name="session_types" value="individual_1on1">
+                    <span class="check-label">Individual 1-on-1 sessions
+                        <small>2-hour deep-dive with a single founder on your specialty</small>
+                    </span>
+                </label>
+            </div>
+        </div>
+
+        <div class="field-row" id="assignedDayRow" style="display:none;">
+            <label for="assignedDay">Assigned coaching day
+                <span class="visibility-tag public">Public</span>
+            </label>
+            <input type="text" id="assignedDay" name="assigned_day" readonly class="readonly-field">
+            <span class="field-hint">Set by your L1 discipline — all coaches in the same discipline coach on the same day</span>
+        </div>
+
+        <div class="field-row" id="timeSlotsGroup" style="display:none;">
+            <label>Available time slots <span class="req">*</span></label>
+            <span class="field-hint">Individual 1-on-1 sessions are 2-hour blocks scheduled around the fixed cohort slot. Select the slots you can commit to.</span>
+            <div class="multi-select-box">
+                <label class="check-item">
+                    <input type="checkbox" name="time_slots" value="08_10">
+                    <span class="check-label">8:00 AM – 10:00 AM <small>Before cohort</small></span>
+                </label>
+                <div class="cohort-slot-block">
+                    <span class="cohort-slot-label">10:00 AM – 12:00 PM</span>
+                    <span class="cohort-slot-tag">Cohort session (fixed)</span>
+                </div>
+                <label class="check-item">
+                    <input type="checkbox" name="time_slots" value="13_15">
+                    <span class="check-label">1:00 PM – 3:00 PM <small>Afternoon 1</small></span>
+                </label>
+                <label class="check-item">
+                    <input type="checkbox" name="time_slots" value="15_17">
+                    <span class="check-label">3:00 PM – 5:00 PM <small>Afternoon 2</small></span>
+                </label>
+                <label class="check-item">
+                    <input type="checkbox" name="time_slots" value="17_19">
+                    <span class="check-label">5:00 PM – 7:00 PM <small>Evening</small></span>
+                </label>
+            </div>
+        </div>
+
+        <div class="field-row">
+            <label for="existingMaterials">Do you have existing coaching or training materials?
+            </label>
+            <select id="existingMaterials" name="has_existing_materials">
+                <option value="">Select</option>
+                <option value="yes_extensive">Yes — extensive library (10+ presentations/workshops)</option>
+                <option value="yes_some">Yes — some materials (1–10 pieces)</option>
+                <option value="no">No — I'll build from your templates</option>
+            </select>
+            <span class="field-hint">PPT, PDF, Keynote, Google Slides — we'll convert them to our branded templates</span>
+        </div>
+
+        <div class="field-row">
+            <label for="coachingPhilosophy">Coaching philosophy or methodology
+                <span class="visibility-tag public">Public</span>
+            </label>
+            <textarea id="coachingPhilosophy" name="coaching_philosophy" rows="4" placeholder="e.g. I use a case-study method — founders bring their real data and we build live models together..."></textarea>
+            <span class="field-hint">How do you approach coaching? What should a founder expect in your sessions?</span>
+        </div>
+    </div>
+
+    <!-- ─────────── § 5  PAYMENT INFORMATION ─────────── -->
+    <div class="form-section" data-section="6">
+        <div class="section-number">Section 6 of 8</div>
+        <h2 class="section-title">Payment information</h2>
+        <p class="section-desc">How you'll receive session payouts. All payment data is encrypted and visible only to platform administrators.</p>
+
+        <div class="admin-note">
+            <span class="admin-icon">&#128274;</span>
+            <p>All fields in this section are <strong>admin-only</strong> — never displayed publicly. Payment data is encrypted at rest and transmitted via TLS. Only authorised administrators can access this information.</p>
+        </div>
+
+        <div class="field-row">
+            <label for="preferredPayout">Preferred payout method <span class="req">*</span></label>
+            <select id="preferredPayout" name="payout_method" required>
+                <option value="">Select primary payout method</option>
+                <option value="mobile_money">Mobile money (MTN or Airtel)</option>
+                <option value="bank_transfer">Bank transfer</option>
+                <option value="both">Both (mobile money + bank)</option>
+            </select>
+        </div>
+
+        <!-- Mobile money fields -->
+        <div id="mmFields" style="display:none;">
+            <div class="field-row-pair">
+                <div class="field-row">
+                    <label for="mmProvider">Mobile money provider <span class="req">*</span></label>
+                    <select id="mmProvider" name="mm_provider" data-cond-req>
+                        <option value="">Select</option>
+                        <option value="mtn_ug">MTN Mobile Money — Uganda</option>
+                        <option value="airtel_ug">Airtel Money — Uganda</option>
+                        <option value="mpesa_ke">M-Pesa — Kenya</option>
+                        <option value="mtn_rw">MTN Mobile Money — Rwanda</option>
+                        <option value="other_mm">Other</option>
+                    </select>
+                </div>
+                <div class="field-row">
+                    <label for="mmNumber">Mobile money number <span class="req">*</span>
+                    </label>
+                    <input type="tel" id="mmNumber" name="mm_number" data-cond-req inputmode="tel" placeholder="7XX XXX XXX">
+                    <span class="field-hint">The number registered to your mobile money account</span>
+                </div>
+            </div>
+            <div class="field-row">
+                <label for="mmName">Registered name on account <span class="req">*</span>
+                </label>
+                <input type="text" id="mmName" name="mm_registered_name" data-cond-req placeholder="e.g. WOJEGA BARRY">
+                <span class="field-hint">Exactly as it appears on your mobile money account</span>
+            </div>
+        </div>
+
+        <!-- Bank fields -->
+        <div id="bankFields" style="display:none;">
+            <div class="field-row-pair">
+                <div class="field-row">
+                    <label for="bankName">Bank <span class="req">*</span></label>
+                    <select id="bankName" name="bank_name" data-cond-req>
+                        <option value="">Select bank</option>
+                        <optgroup label="Uganda">
+                            <option value="Stanbic Bank Uganda" data-swift="SBICUGKX">Stanbic Bank Uganda</option>
+                            <option value="Standard Chartered Uganda" data-swift="SCBLUGKA">Standard Chartered Uganda</option>
+                            <option value="DFCU Bank" data-swift="DFCUUGKA">DFCU Bank</option>
+                            <option value="Centenary Bank" data-swift="CABORUGK">Centenary Bank</option>
+                            <option value="Absa Bank Uganda" data-swift="BABORUGK">Absa Bank Uganda</option>
+                            <option value="Bank of Africa Uganda" data-swift="AFRIUGKA">Bank of Africa Uganda</option>
+                            <option value="Equity Bank Uganda" data-swift="EABORUGK">Equity Bank Uganda</option>
+                            <option value="Housing Finance Bank" data-swift="HFBAUGKA">Housing Finance Bank</option>
+                            <option value="Opportunity Bank Uganda" data-swift="OABORUGK">Opportunity Bank Uganda</option>
+                            <option value="PostBank Uganda" data-swift="UGPOUGU1">PostBank Uganda</option>
+                        </optgroup>
+                        <optgroup label="Kenya">
+                            <option value="Equity Bank Kenya" data-swift="EABORKEN">Equity Bank Kenya</option>
+                            <option value="KCB Bank Kenya" data-swift="KCBLKENX">KCB Bank Kenya</option>
+                            <option value="Co-operative Bank of Kenya" data-swift="KCOOKENA">Co-operative Bank of Kenya</option>
+                            <option value="Standard Chartered Kenya" data-swift="SCBLKENX">Standard Chartered Kenya</option>
+                            <option value="Absa Bank Kenya" data-swift="BABORKEN">Absa Bank Kenya</option>
+                            <option value="Stanbic Bank Kenya" data-swift="SBICKENX">Stanbic Bank Kenya</option>
+                        </optgroup>
+                        <optgroup label="Rwanda">
+                            <option value="Bank of Kigali" data-swift="BKIGRWRW">Bank of Kigali</option>
+                            <option value="Equity Bank Rwanda" data-swift="EABORWRW">Equity Bank Rwanda</option>
+                            <option value="I&M Bank Rwanda" data-swift="IMABORWK">I&amp;M Bank Rwanda</option>
+                        </optgroup>
+                        <option value="other">Other (enter manually)</option>
+                    </select>
+                </div>
+                <div class="field-row" id="bankNameOtherRow" style="display:none;">
+                    <label for="bankNameOther">Bank name (manual)</label>
+                    <input type="text" id="bankNameOther" name="bank_name_other" placeholder="Enter bank name">
+                </div>
+            </div>
+            <div class="field-row-pair">
+                <div class="field-row">
+                    <label for="bankBranch">Branch</label>
+                    <input type="text" id="bankBranch" name="bank_branch" placeholder="e.g. Garden City Branch">
+                </div>
+                <div class="field-row">
+                    <label for="bankCurrency">Account currency <span class="req">*</span></label>
+                    <select id="bankCurrency" name="bank_currency" data-cond-req>
+                        <option value="">Select</option>
+                        <option value="UGX">UGX — Ugandan Shilling</option>
+                        <option value="KES">KES — Kenyan Shilling</option>
+                        <option value="RWF">RWF — Rwandan Franc</option>
+                        <option value="USD">USD — US Dollar</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+            </div>
+            <div class="field-row">
+                <label for="bankAccNumber">Account number <span class="req">*</span></label>
+                <input type="text" id="bankAccNumber" name="bank_account_number" data-cond-req inputmode="numeric" placeholder="Enter account number">
+            </div>
+            <div class="field-row">
+                <label for="bankAccName">Account holder name <span class="req">*</span>
+                </label>
+                <input type="text" id="bankAccName" name="bank_account_name" data-cond-req placeholder="e.g. Barry Wojega">
+                <span class="field-hint">Exactly as registered with the bank</span>
+            </div>
+            <div class="field-row">
+                <label for="swiftCode">SWIFT / BIC code
+                </label>
+                <input type="text" id="swiftCode" name="swift_code" readonly class="readonly-field" placeholder="Auto-filled from bank selection">
+                <span class="field-hint">Auto-filled when you select a bank. Editable if you chose "Other".</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- ─────────── § 6  STATUTORY & KYC ─────────── -->
+    <div class="form-section" data-section="7">
+        <div class="section-number">Section 7 of 8</div>
+        <h2 class="section-title">Statutory &amp; verification</h2>
+        <p class="section-desc">Legal identification and tax details required for compliance with Uganda's tax and data protection laws.</p>
+
+        <div class="admin-note">
+            <span class="admin-icon">&#128274;</span>
+            <p>All fields in this section are <strong>admin-only</strong>. ID documents are used for identity verification and then archived securely. Tax IDs are required for withholding tax reporting to the Uganda Revenue Authority.</p>
+        </div>
+
+        <div class="field-row-pair">
+            <div class="field-row">
+                <label for="idType">Government-issued ID type <span class="req">*</span></label>
+                <select id="idType" name="id_type" required>
+                    <option value="">Select</option>
+                    <option value="national_id">National ID (Uganda)</option>
+                    <option value="passport">Passport</option>
+                    <option value="national_id_ke">National ID (Kenya)</option>
+                    <option value="national_id_rw">National ID (Rwanda)</option>
+                    <option value="other_id">Other government-issued ID</option>
+                </select>
+            </div>
+            <div class="field-row">
+                <label for="idNumber">ID number <span class="req">*</span></label>
+                <input type="text" id="idNumber" name="id_number" required inputmode="numeric" placeholder="Enter ID number">
+            </div>
+        </div>
+
+        <div class="field-row">
+            <label>Upload ID document <span class="req">*</span>
+            </label>
+            <div class="file-upload">
+                <input type="file" id="idUpload" name="id_document" accept="image/jpeg,image/png,.pdf" required>
+                <span class="field-hint">Clear scan or photo of front (and back if applicable). JPG, PNG, or PDF. Max 10 MB.</span>
+                <div class="file-label">Upload ID document</div>
+                <div class="file-hint">Securely archived — used for one-time verification only</div>
+            </div>
+        </div>
+
+        <div class="field-row-pair">
+            <div class="field-row">
+                <label for="tinNumber">Tax Identification Number (TIN) <span class="req">*</span>
+                </label>
+                <input type="text" id="tinNumber" name="tin_number" required inputmode="numeric" placeholder="e.g. 1000XXXXXX">
+                <span class="field-hint">Uganda Revenue Authority TIN or equivalent</span>
+            </div>
+            <div class="field-row">
+                <label for="tinCountry">TIN issuing country <span class="req">*</span></label>
+                <select id="tinCountry" name="tin_country" required>
+                    <option value="">Select</option>
+                    <option value="UG">Uganda</option>
+                    <option value="KE">Kenya</option>
+                    <option value="RW">Rwanda</option>
+                    <option value="TZ">Tanzania</option>
+                    <option value="other">Other</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="field-row">
+            <label for="taxStatus">Tax registration status <span class="req">*</span></label>
+            <select id="taxStatus" name="tax_status" required>
+                <option value="">Select</option>
+                <option value="individual">Individual taxpayer</option>
+                <option value="sole_proprietor">Sole proprietorship / business name</option>
+                <option value="company">Registered company (Ltd / LLC)</option>
+            </select>
+        </div>
+
+        <div class="field-row" id="companyNameRow" style="display:none;">
+            <label for="companyName">Registered business / company name
+            </label>
+            <input type="text" id="companyName" name="company_name" placeholder="e.g. Wojega Advisory Ltd">
+            <span class="field-hint">If invoicing through a company</span>
+        </div>
+    </div>
+
+    <!-- ─────────── § 7  AGREEMENTS ─────────── -->
+    <div class="form-section" data-section="8">
+        <div class="section-number">Section 8 of 8</div>
+        <h2 class="section-title">Agreements</h2>
+        <p class="section-desc">By submitting this form you acknowledge the following terms. Full agreements will be sent for digital signature after your application is reviewed.</p>
+
+        <div class="field-row">
+            <label>Please confirm <span class="req">*</span></label>
+            <div class="multi-select-box">
+                <label class="check-item">
+                    <input type="checkbox" name="agree_terms" value="code_of_conduct" required>
+                    <span class="check-label">I agree to The Founder's Sprint Code of Conduct and coaching ethics standards
+                        <small>Includes confidentiality, professional behaviour, and non-solicitation of platform clients</small>
+                    </span>
+                </label>
+                <label class="check-item">
+                    <input type="checkbox" name="agree_terms" value="payment_terms" required>
+                    <span class="check-label">I understand the payment structure and payout schedule
+                        <small>Coaches are paid per session delivered, net of platform commission. Payouts are processed monthly.</small>
+                    </span>
+                </label>
+                <label class="check-item">
+                    <input type="checkbox" name="agree_terms" value="content_license" required>
+                    <span class="check-label">I grant The Founder's Sprint a licence to use my profile, bio, and session content for platform purposes
+                        <small>You retain ownership of your intellectual property. We licence it for display, marketing, and platform delivery.</small>
+                    </span>
+                </label>
+                <label class="check-item">
+                    <input type="checkbox" name="agree_terms" value="data_consent" required>
+                    <span class="check-label">I consent to the collection and secure storage of the personal data provided above
+                        <small>Processed in accordance with Uganda's Data Protection and Privacy Act, 2019. You may request deletion at any time.</small>
+                    </span>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- Founder addendum removed — moved to coach dashboard (first-login confirmation + profile widget) -->
+
+    <!-- ─────────── SUBMIT ─────────── -->
+    <div class="submit-section">
+        <button type="button" class="step-btn step-btn-back" data-dir="back" style="margin-bottom:24px;">← Back to Agreements</button>
+        <br>
+        <button type="submit" class="btn-submit">Submit application</button>
+        <p class="submit-note">You'll receive a confirmation email within 24 hours.<br>Full coaching agreement sent for digital signature upon approval.</p>
+    </div>
+
+</form>
+</div>
+
+<!-- ════════════════ FOOTER ════════════════ -->
+<footer class="site-footer">
+    &copy; 2026 The Founder's Sprint. All rights reserved.
+</footer>
+
+<script>
+(function() {
+    'use strict';
+
+    /* ── L2/L3 Taxonomy Data ── */
+    var taxonomy = {
+        marketing_branding: {
+            label: 'Marketing & Branding',
+            l2: {
+                market_positioning:   { label: 'Market Positioning & Brand Strategy', l3: ['Brand Architecture','Competitive Positioning','Rebranding & Brand Refresh','Brand Storytelling & Narrative'] },
+                digital_marketing:    { label: 'Digital Marketing & Growth', l3: ['Content Marketing & SEO','Social Media Strategy','Paid Acquisition (Meta, Google)','Email Marketing & Automation'] },
+                gtm_strategy:         { label: 'Go-to-Market Strategy', l3: ['Launch Strategy','Channel Strategy','Partnership & Distribution','Market Entry (New Geography)'] },
+                comms_pr:             { label: 'Communications & PR', l3: ['Media Relations','Crisis Communications','Thought Leadership','Investor Communications'] },
+                customer_acquisition: { label: 'Customer Acquisition & Retention', l3: ['Referral & Viral Growth','Community Building','Customer Success','Loyalty & Retention Programs'] }
+            }
+        },
+        financial_modelling: {
+            label: 'Financial Modelling & Business Finance',
+            l2: {
+                financial_models:     { label: 'Financial Modelling & Projections', l3: ['Revenue Model Design','Unit Economics','Cash Flow Forecasting','Scenario Analysis'] },
+                valuation:            { label: 'Startup Valuation', l3: ['Pre-Revenue Valuation','Comparable Analysis','DCF & Multiples','Cap Table Modelling'] },
+                accounting_tax:       { label: 'Accounting & Tax Strategy', l3: ['Bookkeeping Setup','Tax Compliance (Uganda)','Multi-Country Tax','Audit Preparation'] },
+                funding_finance:      { label: 'Funding & Corporate Finance', l3: ['Debt vs Equity Strategy','Grant Writing','Working Capital Management','Treasury & FX'] },
+                metrics_reporting:    { label: 'Metrics & Reporting', l3: ['KPI Dashboards','Board Reporting','Investor Updates','Financial Due Diligence Prep'] }
+            }
+        },
+        strategy_team: {
+            label: 'Strategy & Team Building',
+            l2: {
+                business_strategy:    { label: 'Business Strategy', l3: ['Competitive Analysis','Business Model Design','Market Sizing (TAM/SAM/SOM)','Strategic Partnerships'] },
+                org_design:           { label: 'Organisational Design', l3: ['Team Structure','Role Definition','Remote-First Operations','Culture Building'] },
+                hiring_talent:        { label: 'Hiring & Talent', l3: ['Recruitment Strategy','Compensation & Equity','Onboarding','Performance Management'] },
+                leadership:           { label: 'Leadership & Management', l3: ['Founder Coaching','Co-Founder Dynamics','Board Management','Executive Presence'] },
+                operations:           { label: 'Operations & Scale', l3: ['Process Design','Supply Chain','Quality Management','Operational Efficiency'] }
+            }
+        },
+        investment_readiness: {
+            label: 'Investment Readiness & Fundraising',
+            l2: {
+                pitch_prep:           { label: 'Pitch Preparation', l3: ['Pitch Deck Design','Pitch Delivery & Rehearsal','Demo Day Prep','Storytelling for Investors'] },
+                fundraising_strategy: { label: 'Fundraising Strategy', l3: ['Round Planning','Investor Targeting','Term Sheet Negotiation','SAFE & Convertible Notes'] },
+                investor_relations:   { label: 'Investor Relations', l3: ['Investor Updates','Board Communication','Follow-on Fundraising','Exit Strategy'] },
+                due_diligence:        { label: 'Due Diligence Preparation', l3: ['Data Room Setup','Legal Readiness','Financial DD Prep','Technical DD Prep'] },
+                alternative_funding:  { label: 'Alternative Funding', l3: ['Grant Applications','Impact Investment','Revenue-Based Financing','Crowdfunding'] }
+            }
+        },
+        product_pricing: {
+            label: 'Product Development & Pricing',
+            l2: {
+                product_strategy:     { label: 'Product Strategy', l3: ['Product-Market Fit','Product Roadmapping','Feature Prioritisation','Platform vs Product'] },
+                pricing_models:       { label: 'Pricing Strategy', l3: ['Pricing Model Design','Willingness-to-Pay Analysis','Freemium Strategy','B2B Pricing'] },
+                user_research:        { label: 'User Research & Design', l3: ['Customer Discovery','Usability Testing','MVP Design','Design Thinking'] },
+                tech_architecture:    { label: 'Technical Architecture', l3: ['Stack Selection','Build vs Buy','API Strategy','Scalability Planning'] },
+                launch_iteration:     { label: 'Launch & Iteration', l3: ['Beta Testing','Growth Experiments','Pivot Assessment','Post-Launch Optimisation'] }
+            }
+        }
+    };
+
+    /* ── Founding team data (agreed 8 May 2026) ── */
+    var foundingTeam = [
+        { first: 'Teddy',   last: 'Ruge',         email: 'tms.ruge@me.com',       equity: '30%',   role: 'CEO — Marketing & Branding',                l1: 'marketing_branding' },
+        { first: 'Barry',   last: 'Wojega',        email: '',                      equity: '17.5%', role: 'Financial Modelling & Business Finance',     l1: 'financial_modelling' },
+        { first: 'Moses',   last: 'Engwau Okudu',  email: '',                      equity: '17.5%', role: 'Strategy & Team Building',                   l1: 'strategy_team' },
+        { first: 'Joseph',  last: 'Kalema',         email: '',                      equity: '17.5%', role: 'Investment Readiness & Fundraising',          l1: 'investment_readiness' },
+        { first: 'Patrick', last: 'Ngolobe',        email: '',                      equity: '17.5%', role: 'Product Development & Pricing',               l1: 'product_pricing' }
+    ];
+
+    /* ── L1 discipline → coaching day mapping ── */
+    var l1ToDayMap = {
+        marketing_branding:  'Monday',
+        financial_modelling: 'Tuesday',
+        strategy_team:       'Wednesday',
+        investment_readiness:'Thursday',
+        product_pricing:     'Friday'
+    };
+
+    /* ── DOM refs ── */
+    var assignedDayRow  = document.getElementById('assignedDayRow');
+    var assignedDayEl   = document.getElementById('assignedDay');
+    var timeSlotsGroup  = document.getElementById('timeSlotsGroup');
+
+    /* ── Founder detection (used for L2 limits and auto-selection) ── */
+    function normalise(s) { return (s || '').trim().toLowerCase(); }
+
+    function findFounder() {
+        var fn = normalise(document.getElementById('firstName').value);
+        var ln = normalise(document.getElementById('lastName').value);
+        var em = normalise(document.getElementById('email').value);
+
+        for (var i = 0; i < foundingTeam.length; i++) {
+            var f = foundingTeam[i];
+            if (f.email && em === normalise(f.email)) return f;
+            if (fn === normalise(f.first) && normalise(f.last).indexOf(ln) !== -1) return f;
+            if (fn === normalise(f.first) && ln === normalise(f.last.split(' ')[0])) return f;
+        }
+        return null;
+    }
+
+    /* ── Cascade L1 → L2 (multi) → L3 (multi, max 3 per L2) + assigned day ── */
+    var l1Select = document.getElementById('l1Discipline');
+    var l2Container = document.getElementById('l2Container');
+    var l3Container = document.getElementById('l3Container');
+    var l3Groups    = document.getElementById('l3Groups');
+    // specialtiesSection removed — L2/L3 now in dedicated Section 2
+    var l2HintEl    = document.getElementById('l2Hint');
+    var L3_MAX_PER_L2 = 3;
+
+    // Founding coaches get broader coverage (sole coach in their L1);
+    // new coaches focus on fewer sub-categories
+    function getL2Max() { return findFounder() ? 3 : 2; }
+
+    function getChecked(container, name) {
+        var checked = [];
+        container.querySelectorAll('input[name="' + name + '"]:checked').forEach(function(cb) {
+            checked.push(cb.value);
+        });
+        return checked;
+    }
+
+    function enforceLimit(container, name, max) {
+        var checked = getChecked(container, name);
+        var atLimit = checked.length >= max;
+        container.querySelectorAll('input[name="' + name + '"]').forEach(function(cb) {
+            var item = cb.closest('.check-item');
+            if (!cb.checked && atLimit) {
+                item.classList.add('is-disabled');
+                cb.disabled = true;
+            } else {
+                item.classList.remove('is-disabled');
+                cb.disabled = false;
+            }
+        });
+        // Update counter
+        var counter = container.querySelector('.multi-select-count');
+        if (counter) {
+            counter.textContent = checked.length + ' of ' + max + ' selected';
+            counter.classList.toggle('at-limit', atLimit);
+        }
+    }
+
+    function buildL3ForSelected() {
+        var l1 = l1Select.value;
+        var selectedL2s = getChecked(l2Container, 'taxonomy_l2');
+        l3Groups.innerHTML = '';
+
+        if (selectedL2s.length === 0) {
+            l3Container.style.display = 'none';
+            return;
+        }
+
+        l3Container.style.display = 'block';
+        selectedL2s.forEach(function(l2Key) {
+            var l2Data = taxonomy[l1].l2[l2Key];
+            if (!l2Data) return;
+
+            var group = document.createElement('div');
+            group.className = 'l3-group';
+            group.setAttribute('data-l2', l2Key);
+
+            var title = document.createElement('div');
+            title.className = 'l3-group-title';
+            title.textContent = l2Data.label;
+            group.appendChild(title);
+
+            l2Data.l3.forEach(function(spec) {
+                var val = spec.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+                var item = document.createElement('label');
+                item.className = 'check-item';
+                item.innerHTML = '<input type="checkbox" name="taxonomy_l3_' + l2Key + '" value="' + val + '">' +
+                    '<span class="check-label">' + spec + '</span>';
+                group.appendChild(item);
+            });
+
+            var counter = document.createElement('div');
+            counter.className = 'multi-select-count';
+            counter.textContent = '0 of ' + L3_MAX_PER_L2 + ' selected';
+            group.appendChild(counter);
+
+            // Enforce L3 limit per group
+            group.addEventListener('change', function() {
+                enforceLimit(group, 'taxonomy_l3_' + l2Key, L3_MAX_PER_L2);
+            });
+
+            l3Groups.appendChild(group);
+        });
+    }
+
+    l1Select.addEventListener('change', function() {
+        var l1 = this.value;
+        l2Container.innerHTML = '';
+        l3Groups.innerHTML = '';
+        l3Container.style.display = 'none';
+
+        // Show assigned coaching day, time slots, and specialties section
+        if (l1 && l1ToDayMap[l1]) {
+            assignedDayEl.value = l1ToDayMap[l1];
+            assignedDayRow.style.display = 'block';
+            timeSlotsGroup.style.display = 'block';
+            timeSlotsGroup.querySelector('legend').innerHTML = 'Available time slots on <strong>' + l1ToDayMap[l1] + 's</strong> <span class="req">*</span>';
+        } else {
+            assignedDayEl.value = '';
+            assignedDayRow.style.display = 'none';
+            timeSlotsGroup.style.display = 'none';
+        }
+
+        if (l1 && taxonomy[l1]) {
+            var subs = taxonomy[l1].l2;
+            Object.keys(subs).forEach(function(key) {
+                var item = document.createElement('label');
+                item.className = 'check-item';
+                item.innerHTML = '<input type="checkbox" name="taxonomy_l2" value="' + key + '">' +
+                    '<span class="check-label">' + subs[key].label + '</span>';
+                l2Container.appendChild(item);
+            });
+
+            var counter = document.createElement('div');
+            counter.className = 'multi-select-count';
+            counter.textContent = '0 of ' + getL2Max() + ' selected';
+            l2Container.appendChild(counter);
+
+            // Update hint text based on founder status
+            var maxL2 = getL2Max();
+            l2HintEl.textContent = 'Choose up to ' + maxL2 + ' sub-categories — these are the L2 topics you’ll offer as individual sessions';
+
+            l2Container.addEventListener('change', function() {
+                enforceLimit(l2Container, 'taxonomy_l2', getL2Max());
+                buildL3ForSelected();
+            });
+        } else {
+            l2Container.innerHTML = '<p class="multi-select-empty">Select your L1 discipline first</p>';
+        }
+    });
+
+    /* ── Payment method toggle ── */
+    var payoutSelect = document.getElementById('preferredPayout');
+    var mmFields = document.getElementById('mmFields');
+    var bankFields = document.getElementById('bankFields');
+
+    payoutSelect.addEventListener('change', function() {
+        var v = this.value;
+        var showMM   = (v === 'mobile_money' || v === 'both');
+        var showBank = (v === 'bank_transfer' || v === 'both');
+        mmFields.style.display   = showMM   ? 'block' : 'none';
+        bankFields.style.display = showBank ? 'block' : 'none';
+
+        // Toggle required on conditional payment fields
+        mmFields.querySelectorAll('[data-cond-req]').forEach(function(f) {
+            if (showMM) f.setAttribute('required',''); else f.removeAttribute('required');
+        });
+        bankFields.querySelectorAll('[data-cond-req]').forEach(function(f) {
+            if (showBank) f.setAttribute('required',''); else f.removeAttribute('required');
+        });
+    });
+
+    /* ── Bank select → SWIFT auto-fill ── */
+    var bankSelect   = document.getElementById('bankName');
+    var swiftField   = document.getElementById('swiftCode');
+    var bankOtherRow = document.getElementById('bankNameOtherRow');
+
+    bankSelect.addEventListener('change', function() {
+        var sel = this.options[this.selectedIndex];
+        if (this.value === 'other') {
+            bankOtherRow.style.display = 'block';
+            swiftField.value = '';
+            swiftField.readOnly = false;
+            swiftField.classList.remove('readonly-field');
+            swiftField.placeholder = 'Enter SWIFT/BIC code';
+        } else {
+            bankOtherRow.style.display = 'none';
+            var swift = sel.getAttribute('data-swift') || '';
+            swiftField.value = swift;
+            swiftField.readOnly = true;
+            swiftField.classList.add('readonly-field');
+        }
+    });
+
+    /* ── Tax status → company name field ── */
+    var taxSelect = document.getElementById('taxStatus');
+    var companyRow = document.getElementById('companyNameRow');
+
+    taxSelect.addEventListener('change', function() {
+        companyRow.style.display = (this.value === 'company' || this.value === 'sole_proprietor') ? 'block' : 'none';
+    });
+
+    /* ── Step Wizard ── */
+    var progressFill = document.getElementById('progressFill');
+    var sections = document.querySelectorAll('.form-section');
+    var submitSection = document.querySelector('.submit-section');
+    var totalSteps = sections.length; // 8 sections + submit
+    var currentStep = 0;
+
+    // Inject nav buttons into each section
+    sections.forEach(function(sec, i) {
+        var nav = document.createElement('div');
+        nav.className = 'step-nav';
+        var html = '';
+        if (i > 0) {
+            html += '<button type="button" class="step-btn step-btn-back" data-dir="back">← Back</button>';
+        }
+        html += '<span class="step-indicator">' + (i + 1) + ' of ' + totalSteps + '</span>';
+        if (i < sections.length - 1) {
+            html += '<button type="button" class="step-btn step-btn-next" data-dir="next">Continue →</button>';
+        } else {
+            html += '<button type="button" class="step-btn step-btn-next" data-dir="next">Review &amp; Submit →</button>';
+        }
+        nav.innerHTML = html;
+        sec.appendChild(nav);
+    });
+
+    function showStep(n) {
+        sections.forEach(function(s) { s.classList.remove('active'); });
+        submitSection.classList.remove('active');
+        if (n < sections.length) {
+            sections[n].classList.add('active');
+        } else {
+            submitSection.classList.add('active');
+        }
+        currentStep = n;
+        var pct = Math.round(((n + 1) / (totalSteps + 1)) * 100);
+        progressFill.style.width = pct + '%';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Initialize first step
+    showStep(0);
+
+    // Delegate click on nav buttons
+    document.getElementById('coachForm').addEventListener('click', function(e) {
+        var btn = e.target.closest('.step-btn');
+        if (!btn) return;
+        e.preventDefault();
+        if (btn.dataset.dir === 'next') {
+            showStep(Math.min(currentStep + 1, totalSteps));
+        } else if (btn.dataset.dir === 'back') {
+            showStep(Math.max(currentStep - 1, 0));
+        }
+    });
+
+    /* ── Form submit ── */
+    /* TODO: RE-ENABLE VALIDATION BEFORE PRODUCTION LAUNCH */
+    var API_BASE = window.location.hostname === 'localhost'
+        ? 'http://localhost:3000'
+        : 'https://founders-sprint-api.vercel.app';
+
+    var form = document.getElementById('coachForm');
+    var submitBtn = form.querySelector('.btn-submit');
+
+    form.addEventListener('submit', async function(e) {
+        e.preventDefault();
+
+        // Prevent double submission
+        if (submitBtn.disabled) return;
+        submitBtn.disabled = true;
+        var originalText = submitBtn.textContent;
+        submitBtn.textContent = 'Submitting…';
+
+        try {
+            var formData = new FormData(form);
+
+            // Collect multi-select checkboxes into JSON arrays
+            // (FormData sends multiple values with same key; API expects JSON arrays)
+            var multiFields = ['taxonomy_l2', 'taxonomy_l3', 'session_types', 'time_slots', 'agree_terms'];
+            multiFields.forEach(function(field) {
+                var values = formData.getAll(field);
+                // Remove individual entries and add as JSON array
+                formData.delete(field);
+                if (values.length > 0) {
+                    formData.append(field, JSON.stringify(values));
+                }
+            });
+
+            var response = await fetch(API_BASE + '/api/coach-application', {
+                method: 'POST',
+                body: formData,  // Browser sets multipart/form-data content-type automatically
+            });
+
+            var result = await response.json();
+
+            if (response.ok && result.ok) {
+                // Show success state
+                form.innerHTML = '<div style="text-align:center; padding:60px 20px;">' +
+                    '<div style="width:64px; height:64px; background:#C9A036; margin:0 auto 24px; display:flex; align-items:center; justify-content:center;">' +
+                    '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0B1810" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>' +
+                    '</div>' +
+                    '<h2 style="font-family:\'Josefin Sans\',sans-serif; color:#fff; font-size:24px; letter-spacing:0.06em; text-transform:uppercase; margin:0 0 16px;">Application received</h2>' +
+                    '<p style="color:rgba(255,255,255,0.65); font-size:17px; line-height:1.7; max-width:460px; margin:0 auto 12px;">Thank you for applying to join The Founder\'s Sprint coaching network. You\'ll receive a confirmation email within the next few minutes.</p>' +
+                    '<p style="color:rgba(255,255,255,0.45); font-size:15px;">Our team will review your application within <strong style="color:#C9A036;">48 hours</strong>.</p>' +
+                    '</div>';
+                // Scroll to top so they see the success message
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+            } else {
+                throw new Error(result.error || 'Submission failed. Please try again.');
+            }
+        } catch (err) {
+            console.error('Submit error:', err);
+            alert('Something went wrong: ' + err.message + '\n\nPlease try again or contact teddy@tmsruge.com for assistance.');
+            submitBtn.disabled = false;
+            submitBtn.textContent = originalText;
+        }
+    });
+})();
+</script>
+</body>
+</html>

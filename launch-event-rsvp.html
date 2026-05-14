@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Launch Evening — The Founder's Sprint</title>
+<meta name="description" content="Join us for the launch of The Founder's Sprint — East Africa's first structured coaching platform for early-stage entrepreneurs. 1 July 2026, Kampala.">
+<meta property="og:title" content="The Founder's Sprint — Launch Evening">
+<meta property="og:description" content="Cocktail reception. Meet the coaches. Explore partnership opportunities. 1 July 2026, 5–8 PM, Kampala.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;700&family=Cormorant+Garamond:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1A1A1A;
+    --ink-soft: #2A2826;
+    --ink-mute: #5A564F;
+    --paper: #EFE7D8;
+    --paper-deep: #E6DCC7;
+    --ochre: #C9923A;
+    --terra: #C8531F;
+    --terra-deep: #9A3E16;
+    --moss: #3D4A2E;
+    --sans: 'Josefin Sans', system-ui, sans-serif;
+    --serif: 'Cormorant Garamond', Georgia, serif;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background: var(--paper); font-family: var(--sans); color: var(--ink); -webkit-font-smoothing: antialiased; }
+
+  /* Hero */
+  .hero {
+    background: var(--ink); color: var(--paper);
+    text-align: center; padding: 80px 24px 60px;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: ''; position: absolute; inset: 0; opacity: 0.08;
+    background: radial-gradient(circle at 20% 30%, var(--ochre) 1px, transparent 1px),
+                radial-gradient(circle at 80% 70%, var(--ochre) 1px, transparent 1px),
+                radial-gradient(circle at 50% 50%, var(--ochre) 0.5px, transparent 0.5px);
+    background-size: 200px 200px;
+  }
+  .hero > * { position: relative; z-index: 1; }
+  .hero-eyebrow { font-size: 10px; letter-spacing: 4px; text-transform: uppercase; color: var(--ochre); font-weight: 700; margin-bottom: 8px; }
+  .hero-invite { font-size: 10px; letter-spacing: 3px; text-transform: uppercase; color: rgba(239,231,216,0.35); font-weight: 300; margin-bottom: 24px; }
+  .hero h1 { font-family: var(--serif); font-size: clamp(36px, 6vw, 52px); font-weight: 300; line-height: 1.15; margin-bottom: 12px; }
+  .hero-sub { font-family: var(--serif); font-size: 18px; font-weight: 300; color: rgba(239,231,216,0.6); font-style: italic; margin-bottom: 24px; }
+  .deco { display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 20px; }
+  .deco span { height: 1px; width: 48px; background: rgba(201,146,58,0.5); }
+  .hero-date { font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: rgba(239,231,216,0.5); font-weight: 300; }
+
+  /* Content */
+  .content { max-width: 720px; margin: 0 auto; padding: 48px 24px 80px; }
+
+  /* Details grid */
+  .details-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 0; border: 1px solid rgba(26,26,26,0.12);
+    background: var(--paper-deep); margin-bottom: 40px;
+  }
+  .detail-item {
+    padding: 20px 24px;
+    border-bottom: 1px solid rgba(26,26,26,0.08);
+  }
+  .detail-item:nth-child(odd) { border-right: 1px solid rgba(26,26,26,0.08); }
+  .detail-label { font-size: 9px; letter-spacing: 2px; text-transform: uppercase; color: var(--ochre); font-weight: 700; margin-bottom: 4px; }
+  .detail-value { font-family: var(--serif); font-size: 18px; color: var(--ink); font-weight: 400; }
+  .detail-value small { font-size: 14px; color: var(--ink-mute); font-weight: 300; }
+
+  /* Programme */
+  .section-title {
+    font-family: var(--serif); font-size: 24px; color: var(--ink);
+    font-weight: 400; margin-bottom: 24px;
+  }
+  .programme { margin-bottom: 48px; }
+  .prog-item { display: flex; gap: 16px; margin-bottom: 20px; }
+  .prog-time { font-size: 12px; font-weight: 700; color: var(--ochre); min-width: 72px; padding-top: 3px; }
+  .prog-text strong { color: var(--ink); font-weight: 700; }
+  .prog-text { font-size: 14px; color: var(--ink-mute); line-height: 1.6; font-weight: 300; }
+
+  /* Why attend */
+  .why-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; margin-bottom: 48px; }
+  .why-card {
+    background: var(--paper-deep); padding: 24px; border-top: 3px solid var(--terra);
+  }
+  .why-card h3 { font-family: var(--sans); font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 8px; }
+  .why-card p { font-size: 13px; color: var(--ink-mute); line-height: 1.6; font-weight: 300; }
+
+  /* RSVP form */
+  .rsvp-section {
+    background: var(--ink-soft); padding: 48px 40px; text-align: center;
+    margin: 0 -24px;
+  }
+  .rsvp-section h2 {
+    font-family: var(--serif); font-size: 28px; color: var(--paper); font-weight: 300; margin-bottom: 8px;
+  }
+  .rsvp-section p {
+    font-size: 13px; color: rgba(239,231,216,0.5); margin-bottom: 32px; font-weight: 300;
+  }
+  .rsvp-form {
+    max-width: 480px; margin: 0 auto; text-align: left;
+  }
+  .form-row { margin-bottom: 20px; }
+  .form-row label {
+    display: block; font-size: 9px; letter-spacing: 2px; text-transform: uppercase;
+    color: var(--ochre); font-weight: 700; margin-bottom: 6px;
+  }
+  .form-row input, .form-row select, .form-row textarea {
+    width: 100%; padding: 12px 14px; border: 1px solid rgba(201,146,58,0.25);
+    background: rgba(239,231,216,0.05); color: var(--paper); font-family: var(--sans);
+    font-size: 14px; font-weight: 300; outline: none; transition: border-color 0.2s;
+  }
+  .form-row input::placeholder, .form-row textarea::placeholder { color: rgba(239,231,216,0.25); }
+  .form-row input:focus, .form-row select:focus, .form-row textarea:focus {
+    border-color: var(--ochre);
+  }
+  .form-row select { cursor: pointer; }
+  .form-row select option { background: var(--ink-soft); color: var(--paper); }
+  .form-row textarea { resize: vertical; min-height: 80px; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .submit-btn {
+    display: inline-block; background: var(--terra); color: var(--paper);
+    font-family: var(--sans); font-size: 11px; font-weight: 700;
+    letter-spacing: 3px; text-transform: uppercase; padding: 16px 40px;
+    border: none; cursor: pointer; margin-top: 8px; width: 100%;
+    transition: background 0.2s;
+  }
+  .submit-btn:hover { background: var(--terra-deep); }
+  .success-msg {
+    display: none; text-align: center; padding: 40px 20px;
+  }
+  .success-msg h3 { font-family: var(--serif); font-size: 24px; color: var(--paper); margin-bottom: 8px; }
+  .success-msg p { font-size: 14px; color: rgba(239,231,216,0.6); font-weight: 300; }
+
+  /* Footer */
+  footer {
+    background: var(--ink); text-align: center; padding: 28px 24px;
+  }
+  footer p { font-size: 10px; letter-spacing: 1.5px; text-transform: uppercase; color: rgba(239,231,216,0.3); font-weight: 300; margin: 3px 0; }
+  footer a { color: var(--ochre); text-decoration: none; }
+
+  @media (max-width: 640px) {
+    .details-grid { grid-template-columns: 1fr; }
+    .detail-item:nth-child(odd) { border-right: none; }
+    .why-grid { grid-template-columns: 1fr; }
+    .form-grid { grid-template-columns: 1fr; }
+    .rsvp-section { padding: 36px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <p class="hero-eyebrow">The Founder's Sprint</p>
+  <p class="hero-invite">You are invited</p>
+  <h1>Launch Evening</h1>
+  <p class="hero-sub">Coaching Africa's next generation<br>of entrepreneurs</p>
+  <div class="deco"><span></span><svg width="20" height="20" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.85" transform="rotate(0,50,50)"/>
+  <polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.80" transform="rotate(72,50,50)"/>
+  <polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.78" transform="rotate(144,50,50)"/>
+  <polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.82" transform="rotate(216,50,50)"/>
+  <polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288,50,50)"/>
+  <circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/>
+  <circle cx="50" cy="50" r="2" fill="#1A1A1A"/>
+</svg><span></span></div>
+  <p class="hero-date">Tuesday, 1 July 2026 · Kampala</p>
+</div>
+
+<div class="content">
+
+  <div class="details-grid">
+    <div class="detail-item">
+      <div class="detail-label">Date</div>
+      <div class="detail-value">Tuesday, 1 July 2026</div>
+    </div>
+    <div class="detail-item">
+      <div class="detail-label">Time</div>
+      <div class="detail-value">5:00 – 8:00 PM <small>EAT</small></div>
+    </div>
+    <div class="detail-item">
+      <div class="detail-label">Venue</div>
+      <div class="detail-value">Kampala <small>(details to follow)</small></div>
+    </div>
+    <div class="detail-item">
+      <div class="detail-label">Format</div>
+      <div class="detail-value">Cocktail Reception</div>
+    </div>
+  </div>
+
+  <div class="programme">
+    <h2 class="section-title">Evening Programme</h2>
+    <div class="prog-item">
+      <div class="prog-time">5:00 PM</div>
+      <div class="prog-text"><strong>Arrival & Cocktails</strong><br>Welcome drinks and networking</div>
+    </div>
+    <div class="prog-item">
+      <div class="prog-time">5:45 PM</div>
+      <div class="prog-text"><strong>The Vision</strong><br>Why East Africa needs a structured coaching platform — and why now</div>
+    </div>
+    <div class="prog-item">
+      <div class="prog-time">6:15 PM</div>
+      <div class="prog-text"><strong>Meet the Coaches</strong><br>Five disciplines, five experts — the coaching model that scales</div>
+    </div>
+    <div class="prog-item">
+      <div class="prog-time">6:45 PM</div>
+      <div class="prog-text"><strong>Partnership Opportunities</strong><br>How your organisation can sponsor, refer, and co-create with us</div>
+    </div>
+    <div class="prog-item">
+      <div class="prog-time">7:15 PM</div>
+      <div class="prog-text"><strong>Networking & Close</strong><br>Conversations, connections, and next steps</div>
+    </div>
+  </div>
+
+  <h2 class="section-title">Why attend?</h2>
+  <div class="why-grid">
+    <div class="why-card">
+      <h3>Sponsor Cohorts</h3>
+      <p>Fund seats for founders in your portfolio, community, or region. Your brand on the cohort.</p>
+    </div>
+    <div class="why-card">
+      <h3>Refer Founders</h3>
+      <p>Send entrepreneurs from your network into a structured programme with tracked outcomes.</p>
+    </div>
+    <div class="why-card">
+      <h3>Co-Create Programmes</h3>
+      <p>Design branded cohorts tailored to your sector, portfolio needs, or impact goals.</p>
+    </div>
+  </div>
+
+  <div class="rsvp-section" id="rsvpSection">
+    <h2>Confirm Your Attendance</h2>
+    <p>Please RSVP by 25 June 2026 · Limited seating</p>
+
+    <form class="rsvp-form" id="rsvpForm" onsubmit="handleRSVP(event)">
+      <div class="form-grid">
+        <div class="form-row">
+          <label for="firstName">First name</label>
+          <input type="text" id="firstName" name="first_name" required placeholder="First name">
+        </div>
+        <div class="form-row">
+          <label for="lastName">Last name</label>
+          <input type="text" id="lastName" name="last_name" required placeholder="Last name">
+        </div>
+      </div>
+      <div class="form-row">
+        <label for="email">Email address</label>
+        <input type="email" id="email" name="email" required placeholder="you@organisation.com">
+      </div>
+      <div class="form-grid">
+        <div class="form-row">
+          <label for="org">Organisation</label>
+          <input type="text" id="org" name="organisation" required placeholder="Company or institution">
+        </div>
+        <div class="form-row">
+          <label for="role">Your role</label>
+          <input type="text" id="role" name="role" placeholder="e.g. Programme Manager">
+        </div>
+      </div>
+      <div class="form-row">
+        <label for="partnerType">I'm interested in</label>
+        <select id="partnerType" name="partner_interest">
+          <option value="">Select one</option>
+          <option value="sponsor">Sponsoring cohorts</option>
+          <option value="refer">Referring founders</option>
+          <option value="cocreate">Co-creating a branded programme</option>
+          <option value="explore">Just exploring — tell me more</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label for="guests">Number of guests (including you)</label>
+        <select id="guests" name="guest_count">
+          <option value="1">1</option>
+          <option value="2">2</option>
+          <option value="3">3</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label for="notes">Anything we should know?</label>
+        <textarea id="notes" name="notes" placeholder="Dietary requirements, questions, or anything else"></textarea>
+      </div>
+      <button type="submit" class="submit-btn">Confirm Attendance</button>
+    </form>
+
+    <div class="success-msg" id="successMsg">
+      <h3>You're confirmed.</h3>
+      <p>We'll send venue details and a calendar invite to your email closer to the date. See you on 1 July.</p>
+    </div>
+  </div>
+
+</div>
+
+<footer>
+  <p><a href="https://founderssprint.co">The Founder's Sprint</a></p>
+  <p style="font-family:Georgia,serif;font-style:italic;font-size:10px;color:#C8531F;opacity:0.4">Build with direction.</p>
+  <p>Kampala · Nairobi · Kigali</p>
+  <p style="margin-top:8px">&copy; 2026 The Founder's Sprint. All rights reserved.</p>
+</footer>
+
+<script>
+function handleRSVP(e) {
+  e.preventDefault();
+  // In production, this would POST to the API
+  // For now, show success message
+  var form = document.getElementById('rsvpForm');
+  var msg = document.getElementById('successMsg');
+  form.style.display = 'none';
+  msg.style.display = 'block';
+  // Scroll to success message
+  msg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+</script>
+
+</body>
+</html>

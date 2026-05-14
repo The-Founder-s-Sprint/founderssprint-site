@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apply to the Resource Directory — The Founder's Sprint</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;1,300;1,400;1,600&display=swap" rel="stylesheet">
+
+    <style>
+        /* ==================== CSS CUSTOM PROPERTIES ==================== */
+        :root {
+            --ink: #1A201E;
+            --green-deep: #152B1F;
+            --green-dark: #213A2D;
+            --green: #2D6A4F;
+            --green-mid: #40916C;
+            --gold: #B85A2E;
+            --gold-light: #D4845A;
+            --gold-pale: #F0E4CC;
+            --cream: #EADFC6;
+            --ivory: #F5EBD6;
+            --white: #FFFFFF;
+            --gray-300: #C8C5BB;
+            --gray-500: #8C8880;
+            --gray-700: #3D3B35;
+        }
+
+        /* ==================== RESET & BASE ==================== */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+
+        body {
+            font-family: 'Cormorant Garamond', serif;
+            color: var(--gray-700);
+            background: var(--ivory);
+            line-height: 1.7;
+            font-size: 18px;
+            font-weight: 400;
+        }
+
+        /* ==================== TYPOGRAPHY ==================== */
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 600;
+            color: var(--green-dark);
+        }
+
+        .eyebrow {
+            font-family: 'Josefin Sans', sans-serif;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 12px;
+            display: block;
+        }
+
+        .display-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(42px, 7vw, 68px);
+            font-weight: 300;
+            line-height: 1.1;
+            color: var(--white);
+            margin-bottom: 16px;
+        }
+
+        .display-title em {
+            font-style: italic;
+            color: var(--gold-light);
+            font-weight: 400;
+        }
+
+        .subtitle {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 18px;
+            font-style: italic;
+            line-height: 1.7;
+            color: rgba(255, 255, 255, 0.55);
+            max-width: 700px;
+        }
+
+        .section-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: clamp(36px, 6vw, 56px);
+            font-weight: 600;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            position: relative;
+            padding-top: 32px;
+        }
+
+        .section-title.light { color: var(--white); }
+
+        .section-title::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 80px;
+            height: 2px;
+            background: linear-gradient(to right, transparent, var(--gold), transparent);
+        }
+
+        .section-title::after {
+            content: '\25C6';
+            display: block;
+            position: absolute;
+            top: -12px;
+            left: 35px;
+            color: var(--gold);
+            font-size: 14px;
+        }
+
+        p { margin-bottom: 16px; line-height: 1.8; }
+
+        /* ==================== LAYOUT ==================== */
+        .container {
+            max-width: 1120px;
+            margin: 0 auto;
+            padding: 0 40px;
+        }
+
+        @media (max-width: 768px) {
+            .container { padding: 0 24px; }
+        }
+
+        /* ==================== CROSSHATCH PATTERN ==================== */
+        .crosshatch {
+            position: relative;
+            overflow: hidden;
+        }
+
+        .crosshatch::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: repeating-linear-gradient(
+                45deg,
+                transparent,
+                transparent 10px,
+                rgba(184, 90, 46, 0.03) 10px,
+                rgba(184, 90, 46, 0.03) 20px
+            );
+            pointer-events: none;
+        }
+
+        /* ==================== SECTIONS ==================== */
+        section {
+            padding: 80px 0;
+            position: relative;
+        }
+
+        section.dark {
+            background: var(--ink);
+            color: var(--white);
+        }
+
+        section.dark h2, section.dark h3 { color: var(--white); }
+
+        section.light { background: var(--ivory); }
+
+        /* ==================== HEADER ==================== */
+        .site-header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 20px 0;
+            background: rgba(26, 32, 30, 0.95);
+            backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(184, 90, 46, 0.15);
+        }
+
+        .site-header .container {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .site-header .brand {
+            font-family: 'Josefin Sans', sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--white);
+            text-decoration: none;
+        }
+
+        .site-header .back-link {
+            font-family: 'Josefin Sans', sans-serif;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: var(--gold);
+            text-decoration: none;
+            transition: color 0.3s ease;
+        }
+
+        .site-header .back-link:hover { color: var(--gold-light); }
+
+        /* ==================== HERO ==================== */
+        .hero {
+            background: var(--ink);
+            color: var(--white);
+            padding: 160px 0 100px;
+        }
+
+        .hero-content {
+            animation: fadeInUp 0.8s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* ==================== PRICING CARDS ==================== */
+        .pricing-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 32px;
+            margin-top: 48px;
+        }
+
+        @media (max-width: 768px) {
+            .pricing-grid { grid-template-columns: 1fr; }
+        }
+
+        .pricing-card {
+            position: relative;
+            padding: 44px 36px;
+            background:
+                linear-gradient(135deg, rgba(201,160,54,0.05) 0%, transparent 50%),
+                var(--cream);
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+            overflow: hidden;
+            clip-path: polygon(0 0, 100% 0, 100% calc(100% - 20px), calc(100% - 44px) 100%, 0 100%);
+            transition: background 0.35s ease, transform 0.35s ease;
+        }
+
+        .pricing-card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(
+                -55deg,
+                transparent, transparent 38px,
+                rgba(201,160,54,0.04) 38px,
+                rgba(201,160,54,0.04) 39px
+            );
+            pointer-events: none;
+        }
+
+        .pricing-card::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 120px;
+            height: 3px;
+            background: linear-gradient(90deg, #C9A036, transparent);
+        }
+
+        .pricing-card:hover {
+            background:
+                linear-gradient(135deg, rgba(201,160,54,0.1) 0%, transparent 50%),
+                var(--gold-pale);
+            transform: translateY(-3px);
+        }
+
+        .pricing-card.featured {
+            border: 2px solid rgba(184, 90, 46, 0.3);
+        }
+
+        .pricing-card .tier-name {
+            font-family: 'Josefin Sans', sans-serif;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.25em;
+            text-transform: uppercase;
+            color: var(--gold);
+        }
+
+        .pricing-card .price {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 42px;
+            font-weight: 600;
+            color: var(--green-dark);
+            line-height: 1.1;
+        }
+
+        .pricing-card .price-usd {
+            font-size: 16px;
+            color: var(--gray-500);
+            font-style: italic;
+        }
+
+        .pricing-card .features {
+            list-style: none;
+            padding: 0;
+            margin-top: 8px;
+        }
+
+        .pricing-card .features li {
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(184, 90, 46, 0.1);
+            font-size: 16px;
+            line-height: 1.5;
+            color: var(--gray-700);
+            position: relative;
+            padding-left: 20px;
+        }
+
+        .pricing-card .features li::before {
+            content: '\25C6';
+            position: absolute;
+            left: 0;
+            color: var(--gold);
+            font-size: 8px;
+            top: 12px;
+        }
+
+        .pricing-badge {
+            font-family: 'Josefin Sans', sans-serif;
+            font-size: 9px;
+            font-weight: 600;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            background: linear-gradient(135deg, #C9A036 0%, #B85A2E 100%);
+            color: var(--white);
+            padding: 6px 14px;
+            display: inline-block;
+            margin-bottom: 4px;
+            align-self: flex-start;
+        }
+
+        /* ==================== FUTURIST FORM ==================== */
+        .form-container {
+            position: relative;
+            max-width: 720px;
+            margin: 48px auto 0;
+            padding: 56px 48px;
+            background:
+                linear-gradient(135deg, rgba(201,160,54,0.05) 0%, transparent 50%),
+                var(--green-deep);
+            clip-path: polygon(0 0, 100% 0, 100% calc(100% - 28px), calc(100% - 64px) 100%, 0 100%);
+            overflow: hidden;
+        }
+
+        .form-container::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: repeating-linear-gradient(
+                -55deg,
+                transparent, transparent 38px,
+                rgba(201,160,54,0.04) 38px,
+                rgba(201,160,54,0.04) 39px
+            );
+            pointer-events: none;
+        }
+
+        .form-container::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0;
+            width: 120px;
+            height: 3px;
+            background: linear-gradient(90deg, #C9A036, transparent);
+        }
+
+        @media (max-width: 768px) {
+            .form-container { padding: 40px 24px; }
+        }
+
+        .form-group {
+            margin-bottom: 28px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .form-group label {
+            display: block;
+            font-family: 'Josefin Sans', sans-serif;
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 8px;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 0;
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 18px;
+            color: var(--ivory);
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid rgba(201,160,54,0.25);
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: rgba(245, 235, 214, 0.3);
+            font-style: italic;
+        }
+
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border-bottom-color: var(--gold);
+        }
+
+        .form-group select {
+            cursor: pointer;
+            -webkit-appearance: none;
+            -moz-appearance: none;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23B85A2E' fill='none' stroke-width='1.5'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 4px center;
+            padding-right: 24px;
+        }
+
+        .form-group select option {
+            background: var(--green-deep);
+            color: var(--ivory);
+            padding: 8px;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        @media (max-width: 600px) {
+            .form-row { grid-template-columns: 1fr; }
+        }
+
+        .btn-futurist {
+            font-family: 'Josefin Sans', sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            padding: 18px 40px;
+            background: linear-gradient(135deg, #C9A036 0%, #B85A2E 100%);
+            color: var(--white);
+            border: none;
+            cursor: pointer;
+            clip-path: polygon(0 0, 100% 0, 100% calc(100% - 12px), calc(100% - 24px) 100%, 0 100%);
+            transition: all 0.3s ease;
+            position: relative;
+            z-index: 1;
+            margin-top: 12px;
+        }
+
+        .btn-futurist:hover {
+            transform: translateY(-2px);
+            filter: brightness(1.1);
+        }
+
+        .btn-futurist:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            filter: none;
+        }
+
+        /* ==================== SUCCESS MESSAGE ==================== */
+        .success-message {
+            text-align: center;
+            padding: 60px 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .success-message .check-icon {
+            font-size: 64px;
+            margin-bottom: 24px;
+            display: block;
+        }
+
+        .success-message h3 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 36px;
+            font-weight: 600;
+            color: var(--ivory);
+            margin-bottom: 16px;
+        }
+
+        .success-message p {
+            color: rgba(245, 235, 214, 0.6);
+            font-size: 17px;
+            max-width: 440px;
+            margin: 0 auto;
+        }
+
+        /* ==================== FORM VALIDATION ==================== */
+        .form-group input:invalid:not(:placeholder-shown),
+        .form-group select:invalid:not([value=""]) {
+            border-bottom-color: #c0392b;
+        }
+
+        .error-text {
+            font-family: 'Josefin Sans', sans-serif;
+            font-size: 10px;
+            color: #e74c3c;
+            letter-spacing: 0.1em;
+            margin-top: 6px;
+            display: none;
+        }
+
+        .form-group.has-error .error-text { display: block; }
+        .form-group.has-error input,
+        .form-group.has-error select,
+        .form-group.has-error textarea {
+            border-bottom-color: #e74c3c;
+        }
+
+        .form-status {
+            font-family: 'Josefin Sans', sans-serif;
+            font-size: 10px;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            margin-top: 16px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .form-status.error { color: #e74c3c; }
+
+        /* ==================== FOOTER ==================== */
+        footer {
+            background: var(--ink);
+            color: rgba(255, 255, 255, 0.55);
+            padding: 48px 0;
+            text-align: center;
+            font-size: 14px;
+            font-family: 'Cormorant Garamond', serif;
+            border-top: 1px solid rgba(184, 90, 46, 0.15);
+        }
+
+        footer .brand {
+            font-family: 'Josefin Sans', sans-serif;
+            font-size: 12px;
+            font-weight: 600;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--white);
+            display: block;
+            margin-bottom: 8px;
+        }
+
+        /* ==================== ANIMATIONS ==================== */
+        .fade-up {
+            opacity: 0;
+            transform: translateY(40px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .fade-up.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header -->
+    <header class="site-header">
+        <div class="container">
+            <a href="/" class="brand">The Founder's Sprint</a>
+            <a href="/" class="back-link">&larr; Back to Main Site</a>
+        </div>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="hero dark crosshatch">
+        <div class="container">
+            <div class="hero-content">
+                <span class="eyebrow">Resource Directory</span>
+                <h1 class="display-title">Partner With<br><em>The Founder's Sprint</em></h1>
+                <p class="subtitle">
+                    Our curated resource directory connects Uganda's next generation of founders
+                    with trusted service providers. Apply to be listed and reach ambitious
+                    entrepreneurs as they build, register, and scale their ventures.
+                </p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Pricing Section -->
+    <section class="light" id="pricing">
+        <div class="container">
+            <div class="section-title">Choose Your Tier</div>
+            <p style="max-width: 600px; font-size: 17px; color: var(--gray-500); font-style: italic;">
+                Two straightforward options to get your services in front of the founders who need them most.
+            </p>
+
+            <div class="pricing-grid">
+                <!-- Per Cohort -->
+                <div class="pricing-card">
+                    <span class="tier-name">Per Cohort</span>
+                    <div class="price">
+                        UGX 500,000
+                        <div class="price-usd">~$135 USD</div>
+                    </div>
+                    <ul class="features">
+                        <li>3-month listing duration</li>
+                        <li>Reach 10 founders per cohort</li>
+                        <li>Standard directory listing</li>
+                        <li>Renew each cohort cycle</li>
+                    </ul>
+                </div>
+
+                <!-- Annual -->
+                <div class="pricing-card featured">
+                    <span class="pricing-badge">Best Value</span>
+                    <span class="tier-name">Annual</span>
+                    <div class="price">
+                        UGX 1,500,000
+                        <div class="price-usd">~$400 USD</div>
+                    </div>
+                    <ul class="features">
+                        <li>12-month continuous listing</li>
+                        <li>3-4 cohorts covered</li>
+                        <li>"Featured Partner" badge on listing</li>
+                        <li>Priority placement in directory</li>
+                        <li>25% savings vs. per-cohort pricing</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Application Form Section -->
+    <section class="dark crosshatch" id="apply">
+        <div class="container">
+            <div class="section-title light">Apply for a Listing</div>
+            <p style="color: rgba(255,255,255,0.55); font-style: italic; max-width: 600px;">
+                Tell us about your services. We review every application to ensure quality for our founders.
+            </p>
+
+            <div class="form-container" id="formContainer">
+                <form id="applicationForm" novalidate>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="company_name">Company Name *</label>
+                            <input type="text" id="company_name" name="company_name" placeholder="Your company name" required>
+                            <div class="error-text">Company name is required.</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="category">Category *</label>
+                            <select id="category" name="category" required>
+                                <option value="" disabled selected>Select a category</option>
+                                <option value="Legal & Corporate">Legal & Corporate</option>
+                                <option value="Accounting & Audit">Accounting & Audit</option>
+                                <option value="Graphic Design & Branding">Graphic Design & Branding</option>
+                                <option value="UNBS & Standards">UNBS & Standards</option>
+                                <option value="Banking & Finance">Banking & Finance</option>
+                                <option value="Insurance">Insurance</option>
+                                <option value="IP & Trademark">IP & Trademark</option>
+                                <option value="Digital & Web Development">Digital & Web Development</option>
+                            </select>
+                            <div class="error-text">Please select a category.</div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="contact_person">Contact Person *</label>
+                            <input type="text" id="contact_person" name="contact_person" placeholder="Full name" required>
+                            <div class="error-text">Contact person is required.</div>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email *</label>
+                            <input type="email" id="email" name="email" placeholder="you@company.com" required>
+                            <div class="error-text">Please enter a valid email address.</div>
+                        </div>
+                    </div>
+
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="phone">Phone</label>
+                            <input type="tel" id="phone" name="phone" placeholder="+256 700 000 000">
+                        </div>
+                        <div class="form-group">
+                            <label for="website">Website</label>
+                            <input type="url" id="website" name="website" placeholder="https://yoursite.com">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="preferred_tier">Preferred Tier</label>
+                        <select id="preferred_tier" name="preferred_tier">
+                            <option value="" disabled selected>Select a tier</option>
+                            <option value="Per Cohort">Per Cohort &mdash; UGX 500,000</option>
+                            <option value="Annual">Annual &mdash; UGX 1,500,000</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="pitch">Why Should We List You?</label>
+                        <textarea id="pitch" name="pitch" placeholder="Tell us about your experience serving startups and small businesses in Uganda..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn-futurist" id="submitBtn">Submit Application</button>
+                    <div class="form-status" id="formStatus"></div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <span class="brand">The Founder's Sprint</span>
+            <p>Building Uganda's next generation of founders.</p>
+        </div>
+    </footer>
+
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+
+    <script>
+        // ==================== SUPABASE CLIENT ====================
+        const SUPABASE_URL = 'https://ivedeivyotwevjxvcuoe.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // ==================== RATE LIMITING ====================
+        let lastSubmitTime = 0;
+        const COOLDOWN_MS = 60000; // 60 seconds
+
+        // ==================== SCROLL ANIMATIONS ====================
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { threshold: 0.05, rootMargin: '0px 0px 50px 0px' });
+
+        document.querySelectorAll('.fade-up').forEach(el => {
+            // If element is already in viewport on load, show it immediately
+            const rect = el.getBoundingClientRect();
+            if (rect.top < window.innerHeight && rect.bottom > 0) {
+                el.classList.add('visible');
+            } else {
+                observer.observe(el);
+            }
+        });
+
+        // ==================== FORM HANDLING ====================
+        const form = document.getElementById('applicationForm');
+        const formContainer = document.getElementById('formContainer');
+        const submitBtn = document.getElementById('submitBtn');
+        const formStatus = document.getElementById('formStatus');
+
+        function clearErrors() {
+            document.querySelectorAll('.form-group.has-error').forEach(g => g.classList.remove('has-error'));
+            formStatus.textContent = '';
+            formStatus.className = 'form-status';
+        }
+
+        function validateForm() {
+            clearErrors();
+            let valid = true;
+
+            const required = [
+                { id: 'company_name', msg: 'Company name is required.' },
+                { id: 'category', msg: 'Please select a category.' },
+                { id: 'contact_person', msg: 'Contact person is required.' },
+                { id: 'email', msg: 'Please enter a valid email address.' }
+            ];
+
+            required.forEach(field => {
+                const el = document.getElementById(field.id);
+                if (!el.value || el.value.trim() === '') {
+                    el.closest('.form-group').classList.add('has-error');
+                    valid = false;
+                }
+            });
+
+            // Email format check
+            const emailEl = document.getElementById('email');
+            if (emailEl.value && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailEl.value)) {
+                emailEl.closest('.form-group').classList.add('has-error');
+                valid = false;
+            }
+
+            return valid;
+        }
+
+        function showSuccess() {
+            formContainer.innerHTML = `
+                <div class="success-message">
+                    <span class="check-icon">\u25C6</span>
+                    <h3>Application Received</h3>
+                    <p>Thank you for your interest in partnering with The Founder's Sprint.
+                       We will review your application and be in touch within 5 business days.</p>
+                </div>
+            `;
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            if (!validateForm()) return;
+
+            // Rate limiting check
+            const now = Date.now();
+            if (now - lastSubmitTime < COOLDOWN_MS) {
+                const remaining = Math.ceil((COOLDOWN_MS - (now - lastSubmitTime)) / 1000);
+                formStatus.textContent = `Please wait ${remaining} seconds before submitting again.`;
+                formStatus.className = 'form-status error';
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Submitting...';
+            formStatus.textContent = '';
+
+            const data = {
+                company_name: document.getElementById('company_name').value.trim(),
+                category: document.getElementById('category').value,
+                contact_name: document.getElementById('contact_person').value.trim(),
+                email: document.getElementById('email').value.trim(),
+                phone: document.getElementById('phone').value.trim() || null,
+                website: document.getElementById('website').value.trim() || null,
+                preferred_tier: document.getElementById('preferred_tier').value || null,
+                message: document.getElementById('pitch').value.trim() || null,
+                status: 'pending'
+            };
+
+            try {
+                const { error } = await supabase
+                    .from('directory_applications')
+                    .insert([data]);
+
+                if (error) throw error;
+
+                lastSubmitTime = Date.now();
+                showSuccess();
+            } catch (err) {
+                console.error('Submission error:', err);
+                formStatus.textContent = 'Something went wrong. Please try again.';
+                formStatus.className = 'form-status error';
+                submitBtn.disabled = false;
+                submitBtn.textContent = 'Submit Application';
+            }
+        });
+    </script>
+</body>
+</html>

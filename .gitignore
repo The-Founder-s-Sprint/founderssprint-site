@@ -1,0 +1,5 @@
+.DS_Store
+*.log
+.env
+# Large source videos (compressed versions are tracked)
+pexels-*.mp4
