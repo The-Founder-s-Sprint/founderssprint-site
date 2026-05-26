@@ -163,39 +163,128 @@ section, footer, nav { position: relative; z-index: 2; }
 /* ===== DIRECTORY GRID ===== */
 .directory-section { padding: 48px 0 100px; }
 .directory-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 24px;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 24px;
 }
+
+/* --- Provider card: Cloudflare-inspired transitions --- */
 .provider-card {
-  padding: 32px 28px; background: var(--paper-2);
-  border-top: 3px solid var(--terra); transition: transform 350ms ease;
+  position: relative; background: var(--paper-2);
+  display: flex; flex-direction: column;
+  transition: transform .6s cubic-bezier(.25,.46,.45,.94),
+              box-shadow .6s cubic-bezier(.25,.46,.45,.94);
+  overflow: hidden;
 }
-.provider-card:hover { transform: translateY(-2px); }
-.provider-card.featured { border-top-color: var(--ochre); }
+.provider-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 40px rgba(26,26,26,0.08), 0 2px 8px rgba(26,26,26,0.04);
+}
+
+/* Color bar: expands on hover */
+.provider-card .card-bar {
+  height: 3px; transition: height .5s cubic-bezier(.25,.46,.45,.94);
+}
+.provider-card:hover .card-bar { height: 5px; }
+
+/* Category colors */
+.cat-legal    { background: var(--terra); }
+.cat-accounting { background: var(--ochre); }
+.cat-design   { background: var(--terra); }
+.cat-unbs     { background: var(--moss); }
+.cat-banking  { background: var(--ochre); }
+.cat-insurance { background: var(--stone); }
+.cat-ip       { background: var(--terra-d); }
+.cat-digital  { background: var(--ink); }
+
+.provider-card .card-body { padding: 28px 28px 24px; flex: 1; display: flex; flex-direction: column; }
+
+/* Head: initials + meta */
+.provider-card .card-head { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 14px; }
+.provider-card .card-initials {
+  width: 46px; height: 46px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: var(--sans); font-weight: 600; font-size: 15px; letter-spacing: 0.02em;
+  flex-shrink: 0; color: var(--paper);
+  transition: transform .5s cubic-bezier(.25,.46,.45,.94);
+}
+.provider-card:hover .card-initials { transform: scale(1.06); }
+
+.provider-card .card-meta { flex: 1; min-width: 0; }
+.provider-card .featured-badge {
+  display: inline-flex; align-items: center; gap: 5px;
+  font-family: var(--sans); font-size: 8px; font-weight: 700;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  background: rgba(201,146,58,0.14); color: var(--ochre);
+  padding: 3px 9px; margin-bottom: 5px;
+}
+.provider-card .featured-badge svg { width: 10px; height: 10px; }
 .provider-card .cat-label {
   font-family: var(--sans); font-size: 9px; font-weight: 700;
-  letter-spacing: 0.20em; text-transform: uppercase; color: var(--stone); margin-bottom: 8px;
+  letter-spacing: 0.20em; text-transform: uppercase;
+  margin-bottom: 3px; transition: color .4s ease;
 }
 .provider-card .company-name {
-  font-family: var(--display); font-size: 26px; font-weight: 300;
-  color: var(--ink); line-height: 1.15; margin-bottom: 8px;
+  font-family: var(--display); font-size: 24px; font-weight: 400;
+  color: var(--ink); line-height: 1.15;
 }
 .provider-card .description {
-  font-size: 15px; color: rgba(26,26,26,0.62); line-height: 1.55; margin-bottom: 16px;
+  font-size: 14px; color: rgba(26,26,26,0.58); line-height: 1.55;
+  margin-bottom: 18px; flex: 1;
 }
-.provider-card .contact-row {
-  display: flex; flex-wrap: wrap; gap: 16px; margin-top: auto;
-  font-size: 13px; color: var(--stone);
+
+/* Contact actions: slide up on hover */
+.provider-card .card-divider {
+  border: none; border-top: 1px solid rgba(26,26,26,0.07);
+  margin: 0 0 14px;
 }
-.provider-card .contact-row a {
-  color: var(--terra); border-bottom: 1px solid rgba(200,83,31,0.3); transition: border-color 200ms;
+.provider-card .card-actions {
+  display: flex; flex-wrap: wrap; gap: 8px;
+  opacity: 0.6; transform: translateY(4px);
+  transition: opacity .5s cubic-bezier(.25,.46,.45,.94),
+              transform .5s cubic-bezier(.25,.46,.45,.94);
 }
-.provider-card .contact-row a:hover { border-bottom-color: var(--terra); }
-.featured-tag {
-  font-family: var(--sans); font-size: 8px; font-weight: 700;
-  letter-spacing: 0.18em; text-transform: uppercase;
-  background: var(--ochre); color: var(--paper);
-  padding: 3px 8px; display: inline-block; margin-bottom: 8px;
+.provider-card:hover .card-actions {
+  opacity: 1; transform: translateY(0);
 }
+.card-action-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: var(--body); font-size: 12px; font-weight: 500;
+  padding: 7px 13px; border-radius: 6px;
+  border: 1px solid rgba(26,26,26,0.10);
+  background: transparent; color: var(--ink);
+  transition: all .3s cubic-bezier(.25,.46,.45,.94);
+  text-decoration: none; cursor: pointer;
+}
+.card-action-btn:hover {
+  border-color: rgba(26,26,26,0.22);
+  background: rgba(26,26,26,0.03);
+}
+.card-action-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+/* WhatsApp button */
+.card-action-btn.wa {
+  border-color: rgba(37,211,102,0.3);
+  color: #128C7E;
+}
+.card-action-btn.wa:hover {
+  background: rgba(37,211,102,0.08);
+  border-color: rgba(37,211,102,0.5);
+}
+
+/* Featured card accent */
+.provider-card.featured {
+  box-shadow: 0 0 0 1px rgba(201,146,58,0.2);
+}
+.provider-card.featured:hover {
+  box-shadow: 0 12px 40px rgba(26,26,26,0.08), 0 0 0 1px rgba(201,146,58,0.3);
+}
+
+/* Category label colors */
+.label-legal, .label-design { color: var(--terra); }
+.label-accounting, .label-banking { color: var(--ochre); }
+.label-unbs { color: var(--moss); }
+.label-insurance { color: var(--stone); }
+.label-ip { color: var(--terra-d); }
+.label-digital { color: var(--ink); }
 
 /* Empty state */
 .empty-state { grid-column: 1 / -1; text-align: center; padding: 80px 20px; }
@@ -207,10 +296,17 @@ section, footer, nav { position: relative; z-index: 2; }
 .empty-state .btn-apply { font-size: 10px; padding: 14px 24px; }
 
 /* Loading skeleton */
-.skeleton-card { padding: 32px 28px; background: var(--paper-2); border-top: 3px solid var(--line-l); }
-.skeleton-line { height: 14px; background: rgba(26,26,26,0.06); margin-bottom: 12px; animation: pulse 1.5s ease-in-out infinite; }
-.skeleton-line.short { width: 40%; } .skeleton-line.medium { width: 70%; }
-.skeleton-line.long { width: 100%; } .skeleton-line.title { height: 22px; width: 60%; margin-bottom: 16px; }
+.skeleton-card { background: var(--paper-2); overflow: hidden; }
+.skeleton-bar { height: 3px; background: rgba(26,26,26,0.06); }
+.skeleton-body { padding: 28px 28px 24px; }
+.skeleton-head { display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start; }
+.skeleton-avatar { width: 46px; height: 46px; border-radius: 8px; background: rgba(26,26,26,0.06); flex-shrink: 0; animation: pulse 1.5s ease-in-out infinite; }
+.skeleton-line { height: 12px; background: rgba(26,26,26,0.06); margin-bottom: 10px; border-radius: 4px; animation: pulse 1.5s ease-in-out infinite; }
+.skeleton-line.short { width: 35%; } .skeleton-line.medium { width: 70%; }
+.skeleton-line.long { width: 100%; } .skeleton-line.title { height: 18px; width: 55%; margin-bottom: 0; }
+.skeleton-line-divider { height: 1px; background: rgba(26,26,26,0.05); margin: 14px 0; }
+.skeleton-actions { display: flex; gap: 8px; }
+.skeleton-btn { width: 80px; height: 32px; border-radius: 6px; background: rgba(26,26,26,0.04); animation: pulse 1.5s ease-in-out infinite; }
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
 
 /* ===== FOOTER — universal (matches beta site) ===== */
@@ -392,9 +488,9 @@ footer .bottom {
 <section class="directory-section">
   <div class="shell">
     <div class="directory-grid" id="directoryGrid">
-      <div class="skeleton-card"><div class="skeleton-line short"></div><div class="skeleton-line title"></div><div class="skeleton-line long"></div><div class="skeleton-line medium"></div></div>
-      <div class="skeleton-card"><div class="skeleton-line short"></div><div class="skeleton-line title"></div><div class="skeleton-line long"></div><div class="skeleton-line medium"></div></div>
-      <div class="skeleton-card"><div class="skeleton-line short"></div><div class="skeleton-line title"></div><div class="skeleton-line long"></div><div class="skeleton-line medium"></div></div>
+      <div class="skeleton-card"><div class="skeleton-bar"></div><div class="skeleton-body"><div class="skeleton-head"><div class="skeleton-avatar"></div><div><div class="skeleton-line short"></div><div class="skeleton-line title"></div></div></div><div class="skeleton-line long"></div><div class="skeleton-line medium"></div><div class="skeleton-line-divider"></div><div class="skeleton-actions"><div class="skeleton-btn"></div><div class="skeleton-btn"></div><div class="skeleton-btn"></div></div></div></div>
+      <div class="skeleton-card"><div class="skeleton-bar"></div><div class="skeleton-body"><div class="skeleton-head"><div class="skeleton-avatar"></div><div><div class="skeleton-line short"></div><div class="skeleton-line title"></div></div></div><div class="skeleton-line long"></div><div class="skeleton-line medium"></div><div class="skeleton-line-divider"></div><div class="skeleton-actions"><div class="skeleton-btn"></div><div class="skeleton-btn"></div><div class="skeleton-btn"></div></div></div></div>
+      <div class="skeleton-card"><div class="skeleton-bar"></div><div class="skeleton-body"><div class="skeleton-head"><div class="skeleton-avatar"></div><div><div class="skeleton-line short"></div><div class="skeleton-line title"></div></div></div><div class="skeleton-line long"></div><div class="skeleton-line medium"></div><div class="skeleton-line-divider"></div><div class="skeleton-actions"><div class="skeleton-btn"></div><div class="skeleton-btn"></div><div class="skeleton-btn"></div></div></div></div>
     </div>
   </div>
 </section>
@@ -483,11 +579,11 @@ footer .bottom {
 <!-- Supabase -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
-const SUPABASE_URL = 'https://ivedeivyotwevjxvcuoe.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss';
+var SUPABASE_URL = 'https://ivedeivyotwevjxvcuoe.supabase.co';
+var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss';
 var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-const CATEGORY_LABELS = {
+var CATEGORY_LABELS = {
   legal:      'Legal & Corporate',
   accounting: 'Accounting & Audit',
   design:     'Design & Branding',
@@ -498,16 +594,43 @@ const CATEGORY_LABELS = {
   digital:    'Digital & Web Dev',
 };
 
-const grid = document.getElementById('directoryGrid');
-const filterBar = document.getElementById('filterBar');
-let allProviders = [];
-let activeFilter = 'all';
+var grid = document.getElementById('directoryGrid');
+var filterBar = document.getElementById('filterBar');
+var allProviders = [];
+var activeFilter = 'all';
+
+/* V6 diamond mark SVG for featured badge */
+var V6_MINI = '<svg viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,8 57,50 50,92 43,50" fill="currentColor" opacity="0.85"/><polygon points="50,8 57,50 50,92 43,50" fill="currentColor" opacity="0.65" transform="rotate(72 50 50)"/><polygon points="50,8 57,50 50,92 43,50" fill="currentColor" opacity="0.55" transform="rotate(144 50 50)"/><polygon points="50,8 57,50 50,92 43,50" fill="currentColor" opacity="0.65" transform="rotate(216 50 50)"/><polygon points="50,8 57,50 50,92 43,50" fill="currentColor" opacity="0.55" transform="rotate(288 50 50)"/><circle cx="50" cy="50" r="4.5" fill="currentColor" opacity="0.8"/></svg>';
+
+/* WhatsApp SVG icon */
+var WA_ICON = '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>';
+
+/* Email SVG icon */
+var MAIL_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 7L2 7"/></svg>';
+
+/* Phone SVG icon */
+var PHONE_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>';
+
+/* Website SVG icon */
+var LINK_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>';
 
 function esc(s) {
   if (!s) return '';
-  const d = document.createElement('div');
+  var d = document.createElement('div');
   d.textContent = s;
   return d.innerHTML;
+}
+
+function getInitials(name) {
+  if (!name) return '?';
+  var parts = name.trim().split(/\s+/);
+  if (parts.length === 1) return parts[0].charAt(0).toUpperCase();
+  return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
+}
+
+function formatWhatsApp(phone) {
+  if (!phone) return '';
+  return phone.replace(/[\s\-\(\)]/g, '').replace(/^\+/, '');
 }
 
 function renderProviders(providers) {
@@ -523,7 +646,6 @@ function renderProviders(providers) {
     return;
   }
 
-  // Sort: featured first, then alphabetical
   var sorted = providers.slice().sort(function(a, b) {
     if (a.featured && !b.featured) return -1;
     if (!a.featured && b.featured) return 1;
@@ -533,16 +655,52 @@ function renderProviders(providers) {
   var html = '';
   for (var i = 0; i < sorted.length; i++) {
     var p = sorted[i];
-    html += '<div class="provider-card ' + (p.featured ? 'featured' : '') + '">';
-    if (p.featured) html += '<span class="featured-tag">Featured Partner</span>';
-    html += '<div class="cat-label">' + esc(CATEGORY_LABELS[p.category] || p.category) + '</div>';
+    var cat = p.category || 'digital';
+    var initials = getInitials(p.company_name);
+
+    html += '<div class="provider-card' + (p.featured ? ' featured' : '') + '">';
+
+    /* Color bar */
+    html += '<div class="card-bar cat-' + esc(cat) + '"></div>';
+    html += '<div class="card-body">';
+
+    /* Head: initials + meta */
+    html += '<div class="card-head">';
+    html += '<div class="card-initials cat-' + esc(cat) + '">' + initials + '</div>';
+    html += '<div class="card-meta">';
+    if (p.featured) {
+      html += '<span class="featured-badge">' + V6_MINI + ' Featured Partner</span>';
+    }
+    html += '<div class="cat-label label-' + esc(cat) + '">' + esc(CATEGORY_LABELS[cat] || cat) + '</div>';
     html += '<div class="company-name">' + esc(p.company_name) + '</div>';
-    if (p.description) html += '<div class="description">' + esc(p.description) + '</div>';
-    html += '<div class="contact-row">';
-    if (p.email) html += '<a href="mailto:' + esc(p.email) + '">' + esc(p.email) + '</a>';
-    if (p.phone) html += '<span>' + esc(p.phone) + '</span>';
-    if (p.website) html += '<a href="' + esc(p.website) + '" target="_blank" rel="noopener">Website &rarr;</a>';
     html += '</div></div>';
+
+    /* Description */
+    if (p.description) {
+      html += '<div class="description">' + esc(p.description) + '</div>';
+    }
+
+    /* Contact actions */
+    html += '<hr class="card-divider">';
+    html += '<div class="card-actions">';
+
+    if (p.phone) {
+      var waNum = formatWhatsApp(p.phone);
+      html += '<a class="card-action-btn wa" href="https://wa.me/' + waNum + '" target="_blank" rel="noopener">' + WA_ICON + ' WhatsApp</a>';
+    }
+    if (p.email) {
+      html += '<a class="card-action-btn" href="mailto:' + esc(p.email) + '">' + MAIL_ICON + ' Email</a>';
+    }
+    if (p.phone) {
+      html += '<a class="card-action-btn" href="tel:' + esc(p.phone.replace(/\s/g,'')) + '">' + PHONE_ICON + ' Call</a>';
+    }
+    if (p.website) {
+      var url = p.website;
+      if (url && !url.match(/^https?:\/\//)) url = 'https://' + url;
+      html += '<a class="card-action-btn" href="' + esc(url) + '" target="_blank" rel="noopener">' + LINK_ICON + ' Website</a>';
+    }
+
+    html += '</div></div></div>';
   }
   grid.innerHTML = html;
 }
