@@ -630,7 +630,7 @@
             <label for="geographies">Geographic expertise
                 <span class="visibility-tag public">Public</span>
             </label>
-            <input type="text" id="geographies" name="geographies" placeholder="e.g. Uganda, Kenya, Rwanda, Pan-Africa">
+            <input type="text" id="geographies" name="geographies" placeholder="e.g. Uganda, Kenya, Rwanda, Pan-Africa" autocomplete="off" data-lpignore="true" data-form-type="other">
             <span class="field-hint">Markets where you have hands-on experience</span>
         </div>
 
@@ -1250,7 +1250,8 @@
             assignedDayEl.value = l1ToDayMap[l1];
             assignedDayRow.style.display = 'block';
             timeSlotsGroup.style.display = 'block';
-            timeSlotsGroup.querySelector('legend').innerHTML = 'Available time slots on <strong>' + l1ToDayMap[l1] + 's</strong> <span class="req">*</span>';
+            var tsLabel = timeSlotsGroup.querySelector('legend') || timeSlotsGroup.querySelector('label:first-child');
+            if (tsLabel) tsLabel.innerHTML = 'Available time slots on <strong>' + l1ToDayMap[l1] + 's</strong> <span class="req">*</span>';
         } else {
             assignedDayEl.value = '';
             assignedDayRow.style.display = 'none';
@@ -1394,7 +1395,7 @@
     /* TODO: RE-ENABLE VALIDATION BEFORE PRODUCTION LAUNCH */
     var API_BASE = window.location.hostname === 'localhost'
         ? 'http://localhost:3000'
-        : 'https://founders-sprint-api.vercel.app';
+        : 'https://api.founderssprint.co';
 
     var form = document.getElementById('coachForm');
     var submitBtn = form.querySelector('.btn-submit');
@@ -1436,9 +1437,9 @@
                     '<div style="width:64px; height:64px; background:#C9A036; margin:0 auto 24px; display:flex; align-items:center; justify-content:center;">' +
                     '<svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#0B1810" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>' +
                     '</div>' +
-                    '<h2 style="font-family:\'Josefin Sans\',sans-serif; color:#fff; font-size:24px; letter-spacing:0.06em; text-transform:uppercase; margin:0 0 16px;">Application received</h2>' +
-                    '<p style="color:rgba(255,255,255,0.65); font-size:17px; line-height:1.7; max-width:460px; margin:0 auto 12px;">Thank you for applying to join The Founder\'s Sprint coaching network. You\'ll receive a confirmation email within the next few minutes.</p>' +
-                    '<p style="color:rgba(255,255,255,0.45); font-size:15px;">Our team will review your application within <strong style="color:#C9A036;">48 hours</strong>.</p>' +
+                    '<h2 style="font-family:\'Josefin Sans\',sans-serif; color:#C9A036; font-size:24px; letter-spacing:0.06em; text-transform:uppercase; margin:0 0 16px;">Application received</h2>' +
+                    '<p style="color:#1A1A1A; font-size:17px; line-height:1.7; max-width:460px; margin:0 auto 12px;">Thank you for applying to join The Founder\'s Sprint coaching network. You\'ll receive a confirmation email within the next few minutes.</p>' +
+                    '<p style="color:#5A5347; font-size:15px;">Our team will review your application within <strong style="color:#C9A036;">48 hours</strong>.</p>' +
                     '</div>';
                 // Scroll to top so they see the success message
                 window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -1447,7 +1448,7 @@
             }
         } catch (err) {
             console.error('Submit error:', err);
-            alert('Something went wrong: ' + err.message + '\n\nPlease try again or contact teddy@tmsruge.com for assistance.');
+            alert('Something went wrong: ' + err.message + '\n\nPlease try again or contact hello@founderssprint.co for assistance.');
             submitBtn.disabled = false;
             submitBtn.textContent = originalText;
         }
