@@ -293,21 +293,53 @@
 <footer>
   <p><a href="https://founderssprint.co">The Founder's Sprint</a></p>
   <p style="font-family:Georgia,serif;font-style:italic;font-size:10px;color:#C8531F;opacity:0.4">Build with direction.</p>
-  <p>Kampala · Nairobi · Kigali</p>
+  <p>Kampala, Uganda</p>
   <p style="margin-top:8px">&copy; 2026 The Founder's Sprint. All rights reserved.</p>
 </footer>
 
 <script>
-function handleRSVP(e) {
+async function handleRSVP(e) {
   e.preventDefault();
-  // In production, this would POST to the API
-  // For now, show success message
   var form = document.getElementById('rsvpForm');
   var msg = document.getElementById('successMsg');
-  form.style.display = 'none';
-  msg.style.display = 'block';
-  // Scroll to success message
-  msg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  var btn = form.querySelector('.submit-btn');
+  var origText = btn.textContent;
+
+  btn.disabled = true;
+  btn.textContent = 'Confirming…';
+
+  var data = {
+    name: (form.first_name.value + ' ' + form.last_name.value).trim(),
+    email: form.email.value.trim(),
+    company: form.organisation.value.trim(),
+    guest_count: parseInt(form.guest_count.value) || 1,
+    notes: [
+      form.role.value ? 'Role: ' + form.role.value : '',
+      form.partner_interest.value ? 'Interest: ' + form.partner_interest.value : '',
+      form.notes.value || ''
+    ].filter(Boolean).join(' | '),
+  };
+
+  try {
+    var resp = await fetch('https://api.founderssprint.co/api/rsvp', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+    });
+
+    if (!resp.ok) {
+      var errData = await resp.json().catch(function() { return {}; });
+      throw new Error(errData.error || 'Server error');
+    }
+
+    form.style.display = 'none';
+    msg.style.display = 'block';
+    msg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  } catch (err) {
+    btn.disabled = false;
+    btn.textContent = origText;
+    alert('Something went wrong — please try again or email hello@founderssprint.co');
+  }
 }
 </script>
 

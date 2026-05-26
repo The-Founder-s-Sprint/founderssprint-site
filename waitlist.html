@@ -617,14 +617,16 @@
       };
 
       try {
-        /* ── Production: replace with your API or Mailchimp endpoint ──────
-           await fetch('/api/waitlist', {
-             method:  'POST',
-             headers: { 'Content-Type': 'application/json' },
-             body:    JSON.stringify(data),
-           });
-        ─────────────────────────────────────────────────────────────────── */
-        await new Promise(r => setTimeout(r, 600));
+        var resp = await fetch('https://api.founderssprint.co/api/waitlist', {
+          method:  'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body:    JSON.stringify(data),
+        });
+
+        if (!resp.ok) {
+          var errData = await resp.json().catch(function() { return {}; });
+          throw new Error(errData.error || 'Server error');
+        }
 
         this.style.display = 'none';
         document.getElementById('success-msg').style.display = 'block';
