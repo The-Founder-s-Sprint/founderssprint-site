@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Learn — The Founder's Sprint</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Josefin+Sans:wght@300;400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+  :root {
+    --bg:       #1A1A1A;
+    --paper:    #EFE7D8;
+    --terra:    #C8531F;
+    --ochre:    #C9923A;
+    --sage:     #8AAB5C;
+    --moss:     #3D4A2E;
+    --stone:    #777770;
+    --success:  #0A8F64;
+    --warning:  #C47F08;
+    --sans:     'Josefin Sans', system-ui, sans-serif;
+    --display:  'Cormorant Garamond', serif;
+    --body:     'Inter', system-ui, sans-serif;
+    --mono:     'JetBrains Mono', monospace;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--body);
+    background: var(--bg);
+    color: var(--paper);
+    min-height: 100vh;
+    font-size: 14px;
+  }
+
+  /* ── Nav ─────────────────────────────────────────────────────── */
+  .learn-nav {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 16px 32px;
+    border-bottom: 1px solid rgba(239,231,216,0.08);
+  }
+  .learn-nav .brand {
+    display: flex; align-items: center; gap: 10px;
+    text-decoration: none; color: var(--paper);
+    font-family: var(--sans); font-weight: 600; font-size: 15px;
+  }
+  .learn-nav .user-info {
+    font-size: 12px; color: rgba(239,231,216,0.5);
+    font-family: var(--mono);
+  }
+
+  /* ── Loading & Auth ─────────────────────────────────────────── */
+  .learn-loading, .learn-auth {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    min-height: 60vh; text-align: center; padding: 40px;
+  }
+  .learn-loading .spinner {
+    width: 40px; height: 40px; border: 3px solid rgba(239,231,216,0.1);
+    border-top-color: var(--terra); border-radius: 50%;
+    animation: spin 0.8s linear infinite; margin-bottom: 16px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .learn-auth h2 {
+    font-family: var(--display); font-size: 28px; font-weight: 300; margin-bottom: 12px;
+  }
+  .learn-auth p { color: rgba(239,231,216,0.5); max-width: 360px; margin-bottom: 24px; }
+  .learn-auth input {
+    font-family: var(--body); font-size: 14px; padding: 12px 16px;
+    background: rgba(239,231,216,0.04); border: 1px solid rgba(239,231,216,0.12);
+    color: var(--paper); width: 320px; margin-bottom: 12px;
+  }
+  .learn-auth button {
+    font-family: var(--sans); font-size: 11px; font-weight: 700;
+    letter-spacing: 0.18em; text-transform: uppercase;
+    background: var(--terra); color: var(--paper); border: none;
+    padding: 14px 36px; cursor: pointer; width: 320px;
+    transition: background 200ms;
+  }
+  .learn-auth button:hover { background: #a8431a; }
+  .learn-auth .error { color: var(--terra); font-size: 12px; margin-top: 8px; }
+  .learn-auth .magic-sent {
+    background: rgba(10,143,100,0.1); border: 1px solid rgba(10,143,100,0.3);
+    padding: 16px; max-width: 320px; font-size: 13px; color: var(--success);
+  }
+
+  /* ── Welcome Header ─────────────────────────────────────────── */
+  .learn-hero {
+    padding: 48px 32px 32px;
+    border-bottom: 1px solid rgba(239,231,216,0.06);
+  }
+  .learn-hero .eyebrow {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 3px;
+    text-transform: uppercase; color: var(--terra); margin-bottom: 8px;
+  }
+  .learn-hero h1 {
+    font-family: var(--display); font-size: 32px; font-weight: 300;
+    margin-bottom: 8px;
+  }
+  .learn-hero .cohort-info {
+    font-size: 13px; color: rgba(239,231,216,0.5);
+  }
+
+  /* ── Week Cards ─────────────────────────────────────────────── */
+  .learn-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 20px; padding: 32px;
+  }
+  .week-card {
+    background: rgba(239,231,216,0.03);
+    border: 1px solid rgba(239,231,216,0.08);
+    border-radius: 12px; padding: 0; overflow: hidden;
+    transition: border-color 200ms;
+  }
+  .week-card:hover { border-color: rgba(239,231,216,0.18); }
+  .week-card.locked { opacity: 0.45; pointer-events: none; }
+  .week-card .week-accent {
+    height: 4px; width: 100%;
+  }
+  .week-card .week-body { padding: 20px; }
+  .week-label {
+    font-family: var(--mono); font-size: 10px; letter-spacing: 2px;
+    text-transform: uppercase; margin-bottom: 4px;
+  }
+  .week-title {
+    font-family: var(--sans); font-weight: 600; font-size: 16px;
+    margin-bottom: 8px;
+  }
+  .week-coach {
+    font-size: 12px; color: rgba(239,231,216,0.5); margin-bottom: 12px;
+  }
+  .week-modules {
+    display: flex; flex-direction: column; gap: 8px; margin-bottom: 16px;
+  }
+  .module-item {
+    display: flex; align-items: center; gap: 8px; font-size: 13px;
+    padding: 8px 10px; background: rgba(239,231,216,0.03);
+    border-radius: 6px; cursor: pointer; text-decoration: none;
+    color: var(--paper); transition: background 200ms;
+  }
+  .module-item:hover { background: rgba(239,231,216,0.08); }
+  .module-dot {
+    width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+  }
+  .module-type {
+    font-size: 10px; color: rgba(239,231,216,0.4); margin-left: auto;
+    font-family: var(--mono); text-transform: uppercase;
+  }
+  .week-status {
+    font-size: 11px; font-family: var(--mono);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .week-status .lock-icon { opacity: 0.4; }
+  .week-badge {
+    display: inline-block; padding: 2px 8px; border-radius: 6px;
+    font-size: 10px; font-weight: 600;
+  }
+
+  /* ── Module Viewer (iframe) ─────────────────────────────────── */
+  .learn-viewer {
+    display: none; position: fixed; inset: 0; z-index: 1000;
+    background: var(--bg);
+  }
+  .learn-viewer.active { display: flex; flex-direction: column; }
+  .viewer-bar {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 12px 24px; border-bottom: 1px solid rgba(239,231,216,0.08);
+    flex-shrink: 0;
+  }
+  .viewer-bar .viewer-title {
+    font-family: var(--sans); font-weight: 600; font-size: 14px;
+  }
+  .viewer-bar .viewer-close {
+    font-family: var(--sans); font-size: 12px; font-weight: 600;
+    background: none; border: 1px solid rgba(239,231,216,0.15);
+    color: var(--paper); padding: 6px 16px; cursor: pointer;
+    letter-spacing: 1px; text-transform: uppercase;
+    transition: background 200ms;
+  }
+  .viewer-bar .viewer-close:hover { background: rgba(239,231,216,0.06); }
+  .viewer-frame {
+    flex: 1; border: none; width: 100%;
+  }
+
+  /* ── Empty State ────────────────────────────────────────────── */
+  .learn-empty {
+    text-align: center; padding: 80px 32px;
+  }
+  .learn-empty h2 {
+    font-family: var(--display); font-size: 24px; font-weight: 300;
+    margin-bottom: 12px;
+  }
+  .learn-empty p {
+    color: rgba(239,231,216,0.5); max-width: 400px; margin: 0 auto;
+  }
+
+  /* ── Mobile ─────────────────────────────────────────────────── */
+  @media (max-width: 600px) {
+    .learn-nav { padding: 12px 16px; }
+    .learn-hero { padding: 32px 16px 24px; }
+    .learn-grid { padding: 16px; gap: 12px; grid-template-columns: 1fr; }
+    .learn-hero h1 { font-size: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ── Navigation ─────────────────────────────────────────────── -->
+<nav class="learn-nav">
+  <a class="brand" href="index.html">
+    <svg viewBox="0 0 100 100" width="22" height="22" aria-hidden="true">
+      <polygon points="50,8 57,50 50,92 43,50" fill="#c8531f" opacity="0.85"></polygon>
+      <polygon points="50,8 57,50 50,92 43,50" fill="#c9923a" opacity="0.80" transform="rotate(72 50 50)"></polygon>
+      <polygon points="50,8 57,50 50,92 43,50" fill="#8aab5c" opacity="0.78" transform="rotate(144 50 50)"></polygon>
+      <polygon points="50,8 57,50 50,92 43,50" fill="#3d4a2e" opacity="0.82" transform="rotate(216 50 50)"></polygon>
+      <polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288 50 50)"></polygon>
+      <circle cx="50" cy="50" r="4.5" fill="#efe7d8"></circle>
+      <circle cx="50" cy="50" r="2" fill="#1a1a1a"></circle>
+    </svg>
+    <span>The Founder's Sprint</span>
+  </a>
+  <div class="user-info" id="user-info"></div>
+</nav>
+
+<!-- ── Loading Screen ─────────────────────────────────────────── -->
+<div class="learn-loading" id="learn-loading">
+  <div class="spinner"></div>
+  <div style="font-family:var(--sans);font-size:13px;color:rgba(239,231,216,0.5)">Loading your curriculum…</div>
+</div>
+
+<!-- ── Auth Screen (magic link login) ─────────────────────────── -->
+<div class="learn-auth" id="learn-auth" style="display:none">
+  <h2>Access Your Curriculum</h2>
+  <p>Enter the email you registered with to receive a login link.</p>
+  <input type="email" id="auth-email" placeholder="you@example.com" autocomplete="email">
+  <button onclick="sendMagicLink()" id="btn-magic">Send login link</button>
+  <div class="error" id="auth-error"></div>
+  <div class="magic-sent" id="magic-sent" style="display:none">
+    Check your inbox — we've sent a login link to your email. Click it to access your materials.
+  </div>
+</div>
+
+<!-- ── Main Content (shown after auth) ────────────────────────── -->
+<div id="learn-content" style="display:none">
+
+  <!-- Welcome header -->
+  <div class="learn-hero">
+    <div class="eyebrow" id="learn-eyebrow">Your Curriculum</div>
+    <h1 id="learn-greeting">Welcome back</h1>
+    <div class="cohort-info" id="learn-cohort"></div>
+  </div>
+
+  <!-- Week cards grid -->
+  <div class="learn-grid" id="learn-grid">
+    <!-- Populated by JS -->
+  </div>
+
+  <!-- Empty state -->
+  <div class="learn-empty" id="learn-empty" style="display:none">
+    <h2>No materials available yet</h2>
+    <p>Your course materials will appear here once your coach publishes them. Check back soon.</p>
+  </div>
+</div>
+
+<!-- ── Module Viewer (fullscreen iframe) ──────────────────────── -->
+<div class="learn-viewer" id="learn-viewer">
+  <div class="viewer-bar">
+    <span class="viewer-title" id="viewer-title">Module</span>
+    <button class="viewer-close" onclick="closeViewer()">← Back to curriculum</button>
+  </div>
+  <iframe class="viewer-frame" id="viewer-frame" title="Course module"></iframe>
+</div>
+
+<script>
+// ── Configuration ────────────────────────────────────────────────
+const SUPABASE_URL  = 'https://ecxhknqyutrpnihfkmoa.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVjeGhrbnF5dXRycG5paGZrbW9hIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDU4NzY0NTAsImV4cCI6MjA2MTQ1MjQ1MH0.QJ3TeZ0Olqql95dGSeuE9zPVMncx8fSGONeODzY4xYk';
+const API_BASE      = 'https://founders-sprint-api.vercel.app';
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON);
+
+// Discipline metadata — colours and default week assignments
+const WEEKS = [
+  { week: 1, discipline: 'Marketing & Branding',          color: '#C8531F', coach: 'Teddy Ruge' },
+  { week: 2, discipline: 'Financial Modelling',            color: '#C9923A', coach: 'Barry Wojega' },
+  { week: 3, discipline: 'Strategy & Team Building',       color: '#3D4A2E', coach: 'Moses Okudu' },
+  { week: 4, discipline: 'Investment Readiness',           color: '#8AAB5C', coach: 'Joseph Kalema' },
+  { week: 5, discipline: 'Product Development & Pricing',  color: '#777770', coach: 'Patrick Ngolobe' },
+];
+
+let currentUser = null;
+let allModules  = [];
+
+// ── Boot ──────────────────────────────────────────────────────────
+async function boot() {
+  // Check for existing session
+  const { data: { session } } = await sb.auth.getSession();
+
+  if (session) {
+    currentUser = session.user;
+    await loadCurriculum();
+  } else {
+    // Check for token-based access (legacy)
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+    if (token) {
+      await loadFromToken(token);
+    } else {
+      showAuth();
+    }
+  }
+}
+
+// ── Auth ──────────────────────────────────────────────────────────
+function showAuth() {
+  document.getElementById('learn-loading').style.display = 'none';
+  document.getElementById('learn-auth').style.display = 'flex';
+}
+
+async function sendMagicLink() {
+  const email = document.getElementById('auth-email').value.trim();
+  const errEl = document.getElementById('auth-error');
+  errEl.textContent = '';
+
+  if (!email) { errEl.textContent = 'Please enter your email'; return; }
+
+  const btn = document.getElementById('btn-magic');
+  btn.disabled = true; btn.textContent = 'Sending…';
+
+  try {
+    const { error } = await sb.auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: window.location.origin + '/beta/learn.html' },
+    });
+    if (error) throw error;
+
+    document.getElementById('magic-sent').style.display = 'block';
+    btn.style.display = 'none';
+    document.getElementById('auth-email').style.display = 'none';
+  } catch (err) {
+    errEl.textContent = err.message || 'Failed to send login link';
+    btn.disabled = false; btn.textContent = 'Send login link';
+  }
+}
+
+// Listen for auth state changes (magic link callback)
+sb.auth.onAuthStateChange(async (event, session) => {
+  if (event === 'SIGNED_IN' && session) {
+    currentUser = session.user;
+    await loadCurriculum();
+  }
+});
+
+// ── Load curriculum via Supabase session ──────────────────────────
+async function loadCurriculum() {
+  try {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) return showAuth();
+
+    // Fetch published course materials
+    const { data, error } = await sb
+      .from('course_materials')
+      .select('*')
+      .eq('is_active', true)
+      .eq('status', 'published')
+      .order('week_number', { ascending: true })
+      .order('sort_order', { ascending: true });
+
+    if (error) throw error;
+    allModules = data || [];
+
+    // Show UI
+    document.getElementById('learn-loading').style.display = 'none';
+    document.getElementById('learn-content').style.display = 'block';
+
+    // Set greeting
+    const name = currentUser.user_metadata?.full_name
+      || currentUser.user_metadata?.first_name
+      || currentUser.email?.split('@')[0]
+      || '';
+    document.getElementById('learn-greeting').textContent = name ? `Welcome, ${name}` : 'Welcome back';
+    document.getElementById('user-info').textContent = currentUser.email || '';
+
+    renderWeekCards();
+  } catch (err) {
+    console.error('[Learn] loadCurriculum error:', err);
+    document.getElementById('learn-loading').innerHTML =
+      `<div style="color:#C8531F">${err.message || 'Failed to load curriculum'}</div>`;
+  }
+}
+
+// ── Load via legacy token ────────────────────────────────────────
+async function loadFromToken(token) {
+  try {
+    const res = await fetch(`${API_BASE}/api/materials?token=${token}`);
+    if (!res.ok) {
+      const err = await res.json();
+      throw new Error(err.error || 'Invalid access link');
+    }
+    const payload = await res.json();
+
+    // Token mode — show materials from the API response
+    document.getElementById('learn-loading').style.display = 'none';
+    document.getElementById('learn-content').style.display = 'block';
+    document.getElementById('learn-greeting').textContent = `Welcome, ${payload.founder.firstName}`;
+    document.getElementById('learn-cohort').textContent =
+      `${payload.cohort.name} · ${payload.cohort.startDate} — ${payload.cohort.endDate}`;
+    document.getElementById('user-info').textContent = payload.founder.firstName + ' ' + payload.founder.lastName;
+
+    // Token-based access shows downloadable files, not interactive modules
+    renderTokenFiles(payload.files);
+  } catch (err) {
+    document.getElementById('learn-loading').style.display = 'none';
+    document.getElementById('learn-auth').style.display = 'flex';
+    document.getElementById('auth-error').textContent = err.message;
+  }
+}
+
+// ── Render week cards (Supabase session mode) ────────────────────
+function renderWeekCards() {
+  const grid = document.getElementById('learn-grid');
+
+  if (!allModules.length) {
+    grid.style.display = 'none';
+    document.getElementById('learn-empty').style.display = 'block';
+    return;
+  }
+
+  let html = '';
+  WEEKS.forEach(w => {
+    const modules = allModules.filter(m => m.week_number === w.week);
+    if (modules.length === 0) return; // Don't show empty weeks
+
+    const moduleItems = modules.map(m => {
+      const typeLabels = { lesson: 'Lesson', exercise: 'Exercise', framework: 'Framework', worksheet: 'Worksheet', case_study: 'Case Study' };
+      const hasFile = !!m.file_path;
+      return `
+        <a class="module-item" ${hasFile ? `href="#" onclick="openModule(${m.id});return false"` : ''} title="${m.description || m.title}">
+          <span class="module-dot" style="background:${w.color}"></span>
+          <span>${m.title}</span>
+          <span class="module-type">${typeLabels[m.module_type] || m.module_type}</span>
+        </a>
+      `;
+    }).join('');
+
+    html += `
+      <div class="week-card">
+        <div class="week-accent" style="background:${w.color}"></div>
+        <div class="week-body">
+          <div class="week-label" style="color:${w.color}">Week ${w.week}</div>
+          <div class="week-title">${w.discipline}</div>
+          <div class="week-coach">${w.coach}</div>
+          <div class="week-modules">${moduleItems}</div>
+          <div class="week-status">
+            <span class="week-badge" style="background:${w.color};color:#fff">${modules.length} module${modules.length !== 1 ? 's' : ''}</span>
+          </div>
+        </div>
+      </div>
+    `;
+  });
+
+  // Also show any unassigned modules
+  const unassigned = allModules.filter(m => !m.week_number);
+  if (unassigned.length) {
+    const items = unassigned.map(m => {
+      const hasFile = !!m.file_path;
+      return `
+        <a class="module-item" ${hasFile ? `href="#" onclick="openModule(${m.id});return false"` : ''}>
+          <span class="module-dot" style="background:rgba(239,231,216,0.3)"></span>
+          <span>${m.title}</span>
+          <span class="module-type">${m.module_type}</span>
+        </a>
+      `;
+    }).join('');
+
+    html += `
+      <div class="week-card">
+        <div class="week-accent" style="background:rgba(239,231,216,0.15)"></div>
+        <div class="week-body">
+          <div class="week-label" style="color:rgba(239,231,216,0.4)">Additional</div>
+          <div class="week-title">Supplementary Materials</div>
+          <div class="week-modules">${items}</div>
+        </div>
+      </div>
+    `;
+  }
+
+  grid.innerHTML = html;
+}
+
+// ── Render token-based files (legacy mode) ───────────────────────
+function renderTokenFiles(files) {
+  const grid = document.getElementById('learn-grid');
+  if (!files.length) {
+    grid.style.display = 'none';
+    document.getElementById('learn-empty').style.display = 'block';
+    return;
+  }
+
+  // Group by category
+  const grouped = {};
+  files.forEach(f => {
+    const cat = f.category || 'General';
+    if (!grouped[cat]) grouped[cat] = [];
+    grouped[cat].push(f);
+  });
+
+  let html = '';
+  Object.entries(grouped).forEach(([cat, items]) => {
+    const fileItems = items.map(f => {
+      const sizeStr = f.size ? `${(f.size / 1024).toFixed(0)} KB` : '';
+      return `
+        <a class="module-item" href="${f.downloadUrl}" target="_blank" rel="noopener">
+          <span class="module-dot" style="background:var(--terra)"></span>
+          <span>${f.name}</span>
+          <span class="module-type">${sizeStr}</span>
+        </a>
+      `;
+    }).join('');
+
+    html += `
+      <div class="week-card">
+        <div class="week-accent" style="background:var(--terra)"></div>
+        <div class="week-body">
+          <div class="week-title">${cat}</div>
+          <div class="week-modules">${fileItems}</div>
+        </div>
+      </div>
+    `;
+  });
+
+  grid.innerHTML = html;
+}
+
+// ── Module Viewer ────────────────────────────────────────────────
+function openModule(id) {
+  const mod = allModules.find(m => m.id === id);
+  if (!mod || !mod.file_path) return;
+
+  document.getElementById('viewer-title').textContent = mod.title;
+  document.getElementById('viewer-frame').src = mod.file_path;
+  document.getElementById('learn-viewer').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeViewer() {
+  document.getElementById('learn-viewer').classList.remove('active');
+  document.getElementById('viewer-frame').src = '';
+  document.body.style.overflow = '';
+}
+
+// Close viewer with Escape key
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape' && document.getElementById('learn-viewer').classList.contains('active')) {
+    closeViewer();
+  }
+});
+
+// ── Boot on load ─────────────────────────────────────────────────
+boot();
+</script>
+</body>
+</html>

@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coach Application — Quick Test</title>
+<style>
+  body { font-family: system-ui; background: #1A1A1A; color: #EFE7D8; padding: 40px; max-width: 500px; margin: 0 auto; }
+  h1 { font-size: 1.4rem; margin-bottom: 24px; }
+  label { display: block; margin-top: 16px; font-size: 0.85rem; opacity: 0.7; }
+  input, select { width: 100%; padding: 10px; margin-top: 4px; border: 1px solid rgba(239,231,216,0.2); background: rgba(239,231,216,0.08); color: #EFE7D8; border-radius: 4px; font-size: 1rem; }
+  button { margin-top: 24px; padding: 14px 32px; background: #C8531F; color: #EFE7D8; border: none; border-radius: 4px; font-size: 1rem; cursor: pointer; width: 100%; }
+  button:disabled { opacity: 0.5; }
+  #result { margin-top: 20px; padding: 16px; border-radius: 4px; white-space: pre-wrap; font-size: 0.85rem; display: none; }
+  .ok { background: rgba(138,171,92,0.2); border: 1px solid rgba(138,171,92,0.4); }
+  .err { background: rgba(217,64,64,0.2); border: 1px solid rgba(217,64,64,0.4); }
+</style>
+</head>
+<body>
+<h1>Coach Application — API Test</h1>
+<p style="font-size:0.85rem;opacity:0.6;">Minimal fields only. No file uploads.</p>
+
+<form id="testForm">
+  <label>First name</label>
+  <input name="first_name" value="Test" required>
+
+  <label>Last name</label>
+  <input name="last_name" value="Coach" required>
+
+  <label>Email</label>
+  <input name="email" type="email" value="test-coach@example.com" required>
+
+  <label>Country code</label>
+  <select name="country_code">
+    <option value="+256" selected>+256 (Uganda)</option>
+    <option value="+254">+254 (Kenya)</option>
+  </select>
+
+  <label>Phone</label>
+  <input name="phone" value="700000000">
+
+  <label>L1 Discipline</label>
+  <select name="taxonomy_l1">
+    <option value="Marketing & Branding">Marketing & Branding</option>
+    <option value="Financial Modelling">Financial Modelling</option>
+    <option value="Strategy & Team Building">Strategy & Team Building</option>
+    <option value="Investment Readiness">Investment Readiness</option>
+    <option value="Product Development & Pricing">Product Development & Pricing</option>
+  </select>
+
+  <label>Headline</label>
+  <input name="headline" value="Test coach headline">
+
+  <label>Bio</label>
+  <input name="bio" value="Test bio for API connectivity check.">
+
+  <button type="submit" id="btn">Submit test application</button>
+</form>
+
+<div id="result"></div>
+
+<script>
+var API_BASE = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+  ? 'http://localhost:3000'
+  : 'https://founders-sprint-api.vercel.app';
+
+var form = document.getElementById('testForm');
+var btn  = document.getElementById('btn');
+var res  = document.getElementById('result');
+
+form.addEventListener('submit', async function(e) {
+  e.preventDefault();
+  btn.disabled = true;
+  btn.textContent = 'Submitting…';
+  res.style.display = 'none';
+
+  var fd = new FormData(form);
+
+  try {
+    var resp = await fetch(API_BASE + '/api/coach-application', {
+      method: 'POST',
+      body: fd,
+    });
+
+    var data = await resp.json().catch(function() { return { raw: resp.statusText }; });
+
+    res.style.display = 'block';
+    if (resp.ok) {
+      res.className = 'ok';
+      res.textContent = '✓ SUCCESS (' + resp.status + ')\n\n' + JSON.stringify(data, null, 2);
+    } else {
+      res.className = 'err';
+      res.textContent = '✗ FAILED (' + resp.status + ')\n\n' + JSON.stringify(data, null, 2);
+    }
+  } catch (err) {
+    res.style.display = 'block';
+    res.className = 'err';
+    res.textContent = '✗ NETWORK ERROR\n\n' + err.message + '\n\nThis usually means CORS rejection or the API is unreachable.';
+  }
+
+  btn.disabled = false;
+  btn.textContent = 'Submit test application';
+});
+</script>
+</body>
+</html>

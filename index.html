@@ -1,860 +1,639 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<title>The Founder's Sprint — Build with direction.</title>
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="Five coaches. Five disciplines. Expert coaching for East African founders — walk away with an investor-ready data room.">
-<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Josefin+Sans:wght@300;400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="homepage.css?v=3">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Founder's Sprint — Build with direction.</title>
+  <meta name="description" content="Five expert coaching disciplines. One intensive sprint. Be among the first founders through the door.">
 
+  <meta property="og:title"       content="The Founder's Sprint">
+  <meta property="og:description" content="Build with direction.">
+  <meta property="og:type"        content="website">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;700&display=swap" rel="stylesheet">
+
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --ink:   #1A1A1A;
+      --paper: #EFE7D8;
+      --terra: #C8531F;
+    }
+
+    html, body {
+      height: 100%;
+      overflow: hidden;   /* single-screen hero — no scroll */
+      background: #000;
+      font-family: 'Josefin Sans', sans-serif;
+    }
+
+    /* ── Full-screen hero frame ─────────────────────────────────────────── */
+    .hero {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ── Background video carousel — B&W 35mm treatment ───────────────── */
+    .video-carousel {
+      position: absolute;
+      inset: 0;
+      z-index: 1;
+    }
+
+    .video-carousel video {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 30%;
+      filter: saturate(2.2) grayscale(1) contrast(1.55) brightness(0.60);
+      opacity: 0;
+      transition: opacity 1.4s ease;
+    }
+
+    .video-carousel video.active {
+      opacity: 1;
+    }
+
+    /* ── Film grain ─────────────────────────────────────────────────────── */
+    #grain {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      image-rendering: pixelated;
+      mix-blend-mode: overlay;
+      opacity: 0.26;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    /* ── Vignette — heavier at bottom to bed the form ──────────────────── */
+    .vignette {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 50% 38%, transparent 20%, rgba(0,0,0,0.72) 100%);
+      z-index: 3;
+      pointer-events: none;
+    }
+
+    /* ── Constellation canvas — full frame ─────────────────────────────── */
+    #constellation {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 4;
+      pointer-events: none;
+    }
+
+    /* ── Form panel — lower third, gradient fade to near-black ─────────── */
+    .form-panel {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      z-index: 5;
+      background: linear-gradient(
+        to bottom,
+        transparent           0%,
+        rgba(0,0,0,0.72)     22%,
+        rgba(0,0,0,0.93)     48%,
+        rgba(0,0,0,0.97)    100%
+      );
+      padding: 64px 28px 44px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      animation: fadeUp 0.9s 0.4s ease both;
+    }
+
+    .form-inner {
+      width: 100%;
+      max-width: 400px;
+    }
+
+    /* ── Typography ─────────────────────────────────────────────────────── */
+    .eyebrow {
+      font-size: 10px;
+      font-weight: 700;
+      letter-spacing: 5px;
+      color: var(--paper);
+      opacity: 0.35;
+      margin-bottom: 6px;
+      text-align: center;
+    }
+
+    .tagline {
+      font-family: Georgia, serif;
+      font-style: italic;
+      font-size: 14px;
+      color: var(--terra);
+      opacity: 0.85;
+      margin-bottom: 28px;
+      text-align: center;
+    }
+
+    /* ── Form ───────────────────────────────────────────────────────────── */
+    form {
+      display: flex;
+      flex-direction: column;
+      gap: 0;
+      width: 100%;
+    }
+
+    .field {
+      position: relative;
+      border-bottom: 1px solid rgba(239,231,216,0.15);
+      transition: border-color 0.25s;
+    }
+
+    .field:focus-within { border-bottom-color: var(--terra); }
+
+    input {
+      background: transparent;
+      border: none;
+      color: var(--paper);
+      font-family: 'Josefin Sans', sans-serif;
+      font-size: 13px;
+      letter-spacing: 0.5px;
+      padding: 15px 0 11px;
+      width: 100%;
+      outline: none;
+    }
+
+    input::placeholder {
+      color: rgba(239,231,216,0.3);
+      font-weight: 300;
+    }
+
+    input:-webkit-autofill,
+    input:-webkit-autofill:focus {
+      -webkit-text-fill-color: var(--paper);
+      -webkit-box-shadow: 0 0 0 1000px #000 inset;
+    }
+
+    .submit-wrap { margin-top: 24px; }
+
+    button[type="submit"] {
+      background: var(--terra);
+      border: none;
+      color: var(--paper);
+      cursor: pointer;
+      font-family: 'Josefin Sans', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      padding: 17px 32px;
+      text-transform: uppercase;
+      width: 100%;
+      transition: opacity 0.2s, transform 0.15s;
+      -webkit-appearance: none;
+    }
+
+    button[type="submit"]:hover  { opacity: 0.88; }
+    button[type="submit"]:active { transform: scale(0.985); }
+
+    /* ── Success state ──────────────────────────────────────────────────── */
+    .success {
+      display: none;
+      text-align: center;
+      padding: 16px 0 32px;
+      animation: fadeUp 0.5s ease both;
+    }
+
+    .success h2 {
+      font-size: 14px;
+      font-weight: 700;
+      letter-spacing: 4px;
+      margin-bottom: 12px;
+      color: var(--paper);
+    }
+
+    .success p {
+      font-family: Georgia, serif;
+      font-style: italic;
+      font-size: 14px;
+      color: var(--paper);
+      opacity: 0.55;
+      line-height: 1.7;
+    }
+
+    /* ── Animations ─────────────────────────────────────────────────────── */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Mobile: allow scroll if viewport is short ──────────────────────── */
+    @media (max-height: 620px) {
+      html, body { overflow: auto; }
+      .hero       { height: auto; min-height: 100vh; }
+    }
+  </style>
 </head>
 <body>
 
-<!-- Global film grain -->
-<div class="noise" aria-hidden="true"></div>
+  <div class="hero">
 
-<!-- ============================================================
-     NAV
-     ============================================================ -->
-<nav class="nav" id="nav">
-  <a class="brand" href="index.html">
-    <!-- V6 primary mark — polygon petals, paper ring + ink dot eye. Sourced from brand pack. -->
-    <svg viewBox="0 0 100 100" width="26" height="26" aria-hidden="true">
-      <polygon points="50,8 57,50 50,92 43,50" fill="#c8531f" opacity="0.85"></polygon>
-      <polygon points="50,8 57,50 50,92 43,50" fill="#c9923a" opacity="0.80" transform="rotate(72 50 50)"></polygon>
-      <polygon points="50,8 57,50 50,92 43,50" fill="#8aab5c" opacity="0.78" transform="rotate(144 50 50)"></polygon>
-      <polygon points="50,8 57,50 50,92 43,50" fill="#3d4a2e" opacity="0.82" transform="rotate(216 50 50)"></polygon>
-      <polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288 50 50)"></polygon>
-      <circle cx="50" cy="50" r="4.5" fill="#efe7d8"></circle>
-      <circle cx="50" cy="50" r="2" fill="#1a1a1a"></circle>
-    </svg>
-    <span class="wm">The Founder's Sprint</span>
-  </a>
-  <div class="links">
-    <a href="#method">Method</a>
-    <a href="#coaches">Coaches</a>
-    <a href="explore/">Explore</a>
-    <a href="#pricing">Pricing</a>
-    <a href="directory.html">Directory</a>
-    <a href="#faq">FAQ</a>
-  </div>
-  <div class="cta">
-    <!-- Auth links — point to the Next.js hub (/login) once domain is wired -->
-    <a class="ghost" href="/login">Log in</a>
-    <a class="nav-pill" href="/login?intent=signup">Create Account</a>
-  </div>
-</nav>
-
-<!-- ============================================================
-     §1  HERO — random B&W video + grain + constellation
-     ============================================================ -->
-<section class="hero" data-section="hero" data-screen-label="01 Hero">
-  <div class="video-stage" id="video-stage">
-    <!--
-      Hero video: random clip per visit from array of B&W footage.
-      B&W filter + vignette applied via CSS. Grain via canvas overlay.
-      - preload="auto" on selected clip; others stay unloaded.
-      - poster: still frame while video buffers (critical for 3G).
-      - Randomiser picks one clip per visit for an inclusive, fresh feel.
-      - Fallback: dark gradient behind .video-stage shows through gracefully.
-      - More clips added after the Kampala shoot day.
-    -->
-    <!-- Single video element — JS picks a random clip and sets src.
-         Poster frame shows immediately while video buffers on slow hosts. -->
-    <video class="hero-vid" id="hero-vid" muted playsinline loop
-           preload="none" poster="assets/hero-poster.jpg"></video>
-  </div>
-  <!-- Canvas grain: real random pixel noise, 12fps, overlay blend -->
-  <canvas class="hero-grain-canvas" id="hero-grain-canvas" aria-hidden="true"></canvas>
-
-  <!-- Animated constellation canvas — no V6 mark in centre -->
-  <canvas class="hero-constellation-canvas" id="hero-constellation" aria-hidden="true"></canvas>
-
-  <div class="lockup">
-    <span class="eyebrow"><span class="dot"></span>Cohort 1 · July 2026 · Kampala</span>
-    <h1>The market doesn't care<br>how hard you worked.</h1>
-    <div class="tag">Build with direction<span class="period">.</span></div>
-    <div class="hero-rule"></div>
-    <div class="hero-stat-line">5 coaches · 5 disciplines · 45 specialties</div>
-    <div class="ctas">
-      <a class="btn btn-primary" href="explore/">Find your coach <span class="arrow">→</span></a>
-      <a class="btn btn-ghost" href="#problem">How it works</a>
-    </div>
-  </div>
-
-  <div class="hero-foot">
-    <div class="scroll-cue">Scroll to begin</div>
-  </div>
-</section>
-
-<!-- ============================================================
-     §2  PROBLEM
-     ============================================================ -->
-<section class="problem on-paper" data-section="problem" data-screen-label="02 Problem" id="problem">
-  <div class="shell">
-    <span class="eyebrow section-eb ochre"><span class="dot"></span>§2 The Problem</span>
-    <h2 class="h-section">Uganda's startups aren't failing from bad ideas.</h2>
-    <p class="h-sub on-paper" style="margin-top:18px;">They're failing from gaps no one helps them close — in pricing, financial planning, market entry, and investor readiness. The talent exists. The structure doesn't.</p>
-
-    <div class="stats compact">
-      <div class="stat">
-        <div class="v"><a href="https://www.techinafrica.com/2024-startup-graveyard-report-governance-gaps-contribute-to-high-failure-rates-in-africas-startups/" target="_blank" rel="noopener">70%</a></div>
-        <div class="l">of Ugandan startups fail — the fourth-highest rate on the continent. Most never pressure-test a <em>revenue forecast</em> or <em>pricing model</em> with anyone who's built one.</div>
-      </div>
-      <div class="stat">
-        <div class="v"><a href="https://www.cbinsights.com/research/report/startup-failure-reasons-top/" target="_blank" rel="noopener">43%</a></div>
-        <div class="l">of 431 failed VC-backed companies died from poor product-market fit — not bad luck. They had decks, not a defensible <em>go-to-market strategy</em> or <em>channel mix</em>.</div>
-      </div>
-      <div class="stat">
-        <div class="v"><a href="https://startupgraveyard.africa/reports/2024" target="_blank" rel="noopener">58%</a></div>
-        <div class="l">of African startup shutdowns trace to financial mismanagement. No <em>cash-flow projection</em>, no <em>unit economics</em>, no one to flag the burn rate before it killed the company.</div>
-      </div>
-      <div class="stat">
-        <div class="v"><a href="https://www.cbinsights.com/research/report/startup-failure-reasons-top/" target="_blank" rel="noopener">22 mo</a></div>
-        <div class="l">from last raise to shutdown — the median. Founders pitch without a tested <em>valuation method</em> or <em>cap table</em>, then burn through the capital they raised.</div>
-      </div>
-      <div class="stat">
-        <div class="v"><a href="https://startupgraveyard.africa/reports/2024" target="_blank" rel="noopener">27%</a></div>
-        <div class="l">fail from operational breakdowns — no <em>team architecture</em>, no <em>governance structure</em>, no systems designed to outlast the founding team.</div>
-      </div>
+    <!-- 1 · Background video carousel (all 5 loops, randomly rotating) -->
+    <div class="video-carousel" aria-hidden="true">
+      <video src="./bg-loop.mp4"   loop muted playsinline preload="auto"></video>
+      <video src="./bg-loop-2.mp4" loop muted playsinline preload="auto" style="object-position: center 50%;"></video>
+      <video src="./bg-loop-3.mp4" loop muted playsinline preload="auto" style="object-position: center 50%;"></video>
+      <video src="./bg-loop-4.mp4" loop muted playsinline preload="auto"></video>
+      <video src="./bg-loop-5.mp4" loop muted playsinline preload="auto"></video>
     </div>
 
-    <div class="sources">
-      Sources: <a href="https://www.cbinsights.com/research/report/startup-failure-reasons-top/" target="_blank" rel="noopener">CB Insights 2024</a> · <a href="https://startupgraveyard.africa/reports/2024" target="_blank" rel="noopener">Startup Graveyard Africa 2024</a> · <a href="https://www.techinafrica.com/2024-startup-graveyard-report-governance-gaps-contribute-to-high-failure-rates-in-africas-startups/" target="_blank" rel="noopener">Tech In Africa</a>
-    </div>
+    <!-- 2 · Film grain -->
+    <canvas id="grain"></canvas>
 
-    <div class="section-cta">
-      <a class="btn btn-primary" href="explore/">Let's help you build with direction <span class="arrow">→</span></a>
-    </div>
-  </div>
-</section>
+    <!-- 3 · Vignette -->
+    <div class="vignette"></div>
 
-<!-- ============================================================
-     §3  METHOD — five disciplines
-     ============================================================ -->
-<section class="method on-ink" data-section="method" data-screen-label="03 Method" id="method">
-  <div class="shell">
-    <span class="eyebrow section-eb moss"><span class="dot"></span>§3 The Method</span>
-    <h2 class="h-section">We go deep so you can go higher.</h2>
-    <div class="meta-row">
-      <p class="lede">Each discipline is led by a practitioner who's done the work — built companies, raised capital, scaled teams in this market. Not advisors with opinions. Coaches with track records.</p>
-      <div class="stat">
-        <span><b>5</b>Disciplines</span>
-        <span><b>15</b>Sub-categories</span>
-        <span><b>45</b>Specialties</span>
-      </div>
-    </div>
+    <!-- 4 · Constellation (full-frame, upper-zone centre) -->
+    <canvas id="constellation" aria-hidden="true"></canvas>
 
-    <div class="timeline" id="method-timeline">
-      <article class="week c-terra" style="--i:0">
-        <div class="w-num">01</div>
-        <div class="w-lbl">Discipline 1</div>
-        <div class="w-name">Marketing & Branding</div>
-        <div class="w-coach">Teddy Ruge</div>
-        <div class="w-deliv">→ <b>GTM strategy</b> & brand positioning doc</div>
-      </article>
-      <article class="week c-ochre" style="--i:1">
-        <div class="w-num">02</div>
-        <div class="w-lbl">Discipline 2</div>
-        <div class="w-name">Financial Modelling</div>
-        <div class="w-coach">Barry Wojega</div>
-        <div class="w-deliv">→ <b>Financial model</b> + unit economics breakdown</div>
-      </article>
-      <article class="week c-sage" style="--i:2">
-        <div class="w-num">03</div>
-        <div class="w-lbl">Discipline 3</div>
-        <div class="w-name">Investment Readiness</div>
-        <div class="w-coach">Joseph Kalema</div>
-        <div class="w-deliv">→ <b>Investor-ready pitch deck</b> + fundraising plan</div>
-      </article>
-      <article class="week c-moss" style="--i:3">
-        <div class="w-num">04</div>
-        <div class="w-lbl">Discipline 4</div>
-        <div class="w-name">Strategy & Team</div>
-        <div class="w-coach">Moses Engwau</div>
-        <div class="w-deliv">→ <b>Competitive analysis</b> + 6-month team plan</div>
-      </article>
-      <article class="week c-stone" style="--i:4">
-        <div class="w-num">05</div>
-        <div class="w-lbl">Discipline 5</div>
-        <div class="w-name">Product & Pricing</div>
-        <div class="w-coach">Patrick Ngolobe</div>
-        <div class="w-deliv">→ <b>Product roadmap</b> + pricing model</div>
-      </article>
-    </div>
+    <!-- 5 · Form — lower third -->
+    <div class="form-panel">
+      <div class="form-inner">
+        <p class="eyebrow">THE FOUNDER'S SPRINT</p>
+        <p class="tagline">Build with direction.</p>
 
-    <p class="promise">The depth isn't in the slides. It's in the coach who built what they're teaching you to build — and knows exactly where your version will break.</p>
-  </div>
-</section>
-
-<!-- ============================================================
-     §4  COACHES
-     ============================================================ -->
-<section class="coaches on-paper" data-section="coaches" data-screen-label="04 Coaches" id="coaches">
-  <div class="shell">
-    <span class="eyebrow section-eb terra"><span class="dot"></span>§4 Your Coaches</span>
-    <h2 class="h-section">5 founding coaches. Decades of real-world experience.</h2>
-    <p class="h-sub on-paper" style="margin-top:18px;">Each of our five coaches has built, scaled, or invested in companies that wrote the playbook for their discipline in Uganda. They show up. Every session. For you.</p>
-
-    <div class="grid" id="coach-grid">
-      <article class="coach-card c-terra">
-        <div class="frame">
-          <svg viewBox="0 0 280 360" preserveAspectRatio="xMidYMid slice">
-            <defs><radialGradient id="cg1" cx="40%" cy="32%" r="55%"><stop offset="0%" stop-color="rgba(239,231,216,0.20)"/><stop offset="100%" stop-color="rgba(239,231,216,0)"/></radialGradient></defs>
-            <rect width="280" height="360" fill="url(#cg1)"/>
-            <ellipse cx="140" cy="138" rx="56" ry="62" fill="rgba(0,0,0,0.28)"/>
-            <path d="M 140 198 C 90 198 56 240 50 300 L 50 360 L 230 360 L 230 300 C 224 240 190 198 140 198 Z" fill="rgba(0,0,0,0.32)"/>
-          </svg>
-          <span class="ph-tag">Photo · placeholder</span>
-          <span class="ini">TR</span>
-        </div>
-        <div class="meta">
-          <div class="n">Teddy Ruge</div>
-          <div class="d">Marketing & Branding</div>
-          <div class="b">Built Project Diaspora, scaled Hive Colab. 16 years marketing across East Africa.</div>
-          <a class="coach-cta" href="explore/#marketing">Explore his discipline <span class="arrow">→</span></a>
-        </div>
-      </article>
-
-      <article class="coach-card c-ochre">
-        <div class="frame">
-          <svg viewBox="0 0 280 360" preserveAspectRatio="xMidYMid slice">
-            <defs><radialGradient id="cg2" cx="40%" cy="32%" r="55%"><stop offset="0%" stop-color="rgba(239,231,216,0.20)"/><stop offset="100%" stop-color="rgba(239,231,216,0)"/></radialGradient></defs>
-            <rect width="280" height="360" fill="url(#cg2)"/>
-            <ellipse cx="140" cy="138" rx="56" ry="62" fill="rgba(0,0,0,0.28)"/>
-            <path d="M 140 198 C 90 198 56 240 50 300 L 50 360 L 230 360 L 230 300 C 224 240 190 198 140 198 Z" fill="rgba(0,0,0,0.32)"/>
-          </svg>
-          <span class="ph-tag">Photo · placeholder</span>
-          <span class="ini">BW</span>
-        </div>
-        <div class="meta">
-          <div class="n">Barry Wojega</div>
-          <div class="d">Financial Modelling</div>
-          <div class="b">Ex-CFO, two exits. Builds models VCs actually open on the first scroll.</div>
-          <a class="coach-cta" href="explore/#finance">Explore his discipline <span class="arrow">→</span></a>
-        </div>
-      </article>
-
-      <article class="coach-card c-sage">
-        <div class="frame">
-          <svg viewBox="0 0 280 360" preserveAspectRatio="xMidYMid slice">
-            <defs><radialGradient id="cg3" cx="40%" cy="32%" r="55%"><stop offset="0%" stop-color="rgba(239,231,216,0.20)"/><stop offset="100%" stop-color="rgba(239,231,216,0)"/></radialGradient></defs>
-            <rect width="280" height="360" fill="url(#cg3)"/>
-            <ellipse cx="140" cy="138" rx="56" ry="62" fill="rgba(0,0,0,0.28)"/>
-            <path d="M 140 198 C 90 198 56 240 50 300 L 50 360 L 230 360 L 230 300 C 224 240 190 198 140 198 Z" fill="rgba(0,0,0,0.32)"/>
-          </svg>
-          <span class="ph-tag">Photo · placeholder</span>
-          <span class="ini">JK</span>
-        </div>
-        <div class="meta">
-          <div class="n">Joseph Kalema</div>
-          <div class="d">Investment Readiness</div>
-          <div class="b">Closed $40M+ across the continent. Knows what makes a deck land — and what kills it.</div>
-          <a class="coach-cta" href="explore/#investment">Explore his discipline <span class="arrow">→</span></a>
-        </div>
-      </article>
-
-      <article class="coach-card c-moss">
-        <div class="frame">
-          <svg viewBox="0 0 280 360" preserveAspectRatio="xMidYMid slice">
-            <defs><radialGradient id="cg4" cx="40%" cy="32%" r="55%"><stop offset="0%" stop-color="rgba(239,231,216,0.20)"/><stop offset="100%" stop-color="rgba(239,231,216,0)"/></radialGradient></defs>
-            <rect width="280" height="360" fill="url(#cg4)"/>
-            <ellipse cx="140" cy="138" rx="56" ry="62" fill="rgba(0,0,0,0.28)"/>
-            <path d="M 140 198 C 90 198 56 240 50 300 L 50 360 L 230 360 L 230 300 C 224 240 190 198 140 198 Z" fill="rgba(0,0,0,0.32)"/>
-          </svg>
-          <span class="ph-tag">Photo · placeholder</span>
-          <span class="ini">ME</span>
-        </div>
-        <div class="meta">
-          <div class="n">Moses Engwau</div>
-          <div class="d">Strategy & Team</div>
-          <div class="b">Built two operating teams from 3 to 80. Specialises in the messy middle.</div>
-          <a class="coach-cta" href="explore/#strategy">Explore his discipline <span class="arrow">→</span></a>
-        </div>
-      </article>
-
-      <article class="coach-card c-stone">
-        <div class="frame">
-          <svg viewBox="0 0 280 360" preserveAspectRatio="xMidYMid slice">
-            <defs><radialGradient id="cg5" cx="40%" cy="32%" r="55%"><stop offset="0%" stop-color="rgba(239,231,216,0.20)"/><stop offset="100%" stop-color="rgba(239,231,216,0)"/></radialGradient></defs>
-            <rect width="280" height="360" fill="url(#cg5)"/>
-            <ellipse cx="140" cy="138" rx="56" ry="62" fill="rgba(0,0,0,0.28)"/>
-            <path d="M 140 198 C 90 198 56 240 50 300 L 50 360 L 230 360 L 230 300 C 224 240 190 198 140 198 Z" fill="rgba(0,0,0,0.32)"/>
-          </svg>
-          <span class="ph-tag">Photo · placeholder</span>
-          <span class="ini">PN</span>
-        </div>
-        <div class="meta">
-          <div class="n">Patrick Ngolobe</div>
-          <div class="d">Product & Pricing</div>
-          <div class="b">Shipped pricing for 4 SaaS companies. Knows why founders leave money on the table.</div>
-          <a class="coach-cta" href="explore/#product">Explore his discipline <span class="arrow">→</span></a>
-        </div>
-      </article>
-    </div>
-  </div>
-</section>
-
-<!-- ============================================================
-     §5  SOCIAL PROOF
-     ============================================================ -->
-<section class="proof on-ink" data-section="proof" data-screen-label="05 Proof">
-  <div class="shell">
-    <span class="eyebrow section-eb ochre"><span class="dot"></span>§5 Social Proof</span>
-    <h2 class="h-section">What founders say about our coaches.</h2>
-
-    <!-- Horizontal scroll carousel with arrow navigation -->
-    <div class="quotes-carousel" id="quotes-carousel">
-      <button class="quotes-arrow quotes-arrow-left" id="quotes-prev" type="button" aria-label="Previous testimonial">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M13 4l-6 6 6 6"/></svg>
-      </button>
-
-      <div class="quotes-track" id="quotes-track">
-        <article class="q c-terra">
-          <div class="marks">"</div>
-          <p class="body">I went into the Sprint with a 12-slide deck no one would read past slide 4. <b>I left with a financial model that closed our seed round in 9 weeks.</b> The difference was Barry walking me through unit economics until I could defend every number.</p>
-          <div class="who">
-            <div class="av">AM</div>
-            <div>
-              <div class="n">Aisha Mukasa</div>
-              <div class="co">Founder, Kasi Logistics · Logistics SaaS</div>
-            </div>
+        <form id="waitlist-form" novalidate>
+          <div class="field">
+            <input type="text"  name="name"     id="name"     placeholder="Your name"        autocomplete="name"         required>
           </div>
-        </article>
-
-        <article class="q c-ochre">
-          <div class="marks">"</div>
-          <p class="body">Joseph told me to throw out my pitch deck on day one. <b>He was right.</b> What we rebuilt was leaner, sharper, and got us in front of three investors I'd been chasing for months — without a single warm intro.</p>
-          <div class="who">
-            <div class="av">DO</div>
-            <div>
-              <div class="n">Daniel Okello</div>
-              <div class="co">Founder, FarmBeat · Agritech</div>
-            </div>
+          <div class="field">
+            <input type="text"  name="business" id="business" placeholder="Business name"    autocomplete="organization">
           </div>
-        </article>
-
-        <article class="q c-sage">
-          <div class="marks">"</div>
-          <p class="body">Five coaches. Five disciplines. <b>I came out with more clarity than two years of accelerator alumni Slack groups.</b> The deliverables alone are worth what I paid — but the network of founders running it with me is what made it stick.</p>
-          <div class="who">
-            <div class="av">SN</div>
-            <div>
-              <div class="n">Sarah Nakirya</div>
-              <div class="co">Co-founder, Pulse Health · Telemedicine</div>
-            </div>
+          <div class="field">
+            <input type="email" name="email"    id="email"    placeholder="Email address"    autocomplete="email"        required>
           </div>
-        </article>
-
-        <article class="q c-moss">
-          <div class="marks">"</div>
-          <p class="body">I'd never priced a product before — just guessed. Patrick walked me through three frameworks in one session and we re-priced by Friday. <b>Revenue doubled in 60 days.</b> The Sprint pays for itself before you finish it.</p>
-          <div class="who">
-            <div class="av">RM</div>
-            <div>
-              <div class="n">Ruth Mugisha</div>
-              <div class="co">Founder, Nuru · Edtech</div>
-            </div>
+          <div class="field">
+            <input type="tel"   name="phone"    id="phone"    placeholder="Phone / WhatsApp" autocomplete="tel">
           </div>
-        </article>
-      </div>
-
-      <button class="quotes-arrow quotes-arrow-right" id="quotes-next" type="button" aria-label="Next testimonial">
-        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M7 4l6 6-6 6"/></svg>
-      </button>
-    </div>
-
-    <div class="roster" style="display:none;">
-      Featured in: <span>TechCabal</span><span>Disrupt Africa</span><span>Daily Monitor</span><span>The EastAfrican</span><span>Innovation Village</span>
-    </div>
-  </div>
-</section>
-
-<!-- ============================================================
-     §6  DELIVERABLES
-     ============================================================ -->
-<section class="deliv on-paper" data-section="deliverables" data-screen-label="06 Deliverables">
-  <div class="shell">
-    <span class="eyebrow section-eb moss"><span class="dot"></span>§6 Your Data Room</span>
-    <h2 class="h-section">Every session gets you closer to completing your vision.</h2>
-    <p class="h-sub on-paper" style="margin-top:18px;">Each coaching session produces a vetted deliverable — signed off by the coach who built it with you. Five sessions. Five artifacts. One investor-ready data room.</p>
-
-    <div class="deliv-grid">
-      <!-- Data-room mock — column 1 -->
-      <div class="room">
-        <div class="titlebar">
-          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
-          <span class="ti">Founder data room · Kasi Logistics</span>
-        </div>
-        <div class="body">
-          <div class="row"><span class="fi"></span><span class="name">GTM_Strategy_v2.pdf</span><span class="sz">2.4 MB</span><span class="tag">Signed off</span></div>
-          <div class="row"><span class="fi"></span><span class="name">Financial_Model_36mo.xlsx</span><span class="sz">880 KB</span><span class="tag">Signed off</span></div>
-          <div class="row"><span class="fi"></span><span class="name">Pitch_Deck_seed.pdf</span><span class="sz">3.1 MB</span><span class="tag">Signed off</span></div>
-          <div class="row"><span class="fi"></span><span class="name">Competitive_Map.fig</span><span class="sz">1.2 MB</span><span class="tag">Signed off</span></div>
-          <div class="row"><span class="fi"></span><span class="name">Pricing_v3_final.pdf</span><span class="sz">640 KB</span><span class="tag pending">In review</span></div>
-          <div class="foot">
-            <span>5 of 5 deliverables</span>
-            <span><b>Ready</b> for investor share</span>
+          <div class="submit-wrap">
+            <button type="submit">JOIN THE WAITLIST</button>
           </div>
-        </div>
-      </div>
+        </form>
 
-      <!-- 5 deliverable descriptions — columns 2-6 -->
-      <div class="deliv-item c-terra">
-        <div class="num">01</div>
-        <div class="disc">Marketing & Branding</div>
-        <div class="ti">Go-to-market strategy & brand positioning</div>
-        <div class="detail">Channel mix · ICP · messaging hierarchy</div>
-      </div>
-      <div class="deliv-item c-ochre">
-        <div class="num">02</div>
-        <div class="disc">Financial Modelling</div>
-        <div class="ti">Financial model & unit economics breakdown</div>
-        <div class="detail">Excel + assumptions doc · 36-month projection</div>
-      </div>
-      <div class="deliv-item c-sage">
-        <div class="num">03</div>
-        <div class="disc">Investment Readiness</div>
-        <div class="ti">Investor-ready pitch deck & fundraising plan</div>
-        <div class="detail">15 slides · investor list · ask framing</div>
-      </div>
-      <div class="deliv-item c-moss">
-        <div class="num">04</div>
-        <div class="disc">Strategy & Team</div>
-        <div class="ti">Competitive analysis & team plan</div>
-        <div class="detail">Market map · 6-month hiring sequence</div>
-      </div>
-      <div class="deliv-item c-stone">
-        <div class="num">05</div>
-        <div class="disc">Product & Pricing</div>
-        <div class="ti">Product roadmap & pricing strategy</div>
-        <div class="detail">Quarterly roadmap · 3 pricing models tested</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- ============================================================
-     §7  PRICING — three interactive variants
-     ============================================================ -->
-<section class="pricing on-ink" data-section="pricing" data-screen-label="07 Pricing" id="pricing">
-  <div class="shell">
-    <div class="hdr">
-      <div>
-        <span class="eyebrow section-eb terra"><span class="dot"></span>§7 Pricing</span>
-        <h2 class="h-section" style="margin-top:16px;">Invest in yourself.</h2>
-        <p class="h-sub" style="margin-top:18px;">One session, a focused bundle, or the full sprint. Same world-class coaching — you choose the depth.</p>
-      </div>
-    </div>
-
-    <!-- ============== STAGE A — Bundle Builder ============== -->
-    <div class="stage active" id="stage-bundle">
-      <div class="bb-wrap">
-        <div class="bb-picker">
-          <div class="picker-h">
-            <span>Pick your disciplines</span>
-            <span><span class="cnt" id="bb-count">0</span>&nbsp;/&nbsp;5</span>
-          </div>
-          <div class="bb-disciplines" id="bb-disciplines">
-            <div class="bb-d c-terra" data-d="marketing">
-              <div class="check"></div>
-              <div class="dot"></div>
-              <div class="info"><div class="n">Marketing & Branding</div><div class="c">Teddy Ruge</div></div>
-              <div class="delv">→ GTM strategy</div>
-            </div>
-            <div class="bb-d c-ochre" data-d="finance">
-              <div class="check"></div>
-              <div class="dot"></div>
-              <div class="info"><div class="n">Financial Modelling</div><div class="c">Barry Wojega</div></div>
-              <div class="delv">→ Financial model</div>
-            </div>
-            <div class="bb-d c-sage" data-d="investment">
-              <div class="check"></div>
-              <div class="dot"></div>
-              <div class="info"><div class="n">Investment Readiness</div><div class="c">Joseph Kalema</div></div>
-              <div class="delv">→ Pitch deck</div>
-            </div>
-            <div class="bb-d c-moss" data-d="strategy">
-              <div class="check"></div>
-              <div class="dot"></div>
-              <div class="info"><div class="n">Strategy & Team</div><div class="c">Moses Engwau</div></div>
-              <div class="delv">→ Team plan</div>
-            </div>
-            <div class="bb-d c-stone" data-d="product">
-              <div class="check"></div>
-              <div class="dot"></div>
-              <div class="info"><div class="n">Product & Pricing</div><div class="c">Patrick Ngolobe</div></div>
-              <div class="delv">→ Roadmap & price</div>
-            </div>
-          </div>
-          <div class="clear-row">
-            <button type="button" class="clear" id="bb-clear">Clear selection</button>
-            <div class="preset">
-              <button type="button" data-preset="1">+1</button>
-              <button type="button" data-preset="3">Pick 3</button>
-              <button type="button" data-preset="5">All 5</button>
-            </div>
-          </div>
-        </div>
-
-        <aside class="bb-receipt" id="bb-receipt">
-          <span class="pill">Most popular</span>
-          <div>
-            <div class="tier-eb" id="bb-tier-eb">Pick to begin</div>
-            <div class="tier-name" id="bb-tier-name">Your bundle</div>
-          </div>
-          <div class="price-row">
-            <div class="price"><span class="ccy">UGX</span><span id="bb-price">—</span></div>
-            <div class="save" id="bb-save">save 33%</div>
-          </div>
-          <div class="breakdown">
-            <div class="row"><span>Disciplines</span><span class="v" id="bb-d-count">0</span></div>
-            <div class="row"><span>Coaches</span><span class="v" id="bb-c-count">0</span></div>
-            <div class="row"><span>Deliverables</span><span class="v" id="bb-dl-count">0</span></div>
-            <div class="row"><span>Duration</span><span class="v" id="bb-dur">—</span></div>
-          </div>
-          <div class="cta-row">
-            <button class="cta-primary" id="bb-cta" type="button" disabled>Choose a discipline →</button>
-            <div class="momo">Pay with <span class="m1">MTN&nbsp;MoMo</span> or <span class="m2">Airtel&nbsp;Money</span></div>
-          </div>
-        </aside>
-      </div>
-    </div>
-
-    <!-- ============== STAGE B — Comparison Matrix ============== -->
-    <div class="stage" id="stage-matrix">
-      <div class="matrix-wrap">
-        <table class="matrix">
-          <thead>
-            <tr>
-              <th></th>
-              <th class="tier-col" data-tier="single">
-                <div class="tn">One-on-One Coaching</div>
-                <div class="tp"><span class="ccy">UGX</span>500K</div>
-                <div class="tc">1 × 2-hour session</div>
-              </th>
-              <th class="tier-col popular" data-tier="pick3">
-                <div class="ribbon">Most popular</div>
-                <div class="tn">Pick 3 Bundle</div>
-                <div class="tp"><span class="ccy">UGX</span>1M</div>
-                <div class="tc">3 × 2-hour sessions · save 33%</div>
-              </th>
-              <th class="tier-col" data-tier="cohort">
-                <div class="tn">Full Cohort</div>
-                <div class="tp"><span class="ccy">UGX</span>2.5M</div>
-                <div class="tc">5 weeks · 50 hours of group coaching</div>
-              </th>
-            </tr>
-          </thead>
-          <tbody id="matrix-body">
-            <tr><td class="row-label">Best for<em>The founder who...</em></td><td class="cell dim">"I have one specific problem"</td><td class="cell dim popular">"I know my 3 biggest gaps"</td><td class="cell dim">"I want the complete foundation"</td></tr>
-            <tr><td class="row-label">Coaches<em>How many experts you work with</em></td><td class="cell">1</td><td class="cell popular">3</td><td class="cell">All 5</td></tr>
-            <tr><td class="row-label">Deliverables<em>Vetted, take-home artifacts</em></td><td class="cell">1</td><td class="cell popular">3</td><td class="cell">5</td></tr>
-            <tr><td class="row-label">Format<em>How sessions happen</em></td><td class="cell">1 × 2-hr session</td><td class="cell popular">3 × 2-hr sessions</td><td class="cell">5 weeks · 50 hrs group</td></tr>
-            <tr><td class="row-label">Founder data room<em>Investor-ready file hub</em></td><td class="cell no">—</td><td class="cell dim popular">Partial</td><td class="cell check">✓</td></tr>
-            <tr class="cta-row">
-              <td></td>
-              <td><a class="cell-cta" href="explore/">Map your problem →</a></td>
-              <td><a class="cell-cta primary" href="explore/">Build my bundle →</a></td>
-              <td><a class="cell-cta" href="explore/">Join cohort →</a></td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-    </div>
-
-    <!-- ============== STAGE C — Value Ladder ============== -->
-    <div class="stage" id="stage-ladder">
-      <div class="ladder-wrap">
-        <div class="ladder" id="ladder">
-          <div class="axis"><div class="progress" id="ladder-progress"></div></div>
-          <div class="nodes" id="ladder-nodes">
-            <div class="node reached active c-stone" data-step="0">
-              <div class="ball"></div>
-              <div class="info"><div class="lbl">One-on-One</div><div class="nm">1 × 2-hr session</div><div class="pr"><span class="ccy">UGX</span>500K</div></div>
-            </div>
-            <div class="node c-ochre" data-step="1">
-              <div class="ball"></div>
-              <div class="info"><div class="lbl">Pick 3</div><div class="nm">3 × 2-hr sessions</div><div class="pr"><span class="ccy">UGX</span>1M</div></div>
-            </div>
-            <div class="node c-terra" data-step="2">
-              <div class="ball"></div>
-              <div class="info"><div class="lbl">Full Cohort</div><div class="nm">5 weeks · 50 hours</div><div class="pr"><span class="ccy">UGX</span>2.5M</div></div>
-            </div>
-          </div>
-        </div>
-
-        <div class="ladder-detail" id="ladder-detail">
-          <div class="left">
-            <h3 id="ld-name">One-on-One Coaching</h3>
-            <p class="desc" id="ld-desc">"I have one specific problem and I need expert eyes on it."</p>
-            <ul class="bullets" id="ld-bullets">
-              <li>1 coach · 1 discipline · 1 vetted deliverable</li>
-              <li>1 × 2-hour live session</li>
-              <li>Recording + notes within 48 hours</li>
-            </ul>
-          </div>
-          <div class="right">
-            <div class="pri" id="ld-price"><span class="ccy">UGX</span>500K</div>
-            <div class="sub" id="ld-sub">Single session</div>
-            <a class="cta" id="ld-cta" href="explore/">Book session →</a>
-          </div>
+        <div class="success" id="success-msg" role="status">
+          <h2>YOU'RE ON THE LIST</h2>
+          <p>We'll be in touch before Cohort 1 opens.<br>Watch your inbox.</p>
         </div>
       </div>
     </div>
 
-    <!-- VIP & Corporate — separate from the main matrix -->
-    <div class="premium-tiers">
-      <div class="premium-card">
-        <div class="premium-label">VIP 1-on-1</div>
-        <div class="premium-price"><span class="ccy">UGX</span> 5M</div>
-        <p>All 5 coaches, dedicated sessions, 3 months post-programme advisory. Built for founders raising in the next 6 months.</p>
-        <a class="btn btn-ghost" href="explore/">Apply for VIP <span class="arrow">→</span></a>
-      </div>
-      <div class="premium-card">
-        <div class="premium-label">Corporate & Hub Partners</div>
-        <div class="premium-price">Custom</div>
-        <p>Branded cohorts for your portfolio or membership. Volume pricing, white-label reporting, and dedicated coach assignment.</p>
-        <a class="btn btn-ghost" href="/contact">Talk to our team <span class="arrow">→</span></a>
-      </div>
-    </div>
+  </div>
 
-    <div class="pay-strip">
-      <span>Pay your way · 2 taps from your phone</span>
-      <div class="badges">
-        <span class="badge momo">MTN MoMo</span>
-        <span class="badge airtel">Airtel Money</span>
-        <span class="badge">Bank transfer</span>
-      </div>
-    </div>
-  </div>
-</section>
+  <script>
+    /* ══════════════════════════════════════════════════════════════════════
+       VIDEO CAROUSEL — shuffled random rotation across all 5 bg loops
+    ══════════════════════════════════════════════════════════════════════ */
+    (function () {
+      const INTERVAL = 7000;   // ms between crossfades
+      const vids = Array.from(document.querySelectorAll('.video-carousel video'));
 
-<!-- ============================================================
-     §8  LAUNCH CTA
-     ============================================================ -->
-<section class="launch-cta" data-section="launch" data-screen-label="08 Launch">
-  <!-- Constellation background -->
-  <div class="launch-bg" aria-hidden="true">
-    <svg class="launch-constellation" viewBox="0 0 800 800" preserveAspectRatio="xMidYMid meet">
-      <defs>
-        <radialGradient id="lc-glow" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stop-color="#efe7d8" stop-opacity="0.08"/>
-          <stop offset="100%" stop-color="#efe7d8" stop-opacity="0"/>
-        </radialGradient>
-      </defs>
-      <!-- Orbital rings -->
-      <circle cx="400" cy="400" r="120" fill="none" stroke="#c8531f" stroke-width="0.4" opacity="0.12"/>
-      <circle cx="400" cy="400" r="220" fill="none" stroke="#c9923a" stroke-width="0.3" opacity="0.10"/>
-      <circle cx="400" cy="400" r="320" fill="none" stroke="#8aab5c" stroke-width="0.3" opacity="0.08"/>
-      <!-- Centre glow -->
-      <circle cx="400" cy="400" r="180" fill="url(#lc-glow)"/>
-      <!-- Connections -->
-      <line x1="400" y1="280" x2="510" y2="340" stroke="#c8531f" stroke-width="0.6" opacity="0.35"/>
-      <line x1="510" y1="340" x2="520" y2="460" stroke="#c9923a" stroke-width="0.5" opacity="0.30"/>
-      <line x1="520" y1="460" x2="420" y2="530" stroke="#8aab5c" stroke-width="0.5" opacity="0.28"/>
-      <line x1="420" y1="530" x2="300" y2="480" stroke="#3d4a2e" stroke-width="0.5" opacity="0.30"/>
-      <line x1="300" y1="480" x2="290" y2="360" stroke="#777770" stroke-width="0.5" opacity="0.28"/>
-      <line x1="290" y1="360" x2="400" y2="280" stroke="#c8531f" stroke-width="0.5" opacity="0.32"/>
-      <!-- Outer connections -->
-      <line x1="400" y1="280" x2="440" y2="180" stroke="#c8531f" stroke-width="0.4" opacity="0.22"/>
-      <line x1="510" y1="340" x2="620" y2="300" stroke="#c9923a" stroke-width="0.4" opacity="0.20"/>
-      <line x1="520" y1="460" x2="640" y2="520" stroke="#8aab5c" stroke-width="0.4" opacity="0.18"/>
-      <line x1="420" y1="530" x2="400" y2="650" stroke="#3d4a2e" stroke-width="0.4" opacity="0.20"/>
-      <line x1="300" y1="480" x2="180" y2="520" stroke="#777770" stroke-width="0.4" opacity="0.18"/>
-      <line x1="290" y1="360" x2="170" y2="300" stroke="#c8531f" stroke-width="0.4" opacity="0.20"/>
-      <!-- L1 nodes (inner ring) -->
-      <circle cx="400" cy="280" r="4" fill="#c8531f" opacity="0.7"/><circle cx="400" cy="280" r="10" fill="#c8531f" opacity="0.08"/>
-      <circle cx="510" cy="340" r="3.5" fill="#c9923a" opacity="0.65"/><circle cx="510" cy="340" r="9" fill="#c9923a" opacity="0.07"/>
-      <circle cx="520" cy="460" r="4" fill="#8aab5c" opacity="0.6"/><circle cx="520" cy="460" r="10" fill="#8aab5c" opacity="0.07"/>
-      <circle cx="420" cy="530" r="3.5" fill="#3d4a2e" opacity="0.6"/><circle cx="420" cy="530" r="9" fill="#3d4a2e" opacity="0.07"/>
-      <circle cx="300" cy="480" r="4" fill="#777770" opacity="0.55"/><circle cx="300" cy="480" r="10" fill="#777770" opacity="0.06"/>
-      <circle cx="290" cy="360" r="3.5" fill="#c8531f" opacity="0.6"/><circle cx="290" cy="360" r="9" fill="#c8531f" opacity="0.07"/>
-      <!-- L2 nodes (outer ring) -->
-      <circle cx="440" cy="180" r="2.5" fill="#c8531f" opacity="0.45"/>
-      <circle cx="620" cy="300" r="2.5" fill="#c9923a" opacity="0.40"/>
-      <circle cx="640" cy="520" r="2.5" fill="#8aab5c" opacity="0.38"/>
-      <circle cx="400" cy="650" r="2.5" fill="#3d4a2e" opacity="0.40"/>
-      <circle cx="180" cy="520" r="2.5" fill="#777770" opacity="0.38"/>
-      <circle cx="170" cy="300" r="2.5" fill="#c8531f" opacity="0.40"/>
-      <!-- Dust -->
-      <circle cx="350" cy="220" r="1" fill="#efe7d8" opacity="0.12"/>
-      <circle cx="570" cy="400" r="1" fill="#efe7d8" opacity="0.10"/>
-      <circle cx="460" cy="600" r="1" fill="#efe7d8" opacity="0.08"/>
-      <circle cx="220" cy="420" r="1" fill="#efe7d8" opacity="0.10"/>
-      <circle cx="500" cy="200" r="1" fill="#efe7d8" opacity="0.06"/>
-      <circle cx="250" cy="580" r="1" fill="#efe7d8" opacity="0.06"/>
-      <!-- Centre mark -->
-      <circle cx="400" cy="400" r="3" fill="#efe7d8" opacity="0.15"/>
-      <circle cx="400" cy="400" r="1.2" fill="#efe7d8" opacity="0.35"/>
-    </svg>
-  </div>
-  <!-- Nebula clouds -->
-  <div class="launch-clouds" aria-hidden="true"></div>
-  <!-- Content -->
-  <div class="launch-content">
-    <span class="eyebrow section-eb" style="background:var(--terra);"><span class="dot"></span>Now open</span>
-    <h2 class="launch-h">Active coaching begins<br><em>6 July 2026.</em></h2>
-    <p class="launch-sub">Cohort, individual, and corporate sessions. Five disciplines. Five coaches. Your direction starts here.</p>
-    <div class="launch-ctas">
-      <a class="btn-main" href="/login?intent=signup">Create Account</a>
-      <a class="btn-ghost-d" href="#pricing">View Pricing</a>
-    </div>
-  </div>
-</section>
+      function shuffle(arr) {
+        const a = arr.slice();
+        for (let i = a.length - 1; i > 0; i--) {
+          const j = Math.floor(Math.random() * (i + 1));
+          [a[i], a[j]] = [a[j], a[i]];
+        }
+        return a;
+      }
 
-<!-- ============================================================
-     §9  FAQ
-     ============================================================ -->
-<section class="faq on-paper" data-section="faq" data-screen-label="09 FAQ" id="faq" style="padding-top:0;">
-  <div class="shell">
-    <span class="eyebrow section-eb" style="background:var(--stone);"><span class="dot"></span>§9 FAQ</span>
-    <h2 class="h-section">Questions founders ask.</h2>
-    <div class="acc" id="faq-acc">
-      <div class="item">
-        <button class="q" type="button"><span class="num">01</span><span>Is this for me if I haven't started yet?</span><span class="icn"></span></button>
-        <div class="a"><div><div class="a-inner">Yes — if you have a clear idea you're committed to. The Sprint won't validate your idea for you; it will help you <em>build the business around it</em>. If you're still deciding what to start, a single discovery session with one of our coaches can help you decide.</div></div></div>
-      </div>
-      <div class="item">
-        <button class="q" type="button"><span class="num">02</span><span>What if I can only afford one session?</span><span class="icn"></span></button>
-        <div class="a"><div><div class="a-inner">That's exactly what the <em>Single Session</em> tier is for — UGX 500K, one coach, one deliverable. Many founders start there and upgrade to Pick 3 once they see the value. There's no penalty for upgrading later.</div></div></div>
-      </div>
-      <div class="item">
-        <button class="q" type="button"><span class="num">03</span><span>How is this different from an accelerator?</span><span class="icn"></span></button>
-        <div class="a"><div><div class="a-inner">Accelerators are a 3-month lottery: compete for equity-funded slots and get group programming. The Sprint is <em>five disciplines, no equity taken</em>, with the coaches you actually need, delivering artifacts you take home. Pay-as-you-go, not cohort-or-nothing.</div></div></div>
-      </div>
-      <div class="item">
-        <button class="q" type="button"><span class="num">04</span><span>What happens after the Sprint?</span><span class="icn"></span></button>
-        <div class="a"><div><div class="a-inner">You leave with vetted deliverables, an alumni network, and a 30-day advisory window with your coaches. Full Cohort founders get post-programme support and access to the <em>founder data room</em> — the same file set investors ask for.</div></div></div>
-      </div>
-      <div class="item">
-        <button class="q" type="button"><span class="num">05</span><span>Can I pay in instalments?</span><span class="icn"></span></button>
-        <div class="a"><div><div class="a-inner">Yes. The Full Cohort tier can be paid in 2 or 3 instalments via MTN MoMo, Airtel Money, or bank transfer. Single sessions and Pick 3 are paid up front. We don't take equity in lieu of payment — <em>your business stays yours.</em></div></div></div>
-      </div>
-      <div class="item">
-        <button class="q" type="button"><span class="num">06</span><span>Where do sessions happen?</span><span class="icn"></span></button>
-        <div class="a"><div><div class="a-inner">All sessions are live on Google Meet, scheduled on East Africa Time. You join from wherever you are in Uganda — Kampala, Jinja, Gulu, Mbarara. All you need is a phone and a stable connection. <em>No travel required.</em></div></div></div>
-      </div>
-    </div>
-  </div>
-</section>
+      let queue = shuffle(vids.map((_, i) => i));
+      let qi    = 0;
+      let cur   = queue[qi];
 
-<!-- ============================================================
-     §10  CLOSE
-     ============================================================ -->
-<section class="close on-ink" data-section="close" data-screen-label="10 Close" id="close">
-  <div class="shell">
-    <span class="eyebrow section-eb terra" style="margin: 0 auto 36px;display:inline-flex;"><span class="dot"></span>§10 The Ask</span>
-    <h2>Stop building <em>alone.</em></h2>
-    <p>Find the coach who's already solved the problem you're stuck on. One session, a focused bundle, or the full sprint — it starts with the right match.</p>
-    <div class="ctas">
-      <a class="btn btn-primary" href="explore/">Find your coach <span class="arrow">→</span></a>
-      <a class="btn btn-ghost" href="#pricing">Compare tiers</a>
-    </div>
-  </div>
-</section>
+      function activate(idx) {
+        vids.forEach((v, i) => {
+          if (i === idx) {
+            v.currentTime = 0;
+            v.play().catch(() => {});
+            v.classList.add('active');
+          } else {
+            v.classList.remove('active');
+          }
+        });
+        cur = idx;
+      }
 
-<!-- ============================================================
-     FOOTER
-     ============================================================ -->
-<footer>
-  <div class="footer-constellation-bg" aria-hidden="true">
-    <svg viewBox="0 0 1600 400" preserveAspectRatio="xMidYMid slice" style="opacity:0.45">
-      <line x1="120" y1="60" x2="320" y2="160" stroke="#c8531f" stroke-width="0.6" opacity="0.45"/>
-      <line x1="320" y1="160" x2="520" y2="100" stroke="#c9923a" stroke-width="0.5" opacity="0.4"/>
-      <line x1="520" y1="100" x2="720" y2="200" stroke="#8aab5c" stroke-width="0.5" opacity="0.35"/>
-      <line x1="720" y1="200" x2="920" y2="120" stroke="#3d4a2e" stroke-width="0.5" opacity="0.4"/>
-      <line x1="920" y1="120" x2="1120" y2="240" stroke="#777770" stroke-width="0.5" opacity="0.35"/>
-      <line x1="1120" y1="240" x2="1360" y2="150" stroke="#c8531f" stroke-width="0.5" opacity="0.4"/>
-      <line x1="1360" y1="150" x2="1520" y2="220" stroke="#c9923a" stroke-width="0.5" opacity="0.35"/>
-      <line x1="200" y1="280" x2="400" y2="340" stroke="#c8531f" stroke-width="0.4" opacity="0.3"/>
-      <line x1="400" y1="340" x2="640" y2="280" stroke="#8aab5c" stroke-width="0.4" opacity="0.3"/>
-      <line x1="640" y1="280" x2="880" y2="340" stroke="#c9923a" stroke-width="0.4" opacity="0.3"/>
-      <line x1="880" y1="340" x2="1100" y2="310" stroke="#3d4a2e" stroke-width="0.4" opacity="0.3"/>
-      <line x1="1100" y1="310" x2="1400" y2="350" stroke="#777770" stroke-width="0.4" opacity="0.25"/>
-      <line x1="320" y1="160" x2="400" y2="340" stroke="#c9923a" stroke-width="0.3" opacity="0.2"/>
-      <line x1="720" y1="200" x2="640" y2="280" stroke="#8aab5c" stroke-width="0.3" opacity="0.2"/>
-      <line x1="1120" y1="240" x2="1100" y2="310" stroke="#777770" stroke-width="0.3" opacity="0.2"/>
-      <circle cx="120" cy="60" r="3" fill="#c8531f" opacity="0.65"/><circle cx="120" cy="60" r="7" fill="#c8531f" opacity="0.12"/>
-      <circle cx="320" cy="160" r="3.5" fill="#c9923a" opacity="0.6"/><circle cx="320" cy="160" r="8" fill="#c9923a" opacity="0.10"/>
-      <circle cx="520" cy="100" r="2.5" fill="#8aab5c" opacity="0.55"/><circle cx="520" cy="100" r="6" fill="#8aab5c" opacity="0.10"/>
-      <circle cx="720" cy="200" r="4" fill="#3d4a2e" opacity="0.55"/><circle cx="720" cy="200" r="9" fill="#3d4a2e" opacity="0.10"/>
-      <circle cx="920" cy="120" r="2.5" fill="#777770" opacity="0.5"/><circle cx="920" cy="120" r="6" fill="#777770" opacity="0.08"/>
-      <circle cx="1120" cy="240" r="3" fill="#c8531f" opacity="0.55"/><circle cx="1120" cy="240" r="7" fill="#c8531f" opacity="0.10"/>
-      <circle cx="1360" cy="150" r="3.5" fill="#c9923a" opacity="0.6"/><circle cx="1360" cy="150" r="8" fill="#c9923a" opacity="0.10"/>
-      <circle cx="1520" cy="220" r="2" fill="#8aab5c" opacity="0.5"/>
-      <circle cx="200" cy="280" r="2" fill="#c8531f" opacity="0.45"/>
-      <circle cx="400" cy="340" r="2.5" fill="#8aab5c" opacity="0.45"/><circle cx="400" cy="340" r="5" fill="#8aab5c" opacity="0.08"/>
-      <circle cx="640" cy="280" r="2" fill="#c9923a" opacity="0.4"/>
-      <circle cx="880" cy="340" r="3" fill="#3d4a2e" opacity="0.45"/><circle cx="880" cy="340" r="6" fill="#3d4a2e" opacity="0.08"/>
-      <circle cx="1100" cy="310" r="2" fill="#777770" opacity="0.4"/>
-      <circle cx="1400" cy="350" r="1.5" fill="#c8531f" opacity="0.35"/>
-      <circle cx="60" cy="180" r="1" fill="#efe7d8" opacity="0.15"/>
-      <circle cx="260" cy="40" r="1" fill="#efe7d8" opacity="0.12"/>
-      <circle cx="600" cy="380" r="1" fill="#efe7d8" opacity="0.10"/>
-      <circle cx="1000" cy="50" r="1" fill="#efe7d8" opacity="0.12"/>
-      <circle cx="1240" cy="340" r="1" fill="#efe7d8" opacity="0.10"/>
-      <circle cx="1480" cy="80" r="1" fill="#efe7d8" opacity="0.10"/>
-      <circle cx="800" cy="40" r="1" fill="#efe7d8" opacity="0.08"/>
-      <circle cx="160" cy="360" r="1" fill="#efe7d8" opacity="0.08"/>
-    </svg>
-  </div>
-  <div class="row">
-    <div class="col brand-col">
-      <svg class="footer-logo" viewBox="0 5 400 50" xmlns="http://www.w3.org/2000/svg" aria-label="The Founder's Sprint"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.85" transform="rotate(0,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.8" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.78" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.82" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/><text x="118" y="43" font-family="'Josefin Sans',sans-serif" font-weight="700" font-size="17" letter-spacing="3.5" fill="#EFE7D8">THE FOUNDER'S SPRINT</text></svg>
-      <p class="blurb">Learn from practitioners who leverage their experience for your growth. Five coaches. Five disciplines.</p>
-      <div class="footer-social">
-        <a href="https://www.linkedin.com/company/121984533/" target="_blank" rel="noopener" aria-label="LinkedIn">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
-        </a>
-        <a href="https://www.instagram.com/founderssprint" target="_blank" rel="noopener" aria-label="Instagram">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
-        </a>
-      </div>
-    </div>
-    <div class="col">
-      <h6>Programme</h6>
-      <ul>
-        <li><a href="#method">Method</a></li>
-        <li><a href="#coaches">Coaches</a></li>
-        <li><a href="explore/">Explore</a></li>
-        <li><a href="#pricing">Pricing</a></li>
-      </ul>
-    </div>
-    <div class="col">
-      <h6>For Institutions</h6>
-      <ul>
-        <li><a href="#pricing">VIP 1-on-1</a></li>
-        <li><a href="#pricing">Custom programmes</a></li>
-        <li><a href="contact.html">Partner with us</a></li>
-      </ul>
-    </div>
-    <div class="col">
-      <h6>Resources</h6>
-      <ul>
-        <li><a href="directory.html">Service Directory</a></li>
-        <li><a href="apply-directory.html">Become a Provider</a></li>
-      </ul>
-    </div>
-    <div class="col">
-      <h6>Company</h6>
-      <ul>
-        <li><a href="#faq">FAQ</a></li>
-        <li><a href="contact.html">Contact</a></li>
-        <li><a href="terms.html">Terms of Service</a></li>
-        <li><a href="privacy.html">Privacy Policy</a></li>
-        <li><a href="cookies.html">Cookie Notice</a></li>
-      </ul>
-    </div>
-  </div>
-  <div class="bottom">
-    <span>© 2026 · The Founder's Sprint · Kampala</span>
-    <span>Made in Uganda</span>
-  </div>
-</footer>
+      // Pick a random starting video immediately
+      activate(cur);
 
+      setInterval(() => {
+        qi++;
+        if (qi >= queue.length) {
+          // Reshuffle — ensure we don't repeat the last clip
+          const fresh = shuffle(vids.map((_, i) => i));
+          if (fresh[0] === cur) fresh.push(fresh.shift());
+          queue = fresh;
+          qi    = 0;
+        }
+        activate(queue[qi]);
+      }, INTERVAL);
+    })();
 
-<script src="homepage.js"></script>
+    /* ══════════════════════════════════════════════════════════════════════
+       FILM GRAIN — drawn at ½ res, CSS-stretched → 2px texture
+    ══════════════════════════════════════════════════════════════════════ */
+    const grainCanvas = document.getElementById('grain');
+    const gc = grainCanvas.getContext('2d');
+    let GW, GH;
+
+    function resizeGrain() {
+      GW = Math.ceil(window.innerWidth  / 2);
+      GH = Math.ceil(window.innerHeight / 2);
+      grainCanvas.width  = GW;
+      grainCanvas.height = GH;
+    }
+    resizeGrain();
+    window.addEventListener('resize', resizeGrain);
+
+    function updateGrain() {
+      const img = gc.createImageData(GW, GH);
+      const d   = img.data;
+      for (let i = 0; i < d.length; i += 4) {
+        const v = Math.random() * 255;
+        d[i] = d[i+1] = d[i+2] = v;
+        d[i+3] = 255;
+      }
+      gc.putImageData(img, 0, 0);
+    }
+    updateGrain();
+    setInterval(updateGrain, 1000 / 12);   // 12 fps grain
+
+    /* ══════════════════════════════════════════════════════════════════════
+       BRAND TOKENS
+    ══════════════════════════════════════════════════════════════════════ */
+    const COLS  = ['#C8531F', '#C9923A', '#8AAB5C', '#3D4A2E', '#777770'];
+    const OPS   = [ 0.85,      0.80,      0.78,      0.82,      0.75    ];
+    const NAMES = [
+      'MARKETING', 'FINANCIAL\nMODELLING', 'INVESTMENT\nREADINESS',
+      'STRATEGY\n& TEAM', 'PRODUCT\nDEV',
+    ];
+    const INK   = '#1A1A1A';
+    const PAPER = '#EFE7D8';
+    const TERRA = '#C8531F';
+
+    /* ══════════════════════════════════════════════════════════════════════
+       CONSTELLATION CANVAS
+    ══════════════════════════════════════════════════════════════════════ */
+    const canvas = document.getElementById('constellation');
+    const ctx    = canvas.getContext('2d');
+    let W, H, CX, CY;
+
+    function resize() {
+      const dpr  = Math.min(window.devicePixelRatio || 1, 2);
+      const rect = canvas.getBoundingClientRect();
+      W = rect.width;
+      H = rect.height;
+      canvas.width  = W * dpr;
+      canvas.height = H * dpr;
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      CX = W / 2;
+      // Centre the constellation in the upper ~58% of the frame,
+      // leaving the lower third clear for the form panel.
+      CY = H * 0.33;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    /* ── V6 mark ──────────────────────────────────────────────────────── */
+    const LOZENGE = [[0,-42],[7,0],[0,42],[-7,0]];
+
+    function drawMark(cx, cy, r, rotation) {
+      const s = r / 50;
+      ctx.save();
+      ctx.translate(cx, cy);
+      ctx.rotate(rotation);
+
+      for (let i = 0; i < 5; i++) {
+        ctx.save();
+        ctx.rotate((i * 72 * Math.PI) / 180);
+        ctx.globalAlpha = OPS[i];
+        ctx.fillStyle   = COLS[i];
+        ctx.beginPath();
+        ctx.moveTo(LOZENGE[0][0] * s, LOZENGE[0][1] * s);
+        for (let j = 1; j < LOZENGE.length; j++)
+          ctx.lineTo(LOZENGE[j][0] * s, LOZENGE[j][1] * s);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
+
+      ctx.globalAlpha = 1;
+      ctx.beginPath();
+      ctx.arc(0, 0, 4.5 * s, 0, Math.PI * 2);
+      ctx.fillStyle = PAPER;
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(0, 0, 2 * s, 0, Math.PI * 2);
+      ctx.fillStyle = INK;
+      ctx.fill();
+
+      ctx.restore();
+    }
+
+    /* ── Orbital nodes ────────────────────────────────────────────────── */
+    const TILT = 0.38;
+
+    const NODES = COLS.map((_, i) => ({
+      baseAngle:   (i * 72 - 90) * Math.PI / 180,
+      angVel:      0.000165 + i * 0.000012,
+      wobbleAmp:   9 + i * 3.5,
+      wobbleFreq:  0.00028 + i * 0.000075,
+      wobblePhase: i * 1.31,
+    }));
+
+    function nodePos(node, t, baseR) {
+      const angle = node.baseAngle + node.angVel * t;
+      const r     = baseR + Math.sin(node.wobbleFreq * t + node.wobblePhase) * node.wobbleAmp;
+      const sx    = Math.cos(angle) * r;
+      const sy    = Math.sin(angle) * r * TILT;
+      return { x: sx, y: sy, angle: Math.atan2(sy, sx) };
+    }
+
+    /* ── Pulse rings ──────────────────────────────────────────────────── */
+    function drawPulses(cx, cy, markR, t, ga) {
+      const PERIOD = 3200;
+      for (let p = 0; p < 3; p++) {
+        const phase = ((t / PERIOD) + p / 3) % 1;
+        const pr    = markR + phase * markR * 2.8;
+        const pa    = (1 - phase) * 0.18 * ga;
+        ctx.beginPath();
+        ctx.arc(cx, cy, pr, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(200,83,31,${pa})`;
+        ctx.lineWidth   = 1;
+        ctx.stroke();
+      }
+    }
+
+    /* ── Hex → rgba helper ───────────────────────────────────────────── */
+    function hexAlpha(hex, a) {
+      const r = parseInt(hex.slice(1,3),16);
+      const g = parseInt(hex.slice(3,5),16);
+      const b = parseInt(hex.slice(5,7),16);
+      return `rgba(${r},${g},${b},${a})`;
+    }
+
+    /* ── Node labels ──────────────────────────────────────────────────── */
+    function drawLabel(text, x, y, color, ga) {
+      const lines = text.split('\n');
+      ctx.font         = `700 9px 'Josefin Sans', sans-serif`;
+      ctx.textAlign    = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillStyle    = color;
+      ctx.globalAlpha  = ga * 0.65;
+      const lh  = 13;
+      const top = y - ((lines.length - 1) * lh) / 2;
+      lines.forEach((line, i) => ctx.fillText(line, x, top + i * lh));
+      ctx.globalAlpha = 1;
+    }
+
+    /* ══════════════════════════════════════════════════════════════════════
+       RENDER LOOP
+    ══════════════════════════════════════════════════════════════════════ */
+    let startTime = null;
+
+    function draw(ts) {
+      if (!startTime) startTime = ts;
+      const t  = ts - startTime;
+      const ga = Math.min(1, t / 1800);
+
+      ctx.clearRect(0, 0, W, H);
+
+      const isMobile = W < 500;
+
+      // ── 150% scale vs original ──────────────────────────────────────────
+      // Original: orbitalR = min(W,H) * 0.32, markR = min(W,H) * 0.08
+      // × 1.5:
+      const base     = Math.min(W, H);
+      const orbitalR = base * (isMobile ? 0.45 : 0.48);
+      const markR    = base * (isMobile ? 0.127 : 0.12);
+      const nodeR    = isMobile ? 7.5 : 9.5;
+      const showLabels = orbitalR > 130;
+
+      ctx.save();
+      ctx.globalAlpha = ga;
+
+      const pos = NODES.map(n => nodePos(n, t, orbitalR));
+
+      // ── Radial lines ──────────────────────────────────────────────────
+      pos.forEach((p, i) => {
+        const nx = CX + p.x, ny = CY + p.y;
+        const g  = ctx.createLinearGradient(CX, CY, nx, ny);
+        g.addColorStop(0,    hexAlpha(COLS[i], 0.0));
+        g.addColorStop(0.25, hexAlpha(COLS[i], 0.08));
+        g.addColorStop(1,    hexAlpha(COLS[i], 0.28));
+        ctx.beginPath();
+        ctx.moveTo(CX, CY);
+        ctx.lineTo(nx, ny);
+        ctx.strokeStyle = g;
+        ctx.lineWidth   = 0.7;
+        ctx.stroke();
+      });
+
+      // ── Inter-node lines ──────────────────────────────────────────────
+      for (let i = 0; i < 5; i++) {
+        const j  = (i + 1) % 5;
+        const ax = CX + pos[i].x, ay = CY + pos[i].y;
+        const bx = CX + pos[j].x, by = CY + pos[j].y;
+        ctx.beginPath();
+        ctx.moveTo(ax, ay);
+        ctx.lineTo(bx, by);
+        ctx.strokeStyle = 'rgba(239,231,216,0.05)';
+        ctx.lineWidth   = 0.5;
+        ctx.stroke();
+      }
+
+      // ── Pulse rings ───────────────────────────────────────────────────
+      ctx.globalAlpha = 1;
+      drawPulses(CX, CY, markR, t, ga);
+      ctx.globalAlpha = ga;
+
+      // ── Nodes ─────────────────────────────────────────────────────────
+      pos.forEach((p, i) => {
+        const nx = CX + p.x, ny = CY + p.y;
+
+        const glow = ctx.createRadialGradient(nx, ny, 0, nx, ny, nodeR * 4);
+        glow.addColorStop(0, hexAlpha(COLS[i], 0.38));
+        glow.addColorStop(1, hexAlpha(COLS[i], 0.00));
+        ctx.beginPath();
+        ctx.arc(nx, ny, nodeR * 4, 0, Math.PI * 2);
+        ctx.fillStyle   = glow;
+        ctx.globalAlpha = ga;
+        ctx.fill();
+
+        ctx.beginPath();
+        ctx.arc(nx, ny, nodeR, 0, Math.PI * 2);
+        ctx.fillStyle   = COLS[i];
+        ctx.globalAlpha = ga * OPS[i];
+        ctx.fill();
+        ctx.globalAlpha = ga;
+
+        if (showLabels) {
+          const labelDist = nodeR + (isMobile ? 16 : 22);
+          const ang = Math.atan2(p.y, p.x);
+          const lx  = nx + Math.cos(ang) * labelDist;
+          const ly  = ny + Math.sin(ang) * labelDist;
+          drawLabel(NAMES[i], lx, ly, COLS[i], ga);
+        }
+      });
+
+      // ── V6 mark — slow spin ───────────────────────────────────────────
+      ctx.globalAlpha = 1;
+      const markSpin  = t * (Math.PI * 2 / 72000);
+      drawMark(CX, CY, markR, markSpin);
+
+      ctx.restore();
+      requestAnimationFrame(draw);
+    }
+
+    requestAnimationFrame(draw);
+
+    /* ══════════════════════════════════════════════════════════════════════
+       FORM
+    ══════════════════════════════════════════════════════════════════════ */
+    document.getElementById('waitlist-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const btn = this.querySelector('button[type="submit"]');
+      btn.disabled    = true;
+      btn.textContent = 'SENDING…';
+
+      const data = {
+        name:     this.name.value.trim(),
+        business: this.business.value.trim(),
+        email:    this.email.value.trim(),
+        phone:    this.phone.value.trim(),
+      };
+
+      try {
+        /* ── Production: replace with your API or Mailchimp endpoint ──────
+           await fetch('/api/waitlist', {
+             method:  'POST',
+             headers: { 'Content-Type': 'application/json' },
+             body:    JSON.stringify(data),
+           });
+        ─────────────────────────────────────────────────────────────────── */
+        await new Promise(r => setTimeout(r, 600));
+
+        this.style.display = 'none';
+        document.getElementById('success-msg').style.display = 'block';
+      } catch (err) {
+        btn.disabled    = false;
+        btn.textContent = 'JOIN THE WAITLIST';
+        alert('Something went wrong — please try again.');
+      }
+    });
+  </script>
 </body>
 </html>

@@ -1,0 +1,1713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coach Application — The Founder's Sprint</title>
+<meta name="description" content="Apply to become a coach on The Founder's Sprint platform. Join East Africa's premier startup coaching programme.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;700&family=Cormorant+Garamond:ital,wght@0,300;1,300;1,400&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════ TOKENS ═══════════════════ */
+:root {
+  --ink:        #1A1A1A;
+  --ink-soft:   #2A2826;
+  --ink-mute:   #5A564F;
+  --paper:      #EFE7D8;
+  --paper-deep: #E6DCC7;
+  --terra:      #C8531F;
+  --terra-deep: #9A3E16;
+  --ochre:      #C9923A;
+  --sage:       #8AAB5C;
+  --moss:       #3D4A2E;
+  --stone:      #777770;
+  --rule:       rgba(26,26,26,0.18);
+  --err:        #D94040;
+  --paper-15:   rgba(239,231,216,0.15);
+  --paper-30:   rgba(239,231,216,0.30);
+  --paper-40:   rgba(239,231,216,0.40);
+  --paper-60:   rgba(239,231,216,0.60);
+  --paper-80:   rgba(239,231,216,0.80);
+}
+
+/* ═══════════════════ RESET ═══════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; -webkit-text-size-adjust: 100%; }
+body {
+  font-family: 'Josefin Sans', system-ui, sans-serif;
+  background: var(--ink);
+  color: var(--paper);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+}
+a { color: var(--terra); text-decoration: none; }
+a:hover { opacity: 0.85; }
+
+/* ═══════════════════ PROGRESS BAR ═══════════════════ */
+.progress-bar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  height: 3px; background: rgba(239,231,216,0.08);
+}
+.progress-fill {
+  height: 100%; width: 0%; background: var(--terra);
+  transition: width 0.3s ease;
+}
+
+/* ═══════════════════ HEADER ═══════════════════ */
+.site-header {
+  position: sticky; top: 0; z-index: 90;
+  background: rgba(26,26,26,0.92); backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(239,231,216,0.06);
+  padding: 0 24px;
+}
+.header-inner {
+  max-width: 820px; margin: 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  height: 56px;
+}
+.header-brand {
+  display: flex; align-items: center; gap: 14px;
+  text-decoration: none; color: var(--paper);
+}
+.header-mark { width: 32px; height: 32px; }
+.header-name {
+  font-size: 10px; font-weight: 700; letter-spacing: 5px;
+  text-transform: uppercase; opacity: 0.65;
+}
+.header-step {
+  font-size: 12px; font-weight: 300; letter-spacing: 0.5px;
+  color: var(--paper); opacity: 0.5;
+}
+
+/* ═══════════════════ STEP NAV ═══════════════════ */
+.step-nav {
+  display: flex; gap: 4px; padding: 20px 24px 0;
+  max-width: 820px; margin: 0 auto;
+}
+.step-dot {
+  flex: 1; height: 3px; border-radius: 2px;
+  background: rgba(239,231,216,0.1);
+  transition: background 0.4s ease;
+  cursor: pointer;
+}
+.step-dot.completed { background: var(--terra); opacity: 0.6; }
+.step-dot.active { background: var(--terra); opacity: 1; }
+
+/* ═══════════════════ MAIN LAYOUT ═══════════════════ */
+.form-container {
+  max-width: 820px; margin: 0 auto;
+  padding: 0 24px 80px;
+}
+
+/* ═══════════════════ INTRO ═══════════════════ */
+.form-intro {
+  padding: 48px 0 40px;
+  border-bottom: 1px solid rgba(239,231,216,0.08);
+  margin-bottom: 40px;
+}
+.form-intro .eyebrow {
+  font-size: 10px; font-weight: 700; letter-spacing: 5px;
+  text-transform: uppercase; color: var(--paper); opacity: 0.35;
+  margin-bottom: 16px;
+}
+.form-intro h1 {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-weight: 300; font-style: italic;
+  font-size: clamp(32px, 6vw, 48px);
+  line-height: 1.2; letter-spacing: -0.01em;
+  margin-bottom: 16px;
+}
+.form-intro p {
+  font-size: 15px; font-weight: 300; line-height: 1.7;
+  color: var(--paper); opacity: 0.6;
+  max-width: 560px;
+}
+
+/* ═══════════════════ SAVE BANNER ═══════════════════ */
+.save-banner {
+  display: none; align-items: center; justify-content: center; gap: 8px;
+  padding: 10px 20px;
+  background: rgba(138,171,92,0.12);
+  border-radius: 4px;
+  margin-bottom: 32px;
+  font-size: 13px; font-weight: 400; color: var(--sage);
+  animation: fadeIn 0.4s ease;
+}
+.save-banner.visible { display: flex; }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+/* ═══════════════════ SECTIONS ═══════════════════ */
+.form-section {
+  display: none;
+  animation: sectionIn 0.5s cubic-bezier(0.22,1,0.36,1) both;
+}
+.form-section.active { display: block; }
+
+@keyframes sectionIn {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.section-header {
+  margin-bottom: 32px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid rgba(239,231,216,0.08);
+}
+.section-number {
+  font-size: 10px; font-weight: 700; letter-spacing: 5px;
+  text-transform: uppercase; color: var(--terra); opacity: 0.8;
+  margin-bottom: 10px;
+}
+.section-title {
+  font-size: 24px; font-weight: 300; letter-spacing: -0.01em;
+  margin-bottom: 8px;
+}
+.section-desc {
+  font-size: 14px; font-weight: 300; line-height: 1.6;
+  color: var(--paper); opacity: 0.55;
+}
+
+/* ═══════════════════ FIELDS ═══════════════════ */
+.field-group { margin-bottom: 28px; }
+.field-row { margin-bottom: 28px; }
+.field-pair {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 20px;
+  margin-bottom: 28px;
+}
+@media (max-width: 600px) {
+  .field-pair { grid-template-columns: 1fr; gap: 20px; }
+}
+
+label {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+  font-size: 15px; font-weight: 400; letter-spacing: 0.3px;
+  color: var(--paper);
+  margin-bottom: 10px;
+}
+.req { color: var(--terra); font-weight: 700; }
+
+.vis-tag {
+  font-size: 9px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; padding: 2px 8px; border-radius: 2px;
+}
+.vis-tag.public {
+  background: rgba(138,171,92,0.15); color: var(--sage);
+}
+.vis-tag.admin {
+  background: rgba(239,231,216,0.08); color: var(--stone);
+}
+
+input[type="text"],
+input[type="email"],
+input[type="url"],
+input[type="tel"],
+input[type="number"],
+textarea,
+select {
+  width: 100%;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--paper-15);
+  color: var(--paper);
+  font-family: 'Josefin Sans', system-ui, sans-serif;
+  font-size: 15px; font-weight: 300;
+  letter-spacing: 0.3px;
+  padding: 12px 0;
+  outline: none;
+  transition: border-color 0.25s ease;
+}
+input:focus, textarea:focus, select:focus {
+  border-bottom-color: var(--terra);
+}
+input::placeholder, textarea::placeholder {
+  color: var(--paper-30); font-weight: 300;
+}
+textarea { resize: vertical; min-height: 80px; line-height: 1.6; }
+select {
+  cursor: pointer;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23EFE7D8' stroke-width='1.5' fill='none' opacity='0.5'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 4px center;
+  padding-right: 24px;
+}
+select option { background: var(--ink); color: var(--paper); }
+
+.field-hint {
+  display: block; margin-top: 8px;
+  font-size: 13px; font-weight: 300; letter-spacing: 0.3px;
+  color: var(--paper); opacity: 0.50;
+  line-height: 1.5;
+}
+
+.field-error {
+  display: none; margin-top: 6px;
+  font-size: 12px; font-weight: 400;
+  color: var(--err);
+}
+.has-error input, .has-error select, .has-error textarea {
+  border-bottom-color: var(--err);
+}
+.has-error .field-error { display: block; }
+
+.readonly-field {
+  opacity: 0.5; cursor: not-allowed;
+  border-bottom-style: dashed;
+}
+
+/* ── Phone field with country code ── */
+.phone-group {
+  display: flex; gap: 12px; align-items: flex-end;
+}
+.phone-group select {
+  width: 140px; flex-shrink: 0;
+  font-size: 14px;
+}
+.phone-group input { flex: 1; }
+
+/* ═══════════════════ SECTOR MULTI-SELECT ═══════════════════ */
+.sector-grid {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 6px;
+}
+@media (max-width: 480px) {
+  .sector-grid { grid-template-columns: 1fr; }
+}
+.sector-chip {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px; border-radius: 4px;
+  cursor: pointer; transition: background 0.2s;
+  font-size: 14px; font-weight: 300;
+}
+.sector-chip:hover { background: rgba(239,231,216,0.04); }
+.sector-chip input[type="checkbox"] {
+  width: 16px; height: 16px; flex-shrink: 0;
+  accent-color: var(--terra); cursor: pointer;
+}
+
+/* ═══════════════════ FILE UPLOAD ═══════════════════ */
+.file-upload {
+  position: relative;
+  border: 1px dashed rgba(239,231,216,0.18);
+  border-radius: 4px;
+  padding: 28px 24px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 0.25s, background 0.25s;
+  overflow: hidden;
+}
+.file-upload:hover, .file-upload.drag-over {
+  border-color: var(--terra);
+  background: rgba(200,83,31,0.04);
+}
+.file-upload input[type="file"] {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  width: 100%; height: 100%;
+  opacity: 0; cursor: pointer;
+  z-index: 2;
+  font-size: 0;
+  border: none; padding: 0;
+}
+.file-upload-icon {
+  display: block; margin: 0 auto 12px;
+  width: 36px; height: 36px; opacity: 0.35;
+}
+.file-upload-label {
+  font-size: 14px; font-weight: 400; letter-spacing: 0.3px;
+  color: var(--paper); opacity: 0.65;
+  margin-bottom: 6px;
+}
+.file-upload-hint {
+  font-size: 12px; font-weight: 300;
+  color: var(--paper); opacity: 0.4;
+}
+.file-upload-preview {
+  display: none; margin-top: 14px;
+  font-size: 13px; color: var(--sage);
+  font-weight: 400;
+}
+
+/* ═══════════════════ CHECKBOXES ═══════════════════ */
+.check-group { border: none; margin-bottom: 28px; }
+.check-group legend {
+  font-size: 15px; font-weight: 400; letter-spacing: 0.3px;
+  color: var(--paper);
+  margin-bottom: 14px;
+  display: flex; align-items: center; gap: 8px;
+}
+.check-item {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 12px 16px; margin-bottom: 6px;
+  border-radius: 4px; cursor: pointer;
+  transition: background 0.2s;
+}
+.check-item:hover { background: rgba(239,231,216,0.04); }
+.check-item input[type="checkbox"] {
+  width: 18px; height: 18px; flex-shrink: 0;
+  margin-top: 2px;
+  accent-color: var(--terra);
+  cursor: pointer;
+}
+.check-label {
+  font-size: 15px; font-weight: 300; line-height: 1.5;
+}
+.check-label small {
+  display: block; margin-top: 4px;
+  font-size: 12px; opacity: 0.45;
+  line-height: 1.5;
+}
+.check-item.is-disabled {
+  opacity: 0.3; pointer-events: none;
+}
+
+/* ── Multi-select box ── */
+.multi-select-box {
+  border: 1px solid rgba(239,231,216,0.1);
+  border-radius: 4px;
+  padding: 8px;
+  max-height: 280px; overflow-y: auto;
+}
+.multi-select-empty {
+  font-size: 13px; opacity: 0.35; padding: 16px;
+  text-align: center; font-weight: 300;
+}
+.multi-select-count {
+  text-align: right; padding: 8px 8px 4px;
+  font-size: 10px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--stone);
+}
+.multi-select-count.at-limit { color: var(--terra); }
+
+/* ── L3 groups ── */
+.l3-group {
+  margin-bottom: 20px;
+  padding: 16px;
+  background: rgba(239,231,216,0.03);
+  border-radius: 4px;
+}
+.l3-group-title {
+  font-size: 12px; font-weight: 700; letter-spacing: 1px;
+  color: var(--ochre); margin-bottom: 12px;
+  text-transform: uppercase;
+}
+
+/* ── Cohort slot indicator ── */
+.cohort-slot {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 16px; margin-bottom: 6px;
+  background: rgba(200,83,31,0.08);
+  border-radius: 4px;
+  border-left: 3px solid var(--terra);
+}
+.cohort-slot-label {
+  font-size: 14px; font-weight: 400; letter-spacing: 0.3px;
+}
+.cohort-slot-tag {
+  font-size: 9px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--terra);
+}
+
+/* ═══════════════════ ADMIN NOTE ═══════════════════ */
+.admin-note {
+  display: flex; gap: 12px; align-items: flex-start;
+  padding: 16px 20px;
+  background: rgba(239,231,216,0.04);
+  border-radius: 4px; border-left: 3px solid var(--stone);
+  margin-bottom: 28px;
+}
+.admin-note-icon { font-size: 18px; flex-shrink: 0; }
+.admin-note p {
+  font-size: 13px; font-weight: 300; line-height: 1.6;
+  opacity: 0.6;
+}
+.admin-note strong { font-weight: 700; opacity: 1; }
+
+/* ═══════════════════ FOUNDER ADDENDUM ═══════════════════ */
+.founder-addendum {
+  display: none;
+  margin: 40px 0;
+  padding: 32px;
+  border: 1px solid rgba(201,146,58,0.25);
+  border-radius: 4px;
+  background: rgba(201,146,58,0.04);
+}
+.addendum-badge {
+  display: inline-block;
+  font-size: 9px; font-weight: 700; letter-spacing: 3px;
+  text-transform: uppercase; color: var(--ochre);
+  background: rgba(201,146,58,0.12);
+  padding: 4px 12px; border-radius: 2px;
+  margin-bottom: 16px;
+}
+
+/* ═══════════════════ NAV BUTTONS ═══════════════════ */
+.form-nav {
+  display: flex; gap: 16px; justify-content: space-between;
+  align-items: center;
+  margin-top: 48px; padding-top: 32px;
+  border-top: 1px solid rgba(239,231,216,0.08);
+}
+.btn {
+  font-family: 'Josefin Sans', system-ui, sans-serif;
+  font-size: 11px; font-weight: 700; letter-spacing: 4px;
+  text-transform: uppercase;
+  padding: 16px 32px;
+  border: none; cursor: pointer;
+  border-radius: 0;
+  transition: opacity 0.2s, transform 0.15s;
+}
+.btn:hover { opacity: 0.88; }
+.btn:active { transform: scale(0.985); }
+
+.btn-primary {
+  background: var(--terra); color: var(--paper);
+}
+.btn-secondary {
+  background: transparent; color: var(--paper);
+  border: 1px solid rgba(239,231,216,0.15);
+}
+.btn-save {
+  background: transparent; color: var(--paper);
+  border: 1px solid rgba(239,231,216,0.10);
+  font-size: 10px; letter-spacing: 3px;
+  padding: 12px 24px;
+  opacity: 0.5;
+}
+.btn-save:hover { opacity: 0.8; }
+
+.btn-submit {
+  background: var(--terra); color: var(--paper);
+  width: 100%; padding: 18px 32px;
+  font-family: 'Josefin Sans', system-ui, sans-serif;
+  font-size: 11px; font-weight: 700; letter-spacing: 4px;
+  text-transform: uppercase;
+  border: none; cursor: pointer; border-radius: 0;
+  transition: opacity 0.2s, transform 0.15s;
+}
+.btn-submit:hover { opacity: 0.88; }
+.btn-submit:active { transform: scale(0.985); }
+.btn-submit:disabled {
+  opacity: 0.4; cursor: not-allowed; transform: none;
+}
+
+.submit-note {
+  text-align: center; margin-top: 16px;
+  font-size: 12px; font-weight: 300; line-height: 1.7;
+  color: var(--paper); opacity: 0.4;
+}
+
+/* ═══════════════════ SUCCESS STATE ═══════════════════ */
+.success-screen {
+  display: none;
+  text-align: center;
+  padding: 80px 24px;
+  max-width: 520px; margin: 0 auto;
+  animation: sectionIn 0.6s cubic-bezier(0.22,1,0.36,1) both;
+}
+.success-screen .success-mark {
+  width: 64px; height: 64px;
+  margin: 0 auto 24px;
+  border-radius: 50%;
+  background: rgba(138,171,92,0.12);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--sage); font-size: 28px;
+}
+.success-screen h2 {
+  font-size: 10px; font-weight: 700; letter-spacing: 5px;
+  text-transform: uppercase; color: var(--terra);
+  margin-bottom: 16px;
+}
+.success-screen p {
+  font-size: 15px; font-weight: 300; line-height: 1.7;
+  color: var(--paper); opacity: 0.6;
+}
+
+/* ═══════════════════ FOOTER ═══════════════════ */
+.site-footer {
+  text-align: center; padding: 32px 24px;
+  font-size: 11px; font-weight: 300; letter-spacing: 0.5px;
+  color: var(--paper); opacity: 0.2;
+  border-top: 1px solid rgba(239,231,216,0.06);
+}
+
+/* ═══════════════════ RESPONSIVE ═══════════════════ */
+@media (max-width: 480px) {
+  .header-name { display: none; }
+  .form-intro h1 { font-size: 28px; }
+  .section-title { font-size: 20px; }
+  .btn { padding: 14px 20px; letter-spacing: 3px; font-size: 10px; }
+  .phone-group { flex-direction: column; gap: 8px; }
+  .phone-group select { width: 100%; }
+  .founder-addendum { padding: 20px; }
+  label { font-size: 14px; }
+}
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ PROGRESS BAR ═══════════════ -->
+<div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
+
+<!-- ═══════════════ HEADER ═══════════════ -->
+<header class="site-header">
+  <div class="header-inner">
+    <a href="https://founderssprint.co" class="header-brand">
+      <svg class="header-mark" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.85"/>
+        <polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.80" transform="rotate(72 50 50)"/>
+        <polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.78" transform="rotate(144 50 50)"/>
+        <polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.82" transform="rotate(216 50 50)"/>
+        <polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288 50 50)"/>
+        <circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/>
+        <circle cx="50" cy="50" r="2" fill="#1A1A1A"/>
+      </svg>
+      <span class="header-name">The Founder's Sprint</span>
+    </a>
+    <span class="header-step" id="headerStep">Step 1 of 6</span>
+  </div>
+</header>
+
+<!-- ═══════════════ STEP NAV ═══════════════ -->
+<nav class="step-nav" id="stepNav">
+  <div class="step-dot active" data-step="1"></div>
+  <div class="step-dot" data-step="2"></div>
+  <div class="step-dot" data-step="3"></div>
+  <div class="step-dot" data-step="4"></div>
+  <div class="step-dot" data-step="5"></div>
+  <div class="step-dot" data-step="6"></div>
+</nav>
+
+<!-- ═══════════════ FORM ═══════════════ -->
+<div class="form-container">
+
+  <div class="form-intro">
+    <div class="eyebrow">Coach Application</div>
+    <h1>Join the constellation.</h1>
+    <p>We're building East Africa's premier network of startup coaches. This application takes about 12 minutes. Your progress saves automatically — you can close and come back anytime.</p>
+  </div>
+
+  <div class="save-banner" id="saveBanner">
+    &#10003; Progress restored from your last visit
+  </div>
+
+<form id="coachForm" novalidate>
+
+  <!-- ─────────── § 1  PERSONAL IDENTITY ─────────── -->
+  <div class="form-section active" data-section="1">
+    <div class="section-header">
+      <div class="section-number">Section 1 of 6</div>
+      <h2 class="section-title">Personal identity</h2>
+      <p class="section-desc">Your legal name and contact details. Used for contracts and platform account creation.</p>
+    </div>
+
+    <div class="field-pair">
+      <div class="field-row">
+        <label for="firstName">First name <span class="req">*</span></label>
+        <input type="text" id="firstName" name="first_name" required placeholder="e.g. Barry" autocomplete="given-name">
+      </div>
+      <div class="field-row">
+        <label for="lastName">Last name <span class="req">*</span></label>
+        <input type="text" id="lastName" name="last_name" required placeholder="e.g. Wojega" autocomplete="family-name">
+      </div>
+    </div>
+
+    <div class="field-row">
+      <label for="email">Email address <span class="req">*</span></label>
+      <input type="email" id="email" name="email" required placeholder="you@example.com" autocomplete="email">
+      <span class="field-hint">This becomes your platform login. Use a permanent address.</span>
+    </div>
+
+    <div class="field-row">
+      <label for="phone">Phone number <span class="req">*</span></label>
+      <div class="phone-group">
+        <select id="phoneCountry" name="phone_country" autocomplete="tel-country-code">
+          <option value="+256" selected>+256 Uganda</option>
+          <option value="+254">+254 Kenya</option>
+          <option value="+250">+250 Rwanda</option>
+          <option value="+243">+243 DRC</option>
+          <option value="+255">+255 Tanzania</option>
+          <option value="+211">+211 South Sudan</option>
+          <option value="+257">+257 Burundi</option>
+        </select>
+        <input type="tel" id="phone" name="phone" required inputmode="tel" placeholder="7XX XXX XXX" autocomplete="tel-national">
+      </div>
+      <span class="field-hint">Mobile number for WhatsApp notifications and session reminders</span>
+    </div>
+
+    <div class="field-pair">
+      <div class="field-row">
+        <label for="nationality">Nationality <span class="req">*</span></label>
+        <select id="nationality" name="nationality" required>
+          <option value="">Select</option>
+          <option value="UG">Ugandan</option>
+          <option value="KE">Kenyan</option>
+          <option value="RW">Rwandan</option>
+          <option value="CD">Congolese (DRC)</option>
+          <option value="TZ">Tanzanian</option>
+          <option value="SS">South Sudanese</option>
+          <option value="BI">Burundian</option>
+          <option value="ET">Ethiopian</option>
+          <option value="SO">Somali</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+      <div class="field-row">
+        <label for="location">Current city <span class="req">*</span></label>
+        <input type="text" id="location" name="location" required placeholder="e.g. Kampala, Uganda">
+      </div>
+    </div>
+
+    <div class="field-row">
+      <label for="timezone">Timezone <span class="req">*</span></label>
+      <select id="timezone" name="timezone" required>
+        <option value="">Select</option>
+        <option value="EAT" selected>East Africa Time (UTC+3) — UG, KE, TZ</option>
+        <option value="CAT">Central Africa Time (UTC+2) — RW, BI, DRC</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+
+    <div class="form-nav">
+      <button type="button" class="btn btn-save" onclick="saveAndExit()">Save &amp; continue later</button>
+      <button type="button" class="btn btn-primary" onclick="nextStep()">Continue</button>
+    </div>
+  </div>
+
+  <!-- ─────────── § 2  PUBLIC COACH PROFILE ─────────── -->
+  <div class="form-section" data-section="2">
+    <div class="section-header">
+      <div class="section-number">Section 2 of 6</div>
+      <h2 class="section-title">Public coach profile</h2>
+      <p class="section-desc">This is how founders will see you on the platform. Make it count.</p>
+    </div>
+
+    <div class="field-row">
+      <label for="displayName">Display name <span class="req">*</span> <span class="vis-tag public">Public</span></label>
+      <input type="text" id="displayName" name="display_name" required placeholder="e.g. Barry Wojega">
+      <span class="field-hint">The name shown on your coach profile and in session bookings</span>
+    </div>
+
+    <div class="field-row">
+      <label for="headline">Headline <span class="req">*</span> <span class="vis-tag public">Public</span></label>
+      <input type="text" id="headline" name="headline" required maxlength="120" placeholder="e.g. Financial strategist for early-stage African startups">
+      <span class="field-hint">One line that captures your expertise. Max 120 characters.</span>
+    </div>
+
+    <div class="field-row">
+      <label for="bio">Professional bio <span class="req">*</span> <span class="vis-tag public">Public</span></label>
+      <textarea id="bio" name="bio" required rows="7" maxlength="1200" placeholder="Tell founders about your background, key achievements, and what makes you the right coach. Include relevant roles, companies, and outcomes. Written in third person works best."></textarea>
+      <span class="field-hint">Your background, key achievements, and coaching qualifications in one place. 3-5 paragraphs. Max 1200 characters.</span>
+    </div>
+
+    <div class="field-row">
+      <label>Profile photo <span class="req">*</span> <span class="vis-tag public">Public</span></label>
+      <div class="file-upload" id="photoUpload">
+        <input type="file" id="photoFile" name="profile_photo" accept="image/jpeg,image/png,image/webp" required>
+        <svg class="file-upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="8" r="4"/><path d="M5 20c0-4 3-7 7-7s7 3 7 7"/></svg>
+        <div class="file-upload-label">Drop your photo here or click to browse</div>
+        <div class="file-upload-hint">Square crop preferred. JPG, PNG, or WebP. Max 5 MB.</div>
+        <div class="file-upload-preview" id="photoPreview"></div>
+      </div>
+    </div>
+
+    <div class="field-row">
+      <label for="l1Discipline">Primary discipline <span class="req">*</span> <span class="vis-tag public">Public</span></label>
+      <select id="l1Discipline" name="l1_discipline" required>
+        <option value="">Select your coaching discipline</option>
+        <option value="marketing_branding">Marketing &amp; Branding</option>
+        <option value="financial_modelling">Financial Modelling &amp; Business Finance</option>
+        <option value="strategy_team">Strategy &amp; Team Building</option>
+        <option value="investment_readiness">Investment Readiness &amp; Fundraising</option>
+        <option value="product_pricing">Product Development &amp; Pricing</option>
+      </select>
+      <span class="field-hint">Your primary coaching area. Each discipline has a fixed day in the weekly cohort schedule.</span>
+    </div>
+
+    <fieldset class="check-group">
+      <legend>Sector expertise <span class="vis-tag public">Public</span></legend>
+      <span class="field-hint" style="margin-top:-8px; margin-bottom:14px; display:block;">Select the industries where you have deep coaching or professional experience.</span>
+      <div class="sector-grid">
+        <label class="sector-chip"><input type="checkbox" name="sectors" value="fintech"> Fintech &amp; Payments</label>
+        <label class="sector-chip"><input type="checkbox" name="sectors" value="agritech"> Agritech &amp; Food</label>
+        <label class="sector-chip"><input type="checkbox" name="sectors" value="edtech"> EdTech &amp; Training</label>
+        <label class="sector-chip"><input type="checkbox" name="sectors" value="healthtech"> HealthTech &amp; Wellness</label>
+        <label class="sector-chip"><input type="checkbox" name="sectors" value="cleantech"> CleanTech &amp; Energy</label>
+        <label class="sector-chip"><input type="checkbox" name="sectors" value="ecommerce"> E-commerce &amp; Retail</label>
+        <label class="sector-chip"><input type="checkbox" name="sectors" value="logistics"> Logistics &amp; Supply Chain</label>
+        <label class="sector-chip"><input type="checkbox" name="sectors" value="saas"> SaaS &amp; B2B Software</label>
+        <label class="sector-chip"><input type="checkbox" name="sectors" value="media"> Media &amp; Entertainment</label>
+        <label class="sector-chip"><input type="checkbox" name="sectors" value="proptech"> Real Estate &amp; PropTech</label>
+        <label class="sector-chip"><input type="checkbox" name="sectors" value="manufacturing"> Manufacturing &amp; Industry</label>
+        <label class="sector-chip"><input type="checkbox" name="sectors" value="general"> Sector-agnostic</label>
+      </div>
+    </fieldset>
+
+    <div class="field-row">
+      <label for="geographies">Geographic expertise <span class="vis-tag public">Public</span></label>
+      <input type="text" id="geographies" name="geographies" placeholder="e.g. Uganda, Kenya, Rwanda, Pan-Africa">
+      <span class="field-hint">Markets where you have hands-on experience</span>
+    </div>
+
+    <div class="field-row">
+      <label for="languages">Languages <span class="vis-tag public">Public</span></label>
+      <input type="text" id="languages" name="languages" placeholder="e.g. English, Luganda, Swahili">
+    </div>
+
+    <div class="field-pair">
+      <div class="field-row">
+        <label for="linkedin">LinkedIn <span class="vis-tag public">Public</span></label>
+        <input type="url" id="linkedin" name="linkedin_url" placeholder="https://linkedin.com/in/yourname">
+      </div>
+      <div class="field-row">
+        <label for="website">Personal website <span class="vis-tag public">Public</span></label>
+        <input type="url" id="website" name="website_url" placeholder="https://yoursite.com">
+      </div>
+    </div>
+
+    <div class="form-nav">
+      <button type="button" class="btn btn-secondary" onclick="prevStep()">Back</button>
+      <div style="display:flex; gap:12px;">
+        <button type="button" class="btn btn-save" onclick="saveAndExit()">Save</button>
+        <button type="button" class="btn btn-primary" onclick="nextStep()">Continue</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────── § 3  CREDENTIALS ─────────── -->
+  <div class="form-section" data-section="3">
+    <div class="section-header">
+      <div class="section-number">Section 3 of 6</div>
+      <h2 class="section-title">Credentials</h2>
+      <p class="section-desc">Evidence of your expertise. Helps us verify your qualifications and build trust signals for founders.</p>
+    </div>
+
+    <div class="field-row">
+      <label for="currentRole">Current role &amp; organisation <span class="req">*</span> <span class="vis-tag public">Public</span></label>
+      <input type="text" id="currentRole" name="current_role" required placeholder="e.g. CEO, Raintree Farms / Partner, XYZ Advisory">
+    </div>
+
+    <div class="field-row">
+      <label for="coachingExperience">Coaching or teaching experience <span class="vis-tag admin">Admin</span></label>
+      <textarea id="coachingExperience" name="coaching_experience" rows="4" placeholder="Prior mentorship, accelerator programmes, university teaching, workshop facilitation..."></textarea>
+      <span class="field-hint">Relevant mentorship, training, or facilitation experience</span>
+    </div>
+
+    <div class="field-row">
+      <label for="notableClients">Notable clients or case studies <span class="vis-tag public">Public</span></label>
+      <textarea id="notableClients" name="notable_clients" rows="3" placeholder="e.g. Coached 3 Y Combinator-backed East African startups, advised SafeBoda's Series A"></textarea>
+      <span class="field-hint">Names you can share publicly (with permission)</span>
+    </div>
+
+    <div class="field-row">
+      <label>CV / resume <span class="vis-tag admin">Admin</span></label>
+      <div class="file-upload" id="cvUploadArea">
+        <input type="file" id="cvFile" name="cv_file" accept=".pdf">
+        <svg class="file-upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6"/></svg>
+        <div class="file-upload-label">Upload CV (PDF only)</div>
+        <div class="file-upload-hint">For internal verification only. Max 10 MB.</div>
+        <div class="file-upload-preview" id="cvPreview"></div>
+      </div>
+    </div>
+
+    <div class="form-nav">
+      <button type="button" class="btn btn-secondary" onclick="prevStep()">Back</button>
+      <div style="display:flex; gap:12px;">
+        <button type="button" class="btn btn-save" onclick="saveAndExit()">Save</button>
+        <button type="button" class="btn btn-primary" onclick="nextStep()">Continue</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────── § 4  COACHING PREFERENCES ─────────── -->
+  <div class="form-section" data-section="4">
+    <div class="section-header">
+      <div class="section-number">Section 4 of 6</div>
+      <h2 class="section-title">Coaching preferences</h2>
+      <p class="section-desc">How you want to coach on the platform. Configures your availability, session types, and pricing tier.</p>
+    </div>
+
+    <fieldset class="check-group">
+      <legend>Session types you're available for <span class="req">*</span></legend>
+      <label class="check-item">
+        <input type="checkbox" name="session_types" value="group_cohort">
+        <span class="check-label">Group cohort sessions
+          <small>5-week structured programme. One session per week with a group of founders.</small>
+        </span>
+      </label>
+      <label class="check-item">
+        <input type="checkbox" name="session_types" value="individual_1on1">
+        <span class="check-label">Individual 1-on-1 sessions
+          <small>2-hour deep-dive with a single founder on your specialty.</small>
+        </span>
+      </label>
+    </fieldset>
+
+    <div class="field-row" id="assignedDayRow" style="display:none;">
+      <label for="assignedDay">Assigned coaching day <span class="vis-tag public">Public</span></label>
+      <input type="text" id="assignedDay" name="assigned_day" readonly class="readonly-field">
+      <span class="field-hint">Set by your L1 discipline. All coaches in the same discipline coach on the same day.</span>
+    </div>
+
+    <fieldset class="check-group" id="timeSlotsGroup" style="display:none;">
+      <legend>Available time slots <span class="req">*</span></legend>
+      <span class="field-hint" style="margin-top:-6px; margin-bottom:14px; display:block;">Individual 1-on-1 sessions are 2-hour blocks scheduled around the fixed cohort slot.</span>
+      <label class="check-item">
+        <input type="checkbox" name="time_slots" value="08_10">
+        <span class="check-label">8:00 AM – 10:00 AM <small>Before cohort</small></span>
+      </label>
+      <div class="cohort-slot">
+        <span class="cohort-slot-label">10:00 AM – 12:00 PM</span>
+        <span class="cohort-slot-tag">Cohort session (fixed)</span>
+      </div>
+      <label class="check-item">
+        <input type="checkbox" name="time_slots" value="13_15">
+        <span class="check-label">1:00 PM – 3:00 PM <small>Afternoon 1</small></span>
+      </label>
+      <label class="check-item">
+        <input type="checkbox" name="time_slots" value="15_17">
+        <span class="check-label">3:00 PM – 5:00 PM <small>Afternoon 2</small></span>
+      </label>
+      <label class="check-item">
+        <input type="checkbox" name="time_slots" value="17_19">
+        <span class="check-label">5:00 PM – 7:00 PM <small>Evening</small></span>
+      </label>
+    </fieldset>
+
+    <!-- L2/L3 specialties -->
+    <div id="specialtiesSection" style="display:none;">
+      <div style="margin-bottom:20px;">
+        <label style="font-weight:400;">Individual session specialties</label>
+        <span class="field-hint">In cohort training you cover your full discipline. Individual sessions are different — founders book you for a specific deep-dive.</span>
+      </div>
+
+      <div class="field-row">
+        <label>Sub-categories <span class="req">*</span> <span class="vis-tag public">Public</span></label>
+        <div class="multi-select-box" id="l2Container">
+          <p class="multi-select-empty">Select your L1 discipline first</p>
+        </div>
+        <span class="field-hint" id="l2Hint">Choose up to 2 sub-categories for individual sessions</span>
+      </div>
+
+      <div class="field-row" id="l3Container" style="display:none;">
+        <label>Bookable specialties <span class="vis-tag public">Public</span></label>
+        <div id="l3Groups"></div>
+        <span class="field-hint">Up to 3 per sub-category. Each becomes a bookable session in the taxonomy explorer.</span>
+      </div>
+    </div>
+
+    <div class="field-row">
+      <label for="existingMaterials">Do you have existing coaching materials?</label>
+      <select id="existingMaterials" name="has_existing_materials">
+        <option value="">Select</option>
+        <option value="yes_extensive">Yes — extensive library (10+ presentations)</option>
+        <option value="yes_some">Yes — some materials (1-10 pieces)</option>
+        <option value="no">No — I'll build from your templates</option>
+      </select>
+      <span class="field-hint">PPT, PDF, Keynote, Google Slides — we'll convert them to branded templates</span>
+    </div>
+
+    <div class="field-row">
+      <label for="coachingPhilosophy">Coaching philosophy <span class="vis-tag public">Public</span></label>
+      <textarea id="coachingPhilosophy" name="coaching_philosophy" rows="4" placeholder="How do you approach coaching? What should a founder expect in your sessions?"></textarea>
+    </div>
+
+    <div class="form-nav">
+      <button type="button" class="btn btn-secondary" onclick="prevStep()">Back</button>
+      <div style="display:flex; gap:12px;">
+        <button type="button" class="btn btn-save" onclick="saveAndExit()">Save</button>
+        <button type="button" class="btn btn-primary" onclick="nextStep()">Continue</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────── § 5  STATUTORY & KYC ─────────── -->
+  <div class="form-section" data-section="5">
+    <div class="section-header">
+      <div class="section-number">Section 5 of 6</div>
+      <h2 class="section-title">Statutory &amp; verification</h2>
+      <p class="section-desc">Legal identification and tax details for compliance with Uganda's tax and data protection laws.</p>
+    </div>
+
+    <div class="admin-note">
+      <span class="admin-note-icon">&#128274;</span>
+      <p>All fields in this section are <strong>admin-only</strong>. ID documents are used for identity verification and securely archived. Tax IDs are required for withholding tax reporting.</p>
+    </div>
+
+    <div class="field-pair">
+      <div class="field-row">
+        <label for="idType">Government-issued ID type <span class="req">*</span></label>
+        <select id="idType" name="id_type" required>
+          <option value="">Select</option>
+          <option value="national_id">National ID (Uganda)</option>
+          <option value="passport">Passport</option>
+          <option value="national_id_ke">National ID (Kenya)</option>
+          <option value="national_id_rw">National ID (Rwanda)</option>
+          <option value="other_id">Other government-issued ID</option>
+        </select>
+      </div>
+      <div class="field-row">
+        <label for="idNumber">ID number <span class="req">*</span></label>
+        <input type="text" id="idNumber" name="id_number" required placeholder="Enter ID number">
+      </div>
+    </div>
+
+    <div class="field-row">
+      <label>Upload ID document <span class="req">*</span></label>
+      <div class="file-upload" id="idUploadArea">
+        <input type="file" id="idFile" name="id_document" accept="image/jpeg,image/png,.pdf" required>
+        <svg class="file-upload-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 8h4M7 12h10"/></svg>
+        <div class="file-upload-label">Upload ID document</div>
+        <div class="file-upload-hint">Front (and back if applicable). JPG, PNG, or PDF. Max 10 MB.</div>
+        <div class="file-upload-preview" id="idPreview"></div>
+      </div>
+    </div>
+
+    <div class="field-pair">
+      <div class="field-row">
+        <label for="tinNumber">Tax Identification Number (TIN) <span class="req">*</span></label>
+        <input type="text" id="tinNumber" name="tin_number" required inputmode="numeric" placeholder="e.g. 1000XXXXXX">
+        <span class="field-hint">Uganda Revenue Authority TIN or equivalent</span>
+      </div>
+      <div class="field-row">
+        <label for="tinCountry">TIN issuing country <span class="req">*</span></label>
+        <select id="tinCountry" name="tin_country" required>
+          <option value="">Select</option>
+          <option value="UG">Uganda</option>
+          <option value="KE">Kenya</option>
+          <option value="RW">Rwanda</option>
+          <option value="TZ">Tanzania</option>
+          <option value="other">Other</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="field-row">
+      <label for="taxStatus">Tax registration status <span class="req">*</span></label>
+      <select id="taxStatus" name="tax_status" required>
+        <option value="">Select</option>
+        <option value="individual">Individual taxpayer</option>
+        <option value="sole_proprietor">Sole proprietorship / business name</option>
+        <option value="company">Registered company (Ltd / LLC)</option>
+      </select>
+    </div>
+
+    <div class="field-row" id="companyNameRow" style="display:none;">
+      <label for="companyName">Registered business / company name</label>
+      <input type="text" id="companyName" name="company_name" placeholder="e.g. Wojega Advisory Ltd">
+    </div>
+
+    <div class="form-nav">
+      <button type="button" class="btn btn-secondary" onclick="prevStep()">Back</button>
+      <div style="display:flex; gap:12px;">
+        <button type="button" class="btn btn-save" onclick="saveAndExit()">Save</button>
+        <button type="button" class="btn btn-primary" onclick="nextStep()">Continue</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────── § 6  AGREEMENTS ─────────── -->
+  <div class="form-section" data-section="6">
+    <div class="section-header">
+      <div class="section-number">Section 6 of 6</div>
+      <h2 class="section-title">Agreements</h2>
+      <p class="section-desc">By submitting this form you acknowledge the following terms. Full agreements will be sent for digital signature after your application is reviewed.</p>
+    </div>
+
+    <fieldset class="check-group">
+      <legend>Please confirm <span class="req">*</span></legend>
+      <label class="check-item">
+        <input type="checkbox" name="agree_terms" value="code_of_conduct" required>
+        <span class="check-label">I agree to The Founder's Sprint Code of Conduct and coaching ethics standards
+          <small>Includes confidentiality, professional behaviour, and non-solicitation of platform clients</small>
+        </span>
+      </label>
+      <label class="check-item">
+        <input type="checkbox" name="agree_terms" value="payment_terms" required>
+        <span class="check-label">I understand the payment structure and payout schedule
+          <small>Coaches are paid per session delivered, net of platform commission. Payouts processed monthly. Payment details are collected in your dashboard after approval.</small>
+        </span>
+      </label>
+      <label class="check-item">
+        <input type="checkbox" name="agree_terms" value="content_license" required>
+        <span class="check-label">I grant The Founder's Sprint a licence to use my profile, bio, and session content for platform purposes
+          <small>You retain ownership of your IP. We licence it for display, marketing, and platform delivery.</small>
+        </span>
+      </label>
+      <label class="check-item">
+        <input type="checkbox" name="agree_terms" value="data_consent" required>
+        <span class="check-label">I consent to the collection and secure storage of the personal data provided above
+          <small>Processed under Uganda's Data Protection and Privacy Act, 2019. You may request deletion at any time.</small>
+        </span>
+      </label>
+    </fieldset>
+
+    <!-- ── Founder Addendum (auto-detected) ── -->
+    <div class="founder-addendum" id="founderAddendum">
+      <div class="addendum-badge">Founding Coach</div>
+      <h2 class="section-title">Founder addendum</h2>
+      <p class="section-desc" style="margin-bottom:24px;">Pre-filled from the founding agreement dated 8 May 2026. Verify your details are correct.</p>
+
+      <div class="field-pair">
+        <div class="field-row">
+          <label>Equity allocation</label>
+          <input type="text" id="equityPct" name="equity_pct" readonly class="readonly-field">
+        </div>
+        <div class="field-row">
+          <label>Vesting schedule</label>
+          <input type="text" name="vesting_schedule" value="4-year, 1-year cliff" readonly class="readonly-field">
+        </div>
+      </div>
+      <div class="field-pair">
+        <div class="field-row">
+          <label>L1 discipline &amp; role</label>
+          <input type="text" id="founderRole" name="founder_role" readonly class="readonly-field">
+        </div>
+        <div class="field-row">
+          <label>Coaching day</label>
+          <input type="text" id="founderDay" name="founder_day" readonly class="readonly-field">
+        </div>
+      </div>
+      <div class="field-row">
+        <label>Permanent tier status</label>
+        <input type="text" name="founder_tier" value="Tier 1 — Permanent" readonly class="readonly-field">
+      </div>
+
+      <fieldset class="check-group" style="margin-top:20px;">
+        <legend>Founder acknowledgements</legend>
+        <label class="check-item">
+          <input type="checkbox" name="founder_agree" value="equity_agreed">
+          <span class="check-label">I confirm the equity split agreed on 8 May 2026
+            <small>51% simple majority for decisions.</small>
+          </span>
+        </label>
+        <label class="check-item">
+          <input type="checkbox" name="founder_agree" value="tier1_permanent">
+          <span class="check-label">I understand that Tier 1 founding coach status is permanent and non-dilutable</span>
+        </label>
+      </fieldset>
+    </div>
+
+    <div style="margin-top:40px;">
+      <button type="submit" class="btn-submit" id="submitBtn">Submit application</button>
+      <p class="submit-note">You'll receive a confirmation email within 24 hours. Full coaching agreement sent for digital signature upon approval.</p>
+    </div>
+
+    <div class="form-nav" style="border-top:none; margin-top:16px;">
+      <button type="button" class="btn btn-secondary" onclick="prevStep()">Back</button>
+      <div></div>
+    </div>
+  </div>
+
+</form>
+
+  <!-- ═══════════════ SUCCESS ═══════════════ -->
+  <div class="success-screen" id="successScreen">
+    <div class="success-mark">&#10003;</div>
+    <h2>Application received</h2>
+    <p>Thank you for applying to The Founder's Sprint coaching network. We'll review your application and respond within 24 hours. Keep an eye on your inbox for next steps.</p>
+    <p style="margin-top:24px;"><a href="https://founderssprint.co" style="font-size:11px; font-weight:700; letter-spacing:4px; text-transform:uppercase;">Return to site</a></p>
+  </div>
+
+</div>
+
+<!-- ═══════════════ FOOTER ═══════════════ -->
+<footer class="site-footer">&copy; 2026 The Founder's Sprint. All rights reserved.</footer>
+
+<script>
+(function() {
+  'use strict';
+
+  /* ═══════════════ STATE ═══════════════ */
+  var currentStep = 1;
+  var totalSteps = 6;
+
+  /* ═══════════════ L2/L3 TAXONOMY ═══════════════ */
+  var taxonomy = {
+    marketing_branding: {
+      label: 'Marketing & Branding',
+      l2: {
+        market_positioning:   { label: 'Market Positioning & Brand Strategy', l3: ['Brand Architecture','Competitive Positioning','Rebranding & Brand Refresh','Brand Storytelling & Narrative'] },
+        digital_marketing:    { label: 'Digital Marketing & Growth', l3: ['Content Marketing & SEO','Social Media Strategy','Paid Acquisition (Meta, Google)','Email Marketing & Automation'] },
+        gtm_strategy:         { label: 'Go-to-Market Strategy', l3: ['Launch Strategy','Channel Strategy','Partnership & Distribution','Market Entry (New Geography)'] },
+        comms_pr:             { label: 'Communications & PR', l3: ['Media Relations','Crisis Communications','Thought Leadership','Investor Communications'] },
+        customer_acquisition: { label: 'Customer Acquisition & Retention', l3: ['Referral & Viral Growth','Community Building','Customer Success','Loyalty & Retention Programs'] }
+      }
+    },
+    financial_modelling: {
+      label: 'Financial Modelling & Business Finance',
+      l2: {
+        financial_models:     { label: 'Financial Modelling & Projections', l3: ['Revenue Model Design','Unit Economics','Cash Flow Forecasting','Scenario Analysis'] },
+        valuation:            { label: 'Startup Valuation', l3: ['Pre-Revenue Valuation','Comparable Analysis','DCF & Multiples','Cap Table Modelling'] },
+        accounting_tax:       { label: 'Accounting & Tax Strategy', l3: ['Bookkeeping Setup','Tax Compliance (Uganda)','Multi-Country Tax','Audit Preparation'] },
+        funding_finance:      { label: 'Funding & Corporate Finance', l3: ['Debt vs Equity Strategy','Grant Writing','Working Capital Management','Treasury & FX'] },
+        metrics_reporting:    { label: 'Metrics & Reporting', l3: ['KPI Dashboards','Board Reporting','Investor Updates','Financial Due Diligence Prep'] }
+      }
+    },
+    strategy_team: {
+      label: 'Strategy & Team Building',
+      l2: {
+        business_strategy:    { label: 'Business Strategy', l3: ['Competitive Analysis','Business Model Design','Market Sizing (TAM/SAM/SOM)','Strategic Partnerships'] },
+        org_design:           { label: 'Organisational Design', l3: ['Team Structure','Role Definition','Remote-First Operations','Culture Building'] },
+        hiring_talent:        { label: 'Hiring & Talent', l3: ['Recruitment Strategy','Compensation & Equity','Onboarding','Performance Management'] },
+        leadership:           { label: 'Leadership & Management', l3: ['Founder Coaching','Co-Founder Dynamics','Board Management','Executive Presence'] },
+        operations:           { label: 'Operations & Scale', l3: ['Process Design','Supply Chain','Quality Management','Operational Efficiency'] }
+      }
+    },
+    investment_readiness: {
+      label: 'Investment Readiness & Fundraising',
+      l2: {
+        pitch_prep:           { label: 'Pitch Preparation', l3: ['Pitch Deck Design','Pitch Delivery & Rehearsal','Demo Day Prep','Storytelling for Investors'] },
+        fundraising_strategy: { label: 'Fundraising Strategy', l3: ['Round Planning','Investor Targeting','Term Sheet Negotiation','SAFE & Convertible Notes'] },
+        investor_relations:   { label: 'Investor Relations', l3: ['Investor Updates','Board Communication','Follow-on Fundraising','Exit Strategy'] },
+        due_diligence:        { label: 'Due Diligence Preparation', l3: ['Data Room Setup','Legal Readiness','Financial DD Prep','Technical DD Prep'] },
+        alternative_funding:  { label: 'Alternative Funding', l3: ['Grant Applications','Impact Investment','Revenue-Based Financing','Crowdfunding'] }
+      }
+    },
+    product_pricing: {
+      label: 'Product Development & Pricing',
+      l2: {
+        product_strategy:     { label: 'Product Strategy', l3: ['Product-Market Fit','Product Roadmapping','Feature Prioritisation','Platform vs Product'] },
+        pricing_models:       { label: 'Pricing Strategy', l3: ['Pricing Model Design','Willingness-to-Pay Analysis','Freemium Strategy','B2B Pricing'] },
+        user_research:        { label: 'User Research & Design', l3: ['Customer Discovery','Usability Testing','MVP Design','Design Thinking'] },
+        tech_architecture:    { label: 'Technical Architecture', l3: ['Stack Selection','Build vs Buy','API Strategy','Scalability Planning'] },
+        launch_iteration:     { label: 'Launch & Iteration', l3: ['Beta Testing','Growth Experiments','Pivot Assessment','Post-Launch Optimisation'] }
+      }
+    }
+  };
+
+  /* ═══════════════ FOUNDING TEAM ═══════════════ */
+  var foundingTeam = [
+    { first: 'Teddy',   last: 'Ruge',        email: 'tms.ruge@me.com',  equity: '30%',   role: 'CEO — Marketing & Branding',                l1: 'marketing_branding' },
+    { first: 'Barry',   last: 'Wojega',       email: '',                 equity: '17.5%', role: 'Financial Modelling & Business Finance',     l1: 'financial_modelling' },
+    { first: 'Moses',   last: 'Engwau Okudu', email: '',                 equity: '17.5%', role: 'Strategy & Team Building',                   l1: 'strategy_team' },
+    { first: 'Joseph',  last: 'Kalema',       email: '',                 equity: '17.5%', role: 'Investment Readiness & Fundraising',          l1: 'investment_readiness' },
+    { first: 'Patrick', last: 'Ngolobe',      email: '',                 equity: '17.5%', role: 'Product Development & Pricing',               l1: 'product_pricing' }
+  ];
+
+  var l1ToDayMap = {
+    marketing_branding:   'Monday',
+    financial_modelling:  'Tuesday',
+    strategy_team:        'Wednesday',
+    investment_readiness: 'Thursday',
+    product_pricing:      'Friday'
+  };
+
+  /* ═══════════════ DOM REFS ═══════════════ */
+  var form            = document.getElementById('coachForm');
+  var sections        = document.querySelectorAll('.form-section');
+  var stepDots        = document.querySelectorAll('.step-dot');
+  var headerStep      = document.getElementById('headerStep');
+  var progressFill    = document.getElementById('progressFill');
+  var l1Select        = document.getElementById('l1Discipline');
+  var l2Container     = document.getElementById('l2Container');
+  var l3Container     = document.getElementById('l3Container');
+  var l3Groups        = document.getElementById('l3Groups');
+  var specialtiesSection = document.getElementById('specialtiesSection');
+  var l2HintEl        = document.getElementById('l2Hint');
+  var assignedDayRow  = document.getElementById('assignedDayRow');
+  var assignedDayEl   = document.getElementById('assignedDay');
+  var timeSlotsGroup  = document.getElementById('timeSlotsGroup');
+  var addendumEl      = document.getElementById('founderAddendum');
+  var equityField     = document.getElementById('equityPct');
+  var roleField       = document.getElementById('founderRole');
+  var dayField        = document.getElementById('founderDay');
+  var successScreen   = document.getElementById('successScreen');
+  var saveBanner      = document.getElementById('saveBanner');
+
+  var L3_MAX_PER_L2 = 3;
+
+  /* ═══════════════ STEP NAVIGATION ═══════════════ */
+  function showStep(n) {
+    currentStep = n;
+    sections.forEach(function(s) {
+      s.classList.remove('active');
+      if (parseInt(s.dataset.section) === n) s.classList.add('active');
+    });
+    stepDots.forEach(function(d) {
+      var step = parseInt(d.dataset.step);
+      d.classList.remove('active','completed');
+      if (step === n) d.classList.add('active');
+      else if (step < n) d.classList.add('completed');
+    });
+    headerStep.textContent = 'Step ' + n + ' of ' + totalSteps;
+    progressFill.style.width = Math.round(((n - 1) / (totalSteps - 1)) * 100) + '%';
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    saveProgress();
+  }
+
+  window.nextStep = function() {
+    if (validateCurrentStep()) {
+      if (currentStep < totalSteps) showStep(currentStep + 1);
+    }
+  };
+
+  window.prevStep = function() {
+    if (currentStep > 1) showStep(currentStep - 1);
+  };
+
+  window.saveAndExit = function() {
+    saveProgress();
+    saveBanner.textContent = '✓ Progress saved. You can close this page and come back anytime.';
+    saveBanner.classList.add('visible');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  stepDots.forEach(function(dot) {
+    dot.addEventListener('click', function() {
+      var step = parseInt(this.dataset.step);
+      if (step < currentStep) showStep(step);
+    });
+  });
+
+  /* ═══════════════ VALIDATION ═══════════════ */
+  function validateCurrentStep() {
+    var section = document.querySelector('.form-section[data-section="' + currentStep + '"]');
+    if (!section) return true;
+
+    var valid = true;
+    section.querySelectorAll('.has-error').forEach(function(el) {
+      el.classList.remove('has-error');
+    });
+
+    section.querySelectorAll('[required]').forEach(function(field) {
+      if (field.type === 'checkbox') return;
+      if (field.type === 'file') return;
+      var parent = field.closest('[style*="display:none"]') || field.closest('[style*="display: none"]');
+      if (parent) return;
+      if (!field.value.trim()) {
+        var row = field.closest('.field-row');
+        if (row) row.classList.add('has-error');
+        if (valid) field.focus();
+        valid = false;
+      }
+    });
+
+    if (currentStep === 4) {
+      var sessionTypes = section.querySelectorAll('[name="session_types"]:checked');
+      if (sessionTypes.length === 0) {
+        valid = false;
+        section.querySelector('[name="session_types"]').closest('.check-group').scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }
+
+    return valid;
+  }
+
+  /* ═══════════════ FOUNDER DETECTION ═══════════════ */
+  function norm(s) { return (s || '').trim().toLowerCase(); }
+
+  function findFounder() {
+    var fn = norm(document.getElementById('firstName').value);
+    var ln = norm(document.getElementById('lastName').value);
+    var em = norm(document.getElementById('email').value);
+    for (var i = 0; i < foundingTeam.length; i++) {
+      var f = foundingTeam[i];
+      if (f.email && em === norm(f.email)) return f;
+      if (fn === norm(f.first) && norm(f.last).indexOf(ln) !== -1 && ln.length > 1) return f;
+      if (fn === norm(f.first) && ln === norm(f.last.split(' ')[0])) return f;
+    }
+    return null;
+  }
+
+  function updateFounderAddendum() {
+    var founder = findFounder();
+    if (founder) {
+      addendumEl.style.display = 'block';
+      equityField.value = founder.equity;
+      roleField.value   = founder.role;
+      dayField.value    = l1ToDayMap[founder.l1] || '';
+      if (!l1Select.value) {
+        l1Select.value = founder.l1;
+        l1Select.dispatchEvent(new Event('change'));
+      }
+    } else {
+      addendumEl.style.display = 'none';
+      equityField.value = '';
+      roleField.value   = '';
+      dayField.value    = '';
+    }
+  }
+
+  ['firstName','lastName','email'].forEach(function(id) {
+    var el = document.getElementById(id);
+    el.addEventListener('input', updateFounderAddendum);
+    el.addEventListener('change', updateFounderAddendum);
+  });
+
+  /* ═══════════════ L1 → L2 → L3 CASCADE ═══════════════ */
+  function getL2Max() { return findFounder() ? 3 : 2; }
+
+  function getChecked(container, name) {
+    var checked = [];
+    container.querySelectorAll('input[name="' + name + '"]:checked').forEach(function(cb) {
+      checked.push(cb.value);
+    });
+    return checked;
+  }
+
+  function enforceLimit(container, name, max) {
+    var checked = getChecked(container, name);
+    var atLimit = checked.length >= max;
+    container.querySelectorAll('input[name="' + name + '"]').forEach(function(cb) {
+      var item = cb.closest('.check-item');
+      if (!cb.checked && atLimit) {
+        item.classList.add('is-disabled');
+        cb.disabled = true;
+      } else {
+        item.classList.remove('is-disabled');
+        cb.disabled = false;
+      }
+    });
+    var counter = container.querySelector('.multi-select-count');
+    if (counter) {
+      counter.textContent = checked.length + ' of ' + max + ' selected';
+      counter.classList.toggle('at-limit', atLimit);
+    }
+  }
+
+  function buildL3ForSelected() {
+    var l1 = l1Select.value;
+    var selectedL2s = getChecked(l2Container, 'taxonomy_l2');
+    l3Groups.innerHTML = '';
+    if (selectedL2s.length === 0) { l3Container.style.display = 'none'; return; }
+    l3Container.style.display = 'block';
+    selectedL2s.forEach(function(l2Key) {
+      var l2Data = taxonomy[l1].l2[l2Key];
+      if (!l2Data) return;
+      var group = document.createElement('div');
+      group.className = 'l3-group';
+      group.setAttribute('data-l2', l2Key);
+      var title = document.createElement('div');
+      title.className = 'l3-group-title';
+      title.textContent = l2Data.label;
+      group.appendChild(title);
+      l2Data.l3.forEach(function(spec) {
+        var val = spec.toLowerCase().replace(/[^a-z0-9]+/g, '_');
+        var item = document.createElement('label');
+        item.className = 'check-item';
+        item.innerHTML = '<input type="checkbox" name="taxonomy_l3_' + l2Key + '" value="' + val + '"><span class="check-label">' + spec + '</span>';
+        group.appendChild(item);
+      });
+      var counter = document.createElement('div');
+      counter.className = 'multi-select-count';
+      counter.textContent = '0 of ' + L3_MAX_PER_L2 + ' selected';
+      group.appendChild(counter);
+      group.addEventListener('change', function() {
+        enforceLimit(group, 'taxonomy_l3_' + l2Key, L3_MAX_PER_L2);
+      });
+      l3Groups.appendChild(group);
+    });
+  }
+
+  l1Select.addEventListener('change', function() {
+    var l1 = this.value;
+    l2Container.innerHTML = '';
+    l3Groups.innerHTML = '';
+    l3Container.style.display = 'none';
+
+    if (l1 && l1ToDayMap[l1]) {
+      assignedDayEl.value = l1ToDayMap[l1];
+      assignedDayRow.style.display = 'block';
+      timeSlotsGroup.style.display = 'block';
+      timeSlotsGroup.querySelector('legend').innerHTML = 'Available time slots on <strong>' + l1ToDayMap[l1] + 's</strong> <span class="req">*</span>';
+      specialtiesSection.style.display = 'block';
+    } else {
+      assignedDayEl.value = '';
+      assignedDayRow.style.display = 'none';
+      timeSlotsGroup.style.display = 'none';
+      specialtiesSection.style.display = 'none';
+    }
+
+    if (addendumEl.style.display !== 'none' && dayField) {
+      dayField.value = l1ToDayMap[l1] || '';
+    }
+
+    if (l1 && taxonomy[l1]) {
+      var subs = taxonomy[l1].l2;
+      Object.keys(subs).forEach(function(key) {
+        var item = document.createElement('label');
+        item.className = 'check-item';
+        item.innerHTML = '<input type="checkbox" name="taxonomy_l2" value="' + key + '"><span class="check-label">' + subs[key].label + '</span>';
+        l2Container.appendChild(item);
+      });
+      var counter = document.createElement('div');
+      counter.className = 'multi-select-count';
+      counter.textContent = '0 of ' + getL2Max() + ' selected';
+      l2Container.appendChild(counter);
+      l2HintEl.textContent = 'Choose up to ' + getL2Max() + ' sub-categories for individual sessions';
+      l2Container.addEventListener('change', function() {
+        enforceLimit(l2Container, 'taxonomy_l2', getL2Max());
+        buildL3ForSelected();
+      });
+    } else {
+      l2Container.innerHTML = '<p class="multi-select-empty">Select your L1 discipline first</p>';
+    }
+  });
+
+  /* ═══════════════ TAX STATUS → COMPANY NAME ═══════════════ */
+  document.getElementById('taxStatus').addEventListener('change', function() {
+    document.getElementById('companyNameRow').style.display =
+      (this.value === 'company' || this.value === 'sole_proprietor') ? 'block' : 'none';
+  });
+
+  /* ═══════════════ FILE UPLOAD PREVIEWS ═══════════════ */
+  function setupFileUpload(inputId, previewId) {
+    var input = document.getElementById(inputId);
+    var preview = document.getElementById(previewId);
+    var area = input.closest('.file-upload');
+
+    input.addEventListener('change', function() {
+      if (this.files && this.files[0]) {
+        var f = this.files[0];
+        var sizeMB = (f.size / 1048576).toFixed(1);
+        preview.textContent = '✓ ' + f.name + ' (' + sizeMB + ' MB)';
+        preview.style.display = 'block';
+      } else {
+        preview.style.display = 'none';
+      }
+    });
+
+    // Also trigger on click of the upload area itself
+    area.addEventListener('click', function(e) {
+      if (e.target !== input) {
+        input.click();
+      }
+    });
+
+    area.addEventListener('dragover', function(e) { e.preventDefault(); this.classList.add('drag-over'); });
+    area.addEventListener('dragleave', function() { this.classList.remove('drag-over'); });
+    area.addEventListener('drop', function(e) {
+      e.preventDefault(); this.classList.remove('drag-over');
+      if (e.dataTransfer.files.length) {
+        input.files = e.dataTransfer.files;
+        input.dispatchEvent(new Event('change'));
+      }
+    });
+  }
+
+  setupFileUpload('photoFile', 'photoPreview');
+  setupFileUpload('cvFile', 'cvPreview');
+  setupFileUpload('idFile', 'idPreview');
+
+  /* ═══════════════ AUTO-SAVE ═══════════════ */
+  var SAVE_KEY = 'fs_coach_application';
+
+  function saveProgress() {
+    try {
+      var data = { step: currentStep, ts: Date.now(), fields: {} };
+      form.querySelectorAll('input[type="text"], input[type="email"], input[type="url"], input[type="tel"], input[type="number"], textarea, select').forEach(function(f) {
+        if (f.name && f.value) data.fields[f.name] = f.value;
+      });
+      var checks = [];
+      form.querySelectorAll('input[type="checkbox"]:checked').forEach(function(cb) {
+        checks.push(cb.name + '=' + cb.value);
+      });
+      data.fields._checks = checks;
+      localStorage.setItem(SAVE_KEY, JSON.stringify(data));
+    } catch (e) { /* silent */ }
+  }
+
+  function restoreProgress() {
+    try {
+      var raw = localStorage.getItem(SAVE_KEY);
+      if (!raw) return false;
+      var saved = JSON.parse(raw);
+      if (!saved || !saved.fields) return false;
+
+      Object.keys(saved.fields).forEach(function(key) {
+        if (key === '_checks') return;
+        var el = form.querySelector('[name="' + key + '"]');
+        if (el && !el.readOnly) {
+          el.value = saved.fields[key];
+          el.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      });
+      if (saved.fields._checks && Array.isArray(saved.fields._checks)) {
+        saved.fields._checks.forEach(function(pair) {
+          var parts = pair.split('=');
+          var cb = form.querySelector('input[name="' + parts[0] + '"][value="' + parts[1] + '"]');
+          if (cb) cb.checked = true;
+        });
+      }
+      if (saved.step && saved.step > 1) {
+        showStep(saved.step);
+        return true;
+      }
+      return false;
+    } catch (e) { return false; }
+  }
+
+  var saveTimer = null;
+  form.addEventListener('input', function() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(saveProgress, 800);
+  });
+  form.addEventListener('change', function() {
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(saveProgress, 400);
+  });
+
+  /* ═══════════════ FORM SUBMIT ═══════════════ */
+  var API_BASE = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+    ? 'http://localhost:3000'
+    : 'https://founders-sprint-api.vercel.app';
+
+  var submitBtn = document.getElementById('submitBtn');
+
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    // Validate all agreements are checked
+    var agreements = form.querySelectorAll('[name="agree_terms"]');
+    var allChecked = true;
+    agreements.forEach(function(cb) { if (!cb.checked) allChecked = false; });
+    if (!allChecked) {
+      agreements[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+
+    // ── Upload files individually first (avoids Vercel 4.5 MB body limit) ──
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Uploading files…';
+
+    var tempId = Date.now().toString(36) + Math.random().toString(36).slice(2, 8);
+    var filePaths = { profile_photo_path: null, cv_path: null, id_document_path: null };
+    var fileFields = [
+      { inputName: 'profile_photo', pathKey: 'profile_photo_path' },
+      { inputName: 'cv_file',       pathKey: 'cv_path' },
+      { inputName: 'id_document',   pathKey: 'id_document_path' },
+    ];
+
+    try {
+      for (var i = 0; i < fileFields.length; i++) {
+        var fi = fileFields[i];
+        var fileInput = form.querySelector('input[name="' + fi.inputName + '"]');
+        if (fileInput && fileInput.files && fileInput.files.length > 0) {
+          var uploadFd = new FormData();
+          uploadFd.append('file', fileInput.files[0]);
+          uploadFd.append('field', fi.inputName);
+          uploadFd.append('tempId', tempId);
+
+          submitBtn.textContent = 'Uploading ' + fi.inputName.replace(/_/g, ' ') + '…';
+
+          var uploadRes = await fetch(API_BASE + '/api/coach-upload', {
+            method: 'POST',
+            body: uploadFd,
+          });
+
+          if (!uploadRes.ok) {
+            var uploadErr = await uploadRes.json().catch(function() { return {}; });
+            throw new Error('File upload failed (' + fi.inputName + '): ' + (uploadErr.error || uploadRes.status));
+          }
+
+          var uploadResult = await uploadRes.json();
+          filePaths[fi.pathKey] = uploadResult.path;
+        }
+      }
+    } catch (fileErr) {
+      console.error('[Coach Application] File upload failed:', fileErr);
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Submit application';
+      alert('File upload failed. Please try again.\n\n' + fileErr.message);
+      return;
+    }
+
+    // ── Build text-only FormData (no files — just field values + paths) ────
+    var fd = new FormData(form);
+
+    // Remove file inputs from FormData (already uploaded separately)
+    fd.delete('profile_photo');
+    fd.delete('cv_file');
+    fd.delete('id_document');
+
+    // Add pre-uploaded file paths
+    if (filePaths.profile_photo_path) fd.set('profile_photo_path', filePaths.profile_photo_path);
+    if (filePaths.cv_path)            fd.set('cv_path', filePaths.cv_path);
+    if (filePaths.id_document_path)   fd.set('id_document_path', filePaths.id_document_path);
+
+    // ── Field name remapping (form names → API/DB column names) ────────────
+    if (fd.has('phone_country') && !fd.has('country_code')) {
+      fd.set('country_code', fd.get('phone_country'));
+      fd.delete('phone_country');
+    }
+    if (fd.has('l1_discipline') && !fd.has('taxonomy_l1')) {
+      fd.set('taxonomy_l1', fd.get('l1_discipline'));
+      fd.delete('l1_discipline');
+    }
+    if (fd.has('coaching_experience') && !fd.has('experience')) {
+      fd.set('experience', fd.get('coaching_experience'));
+      fd.delete('coaching_experience');
+    }
+
+    // ── Collect taxonomy_l3_* checkboxes into a single taxonomy_l3 array ───
+    var l3Values = [];
+    form.querySelectorAll('input[name^="taxonomy_l3_"]:checked').forEach(function(cb) {
+      l3Values.push(cb.value);
+    });
+    var keysToDelete = [];
+    for (var pair of fd.entries()) {
+      if (pair[0].startsWith('taxonomy_l3_')) keysToDelete.push(pair[0]);
+    }
+    keysToDelete.forEach(function(k) { fd.delete(k); });
+    fd.set('taxonomy_l3', JSON.stringify(l3Values));
+
+    // ── JSON-stringify array fields so the API receives them correctly ──────
+    ['taxonomy_l2', 'session_types', 'time_slots', 'sectors', 'agree_terms', 'founder_agree'].forEach(function(name) {
+      var vals = fd.getAll(name);
+      if (vals.length > 0) {
+        fd.delete(name);
+        fd.set(name, JSON.stringify(vals));
+      }
+    });
+
+    // ── Submit text-only form data ────────────────────────────────────────
+    submitBtn.textContent = 'Submitting…';
+
+    try {
+      var res = await fetch(API_BASE + '/api/coach-application', {
+        method: 'POST',
+        body: fd,
+      });
+
+      if (!res.ok) {
+        var errData = await res.json().catch(function() { return {}; });
+        throw new Error(errData.error || 'Server returned ' + res.status);
+      }
+
+      var result = await res.json();
+      console.log('[Coach Application] Submitted:', result);
+
+      // Show success screen
+      form.style.display = 'none';
+      document.querySelector('.form-intro').style.display = 'none';
+      document.querySelector('.step-nav').style.display = 'none';
+      saveBanner.classList.remove('visible');
+      successScreen.style.display = 'block';
+      progressFill.style.width = '100%';
+      headerStep.textContent = 'Complete';
+
+      try { localStorage.removeItem(SAVE_KEY); } catch(ex) {}
+
+    } catch(err) {
+      console.error('[Coach Application] Submit failed:', err);
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Submit application';
+      alert('Something went wrong submitting your application. Please try again.\n\n' + err.message);
+    }
+  });
+
+  /* ═══════════════ INIT ═══════════════ */
+  var wasRestored = restoreProgress();
+  if (wasRestored) {
+    saveBanner.classList.add('visible');
+    setTimeout(function() { saveBanner.classList.remove('visible'); }, 5000);
+  }
+
+})();
+</script>
+</body>
+</html>

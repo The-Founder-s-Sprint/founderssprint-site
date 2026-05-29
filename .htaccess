@@ -1,0 +1,89 @@
+# ─── The Founder's Sprint — Cache & Security Headers ─────────────────
+# Bluehost + Cloudflare: control what gets cached and for how long
+#
+# Bluehost sets max-age=14400 at the server level for static files.
+# mod_headers (Header set/edit) cannot override it for JS/CSS.
+# Fix: mod_expires sets max-age through a different Apache mechanism
+# that DOES override the server default. Belt + suspenders.
+
+# Enable rewrite engine
+RewriteEngine On
+
+# Force HTTPS
+RewriteCond %{HTTPS} off
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# ─── CACHE CONTROL via mod_expires ──────────────────────────────────
+# mod_expires directly controls the max-age value in Cache-Control.
+# This overrides Bluehost's server-level default (max-age=14400).
+
+<IfModule mod_expires.c>
+  ExpiresActive On
+
+  # HTML — no cache (0 seconds = always revalidate)
+  ExpiresByType text/html "access plus 0 seconds"
+
+  # CSS — 10 minutes
+  ExpiresByType text/css "access plus 600 seconds"
+
+  # JavaScript — 10 minutes
+  ExpiresByType application/javascript "access plus 600 seconds"
+  ExpiresByType text/javascript "access plus 600 seconds"
+  ExpiresByType application/x-javascript "access plus 600 seconds"
+
+  # Images — 7 days
+  ExpiresByType image/jpeg "access plus 604800 seconds"
+  ExpiresByType image/jpg "access plus 604800 seconds"
+  ExpiresByType image/png "access plus 604800 seconds"
+  ExpiresByType image/gif "access plus 604800 seconds"
+  ExpiresByType image/webp "access plus 604800 seconds"
+  ExpiresByType image/svg+xml "access plus 604800 seconds"
+  ExpiresByType image/x-icon "access plus 604800 seconds"
+
+  # Video — 30 days
+  ExpiresByType video/mp4 "access plus 2592000 seconds"
+  ExpiresByType video/webm "access plus 2592000 seconds"
+  ExpiresByType video/ogg "access plus 2592000 seconds"
+
+  # Fonts — 30 days
+  ExpiresByType font/woff "access plus 2592000 seconds"
+  ExpiresByType font/woff2 "access plus 2592000 seconds"
+  ExpiresByType application/font-woff "access plus 2592000 seconds"
+  ExpiresByType application/font-woff2 "access plus 2592000 seconds"
+
+  # JSON — 10 minutes
+  ExpiresByType application/json "access plus 600 seconds"
+</IfModule>
+
+# ─── ADDITIONAL HEADERS via mod_headers ─────────────────────────────
+
+<IfModule mod_headers.c>
+
+  # HTML — belt + suspenders: force no-cache even if mod_expires missed
+  <FilesMatch "\.(html|htm)$">
+    Header set Cache-Control "no-cache, no-store, must-revalidate"
+    Header set Pragma "no-cache"
+  </FilesMatch>
+
+  # JS/CSS — add must-revalidate flag (mod_expires sets max-age)
+  <FilesMatch "\.(css|js)$">
+    Header append Cache-Control "must-revalidate"
+  </FilesMatch>
+
+  # ─── SECURITY HEADERS ────────────────────────────────────────────
+  Header always set X-Frame-Options "SAMEORIGIN"
+  Header always set X-Content-Type-Options "nosniff"
+  Header always set Referrer-Policy "strict-origin-when-cross-origin"
+  Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
+
+</IfModule>
+
+# ─── GZIP COMPRESSION ──────────────────────────────────────────────
+<IfModule mod_deflate.c>
+  AddOutputFilterByType DEFLATE text/html text/css text/javascript
+  AddOutputFilterByType DEFLATE application/javascript application/json
+  AddOutputFilterByType DEFLATE image/svg+xml
+</IfModule>
+
+# ─── PREVENT DIRECTORY LISTING ──────────────────────────────────────
+Options -Indexes

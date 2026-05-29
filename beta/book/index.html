@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Book — The Founder's Sprint</title>
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Josefin+Sans:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="book.css?v=2">
+</head>
+<body>
+
+<!-- ============================================================
+     GLOBAL GRAIN
+     ============================================================ -->
+<div class="noise"></div>
+
+<!-- ============================================================
+     NAV — minimal checkout nav with back + progress
+     ============================================================ -->
+<nav class="nav">
+  <a class="nav-back" href="../" title="Back to homepage">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </a>
+  <a class="nav-brand" href="../">
+    <!-- V6 mark inline -->
+    <svg class="mark" width="28" height="28" viewBox="0 0 100 100">
+      <polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.85"/>
+      <polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.80" transform="rotate(72,50,50)"/>
+      <polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.78" transform="rotate(144,50,50)"/>
+      <polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.82" transform="rotate(216,50,50)"/>
+      <polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288,50,50)"/>
+      <circle cx="50" cy="50" r="4.5" fill="#efe7d8"/>
+      <circle cx="50" cy="50" r="2" fill="#1a1a1a"/>
+    </svg>
+    <span class="wordmark">THE FOUNDER'S SPRINT</span>
+  </a>
+  <div class="nav-progress" id="nav-progress">
+    <div class="step done" data-step="1"><span class="num">1</span><span class="label">Choose</span></div>
+    <div class="bar"><div class="fill" id="progress-fill"></div></div>
+    <div class="step" data-step="2"><span class="num">2</span><span class="label">Account</span></div>
+    <div class="bar"><div class="fill"></div></div>
+    <div class="step" data-step="3"><span class="num">3</span><span class="label">Configure</span></div>
+    <div class="bar"><div class="fill"></div></div>
+    <div class="step" data-step="4"><span class="num">4</span><span class="label">Pay</span></div>
+  </div>
+</nav>
+
+<!-- ============================================================
+     STEP 1 — TIER SELECTION
+     ============================================================ -->
+<section class="step-panel active" id="step-1">
+  <div class="shell">
+    <div class="step-header">
+      <span class="eyebrow terra">Choose your path</span>
+      <h1 class="h-display">How deep do you want to go?</h1>
+      <p class="h-sub">One session to solve a specific problem, a focused bundle to close your biggest gaps, or the complete sprint to build an investor-ready foundation.</p>
+    </div>
+
+    <div class="tier-cards">
+      <!-- SINGLE -->
+      <div class="tier-card" data-tier="single">
+        <div class="tier-accent" style="background: var(--stone)"></div>
+        <div class="tier-top">
+          <span class="tier-eyebrow">One-on-One</span>
+          <div class="tier-price"><span class="ccy">UGX</span><span class="amt">500K</span></div>
+          <p class="tier-desc">1 coach. 1 discipline. 1 vetted deliverable.</p>
+        </div>
+        <ul class="tier-features">
+          <li>1 &times; 2-hour live session</li>
+          <li>Choose any discipline</li>
+          <li>Recording + notes within 48 hrs</li>
+          <li>Take-home deliverable</li>
+        </ul>
+        <div class="tier-ideal">
+          <span class="ideal-label">Best for</span>
+          <p>"I have one specific problem and I need expert eyes on it."</p>
+        </div>
+        <button class="tier-cta" type="button" data-tier="single">Select One-on-One</button>
+      </div>
+
+      <!-- PICK 3 -->
+      <div class="tier-card popular" data-tier="pick3">
+        <div class="ribbon">Most popular</div>
+        <div class="tier-accent" style="background: var(--ochre)"></div>
+        <div class="tier-top">
+          <span class="tier-eyebrow">Pick 3 Bundle</span>
+          <div class="tier-price"><span class="ccy">UGX</span><span class="amt">1M</span></div>
+          <p class="tier-desc">3 coaches. 3 disciplines. 3 deliverables. Save 33%.</p>
+        </div>
+        <ul class="tier-features">
+          <li>3 &times; 2-hour live sessions</li>
+          <li>Choose any 3 disciplines</li>
+          <li>Partial founder data room</li>
+          <li>Recordings + notes for each</li>
+        </ul>
+        <div class="tier-ideal">
+          <span class="ideal-label">Best for</span>
+          <p>"I know my 3 biggest gaps and I want targeted coaching."</p>
+        </div>
+        <button class="tier-cta primary" type="button" data-tier="pick3">Select Pick 3</button>
+      </div>
+
+      <!-- COHORT -->
+      <div class="tier-card" data-tier="cohort">
+        <div class="tier-accent" style="background: var(--terra)"></div>
+        <div class="tier-top">
+          <span class="tier-eyebrow">Full Cohort</span>
+          <div class="tier-price"><span class="ccy">UGX</span><span class="amt">2.5M</span></div>
+          <p class="tier-desc">All 5 coaches. 5 weeks. 50 hours. Complete data room.</p>
+        </div>
+        <ul class="tier-features">
+          <li>5 weeks of group coaching</li>
+          <li>All 5 disciplines + coaches</li>
+          <li>Complete investor-ready data room</li>
+          <li>30-day post-programme advisory</li>
+          <li>Instalment plans available</li>
+        </ul>
+        <div class="tier-ideal">
+          <span class="ideal-label">Best for</span>
+          <p>"I want the complete foundation before I raise."</p>
+        </div>
+        <button class="tier-cta" type="button" data-tier="cohort">Select Full Cohort</button>
+      </div>
+    </div>
+
+    <div class="pay-strip">
+      <span>Pay your way &middot; 2 taps from your phone</span>
+      <div class="badges">
+        <span class="badge momo">MTN MoMo</span>
+        <span class="badge airtel">Airtel Money</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     STEP 2 — ACCOUNT CREATION (email + magic link)
+     ============================================================ -->
+<section class="step-panel" id="step-2">
+  <div class="shell narrow">
+    <div class="step-header">
+      <span class="eyebrow terra">Step 2 of 4</span>
+      <h1 class="h-section" id="step2-title">Your account</h1>
+      <p class="h-sub" id="step2-sub">Sign in or create an account to continue. We use magic links — no password needed.</p>
+    </div>
+
+    <!-- AUTH MODE TOGGLE -->
+    <div class="auth-toggle" id="auth-toggle">
+      <button class="auth-tab active" data-mode="create" type="button">Create account</button>
+      <button class="auth-tab" data-mode="login" type="button">Log in</button>
+    </div>
+
+    <!-- CREATE ACCOUNT FORM -->
+    <div class="form-card" id="form-create">
+      <div class="selected-tier-badge" id="selected-tier-badge">
+        <span class="badge-tier" id="badge-tier-name">Pick 3 Bundle</span>
+        <span class="badge-price" id="badge-tier-price">UGX 1M</span>
+        <button class="badge-change" id="btn-change-tier" type="button">Change</button>
+      </div>
+
+      <form class="auth-form" id="auth-form" autocomplete="on">
+        <div class="field-group">
+          <label class="field-label" for="f-name">Full name</label>
+          <input class="field-input" id="f-name" type="text" placeholder="e.g. Sarah Nakamya" autocomplete="name" required>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="f-email">Email address</label>
+          <input class="field-input" id="f-email" type="email" placeholder="sarah@example.com" autocomplete="email" required>
+          <span class="field-hint">We'll send a verification link here</span>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="f-phone">Phone number</label>
+          <div class="phone-row">
+            <select class="phone-code" id="f-phone-code">
+              <option value="+256" selected>+256 UG</option>
+              <option value="+254">+254 KE</option>
+              <option value="+250">+250 RW</option>
+              <option value="+243">+243 CD</option>
+              <option value="+255">+255 TZ</option>
+              <option value="+211">+211 SS</option>
+              <option value="+257">+257 BI</option>
+            </select>
+            <input class="field-input phone" id="f-phone" type="tel" placeholder="7XX XXX XXX" autocomplete="tel" required>
+          </div>
+          <span class="field-hint">This is where you'll receive the mobile money payment prompt</span>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="f-company">Company / startup name <span class="optional">(optional)</span></label>
+          <input class="field-input" id="f-company" type="text" placeholder="e.g. Kibanda Foods">
+        </div>
+
+        <button class="btn-primary" type="submit" id="btn-send-link">
+          <span class="btn-text">Send magic link</span>
+          <span class="btn-loading" style="display:none">Sending...</span>
+        </button>
+      </form>
+    </div>
+
+    <!-- LOG IN FORM (returning users) -->
+    <div class="form-card" id="form-login" style="display:none">
+      <div class="selected-tier-badge">
+        <span class="badge-tier" id="badge-tier-name-login">Pick 3 Bundle</span>
+        <span class="badge-price" id="badge-tier-price-login">UGX 1M</span>
+        <button class="badge-change" id="btn-change-tier-login" type="button">Change</button>
+      </div>
+
+      <form class="auth-form" id="login-form" autocomplete="on">
+        <div class="field-group">
+          <label class="field-label" for="l-email">Email address</label>
+          <input class="field-input" id="l-email" type="email" placeholder="sarah@example.com" autocomplete="email" required>
+          <span class="field-hint">We'll send a magic link to verify it's you</span>
+        </div>
+
+        <button class="btn-primary" type="submit" id="btn-login-link">
+          <span class="btn-text">Send magic link</span>
+          <span class="btn-loading" style="display:none">Sending...</span>
+        </button>
+      </form>
+    </div>
+
+    <!-- MAGIC LINK SENT STATE -->
+    <div class="magic-sent" id="magic-sent" style="display:none">
+      <div class="sent-icon">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+          <circle cx="24" cy="24" r="22" stroke="var(--sage)" stroke-width="2"/>
+          <path d="M14 24L22 32L34 16" stroke="var(--sage)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h2 class="h-section" style="font-size:28px">Check your inbox</h2>
+      <p class="h-sub" style="text-align:center">We sent a verification link to <strong id="sent-email">sarah@example.com</strong>. Tap it to continue.</p>
+      <div class="sent-actions">
+        <button class="btn-ghost" id="btn-resend" type="button">Resend link</button>
+        <button class="btn-text-link" id="btn-change-email" type="button">Use a different email</button>
+      </div>
+      <!-- For prototype: skip verification -->
+      <div class="proto-skip">
+        <span class="proto-label">Prototype only</span>
+        <button class="btn-primary small" id="btn-skip-verify" type="button">Skip verification &rarr;</button>
+      </div>
+    </div>
+
+    <!-- ALREADY LOGGED IN STATE (auto-detected) -->
+    <div class="session-card" id="session-active" style="display:none">
+      <div class="session-avatar" id="session-avatar">SN</div>
+      <div class="session-info">
+        <div class="session-name" id="session-name">Sarah Nakamya</div>
+        <div class="session-email" id="session-email">sarah@example.com</div>
+      </div>
+      <div class="session-actions">
+        <button class="btn-primary" id="btn-continue-session" type="button">Continue as <span id="session-first-name">Sarah</span> &rarr;</button>
+        <button class="btn-text-link" id="btn-switch-account" type="button">Use a different account</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     STEP 3 — SESSION CONFIGURATION
+     ============================================================ -->
+<section class="step-panel" id="step-3">
+  <div class="shell narrow">
+    <div class="step-header">
+      <span class="eyebrow terra">Step 3 of 4</span>
+      <h1 class="h-section" id="config-title">Choose your disciplines</h1>
+      <p class="h-sub" id="config-sub">Select the 3 coaching disciplines you want to focus on.</p>
+    </div>
+
+    <!-- SINGLE: pick 1 discipline -->
+    <!-- PICK 3: pick 3 disciplines -->
+    <!-- COHORT: pick cohort dates -->
+
+    <!-- Discipline picker (single + pick3) -->
+    <div class="config-panel" id="config-disciplines">
+      <div class="disc-grid" id="disc-grid">
+
+        <div class="disc-card" data-disc="marketing">
+          <div class="disc-dot" style="background:var(--terra)"></div>
+          <div class="disc-info">
+            <div class="disc-name">Marketing &amp; Branding</div>
+            <div class="disc-coach">Teddy Ruge</div>
+            <div class="disc-deliv">Deliverable: Go-to-market strategy</div>
+          </div>
+          <div class="disc-check">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 10L9 14L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+
+        <div class="disc-card" data-disc="finance">
+          <div class="disc-dot" style="background:var(--ochre)"></div>
+          <div class="disc-info">
+            <div class="disc-name">Financial Modelling</div>
+            <div class="disc-coach">Barry Wojega</div>
+            <div class="disc-deliv">Deliverable: Financial model &amp; unit economics</div>
+          </div>
+          <div class="disc-check">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 10L9 14L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+
+        <div class="disc-card" data-disc="investment">
+          <div class="disc-dot" style="background:var(--sage)"></div>
+          <div class="disc-info">
+            <div class="disc-name">Investment Readiness</div>
+            <div class="disc-coach">Joseph Kalema</div>
+            <div class="disc-deliv">Deliverable: Pitch deck &amp; fundraising strategy</div>
+          </div>
+          <div class="disc-check">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 10L9 14L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+
+        <div class="disc-card" data-disc="strategy">
+          <div class="disc-dot" style="background:var(--moss)"></div>
+          <div class="disc-info">
+            <div class="disc-name">Strategy &amp; Team Building</div>
+            <div class="disc-coach">Moses Engwau</div>
+            <div class="disc-deliv">Deliverable: Competitive analysis &amp; team plan</div>
+          </div>
+          <div class="disc-check">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 10L9 14L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+
+        <div class="disc-card" data-disc="product">
+          <div class="disc-dot" style="background:var(--stone)"></div>
+          <div class="disc-info">
+            <div class="disc-name">Product Dev &amp; Pricing</div>
+            <div class="disc-coach">Patrick Ngolobe</div>
+            <div class="disc-deliv">Deliverable: Product roadmap &amp; pricing model</div>
+          </div>
+          <div class="disc-check">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 10L9 14L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+
+      </div>
+      <div class="disc-counter">
+        <span id="disc-count">0</span> / <span id="disc-max">3</span> selected
+      </div>
+    </div>
+
+    <!-- Cohort date picker (cohort only) -->
+    <div class="config-panel" id="config-cohort" style="display:none">
+      <div class="cohort-options">
+        <div class="cohort-card selected" data-cohort="july-2026">
+          <div class="cohort-badge">Next available</div>
+          <div class="cohort-date">
+            <span class="cohort-month">July 2026</span>
+            <span class="cohort-range">Mon 6 &ndash; Fri 1 Aug</span>
+          </div>
+          <div class="cohort-detail">
+            <div class="cd-row"><span class="cd-label">Schedule</span><span>Mon&ndash;Fri, 10 AM&ndash;12 PM EAT</span></div>
+            <div class="cd-row"><span class="cd-label">Format</span><span>Live on Google Meet</span></div>
+            <div class="cd-row"><span class="cd-label">Spots</span><span class="spots">8 of 12 remaining</span></div>
+          </div>
+          <div class="cohort-check">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 10L9 14L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+
+        <div class="cohort-card" data-cohort="aug-2026">
+          <div class="cohort-date">
+            <span class="cohort-month">August 2026</span>
+            <span class="cohort-range">Mon 3 &ndash; Fri 29</span>
+          </div>
+          <div class="cohort-detail">
+            <div class="cd-row"><span class="cd-label">Schedule</span><span>Mon&ndash;Fri, 10 AM&ndash;12 PM EAT</span></div>
+            <div class="cd-row"><span class="cd-label">Format</span><span>Live on Google Meet</span></div>
+            <div class="cd-row"><span class="cd-label">Spots</span><span class="spots">12 of 12 remaining</span></div>
+          </div>
+          <div class="cohort-check">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 10L9 14L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Instalment picker (cohort only) -->
+      <div class="instalment-picker">
+        <span class="inst-label">Payment plan</span>
+        <div class="inst-options">
+          <button class="inst-opt selected" data-plan="full" type="button">
+            <span class="inst-name">Pay in full</span>
+            <span class="inst-detail">UGX 2.5M</span>
+          </button>
+          <button class="inst-opt" data-plan="2x" type="button">
+            <span class="inst-name">2 instalments</span>
+            <span class="inst-detail">UGX 1.25M &times; 2</span>
+          </button>
+          <button class="inst-opt" data-plan="3x" type="button">
+            <span class="inst-name">3 instalments</span>
+            <span class="inst-detail">UGX 835K &times; 3</span>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-actions">
+      <button class="btn-ghost" id="btn-back-3" type="button">&larr; Back</button>
+      <button class="btn-primary" id="btn-next-3" type="button" disabled>Continue to review &rarr;</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     STEP 4 — ORDER REVIEW + PAYMENT
+     ============================================================ -->
+<section class="step-panel" id="step-4">
+  <div class="shell narrow">
+    <div class="step-header">
+      <span class="eyebrow terra">Step 4 of 4</span>
+      <h1 class="h-section">Review &amp; pay</h1>
+      <p class="h-sub">Confirm your details, then we'll send a mobile money prompt to your phone.</p>
+    </div>
+
+    <div class="review-card">
+      <!-- Summary -->
+      <div class="review-section">
+        <div class="review-label">Your order</div>
+        <div class="review-tier" id="review-tier">
+          <span class="review-tier-name">Pick 3 Bundle</span>
+          <span class="review-tier-price">UGX 1M</span>
+        </div>
+        <div class="review-disciplines" id="review-disciplines">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+
+      <div class="review-divider"></div>
+
+      <!-- Account -->
+      <div class="review-section">
+        <div class="review-label">Account</div>
+        <div class="review-row"><span class="rr-k">Name</span><span class="rr-v" id="review-name">Sarah Nakamya</span></div>
+        <div class="review-row"><span class="rr-k">Email</span><span class="rr-v" id="review-email">sarah@example.com</span></div>
+        <div class="review-row"><span class="rr-k">Phone</span><span class="rr-v" id="review-phone">+256 7XX XXX XXX</span></div>
+      </div>
+
+      <div class="review-divider"></div>
+
+      <!-- Cohort schedule (cohort only) -->
+      <div class="review-section" id="review-schedule-section" style="display:none">
+        <div class="review-label">Schedule</div>
+        <div class="review-row"><span class="rr-k">Cohort</span><span class="rr-v" id="review-cohort">July 2026</span></div>
+        <div class="review-row"><span class="rr-k">Dates</span><span class="rr-v" id="review-dates">Mon 6 Jul &ndash; Fri 1 Aug</span></div>
+        <div class="review-row"><span class="rr-k">Schedule</span><span class="rr-v">Mon&ndash;Fri, 10 AM&ndash;12 PM EAT</span></div>
+        <div class="review-divider"></div>
+      </div>
+
+      <!-- Payment -->
+      <div class="review-section">
+        <div class="review-label">Payment</div>
+
+        <div class="review-total">
+          <span class="rt-label" id="review-pay-label">Total due now</span>
+          <span class="rt-amount" id="review-amount">UGX 1,000,000</span>
+        </div>
+
+        <div class="review-instalment-note" id="review-instalment" style="display:none">
+          <!-- Shown for instalment plans -->
+        </div>
+
+        <div class="momo-picker">
+          <span class="momo-label">Pay with</span>
+          <div class="momo-options">
+            <button class="momo-opt selected" data-provider="mtn" type="button">
+              <span class="momo-icon mtn">M</span>
+              <span>MTN MoMo</span>
+            </button>
+            <button class="momo-opt" data-provider="airtel" type="button">
+              <span class="momo-icon airtel">A</span>
+              <span>Airtel Money</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="momo-phone-row">
+          <label class="field-label">Mobile money number</label>
+          <div class="phone-display" id="momo-phone-display">+256 7XX XXX XXX</div>
+          <span class="field-hint">We'll send the payment prompt to this number</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-actions">
+      <button class="btn-ghost" id="btn-back-4" type="button">&larr; Back</button>
+      <button class="btn-primary pay" id="btn-pay" type="button">
+        <span class="btn-text">Confirm &amp; pay UGX <span id="btn-pay-amount">1,000,000</span></span>
+      </button>
+    </div>
+
+    <p class="terms-note">By proceeding, you agree to The Founder's Sprint <a href="../terms.html">terms of service</a> and <a href="../privacy.html">privacy policy</a>.</p>
+  </div>
+</section>
+
+<!-- ============================================================
+     STEP 5 — PAYMENT PROCESSING + CONFIRMATION
+     ============================================================ -->
+<section class="step-panel" id="step-5">
+  <div class="shell narrow">
+
+    <!-- Processing state -->
+    <div class="confirm-state" id="state-processing">
+      <div class="processing-anim">
+        <div class="pulse-ring"></div>
+        <div class="pulse-ring delay"></div>
+        <svg class="phone-icon" width="56" height="56" viewBox="0 0 56 56" fill="none">
+          <rect x="16" y="6" width="24" height="44" rx="4" stroke="var(--paper)" stroke-width="2"/>
+          <line x1="24" y1="44" x2="32" y2="44" stroke="var(--paper)" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <h2 class="h-section" style="font-size:26px;margin-top:32px">Check your phone</h2>
+      <p class="h-sub" style="text-align:center">We sent a <strong id="provider-name">MTN MoMo</strong> payment prompt to <strong id="processing-phone">+256 7XX XXX XXX</strong>. Enter your PIN to confirm.</p>
+      <div class="processing-timer">
+        <span class="timer-text">Waiting for confirmation...</span>
+        <div class="timer-bar"><div class="timer-fill" id="timer-fill"></div></div>
+      </div>
+      <button class="btn-ghost small" id="btn-cancel-payment" type="button">Cancel</button>
+    </div>
+
+    <!-- Success state -->
+    <div class="confirm-state" id="state-success" style="display:none">
+      <div class="success-icon">
+        <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+          <circle cx="40" cy="40" r="36" stroke="var(--sage)" stroke-width="2.5"/>
+          <path d="M24 40L36 52L56 28" stroke="var(--sage)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h2 class="h-section" style="font-size:28px;margin-top:24px">You're in.</h2>
+      <p class="h-sub" style="text-align:center;max-width:44ch">Payment confirmed. Check your email for next steps and your session details.</p>
+
+      <div class="success-card">
+        <div class="sc-row"><span class="sc-k">Transaction ID</span><span class="sc-v" id="txn-id">FS-20260527-XXXX</span></div>
+        <div class="sc-row"><span class="sc-k">Amount paid</span><span class="sc-v" id="txn-amount">UGX 1,000,000</span></div>
+        <div class="sc-row"><span class="sc-k">Payment method</span><span class="sc-v" id="txn-method">MTN MoMo</span></div>
+        <div class="sc-row"><span class="sc-k">Receipt sent to</span><span class="sc-v" id="txn-email">sarah@example.com</span></div>
+      </div>
+
+      <div class="next-steps">
+        <div class="ns-label">What happens next</div>
+        <div class="ns-list">
+          <div class="ns-item">
+            <span class="ns-num">1</span>
+            <div>
+              <strong>Check your inbox</strong>
+              <p>We sent a confirmation email with your receipt and session details.</p>
+            </div>
+          </div>
+          <div class="ns-item">
+            <span class="ns-num">2</span>
+            <div>
+              <strong>Save the date</strong>
+              <p id="ns-schedule-text">Your session details and Google Meet link will arrive 48 hours before.</p>
+            </div>
+          </div>
+          <div class="ns-item">
+            <span class="ns-num">3</span>
+            <div>
+              <strong>Prepare</strong>
+              <p>We'll send a short prep guide so you can make the most of your coaching time.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="success-actions">
+        <a class="btn-primary" href="../">Return to homepage</a>
+        <a class="btn-ghost" href="../explore/">Explore disciplines</a>
+      </div>
+    </div>
+
+    <!-- Prototype controls -->
+    <div class="proto-skip" id="proto-payment-skip" style="display:none">
+      <span class="proto-label">Prototype only</span>
+      <button class="btn-primary small" id="btn-skip-payment" type="button">Simulate success &rarr;</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     FOOTER
+     ============================================================ -->
+<footer class="footer">
+  <div class="shell">
+    <div class="f-row">
+      <span class="f-brand">THE FOUNDER'S SPRINT</span>
+      <span class="f-tag">Build with direction.</span>
+    </div>
+  </div>
+</footer>
+
+<script src="book.js?v=2"></script>
+</body>
+</html>
