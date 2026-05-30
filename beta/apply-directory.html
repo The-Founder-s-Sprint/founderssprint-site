@@ -470,12 +470,11 @@ footer .bottom {
       <div class="pricing-card">
         <div class="tier-label">Basic Listing</div>
         <div class="price">Free</div>
-        <div class="price-usd">Launch offer · limited time</div>
+        <div class="price-usd">Email contact only</div>
         <ul class="features">
           <li>Listed in the founder resource directory</li>
-          <li>Company name, category &amp; contact details</li>
+          <li>Company name, category &amp; email contact</li>
           <li>Visible to all registered founders</li>
-          <li>Direct founder enquiries via listed contact</li>
           <li>Subject to platform vetting</li>
         </ul>
       </div>
@@ -484,34 +483,33 @@ footer .bottom {
       <div class="pricing-card featured">
         <span class="featured-badge">Recommended</span>
         <div class="tier-label">Verified Partner</div>
-        <div class="price">UGX 200,000</div>
-        <div class="price-usd">per month · ~$55 USD</div>
+        <div class="price">UGX 500,000</div>
+        <div class="price-usd">per quarter · ~$130 USD</div>
         <ul class="features">
           <li>Everything in Basic, plus:</li>
-          <li>"Verified Partner" badge on your listing</li>
+          <li>"Verified Partner" badge &amp; rich card format</li>
+          <li>WhatsApp, phone &amp; website direct links</li>
           <li>Priority placement above basic listings</li>
           <li>Featured in founder welcome materials</li>
-          <li>Logo displayed on programme partner page</li>
           <li>Platform-vetted trust signal for founders</li>
         </ul>
       </div>
 
       <!-- CORPORATE -->
       <div class="pricing-card corporate">
-        <span class="corporate-badge">Custom Package</span>
-        <div class="tier-label">Corporate Sponsor</div>
-        <div class="price" style="font-size:32px;">Get in touch</div>
-        <div class="price-usd">For banks, hubs &amp; corporate partners</div>
+        <span class="corporate-badge">For Institutions</span>
+        <div class="tier-label">Programme Sponsor</div>
+        <div class="price" style="font-size:28px;">From UGX 25M</div>
+        <div class="price-usd">per year · banks, hubs &amp; corporate partners</div>
         <ul class="features">
-          <li>Branded presence across the platform</li>
-          <li>Exclusive sponsor banner at live cohort sessions</li>
-          <li>Speaking slot at the cohort kickoff event</li>
-          <li>Co-branded founder resource pack</li>
-          <li>Named sponsor on graduate certificates</li>
+          <li>Logo across all platform surfaces</li>
+          <li>Sponsor bar on coaching presentation decks</li>
+          <li>Branded cohort sponsorship (Programme Partner)</li>
+          <li>Speaking slot at launch events</li>
+          <li>Quarterly impact report with reach metrics</li>
           <li>First-look access to the founder pipeline</li>
-          <li>Quarterly impact report with your brand's reach</li>
         </ul>
-        <a class="btn-contact" href="mailto:hello@founderssprint.co?subject=Corporate%20Sponsorship%20Enquiry">Contact our team &rarr;</a>
+        <a class="btn-contact" href="mailto:hello@founderssprint.co?subject=Programme%20Sponsorship%20Enquiry">Talk to our team &rarr;</a>
       </div>
     </div>
   </div>
@@ -580,9 +578,9 @@ footer .bottom {
           <label for="preferred_tier">Preferred Tier</label>
           <select id="preferred_tier" name="preferred_tier">
             <option value="" disabled selected>Select a tier</option>
-            <option value="basic">Basic Listing — Free</option>
-            <option value="verified">Verified Partner — UGX 200,000/month</option>
-            <option value="corporate">Corporate Sponsor — Custom pricing</option>
+            <option value="basic">Basic Listing — Free (email only)</option>
+            <option value="verified">Verified Partner — UGX 500,000/quarter</option>
+            <option value="corporate">Programme Sponsor — From UGX 25M/year</option>
           </select>
         </div>
 
@@ -707,11 +705,9 @@ footer .bottom {
 </footer>
 
 <!-- Supabase -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script>
 var SUPABASE_URL = 'https://ivedeivyotwevjxvcuoe.supabase.co';
 var SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss';
-var supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 var lastSubmitTime = 0;
 var COOLDOWN_MS = 60000;
@@ -788,8 +784,21 @@ form.addEventListener('submit', async function(e) {
   };
 
   try {
-    var result = await supabase.from('directory_applications').insert([data]);
-    if (result.error) throw result.error;
+    // Raw fetch — bypasses slow Supabase client init on Safari
+    var res = await fetch(SUPABASE_URL + '/rest/v1/directory_applications', {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal',
+      },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) {
+      var errBody = await res.json().catch(function() { return {}; });
+      throw new Error(errBody.message || 'Server error ' + res.status);
+    }
     lastSubmitTime = Date.now();
     showSuccess();
   } catch (err) {

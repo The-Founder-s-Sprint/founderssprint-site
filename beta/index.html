@@ -386,6 +386,9 @@
 <!-- ============================================================
      §7  PRICING — three interactive variants
      ============================================================ -->
+<!-- Programme sponsors -->
+<div id="sponsor-strip" style="border-top:1px solid rgba(26,26,26,0.1);border-bottom:1px solid rgba(26,26,26,0.1);overflow:hidden"></div>
+
 <section class="pricing on-ink" data-section="pricing" data-screen-label="07 Pricing" id="pricing">
   <div class="shell">
     <div class="hdr">
@@ -493,19 +496,26 @@
                 <div class="tp"><span class="ccy">UGX</span>2.5M</div>
                 <div class="tc">5 weeks · 50 hours of group coaching</div>
               </th>
+              <th class="tier-col" data-tier="vip1on1">
+                <div class="tn">VIP 1-on-1</div>
+                <div class="tp"><span class="ccy">UGX</span>5M</div>
+                <div class="tc">All coaches · dedicated · 3-month advisory</div>
+              </th>
             </tr>
           </thead>
           <tbody id="matrix-body">
-            <tr><td class="row-label">Best for<em>The founder who...</em></td><td class="cell dim">"I have one specific problem"</td><td class="cell dim popular">"I know my 3 biggest gaps"</td><td class="cell dim">"I want the complete foundation"</td></tr>
-            <tr><td class="row-label">Coaches<em>How many experts you work with</em></td><td class="cell">1</td><td class="cell popular">3</td><td class="cell">All 5</td></tr>
-            <tr><td class="row-label">Deliverables<em>Vetted, take-home artifacts</em></td><td class="cell">1</td><td class="cell popular">3</td><td class="cell">5</td></tr>
-            <tr><td class="row-label">Format<em>How sessions happen</em></td><td class="cell">1 × 2-hr session</td><td class="cell popular">3 × 2-hr sessions</td><td class="cell">5 weeks · 50 hrs group</td></tr>
-            <tr><td class="row-label">Founder data room<em>Investor-ready file hub</em></td><td class="cell no">—</td><td class="cell dim popular">Partial</td><td class="cell check">✓</td></tr>
+            <tr><td class="row-label">Best for<em>The founder who...</em></td><td class="cell dim">"I have one specific problem"</td><td class="cell dim popular">"I know my 3 biggest gaps"</td><td class="cell dim">"I want the complete foundation"</td><td class="cell dim">"I'm raising and need everything now"</td></tr>
+            <tr><td class="row-label">Coaches<em>How many experts you work with</em></td><td class="cell">1</td><td class="cell popular">3</td><td class="cell">All 5</td><td class="cell">All 5 · dedicated</td></tr>
+            <tr><td class="row-label">Deliverables<em>Vetted, take-home artifacts</em></td><td class="cell">1</td><td class="cell popular">3</td><td class="cell">5</td><td class="cell">5 + advisory docs</td></tr>
+            <tr><td class="row-label">Format<em>How sessions happen</em></td><td class="cell">1 × 2-hr session</td><td class="cell popular">3 × 2-hr sessions</td><td class="cell">5 weeks · 50 hrs group</td><td class="cell">Private 1-on-1 sessions</td></tr>
+            <tr><td class="row-label">Post-programme<em>Ongoing support</em></td><td class="cell no">—</td><td class="cell no popular">—</td><td class="cell dim">30-day window</td><td class="cell check">3 months advisory</td></tr>
+            <tr><td class="row-label">Founder data room<em>Investor-ready file hub</em></td><td class="cell no">—</td><td class="cell dim popular">Partial</td><td class="cell check">✓</td><td class="cell check">✓ + investor intros</td></tr>
             <tr class="cta-row">
               <td></td>
               <td><a class="cell-cta" href="book/?tier=single">Book session →</a></td>
               <td><a class="cell-cta primary" href="book/?tier=pick3">Build my bundle →</a></td>
               <td><a class="cell-cta" href="book/?tier=cohort">Join cohort →</a></td>
+              <td><a class="cell-cta" href="register.html?track=vip1on1">Book VIP →</a></td>
             </tr>
           </tbody>
         </table>
@@ -552,21 +562,9 @@
       </div>
     </div>
 
-    <!-- VIP & Corporate — separate from the main matrix -->
-    <div class="premium-tiers">
-      <div class="premium-card">
-        <div class="premium-label">VIP 1-on-1</div>
-        <div class="premium-price"><span class="ccy">UGX</span> 5M</div>
-        <p>All 5 coaches, dedicated sessions, 3 months post-programme advisory. Built for founders raising in the next 6 months.</p>
-        <a class="btn btn-ghost" href="register.html?track=vip1on1">Book VIP <span class="arrow">→</span></a>
-      </div>
-      <div class="premium-card">
-        <div class="premium-label">Corporate & Hub Partners</div>
-        <div class="premium-price">Custom</div>
-        <p>Branded cohorts for your portfolio or membership. Volume pricing, white-label reporting, and dedicated coach assignment.</p>
-        <a class="btn btn-ghost" href="contact.html">Talk to our team <span class="arrow">→</span></a>
-      </div>
-    </div>
+    <p style="text-align:center;font-family:var(--sans);font-size:12px;letter-spacing:0.08em;color:rgba(239,231,216,0.5);margin-top:32px;max-width:600px;margin-left:auto;margin-right:auto">
+      <strong style="color:var(--ochre)">Corporate & Hub Partners</strong> — branded cohorts, volume pricing, white-label reporting, and dedicated coach assignment. <a href="contact.html" style="color:var(--terra);text-decoration:none;border-bottom:1px solid rgba(200,83,31,0.3)">Talk to our team →</a>
+    </p>
 
     <div class="pay-strip">
       <span>Pay your way · 2 taps from your phone</span>
@@ -582,75 +580,7 @@
 <!-- ============================================================
      §8  LAUNCH CTA
      ============================================================ -->
-<section class="launch-cta" data-section="launch" data-screen-label="08 Launch">
-  <!-- Constellation background -->
-  <div class="launch-bg" aria-hidden="true">
-    <svg class="launch-constellation" viewBox="0 0 800 800" preserveAspectRatio="xMidYMid meet">
-      <defs>
-        <radialGradient id="lc-glow" cx="50%" cy="50%" r="50%">
-          <stop offset="0%" stop-color="#efe7d8" stop-opacity="0.08"/>
-          <stop offset="100%" stop-color="#efe7d8" stop-opacity="0"/>
-        </radialGradient>
-      </defs>
-      <!-- Orbital rings -->
-      <circle cx="400" cy="400" r="120" fill="none" stroke="#c8531f" stroke-width="0.4" opacity="0.12"/>
-      <circle cx="400" cy="400" r="220" fill="none" stroke="#c9923a" stroke-width="0.3" opacity="0.10"/>
-      <circle cx="400" cy="400" r="320" fill="none" stroke="#8aab5c" stroke-width="0.3" opacity="0.08"/>
-      <!-- Centre glow -->
-      <circle cx="400" cy="400" r="180" fill="url(#lc-glow)"/>
-      <!-- Connections -->
-      <line x1="400" y1="280" x2="510" y2="340" stroke="#c8531f" stroke-width="0.6" opacity="0.35"/>
-      <line x1="510" y1="340" x2="520" y2="460" stroke="#c9923a" stroke-width="0.5" opacity="0.30"/>
-      <line x1="520" y1="460" x2="420" y2="530" stroke="#8aab5c" stroke-width="0.5" opacity="0.28"/>
-      <line x1="420" y1="530" x2="300" y2="480" stroke="#3d4a2e" stroke-width="0.5" opacity="0.30"/>
-      <line x1="300" y1="480" x2="290" y2="360" stroke="#777770" stroke-width="0.5" opacity="0.28"/>
-      <line x1="290" y1="360" x2="400" y2="280" stroke="#c8531f" stroke-width="0.5" opacity="0.32"/>
-      <!-- Outer connections -->
-      <line x1="400" y1="280" x2="440" y2="180" stroke="#c8531f" stroke-width="0.4" opacity="0.22"/>
-      <line x1="510" y1="340" x2="620" y2="300" stroke="#c9923a" stroke-width="0.4" opacity="0.20"/>
-      <line x1="520" y1="460" x2="640" y2="520" stroke="#8aab5c" stroke-width="0.4" opacity="0.18"/>
-      <line x1="420" y1="530" x2="400" y2="650" stroke="#3d4a2e" stroke-width="0.4" opacity="0.20"/>
-      <line x1="300" y1="480" x2="180" y2="520" stroke="#777770" stroke-width="0.4" opacity="0.18"/>
-      <line x1="290" y1="360" x2="170" y2="300" stroke="#c8531f" stroke-width="0.4" opacity="0.20"/>
-      <!-- L1 nodes (inner ring) -->
-      <circle cx="400" cy="280" r="4" fill="#c8531f" opacity="0.7"/><circle cx="400" cy="280" r="10" fill="#c8531f" opacity="0.08"/>
-      <circle cx="510" cy="340" r="3.5" fill="#c9923a" opacity="0.65"/><circle cx="510" cy="340" r="9" fill="#c9923a" opacity="0.07"/>
-      <circle cx="520" cy="460" r="4" fill="#8aab5c" opacity="0.6"/><circle cx="520" cy="460" r="10" fill="#8aab5c" opacity="0.07"/>
-      <circle cx="420" cy="530" r="3.5" fill="#3d4a2e" opacity="0.6"/><circle cx="420" cy="530" r="9" fill="#3d4a2e" opacity="0.07"/>
-      <circle cx="300" cy="480" r="4" fill="#777770" opacity="0.55"/><circle cx="300" cy="480" r="10" fill="#777770" opacity="0.06"/>
-      <circle cx="290" cy="360" r="3.5" fill="#c8531f" opacity="0.6"/><circle cx="290" cy="360" r="9" fill="#c8531f" opacity="0.07"/>
-      <!-- L2 nodes (outer ring) -->
-      <circle cx="440" cy="180" r="2.5" fill="#c8531f" opacity="0.45"/>
-      <circle cx="620" cy="300" r="2.5" fill="#c9923a" opacity="0.40"/>
-      <circle cx="640" cy="520" r="2.5" fill="#8aab5c" opacity="0.38"/>
-      <circle cx="400" cy="650" r="2.5" fill="#3d4a2e" opacity="0.40"/>
-      <circle cx="180" cy="520" r="2.5" fill="#777770" opacity="0.38"/>
-      <circle cx="170" cy="300" r="2.5" fill="#c8531f" opacity="0.40"/>
-      <!-- Dust -->
-      <circle cx="350" cy="220" r="1" fill="#efe7d8" opacity="0.12"/>
-      <circle cx="570" cy="400" r="1" fill="#efe7d8" opacity="0.10"/>
-      <circle cx="460" cy="600" r="1" fill="#efe7d8" opacity="0.08"/>
-      <circle cx="220" cy="420" r="1" fill="#efe7d8" opacity="0.10"/>
-      <circle cx="500" cy="200" r="1" fill="#efe7d8" opacity="0.06"/>
-      <circle cx="250" cy="580" r="1" fill="#efe7d8" opacity="0.06"/>
-      <!-- Centre mark -->
-      <circle cx="400" cy="400" r="3" fill="#efe7d8" opacity="0.15"/>
-      <circle cx="400" cy="400" r="1.2" fill="#efe7d8" opacity="0.35"/>
-    </svg>
-  </div>
-  <!-- Nebula clouds -->
-  <div class="launch-clouds" aria-hidden="true"></div>
-  <!-- Content -->
-  <div class="launch-content">
-    <span class="eyebrow section-eb" style="background:var(--terra);">Now open</span>
-    <h2 class="launch-h">Stop building <em>alone.</em></h2>
-    <p class="launch-sub">Find the coach who's already solved the problem you're stuck on. One session, a focused bundle, or the full sprint — active coaching begins <strong>6 July 2026.</strong></p>
-    <div class="launch-ctas">
-      <a class="btn-main" href="book/">Book your session</a>
-      <a class="btn-ghost-d" href="#pricing">View pricing</a>
-    </div>
-  </div>
-</section>
+<!-- §8 Launch CTA removed — redundant with pricing section directly above -->
 
 <!-- ============================================================
      §9  FAQ
@@ -801,5 +731,6 @@
 
 <script src="testimonials.js?v=2"></script>
 <script src="homepage.js?v=7"></script>
+<script src="sponsors.js?v=2"></script>
 </body>
 </html>

@@ -705,7 +705,7 @@
     <button class="tab" onclick="switchTab('directory')">Directory</button>
     <button class="tab" onclick="switchTab('coaches')">Applications <span class="badge" id="coach-app-count-badge" style="display:none">0</span></button>
     <button class="tab" onclick="switchTab('sessions')">Sessions</button>
-    <button class="tab" onclick="switchTab('presentations')">Presentations</button>
+    <!-- Presentations tab removed — merged into Materials -->
     <button class="tab" onclick="switchTab('cohorts')">Cohorts</button>
     <button class="tab" onclick="switchTab('pricing')">Pricing</button>
     <button class="tab" onclick="switchTab('profiles')">Profiles</button>
@@ -1094,18 +1094,22 @@
             <div>
               <label>Tier *</label>
               <select id="prov-tier" onchange="updateProvPrice()">
-                <option value="cohort">Per Cohort — UGX 500,000</option>
-                <option value="annual">Annual — UGX 1,500,000</option>
+                <option value="basic">Basic Listing — Free (email only)</option>
+                <option value="verified">Verified Partner — UGX 500,000/quarter</option>
+                <option value="corporate">Sponsor — UGX 25,000,000/year</option>
+                <option value="programme_partner">Programme Partner — UGX 50,000,000/year</option>
+                <option value="strategic_partner">Strategic Partner — UGX 100,000,000+/year</option>
               </select>
             </div>
             <div>
-              <label>Slot Position *</label>
-              <select id="prov-position">
-                <option value="1">Slot 1</option>
-                <option value="2">Slot 2</option>
-                <option value="3">Slot 3</option>
-              </select>
+              <label>Banner Tagline</label>
+              <input type="text" id="prov-tagline" placeholder="e.g. Banking Partner (corporate tier only)">
             </div>
+          </div>
+          <div class="dir-form-row">
+            <label>Logo</label>
+            <input type="file" id="prov-logo" accept="image/png,image/jpeg,image/svg+xml" style="font-size:13px">
+            <div style="font-size:11px;color:var(--muted);margin-top:4px">PNG or SVG, transparent background preferred. Used in sponsor strips across the platform.</div>
           </div>
           <div class="dir-form-row two-col">
             <div>
@@ -1251,8 +1255,8 @@
       </div>
     </div>
 
-    <!-- ── PRESENTATIONS ──────────────────────────────────────────────── -->
-    <div class="tab-panel" id="panel-presentations">
+    <!-- Presentations panel removed — merged into Materials tab -->
+    <div class="tab-panel" id="panel-presentations" style="display:none!important">
       <div class="section-head" style="margin-bottom:16px">
         <span class="section-title">Coach Presentations</span>
         <div style="display:flex;gap:8px;align-items:center">
@@ -1937,25 +1941,29 @@ sb.auth.onAuthStateChange((event, session) => {
 });
 
 // Safari fix: Supabase client init is slow in Safari (5s+).
-// Fast-path: read session directly from localStorage and boot immediately.
-// The Supabase client will catch up with its own init and token refresh in background.
-try {
-  const sbKey = 'sb-' + SUPABASE_URL.split('//')[1].split('.')[0] + '-auth-token';
-  const stored = localStorage.getItem(sbKey);
-  if (stored) {
-    const parsed = JSON.parse(stored);
-    const user = parsed.user || (parsed.currentSession && parsed.currentSession.user);
-    if (user && !booted) {
-      // Fast-path boot from localStorage (Safari fix)
-      bootApp(user);
+// Safari fast-path: read session from localStorage, refresh token if expired, boot immediately.
+(async () => {
+  try {
+    const stored = _getStoredSession();
+    const user = stored.user || (stored.currentSession && stored.currentSession.user);
+    if (!user || booted) return;
+
+    // If token is expired, refresh it BEFORE booting — prevents 401 cascade
+    if (_isTokenExpired(stored)) {
+      await _refreshToken(); // updates localStorage + currentSession
     }
+
+    if (!booted) bootApp(user);
+  } catch(e) {
+    // Refresh failed — session is truly dead. Show login screen.
+    // onAuthStateChange will also fire and handle this case.
+    console.info('[Auth] Fast-path: no valid session, showing login');
   }
-} catch(e) { /* fast-path unavailable — onAuthStateChange will handle it */ }
+})();
 
 // Fallback: proactive getSession() (slower but more reliable)
 sb.auth.getSession().then(({ data: { session } }) => {
   if (session && !booted) {
-    // getSession fallback boot
     currentSession = session;
     bootApp(session.user);
   }
@@ -1980,18 +1988,117 @@ async function bootApp(user) {
 
 // ── DATA LOADING ──────────────────────────────────────────────────────────────
 // Raw PostgREST fetch — bypasses slow Supabase client init in Safari
-function _pgQuery(table, params) {
-  const sbKey = 'sb-' + SUPABASE_URL.split('//')[1].split('.')[0] + '-auth-token';
-  const stored = JSON.parse(localStorage.getItem(sbKey) || '{}');
-  const token = stored.access_token || SUPABASE_ANON;
+// ── TOKEN MANAGER — handles expiry, refresh, and auto-logout ────────────────
+const _SB_KEY = 'sb-' + SUPABASE_URL.split('//')[1].split('.')[0] + '-auth-token';
+let _refreshPromise = null; // deduplicates concurrent refresh calls
+
+function _getStoredSession() {
+  try { return JSON.parse(localStorage.getItem(_SB_KEY) || '{}'); } catch { return {}; }
+}
+
+function _isTokenExpired(stored) {
+  // Supabase stores expires_at as Unix seconds
+  const exp = stored.expires_at;
+  if (!exp) return true;
+  // Refresh 60 seconds before actual expiry to avoid race conditions
+  return (Date.now() / 1000) > (exp - 60);
+}
+
+async function _refreshToken() {
+  // Deduplicate: if a refresh is already in flight, wait for it
+  if (_refreshPromise) return _refreshPromise;
+
+  _refreshPromise = (async () => {
+    const stored = _getStoredSession();
+    const refreshToken = stored.refresh_token;
+    if (!refreshToken) throw new Error('No refresh token — please sign in again');
+
+    const res = await fetch(SUPABASE_URL + '/auth/v1/token?grant_type=refresh_token', {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_ANON, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ refresh_token: refreshToken }),
+    });
+
+    if (!res.ok) {
+      // Refresh token itself is expired — must re-login
+      localStorage.removeItem(_SB_KEY);
+      throw new Error('Session expired — please sign in again');
+    }
+
+    const session = await res.json();
+    // Store the refreshed session
+    localStorage.setItem(_SB_KEY, JSON.stringify(session));
+    // Also update currentSession so getAuthHeaders picks it up
+    currentSession = session;
+    return session.access_token;
+  })();
+
+  try {
+    return await _refreshPromise;
+  } finally {
+    _refreshPromise = null;
+  }
+}
+
+async function _getValidToken() {
+  // 1. Try currentSession (set by Supabase client after init)
+  if (currentSession?.access_token) {
+    const exp = currentSession.expires_at;
+    if (exp && (Date.now() / 1000) < (exp - 60)) {
+      return currentSession.access_token;
+    }
+  }
+
+  // 2. Try localStorage
+  const stored = _getStoredSession();
+  if (stored.access_token && !_isTokenExpired(stored)) {
+    return stored.access_token;
+  }
+
+  // 3. Token expired — refresh it
+  try {
+    return await _refreshToken();
+  } catch (err) {
+    // Refresh failed — force re-login
+    console.error('[Auth]', err.message);
+    showToast('Your session has expired. Signing you out…', 'error');
+    setTimeout(() => {
+      booted = false;
+      document.getElementById('app').style.display = 'none';
+      document.getElementById('login-screen').style.display = 'flex';
+    }, 1500);
+    throw err;
+  }
+}
+
+// Raw PostgREST fetch with automatic token refresh
+async function _pgQuery(table, params) {
+  const token = await _getValidToken();
   const url = SUPABASE_URL + '/rest/v1/' + table + '?' + params;
-  return fetch(url, {
+  const res = await fetch(url, {
     headers: {
       'apikey': SUPABASE_ANON,
       'Authorization': 'Bearer ' + token,
       'Accept': 'application/json',
     }
-  }).then(r => r.ok ? r.json() : r.json().then(e => { throw new Error(e.message || r.status); }));
+  });
+
+  // If 401 despite our check, token might have expired in the milliseconds between — retry once
+  if (res.status === 401) {
+    const freshToken = await _refreshToken();
+    const retry = await fetch(url, {
+      headers: {
+        'apikey': SUPABASE_ANON,
+        'Authorization': 'Bearer ' + freshToken,
+        'Accept': 'application/json',
+      }
+    });
+    if (!retry.ok) { const e = await retry.json().catch(() => ({})); throw new Error(e.message || retry.status); }
+    return retry.json();
+  }
+
+  if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.message || res.status); }
+  return res.json();
 }
 
 async function loadAllData() {
@@ -2026,7 +2133,7 @@ async function loadAllData() {
     if (!pricingLoaded)        loadPricing();
     if (!profilesLoaded)       loadProfiles();
     if (!sessionsLoaded)       loadSessions();
-    if (!presentationsLoaded)  loadPresentations();
+    // presentationsLoaded — panel removed, merged into Materials
     if (!materialsLoaded)      loadMaterials();
     try { renderCohorts(); } catch(e) { console.error('[Render] cohorts:', e); }
   }, { timeout: 2000 });
@@ -2819,7 +2926,7 @@ document.addEventListener('click', function(e) {
 
 function switchTab(name) {
   document.querySelectorAll('.tab').forEach((t, i) => {
-    const panels = ['overview','registrations','revenue','documents','directory','coaches','sessions','presentations','cohorts','pricing','profiles','materials'];
+    const panels = ['overview','registrations','revenue','documents','directory','coaches','sessions','cohorts','pricing','profiles','materials'];
     t.classList.toggle('active', panels[i] === name);
   });
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
@@ -2827,7 +2934,7 @@ function switchTab(name) {
   if (name === 'directory' && !directoryLoaded) loadDirectoryData();
   if (name === 'coaches' && !coachAppsLoaded) loadCoachApplications();
   if (name === 'sessions' && !sessionsLoaded) loadSessions();
-  if (name === 'presentations' && !presentationsLoaded) loadPresentations();
+  // presentations panel removed — merged into Materials
   if (name === 'cohorts') renderCohorts();
   if (name === 'pricing' && !pricingLoaded) loadPricing();
   if (name === 'profiles' && !profilesLoaded) loadProfiles();
@@ -3475,52 +3582,82 @@ async function addProvider() {
   const name = document.getElementById('prov-name').value.trim();
   const category = document.getElementById('prov-category').value;
   const tier = document.getElementById('prov-tier').value;
-  const position = parseInt(document.getElementById('prov-position').value);
+  const tagline = document.getElementById('prov-tagline').value.trim() || null;
   const startDate = document.getElementById('prov-start').value;
   const expiryDate = document.getElementById('prov-expiry').value;
 
   if (!name) { showToast('Company name is required', 'error'); return; }
-  if (!startDate || !expiryDate) { showToast('Start and expiry dates are required', 'error'); return; }
+  if (tier !== 'basic' && (!startDate || !expiryDate)) { showToast('Start and expiry dates are required for paid tiers', 'error'); return; }
 
-  const { error } = await sb.from('directory_providers').insert({
-    company_name: name,
-    category,
-    description: document.getElementById('prov-desc').value.trim() || null,
-    contact_name: document.getElementById('prov-contact').value.trim() || null,
-    email: document.getElementById('prov-email').value.trim() || null,
-    phone: document.getElementById('prov-phone').value.trim() || null,
-    website: document.getElementById('prov-website').value.trim() || null,
-    tier,
-    price_ugx: tier === 'annual' ? 1500000 : 500000,
-    position,
-    featured: tier === 'annual',
-    status: 'active',
-    starts_at: new Date(startDate).toISOString(),
-    expires_at: new Date(expiryDate).toISOString(),
-  });
+  const TIER_PRICES = { basic: 0, verified: 500000, corporate: 25000000, programme_partner: 50000000, strategic_partner: 100000000 };
 
-  if (error) {
-    if (error.message.includes('unique') || error.message.includes('duplicate')) {
-      showToast(`Slot ${position} in ${CATEGORY_LABELS[category]} is already taken by an active provider`, 'error');
-    } else {
-      showToast('Failed: ' + error.message, 'error');
+  try {
+    // 1. Upload logo if provided
+    let logoUrl = null;
+    const logoFile = document.getElementById('prov-logo').files?.[0];
+    if (logoFile) {
+      const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      const ext = logoFile.name.split('.').pop().toLowerCase();
+      const storagePath = `sponsors/${slug}.${ext}`;
+      const { error: uploadErr } = await sb.storage
+        .from('coach-profiles')
+        .upload(storagePath, logoFile, { upsert: true, contentType: logoFile.type });
+      if (uploadErr) throw new Error('Logo upload failed: ' + uploadErr.message);
+
+      const { data: urlData } = sb.storage.from('coach-profiles').getPublicUrl(storagePath);
+      logoUrl = urlData?.publicUrl;
     }
-    return;
-  }
 
-  showToast('Provider added successfully!', 'success');
-  clearProviderForm();
-  switchDirTab('listings');
-  await loadDirectoryData();
+    // 2. Insert provider record
+    const token = await _getValidToken();
+    const res = await fetch(SUPABASE_URL + '/rest/v1/directory_providers', {
+      method: 'POST',
+      headers: {
+        'apikey': SUPABASE_ANON,
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal',
+      },
+      body: JSON.stringify({
+        company_name: name,
+        category,
+        description: document.getElementById('prov-desc').value.trim() || null,
+        contact_name: document.getElementById('prov-contact').value.trim() || null,
+        email: document.getElementById('prov-email').value.trim() || null,
+        phone: document.getElementById('prov-phone').value.trim() || null,
+        website: document.getElementById('prov-website').value.trim() || null,
+        tier,
+        price_ugx: TIER_PRICES[tier] || 0,
+        logo_url: logoUrl,
+        banner_tagline: tagline,
+        featured: tier === 'verified' || tier === 'corporate',
+        status: 'active',
+        starts_at: startDate ? new Date(startDate).toISOString() : new Date().toISOString(),
+        expires_at: expiryDate ? new Date(expiryDate).toISOString() : (tier === 'basic' ? new Date('2099-12-31').toISOString() : null),
+      }),
+    });
+
+    if (!res.ok) {
+      const err = await res.json().catch(() => ({}));
+      throw new Error(err.message || 'Insert failed');
+    }
+
+    showToast('Provider added successfully!', 'success');
+    clearProviderForm();
+    switchDirTab('listings');
+    await loadDirectoryData();
+  } catch (err) {
+    showToast('Failed: ' + err.message, 'error');
+  }
 }
 
 function clearProviderForm() {
-  ['prov-name','prov-desc','prov-contact','prov-email','prov-phone','prov-website'].forEach(id => {
+  ['prov-name','prov-desc','prov-contact','prov-email','prov-phone','prov-website','prov-tagline'].forEach(id => {
     document.getElementById(id).value = '';
   });
   document.getElementById('prov-category').value = 'legal';
-  document.getElementById('prov-tier').value = 'cohort';
-  document.getElementById('prov-position').value = '1';
+  document.getElementById('prov-tier').value = 'basic';
+  document.getElementById('prov-logo').value = '';
   updateProvPrice();
 }
 
@@ -3553,15 +3690,7 @@ const L1_LABELS = {
 };
 
 async function getAuthHeaders() {
-  // Use currentSession if available, otherwise read token from localStorage (Safari fast-path)
-  let token = currentSession?.access_token;
-  if (!token) {
-    try {
-      const sbKey = 'sb-' + SUPABASE_URL.split('//')[1].split('.')[0] + '-auth-token';
-      const stored = JSON.parse(localStorage.getItem(sbKey) || '{}');
-      token = stored.access_token || '';
-    } catch(e) { token = ''; }
-  }
+  const token = await _getValidToken();
   return {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${token}`,

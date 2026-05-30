@@ -286,6 +286,67 @@ section, footer, nav { position: relative; z-index: 2; }
 .label-ip { color: var(--terra-d); }
 .label-digital { color: var(--ink); }
 
+/* ===== PROGRAMME SPONSORS BANNER ===== */
+.sponsor-strip {
+  padding: 28px 0;
+  border-bottom: 1px solid var(--line-l);
+  margin-bottom: 32px;
+}
+.sponsor-strip-label {
+  font-family: var(--sans); font-size: 9px; font-weight: 600;
+  letter-spacing: 0.2em; text-transform: uppercase;
+  color: var(--stone); margin-bottom: 16px; text-align: center;
+}
+.sponsor-strip-row {
+  display: flex; justify-content: center; align-items: center;
+  flex-wrap: wrap; gap: 40px;
+}
+.sponsor-item {
+  display: flex; flex-direction: column; align-items: center; gap: 6px;
+  text-decoration: none; opacity: 0.7; transition: opacity 200ms;
+}
+.sponsor-item:hover { opacity: 1; }
+.sponsor-item img {
+  height: 32px; width: auto; filter: grayscale(100%); transition: filter 200ms;
+}
+.sponsor-item:hover img { filter: grayscale(0%); }
+.sponsor-item .sponsor-tagline {
+  font-family: var(--sans); font-size: 9px; font-weight: 500;
+  letter-spacing: 0.08em; color: var(--stone); text-transform: uppercase;
+}
+
+/* ===== CATEGORY SECTION ===== */
+.category-section { margin-bottom: 40px; }
+.category-header {
+  font-family: var(--sans); font-size: 10px; font-weight: 700;
+  letter-spacing: 0.18em; text-transform: uppercase;
+  color: var(--ink); padding-bottom: 10px;
+  border-bottom: 1px solid var(--line-l); margin-bottom: 20px;
+}
+
+/* ===== BASIC LIST ROWS ===== */
+.basic-list { display: flex; flex-direction: column; gap: 0; margin-top: 16px; }
+.basic-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 0; border-bottom: 1px solid rgba(26,26,26,0.06);
+  transition: background 200ms;
+}
+.basic-row:hover { background: rgba(26,26,26,0.02); }
+.basic-row .basic-name {
+  font-family: var(--body); font-size: 14px; font-weight: 500; color: var(--ink);
+}
+.basic-row .basic-contact {
+  display: flex; align-items: center; gap: 12px;
+  font-family: var(--sans); font-size: 10px;
+  letter-spacing: 0.06em; color: var(--stone);
+}
+.basic-row .basic-contact a {
+  color: var(--terra); text-decoration: none;
+  display: inline-flex; align-items: center; gap: 4px;
+}
+.basic-row .basic-contact a:hover { color: var(--terra-d); }
+.basic-row .basic-contact svg { width: 13px; height: 13px; }
+
 /* Empty state */
 .empty-state { grid-column: 1 / -1; text-align: center; padding: 80px 20px; }
 .empty-state h3 {
@@ -467,6 +528,9 @@ footer .bottom {
     </div>
   </div>
 </section>
+
+<!-- Programme sponsors -->
+<div data-sponsors style="border-bottom:1px solid rgba(26,26,26,0.1);overflow:hidden"></div>
 
 <!-- CATEGORY FILTER -->
 <section class="filter-section">
@@ -659,6 +723,46 @@ function formatWhatsApp(phone) {
   return phone.replace(/[\s\-\(\)]/g, '').replace(/^\+/, '');
 }
 
+function renderProviderCard(p) {
+  var cat = p.category || 'digital';
+  var initials = getInitials(p.company_name);
+  var html = '<div class="provider-card' + (p.tier === 'verified' ? ' featured' : '') + '">';
+  html += '<div class="card-bar cat-' + esc(cat) + '"></div>';
+  html += '<div class="card-body">';
+  html += '<div class="card-head">';
+  if (p.logo_url) {
+    html += '<img src="' + esc(p.logo_url) + '" alt="" style="width:40px;height:40px;border-radius:4px;object-fit:contain">';
+  } else {
+    html += '<div class="card-initials cat-' + esc(cat) + '">' + initials + '</div>';
+  }
+  html += '<div class="card-meta">';
+  html += '<span class="featured-badge">' + V6_MINI + ' Verified Partner</span>';
+  html += '<div class="cat-label label-' + esc(cat) + '">' + esc(CATEGORY_LABELS[cat] || cat) + '</div>';
+  html += '<div class="company-name">' + esc(p.company_name) + '</div>';
+  html += '</div></div>';
+  if (p.description) html += '<div class="description">' + esc(p.description) + '</div>';
+  html += '<hr class="card-divider"><div class="card-actions">';
+  if (p.phone) html += '<a class="card-action-btn wa" href="https://wa.me/' + formatWhatsApp(p.phone) + '" target="_blank" rel="noopener">' + WA_ICON + ' WhatsApp</a>';
+  if (p.email) html += '<a class="card-action-btn" href="mailto:' + esc(p.email) + '">' + MAIL_ICON + ' Email</a>';
+  if (p.phone) html += '<a class="card-action-btn" href="tel:' + esc(p.phone.replace(/\s/g,'')) + '">' + PHONE_ICON + ' Call</a>';
+  if (p.website) { var url = p.website; if (!url.match(/^https?:\/\//)) url = 'https://' + url; html += '<a class="card-action-btn" href="' + esc(url) + '" target="_blank" rel="noopener">' + LINK_ICON + ' Website</a>'; }
+  html += '</div></div></div>';
+  return html;
+}
+
+function renderBasicRow(p) {
+  var html = '<div class="basic-row">';
+  html += '<span class="basic-name">' + esc(p.company_name) + '</span>';
+  html += '<span class="basic-contact">';
+  // Free tier: email only — no phone, WhatsApp, or website. Upgrade to Verified for direct contact.
+  if (p.email) html += '<a href="mailto:' + esc(p.email) + '">' + MAIL_ICON + '</a>';
+  html += '</span></div>';
+  return html;
+}
+
+// Inline sponsor strip removed — handled by sponsors.js scrolling strip above filter bar
+function renderSponsorStrip() { return ''; }
+
 function renderProviders(providers) {
   if (!providers.length) {
     grid.innerHTML = '<div class="empty-state">' +
@@ -672,62 +776,65 @@ function renderProviders(providers) {
     return;
   }
 
-  var sorted = providers.slice().sort(function(a, b) {
-    if (a.featured && !b.featured) return -1;
-    if (!a.featured && b.featured) return 1;
-    return (a.company_name || '').localeCompare(b.company_name || '');
-  });
+  // Split by tier
+  var corporate = providers.filter(function(p) { return p.tier === 'corporate'; });
+  var verified  = providers.filter(function(p) { return p.tier === 'verified'; });
+  var basic     = providers.filter(function(p) { return p.tier === 'basic' || (!p.tier); });
 
   var html = '';
-  for (var i = 0; i < sorted.length; i++) {
-    var p = sorted[i];
-    var cat = p.category || 'digital';
-    var initials = getInitials(p.company_name);
 
-    html += '<div class="provider-card' + (p.featured ? ' featured' : '') + '">';
+  // Corporate sponsor banner at top
+  html += renderSponsorStrip(corporate);
 
-    /* Color bar */
-    html += '<div class="card-bar cat-' + esc(cat) + '"></div>';
-    html += '<div class="card-body">';
-
-    /* Head: initials + meta */
-    html += '<div class="card-head">';
-    html += '<div class="card-initials cat-' + esc(cat) + '">' + initials + '</div>';
-    html += '<div class="card-meta">';
-    if (p.featured) {
-      html += '<span class="featured-badge">' + V6_MINI + ' Featured Partner</span>';
+  // If filtering by category, show flat view
+  if (activeFilter !== 'all') {
+    // Verified cards
+    if (verified.length) {
+      html += '<div class="directory-grid">';
+      verified.forEach(function(p) { html += renderProviderCard(p); });
+      html += '</div>';
     }
-    html += '<div class="cat-label label-' + esc(cat) + '">' + esc(CATEGORY_LABELS[cat] || cat) + '</div>';
-    html += '<div class="company-name">' + esc(p.company_name) + '</div>';
-    html += '</div></div>';
+    // Basic list
+    if (basic.length) {
+      html += '<div class="basic-list">';
+      basic.forEach(function(p) { html += renderBasicRow(p); });
+      html += '</div>';
+    }
+    if (!verified.length && !basic.length) {
+      html += '<div class="empty-state"><p>No providers in this category yet.</p><a class="btn-apply" href="apply-directory.html">Apply to be listed &rarr;</a></div>';
+    }
+  } else {
+    // Group by category: verified cards at top, basic list below
+    var categories = {};
+    providers.forEach(function(p) {
+      if (p.tier === 'corporate') return; // already shown in banner
+      var cat = p.category || 'other';
+      if (!categories[cat]) categories[cat] = { verified: [], basic: [] };
+      if (p.tier === 'verified') categories[cat].verified.push(p);
+      else categories[cat].basic.push(p);
+    });
 
-    /* Description */
-    if (p.description) {
-      html += '<div class="description">' + esc(p.description) + '</div>';
-    }
-
-    /* Contact actions */
-    html += '<hr class="card-divider">';
-    html += '<div class="card-actions">';
-
-    if (p.phone) {
-      var waNum = formatWhatsApp(p.phone);
-      html += '<a class="card-action-btn wa" href="https://wa.me/' + waNum + '" target="_blank" rel="noopener">' + WA_ICON + ' WhatsApp</a>';
-    }
-    if (p.email) {
-      html += '<a class="card-action-btn" href="mailto:' + esc(p.email) + '">' + MAIL_ICON + ' Email</a>';
-    }
-    if (p.phone) {
-      html += '<a class="card-action-btn" href="tel:' + esc(p.phone.replace(/\s/g,'')) + '">' + PHONE_ICON + ' Call</a>';
-    }
-    if (p.website) {
-      var url = p.website;
-      if (url && !url.match(/^https?:\/\//)) url = 'https://' + url;
-      html += '<a class="card-action-btn" href="' + esc(url) + '" target="_blank" rel="noopener">' + LINK_ICON + ' Website</a>';
-    }
-
-    html += '</div></div></div>';
+    var catKeys = Object.keys(categories).sort();
+    catKeys.forEach(function(cat) {
+      var group = categories[cat];
+      html += '<div class="category-section">';
+      html += '<div class="category-header">' + esc(CATEGORY_LABELS[cat] || cat) + '</div>';
+      // Verified cards
+      if (group.verified.length) {
+        html += '<div class="directory-grid">';
+        group.verified.forEach(function(p) { html += renderProviderCard(p); });
+        html += '</div>';
+      }
+      // Basic list rows
+      if (group.basic.length) {
+        html += '<div class="basic-list">';
+        group.basic.forEach(function(p) { html += renderBasicRow(p); });
+        html += '</div>';
+      }
+      html += '</div>';
+    });
   }
+
   grid.innerHTML = html;
 }
 
@@ -750,7 +857,7 @@ filterBar.addEventListener('click', function(e) {
 async function loadDirectory() {
   try {
     // Raw fetch — bypasses slow Supabase client init in Safari
-    var url = SUPABASE_URL + '/rest/v1/directory_providers?select=company_name,category,description,contact_name,email,phone,website,logo_url,tier,featured,status&status=eq.active&order=company_name';
+    var url = SUPABASE_URL + '/rest/v1/directory_providers?select=company_name,category,description,contact_name,email,phone,website,logo_url,tier,featured,banner_tagline,status&status=eq.active&order=tier,company_name';
     var res = await fetch(url, {
       headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY, 'Accept': 'application/json' }
     });
@@ -769,5 +876,6 @@ async function loadDirectory() {
 
 loadDirectory();
 </script>
+<script src="sponsors.js?v=2"></script>
 </body>
 </html>
