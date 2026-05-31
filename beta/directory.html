@@ -315,37 +315,48 @@ section, footer, nav { position: relative; z-index: 2; }
   letter-spacing: 0.08em; color: var(--stone); text-transform: uppercase;
 }
 
-/* ===== CATEGORY SECTION ===== */
-.category-section { margin-bottom: 40px; }
-.category-header {
+/* ===== SECTION DIVIDER ===== */
+.dir-section-label {
   font-family: var(--sans); font-size: 10px; font-weight: 700;
   letter-spacing: 0.18em; text-transform: uppercase;
-  color: var(--ink); padding-bottom: 10px;
-  border-bottom: 1px solid var(--line-l); margin-bottom: 20px;
+  color: var(--stone); margin: 40px 0 20px; padding-bottom: 10px;
+  border-bottom: 1px solid var(--line-l);
+  grid-column: 1 / -1;
 }
+.basic-table-wrap { grid-column: 1 / -1; }
 
-/* ===== BASIC LIST ROWS ===== */
-.basic-list { display: flex; flex-direction: column; gap: 0; margin-top: 16px; }
-.basic-row {
-  display: flex; align-items: center; justify-content: space-between;
-  padding: 14px 0; border-bottom: 1px solid rgba(26,26,26,0.06);
-  transition: background 200ms;
+/* ===== BASIC TABLE ===== */
+.basic-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
+.basic-table th {
+  font-family: var(--sans); font-size: 9px; font-weight: 700;
+  letter-spacing: 0.16em; text-transform: uppercase;
+  color: var(--stone); text-align: left; padding: 10px 12px;
+  border-bottom: 2px solid var(--line-l); cursor: pointer; user-select: none;
 }
-.basic-row:hover { background: rgba(26,26,26,0.02); }
-.basic-row .basic-name {
-  font-family: var(--body); font-size: 14px; font-weight: 500; color: var(--ink);
+.basic-table th:hover { color: var(--ink); }
+.basic-table td {
+  font-family: var(--body); font-size: 13px; color: var(--ink);
+  padding: 14px 12px; border-bottom: 1px solid rgba(26,26,26,0.06);
+  vertical-align: top;
 }
-.basic-row .basic-contact {
-  display: flex; align-items: center; gap: 12px;
-  font-family: var(--sans); font-size: 10px;
-  letter-spacing: 0.06em; color: var(--stone);
+.basic-table tr:hover td { background: rgba(26,26,26,0.015); }
+.basic-table .td-company { font-weight: 500; white-space: nowrap; }
+.basic-table .td-cat {
+  font-family: var(--sans); font-size: 10px; font-weight: 600;
+  letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap;
 }
-.basic-row .basic-contact a {
+.basic-table .td-desc { color: var(--stone); font-size: 12.5px; max-width: 400px; }
+.basic-table .td-email a {
   color: var(--terra); text-decoration: none;
+  font-family: var(--sans); font-size: 10px; letter-spacing: 0.04em;
   display: inline-flex; align-items: center; gap: 4px;
 }
-.basic-row .basic-contact a:hover { color: var(--terra-d); }
-.basic-row .basic-contact svg { width: 13px; height: 13px; }
+.basic-table .td-email a:hover { color: var(--terra-d); }
+.basic-table .td-email svg { width: 13px; height: 13px; }
+@media (max-width: 700px) {
+  .basic-table .td-desc { display: none; }
+  .basic-table .td-cat { display: none; }
+}
 
 /* Empty state */
 .empty-state { grid-column: 1 / -1; text-align: center; padding: 80px 20px; }
@@ -479,8 +490,8 @@ footer .bottom {
     <a href="index.html#faq">FAQ</a>
   </div>
   <div class="cta">
-    <a class="ghost" href="/login">Log in</a>
-    <a class="nav-pill" href="/login?intent=signup">Create Account</a>
+    <a class="ghost" href="login/">Log in</a>
+    <a class="nav-pill" href="login/?intent=signup">Create Account</a>
   </div>
 </nav>
 
@@ -750,18 +761,21 @@ function renderProviderCard(p) {
   return html;
 }
 
-function renderBasicRow(p) {
-  var html = '<div class="basic-row">';
-  html += '<span class="basic-name">' + esc(p.company_name) + '</span>';
-  html += '<span class="basic-contact">';
-  // Free tier: email only — no phone, WhatsApp, or website. Upgrade to Verified for direct contact.
-  if (p.email) html += '<a href="mailto:' + esc(p.email) + '">' + MAIL_ICON + '</a>';
-  html += '</span></div>';
-  return html;
+function renderBasicTableRow(p) {
+  var cat = p.category || 'other';
+  return '<tr>' +
+    '<td class="td-company">' + esc(p.company_name) + '</td>' +
+    '<td class="td-cat label-' + esc(cat) + '">' + esc(CATEGORY_LABELS[cat] || cat) + '</td>' +
+    '<td class="td-desc">' + esc(p.description || '') + '</td>' +
+    '<td class="td-email">' + (p.email ? '<a href="mailto:' + esc(p.email) + '">' + MAIL_ICON + ' Email</a>' : '—') + '</td>' +
+    '</tr>';
 }
 
 // Inline sponsor strip removed — handled by sponsors.js scrolling strip above filter bar
 function renderSponsorStrip() { return ''; }
+
+var basicSortField = 'company_name';
+var basicSortAsc = true;
 
 function renderProviders(providers) {
   if (!providers.length) {
@@ -776,66 +790,58 @@ function renderProviders(providers) {
     return;
   }
 
-  // Split by tier
-  var corporate = providers.filter(function(p) { return p.tier === 'corporate'; });
-  var verified  = providers.filter(function(p) { return p.tier === 'verified'; });
-  var basic     = providers.filter(function(p) { return p.tier === 'basic' || (!p.tier); });
+  // Split by tier — corporate sponsors handled by sponsors.js strip
+  // Corporate/programme/strategic sponsors show ONLY in the scrolling strip — not as cards
+  var verified = providers.filter(function(p) { return p.tier === 'verified'; });
+  var basic = providers.filter(function(p) { return p.tier === 'basic' || (!p.tier); });
 
   var html = '';
 
-  // Corporate sponsor banner at top
-  html += renderSponsorStrip(corporate);
+  // ── VERIFIED CARDS — flat grid, no category grouping ──
+  if (verified.length) {
+    html += '<div class="dir-section-label">Verified Partners</div>';
+    html += '<div class="directory-grid">';
+    verified.sort(function(a, b) { return (a.company_name || '').localeCompare(b.company_name || ''); });
+    verified.forEach(function(p) { html += renderProviderCard(p); });
+    html += '</div>';
+  }
 
-  // If filtering by category, show flat view
-  if (activeFilter !== 'all') {
-    // Verified cards
-    if (verified.length) {
-      html += '<div class="directory-grid">';
-      verified.forEach(function(p) { html += renderProviderCard(p); });
-      html += '</div>';
-    }
-    // Basic list
-    if (basic.length) {
-      html += '<div class="basic-list">';
-      basic.forEach(function(p) { html += renderBasicRow(p); });
-      html += '</div>';
-    }
-    if (!verified.length && !basic.length) {
-      html += '<div class="empty-state"><p>No providers in this category yet.</p><a class="btn-apply" href="apply-directory.html">Apply to be listed &rarr;</a></div>';
-    }
-  } else {
-    // Group by category: verified cards at top, basic list below
-    var categories = {};
-    providers.forEach(function(p) {
-      if (p.tier === 'corporate') return; // already shown in banner
-      var cat = p.category || 'other';
-      if (!categories[cat]) categories[cat] = { verified: [], basic: [] };
-      if (p.tier === 'verified') categories[cat].verified.push(p);
-      else categories[cat].basic.push(p);
+  // ── BASIC TABLE — full width, sortable ──
+  if (basic.length) {
+    html += '<div class="dir-section-label">Directory Listings</div>';
+
+    // Sort basic providers
+    basic.sort(function(a, b) {
+      var valA = (a[basicSortField] || '').toLowerCase();
+      var valB = (b[basicSortField] || '').toLowerCase();
+      return basicSortAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
     });
 
-    var catKeys = Object.keys(categories).sort();
-    catKeys.forEach(function(cat) {
-      var group = categories[cat];
-      html += '<div class="category-section">';
-      html += '<div class="category-header">' + esc(CATEGORY_LABELS[cat] || cat) + '</div>';
-      // Verified cards
-      if (group.verified.length) {
-        html += '<div class="directory-grid">';
-        group.verified.forEach(function(p) { html += renderProviderCard(p); });
-        html += '</div>';
-      }
-      // Basic list rows
-      if (group.basic.length) {
-        html += '<div class="basic-list">';
-        group.basic.forEach(function(p) { html += renderBasicRow(p); });
-        html += '</div>';
-      }
-      html += '</div>';
-    });
+    var arrow = function(field) { return basicSortField === field ? (basicSortAsc ? ' ↑' : ' ↓') : ''; };
+
+    html += '<div class="basic-table-wrap"><table class="basic-table">';
+    html += '<thead><tr>';
+    html += '<th onclick="sortBasic(\'company_name\')">Company' + arrow('company_name') + '</th>';
+    html += '<th onclick="sortBasic(\'category\')">Category' + arrow('category') + '</th>';
+    html += '<th>What they do</th>';
+    html += '<th>Contact</th>';
+    html += '</tr></thead><tbody>';
+    basic.forEach(function(p) { html += renderBasicTableRow(p); });
+    html += '</tbody></table></div>';
+  }
+
+  if (!verified.length && !basic.length) {
+    html += '<div class="empty-state"><p>No providers in this category.</p><a class="btn-apply" href="apply-directory.html">Apply to be listed &rarr;</a></div>';
   }
 
   grid.innerHTML = html;
+}
+
+function sortBasic(field) {
+  if (basicSortField === field) { basicSortAsc = !basicSortAsc; }
+  else { basicSortField = field; basicSortAsc = true; }
+  var filtered = activeFilter === 'all' ? allProviders : allProviders.filter(function(p) { return p.category === activeFilter; });
+  renderProviders(filtered);
 }
 
 function applyFilter(cat) {

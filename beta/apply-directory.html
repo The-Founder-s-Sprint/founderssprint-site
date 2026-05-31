@@ -408,8 +408,8 @@ footer .bottom {
     <a href="index.html#faq">FAQ</a>
   </div>
   <div class="cta">
-    <a class="ghost" href="/login">Log in</a>
-    <a class="nav-pill" href="/login?intent=signup">Create Account</a>
+    <a class="ghost" href="login/">Log in</a>
+    <a class="nav-pill" href="login/?intent=signup">Create Account</a>
   </div>
 </nav>
 
@@ -803,7 +803,7 @@ form.addEventListener('submit', async function(e) {
     showSuccess();
   } catch (err) {
     console.error('Submission error:', err);
-    formStatus.textContent = 'Something went wrong. Please try again.';
+    formStatus.textContent = err.message || 'Something went wrong. Please try again.';
     formStatus.className = 'form-status error';
     submitBtn.disabled = false;
     submitBtn.textContent = 'SUBMIT APPLICATION';

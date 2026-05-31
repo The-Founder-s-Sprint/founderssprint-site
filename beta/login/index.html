@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sign in — The Founder's Sprint</title>
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink: #1A1A1A; --ink-mute: #5A564F; --paper: #EFE7D8; --paper-deep: #E6DCC7;
+  --terra: #C8531F; --terra-deep: #9A3E16; --ochre: #C9923A; --rule: rgba(26,26,26,0.18);
+  --sans: 'Josefin Sans', sans-serif; --display: 'Cormorant Garamond', serif;
+  --body: 'Inter', system-ui, sans-serif;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--paper); color: var(--ink); font-family: var(--body); min-height: 100vh; display: flex; flex-direction: column; -webkit-font-smoothing: antialiased; }
+
+nav { display: flex; align-items: center; justify-content: space-between; padding: 18px 40px; border-bottom: 1px solid var(--rule); }
+.nav-brand { display: inline-flex; align-items: center; gap: 10px; text-decoration: none; }
+.nav-brand span { font-family: var(--sans); font-size: 12px; font-weight: 700; letter-spacing: 0.22em; text-transform: uppercase; color: var(--ink); }
+
+main { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px 20px; }
+.login-card { width: 100%; max-width: 420px; text-align: center; }
+.login-card h1 { font-family: var(--display); font-size: 32px; font-weight: 400; font-style: italic; margin-bottom: 8px; }
+.login-card .sub { font-size: 14px; color: var(--ink-mute); margin-bottom: 32px; }
+
+.tabs { display: flex; gap: 0; margin-bottom: 28px; border-bottom: 1px solid var(--rule); }
+.tab-btn { flex: 1; background: none; border: none; padding: 12px; font-family: var(--sans); font-size: 10px; font-weight: 600; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-mute); cursor: pointer; border-bottom: 2px solid transparent; transition: all 200ms; }
+.tab-btn.active { color: var(--terra); border-bottom-color: var(--terra); }
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+label { display: block; font-family: var(--sans); font-size: 10px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--ink-mute); margin-bottom: 8px; text-align: left; }
+input { width: 100%; background: var(--paper); border: 1px solid var(--rule); color: var(--ink); font-size: 15px; padding: 12px 16px; outline: none; font-family: var(--body); margin-bottom: 16px; transition: border-color 200ms; }
+input:focus { border-color: var(--terra); }
+input::placeholder { color: rgba(26,26,26,0.3); }
+
+.btn { width: 100%; background: var(--terra); color: var(--paper); font-family: var(--sans); font-weight: 700; font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; padding: 16px; border: none; cursor: pointer; transition: background 200ms; }
+.btn:hover { background: var(--terra-deep); }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+.error { color: #c44; font-size: 13px; margin-top: 12px; min-height: 20px; }
+.success { color: #3D4A2E; font-size: 13px; margin-top: 12px; background: rgba(61,74,46,0.08); padding: 14px; border-left: 3px solid #3D4A2E; text-align: left; }
+.forgot { display: block; margin-top: 12px; font-size: 12px; color: var(--terra); text-decoration: none; font-family: var(--sans); letter-spacing: 0.04em; }
+.forgot:hover { color: var(--terra-deep); }
+.divider { margin: 28px 0; border: none; height: 1px; background: var(--rule); }
+.alt-link { font-size: 13px; color: var(--ink-mute); }
+.alt-link a { color: var(--terra); text-decoration: none; font-weight: 500; }
+
+@media (max-width: 500px) { nav { padding: 16px 20px; } .login-card { padding: 0 8px; } }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-brand" href="../index.html">
+    <svg viewBox="0 0 100 100" width="26" height="26" aria-hidden="true">
+      <polygon points="50,8 57,50 50,92 43,50" fill="#c8531f" opacity="0.85"></polygon>
+      <polygon points="50,8 57,50 50,92 43,50" fill="#c9923a" opacity="0.80" transform="rotate(72 50 50)"></polygon>
+      <polygon points="50,8 57,50 50,92 43,50" fill="#8aab5c" opacity="0.78" transform="rotate(144 50 50)"></polygon>
+      <polygon points="50,8 57,50 50,92 43,50" fill="#3d4a2e" opacity="0.82" transform="rotate(216 50 50)"></polygon>
+      <polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288 50 50)"></polygon>
+      <circle cx="50" cy="50" r="4.5" fill="#efe7d8"></circle>
+      <circle cx="50" cy="50" r="2" fill="#1a1a1a"></circle>
+    </svg>
+    <span>The Founder's Sprint</span>
+  </a>
+</nav>
+
+<main>
+  <div class="login-card">
+    <h1>Welcome back.</h1>
+    <p class="sub">Sign in to your account or create a new one.</p>
+
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab('signin')">Sign In</button>
+      <button class="tab-btn" onclick="switchTab('signup')">Create Account</button>
+    </div>
+
+    <!-- SIGN IN -->
+    <div class="tab-panel active" id="panel-signin">
+      <form id="signinForm" onsubmit="return handleSignin(event)">
+        <div>
+          <label>Email</label>
+          <input type="email" id="si-email" required placeholder="you@company.com" autocomplete="email">
+        </div>
+        <div>
+          <label>Password</label>
+          <input type="password" id="si-password" required placeholder="Your password" autocomplete="current-password">
+        </div>
+        <button class="btn" type="submit" id="si-btn">Sign In</button>
+        <div class="error" id="si-error"></div>
+        <a class="forgot" href="#" onclick="handleForgot(event)">Forgot password?</a>
+      </form>
+    </div>
+
+    <!-- SIGN UP -->
+    <div class="tab-panel" id="panel-signup">
+      <form id="signupForm" onsubmit="return handleSignup(event)">
+        <div>
+          <label>Email</label>
+          <input type="email" id="su-email" required placeholder="you@company.com" autocomplete="email">
+        </div>
+        <div>
+          <label>Password</label>
+          <input type="password" id="su-password" required placeholder="Choose a password (min 6 chars)" autocomplete="new-password" minlength="6">
+        </div>
+        <div>
+          <label>Confirm Password</label>
+          <input type="password" id="su-confirm" required placeholder="Confirm your password" autocomplete="new-password">
+        </div>
+        <button class="btn" type="submit" id="su-btn">Create Account</button>
+        <div class="error" id="su-error"></div>
+      </form>
+    </div>
+
+    <div id="msg-area"></div>
+  </div>
+</main>
+
+<script>
+var SUPABASE_URL = 'https://ivedeivyotwevjxvcuoe.supabase.co';
+var SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss';
+
+function switchTab(tab) {
+  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.remove('active'); });
+  document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+  document.querySelector('.tab-btn:nth-child(' + (tab === 'signin' ? '1' : '2') + ')').classList.add('active');
+  document.getElementById('panel-' + tab).classList.add('active');
+  document.getElementById('si-error').textContent = '';
+  document.getElementById('su-error').textContent = '';
+  document.getElementById('msg-area').innerHTML = '';
+}
+
+// Check URL params for intent
+var params = new URLSearchParams(location.search);
+if (params.get('intent') === 'signup') switchTab('signup');
+
+async function handleSignin(e) {
+  e.preventDefault();
+  var email = document.getElementById('si-email').value.trim();
+  var password = document.getElementById('si-password').value;
+  var btn = document.getElementById('si-btn');
+  var err = document.getElementById('si-error');
+  err.textContent = '';
+
+  btn.disabled = true; btn.textContent = 'Signing in…';
+  try {
+    var res = await fetch(SUPABASE_URL + '/auth/v1/token?grant_type=password', {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_ANON, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email, password: password }),
+    });
+    var data = await res.json();
+    if (!res.ok) throw new Error(data.error_description || data.msg || 'Invalid email or password');
+
+    // Store session
+    var sbKey = 'sb-' + SUPABASE_URL.split('//')[1].split('.')[0] + '-auth-token';
+    localStorage.setItem(sbKey, JSON.stringify(data));
+
+    // Check redirect param or go to dashboard
+    var redirect = params.get('redirect') || '/dashboard.html';
+    window.location.href = redirect;
+  } catch (ex) {
+    err.textContent = ex.message;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Sign In';
+  }
+  return false;
+}
+
+async function handleSignup(e) {
+  e.preventDefault();
+  var email = document.getElementById('su-email').value.trim();
+  var password = document.getElementById('su-password').value;
+  var confirm = document.getElementById('su-confirm').value;
+  var btn = document.getElementById('su-btn');
+  var err = document.getElementById('su-error');
+  err.textContent = '';
+
+  if (password !== confirm) { err.textContent = 'Passwords do not match'; return false; }
+  if (password.length < 6) { err.textContent = 'Password must be at least 6 characters'; return false; }
+
+  btn.disabled = true; btn.textContent = 'Creating account…';
+  try {
+    var res = await fetch(SUPABASE_URL + '/auth/v1/signup', {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_ANON, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email, password: password }),
+    });
+    var data = await res.json();
+    if (!res.ok) throw new Error(data.error_description || data.msg || 'Signup failed');
+
+    document.getElementById('msg-area').innerHTML = '<div class="success">Account created! Check your email for a confirmation link, then sign in.</div>';
+    document.getElementById('signupForm').reset();
+  } catch (ex) {
+    err.textContent = ex.message;
+  } finally {
+    btn.disabled = false; btn.textContent = 'Create Account';
+  }
+  return false;
+}
+
+async function handleForgot(e) {
+  e.preventDefault();
+  var email = document.getElementById('si-email').value.trim();
+  if (!email) { document.getElementById('si-error').textContent = 'Enter your email above first'; return; }
+
+  try {
+    var res = await fetch(SUPABASE_URL + '/auth/v1/recover', {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_ANON, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: email }),
+    });
+    if (!res.ok) throw new Error('Failed to send reset email');
+    document.getElementById('msg-area').innerHTML = '<div class="success">Password reset link sent to <strong>' + email + '</strong>. Check your inbox.</div>';
+  } catch (ex) {
+    document.getElementById('si-error').textContent = ex.message;
+  }
+}
+
+// If already logged in, redirect
+(function() {
+  var sbKey = 'sb-' + SUPABASE_URL.split('//')[1].split('.')[0] + '-auth-token';
+  var stored = localStorage.getItem(sbKey);
+  if (stored) {
+    try {
+      var session = JSON.parse(stored);
+      if (session.access_token && session.expires_at && (Date.now() / 1000) < session.expires_at) {
+        var redirect = params.get('redirect') || '/dashboard.html';
+        window.location.href = redirect;
+      }
+    } catch(e) {}
+  }
+})();
+</script>
+</body>
+</html>

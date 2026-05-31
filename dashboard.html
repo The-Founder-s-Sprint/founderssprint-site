@@ -3485,35 +3485,84 @@ async function approveApplication(id) {
   const app = allApplications.find(a => a.id === id);
   if (!app) return;
 
-  const { error } = await sb.from('directory_applications')
-    .update({ status: 'approved', reviewed_at: new Date().toISOString() })
-    .eq('id', id);
+  const tier = app.preferred_tier || 'basic';
+  const TIER_PRICES = { basic: 0, verified: 500000, corporate: 25000000, programme_partner: 50000000, strategic_partner: 100000000 };
 
-  if (error) { showToast('Failed to approve: ' + error.message, 'error'); return; }
+  // Compute expiry based on tier
+  const now = new Date();
+  let expiresAt;
+  if (tier === 'basic') {
+    expiresAt = '2099-12-31T00:00:00Z'; // basic = no expiry
+  } else if (tier === 'corporate' || tier === 'programme_partner' || tier === 'strategic_partner') {
+    expiresAt = new Date(now.getFullYear() + 1, now.getMonth(), now.getDate()).toISOString();
+  } else {
+    // verified = 3 months
+    expiresAt = new Date(now.getFullYear(), now.getMonth() + 3, now.getDate()).toISOString();
+  }
 
-  // Pre-fill the add-provider form with application data
-  document.getElementById('prov-name').value = app.company_name || '';
-  document.getElementById('prov-category').value = app.category || 'legal';
-  document.getElementById('prov-contact').value = app.contact_name || '';
-  document.getElementById('prov-email').value = app.email || '';
-  document.getElementById('prov-phone').value = app.phone || '';
-  document.getElementById('prov-website').value = app.website || '';
-  document.getElementById('prov-tier').value = app.preferred_tier || 'cohort';
-  updateProvPrice();
+  try {
+    const token = await _getValidToken();
 
-  showToast('Application approved. Add them as a provider →', 'success');
-  switchDirTab('add');
-  await loadDirectoryData();
+    // Step 1: Mark application as approved
+    const approveRes = await fetch(SUPABASE_URL + '/rest/v1/directory_applications?id=eq.' + id, {
+      method: 'PATCH',
+      headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({ status: 'approved', reviewed_at: now.toISOString() }),
+    });
+    if (!approveRes.ok) throw new Error('Failed to update application status');
+
+    // Step 2: Auto-create the provider listing
+    const insertRes = await fetch(SUPABASE_URL + '/rest/v1/directory_providers', {
+      method: 'POST',
+      headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+      body: JSON.stringify({
+        company_name: app.company_name,
+        category: app.category || 'digital',
+        description: app.message || null,
+        contact_name: app.contact_name || null,
+        email: app.email || null,
+        phone: app.phone || null,
+        website: app.website || null,
+        tier: tier,
+        price_ugx: TIER_PRICES[tier] || 0,
+        featured: tier !== 'basic',
+        status: 'active',
+        starts_at: now.toISOString(),
+        expires_at: expiresAt,
+      }),
+    });
+    if (!insertRes.ok) {
+      const err = await insertRes.json().catch(() => ({}));
+      throw new Error('Listing insert failed: ' + (err.message || insertRes.status));
+    }
+
+    showToast(app.company_name + ' approved and listed!', 'success');
+    await loadDirectoryData();
+  } catch (err) {
+    showToast('Failed to approve: ' + err.message, 'error');
+  }
 }
 
 async function rejectApplication(id) {
   if (!confirm('Reject this application?')) return;
-  const { error } = await sb.from('directory_applications')
-    .update({ status: 'rejected', reviewed_at: new Date().toISOString() })
-    .eq('id', id);
-  if (error) { showToast('Failed: ' + error.message, 'error'); return; }
-  showToast('Application rejected.', 'info');
-  await loadDirectoryData();
+  try {
+    const token = await _getValidToken();
+    const res = await fetch(SUPABASE_URL + '/rest/v1/directory_applications?id=eq.' + id, {
+      method: 'PATCH',
+      headers: {
+        'apikey': SUPABASE_ANON,
+        'Authorization': 'Bearer ' + token,
+        'Content-Type': 'application/json',
+        'Prefer': 'return=minimal',
+      },
+      body: JSON.stringify({ status: 'rejected', reviewed_at: new Date().toISOString() }),
+    });
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    showToast('Application rejected.', 'info');
+    await loadDirectoryData();
+  } catch (err) {
+    showToast('Failed: ' + err.message, 'error');
+  }
 }
 
 function renderListings() {
@@ -3592,20 +3641,26 @@ async function addProvider() {
   const TIER_PRICES = { basic: 0, verified: 500000, corporate: 25000000, programme_partner: 50000000, strategic_partner: 100000000 };
 
   try {
-    // 1. Upload logo if provided
+    // 1. Upload logo if provided (raw fetch — bypasses Supabase client)
     let logoUrl = null;
     const logoFile = document.getElementById('prov-logo').files?.[0];
     if (logoFile) {
       const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
       const ext = logoFile.name.split('.').pop().toLowerCase();
       const storagePath = `sponsors/${slug}.${ext}`;
-      const { error: uploadErr } = await sb.storage
-        .from('coach-profiles')
-        .upload(storagePath, logoFile, { upsert: true, contentType: logoFile.type });
-      if (uploadErr) throw new Error('Logo upload failed: ' + uploadErr.message);
-
-      const { data: urlData } = sb.storage.from('coach-profiles').getPublicUrl(storagePath);
-      logoUrl = urlData?.publicUrl;
+      const token = await _getValidToken();
+      const uploadRes = await fetch(SUPABASE_URL + '/storage/v1/object/coach-profiles/' + storagePath, {
+        method: 'POST',
+        headers: {
+          'apikey': SUPABASE_ANON,
+          'Authorization': 'Bearer ' + token,
+          'Content-Type': logoFile.type,
+          'x-upsert': 'true',
+        },
+        body: logoFile,
+      });
+      if (!uploadRes.ok) throw new Error('Logo upload failed: ' + uploadRes.status);
+      logoUrl = SUPABASE_URL + '/storage/v1/object/public/coach-profiles/' + storagePath;
     }
 
     // 2. Insert provider record
