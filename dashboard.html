@@ -646,6 +646,18 @@
 </head>
 <body>
 
+<!-- Instant visibility decision: if localStorage has a session, hide login immediately -->
+<script>
+(function(){
+  try {
+    var k = Object.keys(localStorage).find(function(x){return x.startsWith('sb-') && x.endsWith('-auth-token')});
+    if (k && JSON.parse(localStorage.getItem(k)).user) {
+      document.write('<style>#login-screen{display:none!important}#app{display:block!important}</style>');
+    }
+  } catch(e){}
+})();
+</script>
+
 <!-- ══ LOGIN ══════════════════════════════════════════════════════════════════ -->
 <div id="login-screen">
   <div class="login-card">
@@ -702,7 +714,7 @@
     <button class="tab" onclick="switchTab('registrations')">Registrations</button>
     <button class="tab" onclick="switchTab('revenue')">Revenue</button>
     <button class="tab" onclick="switchTab('documents')">Documents</button>
-    <button class="tab" onclick="switchTab('directory')">Directory</button>
+    <button class="tab" onclick="switchTab('directory')">Directory <span class="badge" id="dir-app-count-badge" style="display:none">0</span></button>
     <button class="tab" onclick="switchTab('coaches')">Applications <span class="badge" id="coach-app-count-badge" style="display:none">0</span></button>
     <button class="tab" onclick="switchTab('sessions')">Sessions</button>
     <!-- Presentations tab removed — merged into Materials -->
@@ -1027,6 +1039,8 @@
       <div class="dir-panel" id="dir-listings">
         <div class="section-head" style="margin-bottom:16px">
           <span class="section-title">Active Directory Listings</span>
+          <div style="display:flex;gap:8px;align-items:center">
+          <input type="text" id="listing-search" placeholder="Search providers…" oninput="renderListings()" style="padding:6px 12px;border:1px solid var(--border);font-size:13px;font-family:var(--font);width:200px;background:var(--surface)">
           <select class="filter-select" id="listing-cat-filter" onchange="renderListings()">
             <option value="">All Categories</option>
             <option value="legal">Legal &amp; Corporate</option>
@@ -1038,6 +1052,7 @@
             <option value="ip">IP &amp; Trademark</option>
             <option value="digital">Digital &amp; Web</option>
           </select>
+          </div>
         </div>
         <div class="dir-grid" id="listings-grid">
           <div class="loading">Loading…</div>
@@ -1468,9 +1483,17 @@
     <div class="tab-panel" id="panel-profiles">
       <div class="section-head" style="margin-bottom:16px">
         <span class="section-title">Coach Profiles</span>
-        <select class="filter-select" id="profile-filter" onchange="renderProfiles()">
-          <option value="">All Coaches</option>
-        </select>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input type="text" id="profile-search" placeholder="Search coaches…" oninput="renderProfiles()" style="padding:6px 12px;border:1px solid var(--border);font-size:13px;font-family:var(--font);width:180px;background:var(--surface)">
+          <select class="filter-select" id="profile-filter" onchange="renderProfiles()">
+            <option value="">All Disciplines</option>
+            <option value="marketing">Marketing & Branding</option>
+            <option value="finance">Financial Modelling</option>
+            <option value="strategy">Strategy & Team</option>
+            <option value="investment_readiness">Investment Readiness</option>
+            <option value="product_development">Product Dev & Pricing</option>
+          </select>
+        </div>
       </div>
 
       <div id="profiles-grid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:20px">
@@ -1941,23 +1964,28 @@ sb.auth.onAuthStateChange((event, session) => {
 });
 
 // Safari fix: Supabase client init is slow in Safari (5s+).
-// Safari fast-path: read session from localStorage, refresh token if expired, boot immediately.
+// Fast-path: read session from localStorage, refresh token if expired, boot immediately.
 (async () => {
   try {
     const stored = _getStoredSession();
     const user = stored.user || (stored.currentSession && stored.currentSession.user);
     if (!user || booted) return;
 
-    // If token is expired, refresh it BEFORE booting — prevents 401 cascade
+    // If token is expired, try refreshing it first
     if (_isTokenExpired(stored)) {
-      await _refreshToken(); // updates localStorage + currentSession
+      try {
+        await _refreshToken(); // updates localStorage + currentSession
+      } catch(refreshErr) {
+        // Refresh failed — but don't show login yet. The Supabase client
+        // onAuthStateChange might still recover. Wait for it.
+        console.info('[Auth] Fast-path refresh failed, waiting for Supabase client');
+        return; // let onAuthStateChange / getSession handle it
+      }
     }
 
     if (!booted) bootApp(user);
   } catch(e) {
-    // Refresh failed — session is truly dead. Show login screen.
-    // onAuthStateChange will also fire and handle this case.
-    console.info('[Auth] Fast-path: no valid session, showing login');
+    console.info('[Auth] Fast-path: no stored session');
   }
 })();
 
@@ -2108,7 +2136,7 @@ async function loadAllData() {
     _pgQuery('cohorts', 'select=*&order=id'),
     _pgQuery('documents', 'select=*&order=created_at.desc'),
     _pgQuery('payment_requests', 'select=*&status=eq.success'),
-    _pgQuery('coaches', 'select=id,first_name,last_name,email,sector_l1,founderssprint_email,user_id&role=eq.coach&status=eq.active&order=id'),
+    _pgQuery('coaches', 'select=id,first_name,last_name,email,sector_l1,founderssprint_email,user_id,avatar_url&role=eq.coach&status=eq.active&order=id'),
   ]);
 
   allRegs       = regs    || [];
@@ -2504,7 +2532,10 @@ function renderCoachRoster() {
     return `
       <div style="background:var(--card);border:1px solid var(--border);padding:16px;position:relative">
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-          <div style="width:36px;height:36px;border-radius:50%;background:${meta.color};color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:13px">${initials}</div>
+          ${c.avatar_url
+            ? `<img src="${esc(c.avatar_url)}" alt="" style="width:36px;height:36px;border-radius:50%;object-fit:cover">`
+            : `<div style="width:36px;height:36px;border-radius:50%;background:${meta.color};color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:13px">${initials}</div>`
+          }
           <div>
             <div style="font-family:var(--sans);font-weight:700;font-size:13px">${esc(c.first_name)} ${esc(c.last_name)}</div>
             <div style="font-size:10px;color:${meta.color};font-weight:600;letter-spacing:0.04em">${meta.label}</div>
@@ -3098,15 +3129,7 @@ async function loadProfiles() {
 
     allProfiles = (coaches || []).map(c => ({ ...c, availability: slotMap[c.id] || [] }));
 
-    // Populate filter dropdown
-    const filter = document.getElementById('profile-filter');
-    filter.innerHTML = '<option value="">All Coaches</option>';
-    allProfiles.forEach(c => {
-      const opt = document.createElement('option');
-      opt.value = c.id;
-      opt.textContent = `${c.first_name} ${c.last_name}`;
-      filter.appendChild(opt);
-    });
+    // Discipline filter is static HTML — no need to populate dynamically
 
     profilesLoaded = true;
     renderProfiles();
@@ -3119,9 +3142,11 @@ async function loadProfiles() {
 
 function renderProfiles() {
   const filterVal = document.getElementById('profile-filter').value;
-  const list = filterVal
-    ? allProfiles.filter(c => String(c.id) === filterVal)
+  const search = (document.getElementById('profile-search')?.value || '').toLowerCase();
+  let list = filterVal
+    ? allProfiles.filter(c => c.sector_l1 === filterVal)
     : allProfiles;
+  if (search) list = list.filter(c => `${c.first_name} ${c.last_name}`.toLowerCase().includes(search) || (c.email || '').toLowerCase().includes(search) || (c.headline || '').toLowerCase().includes(search));
 
   const grid = document.getElementById('profiles-grid');
   if (!list.length) {
@@ -3138,7 +3163,7 @@ function renderProfiles() {
       ? `<div style="font-size:12px;color:var(--ink-mid);margin-top:2px">${esc(c.headline)}</div>`
       : '';
 
-    // Availability summary — group by day
+    // Availability summary — pill buttons grouped by day
     let availHtml = '';
     if (c.availability.length) {
       const byDay = {};
@@ -3146,12 +3171,10 @@ function renderProfiles() {
         if (!byDay[s.day_of_week]) byDay[s.day_of_week] = [];
         byDay[s.day_of_week].push(fmtTime(s.start_time) + '–' + fmtTime(s.end_time));
       });
-      const parts = Object.entries(byDay).map(([d, times]) =>
-        `<span style="font-weight:500">${DAY_SHORT[d]}</span> ${times.join(', ')}`
-      );
-      availHtml = `<div style="font-size:11px;color:var(--ink-mid);margin-top:8px;line-height:1.6">
-        ${parts.join('<br>')}
-      </div>`;
+      const pills = Object.entries(byDay).map(([d, times]) =>
+        times.map(t => `<span style="display:inline-block;padding:3px 10px;font-family:var(--mono);font-size:10px;background:rgba(200,83,31,0.08);color:var(--terra);border:1px solid rgba(200,83,31,0.15);margin:2px 4px 2px 0;white-space:nowrap">${DAY_SHORT[d]} ${t}</span>`).join('')
+      ).join('');
+      availHtml = `<div style="margin-top:10px;display:flex;flex-wrap:wrap;gap:0">${pills}</div>`;
     } else {
       availHtml = '<div style="font-size:11px;color:var(--muted);margin-top:8px;font-style:italic">No availability set</div>';
     }
@@ -3304,24 +3327,25 @@ async function saveProfile() {
   }
 
   try {
-    // 0. Upload photo if a new file was selected
+    const token = await _getValidToken();
+    const headers = { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' };
+
+    // 0. Upload photo if a new file was selected (raw fetch)
     let avatarUrl = null;
     const photoFile = document.getElementById('profile-edit-photo').files?.[0];
     if (photoFile) {
       const ext = photoFile.name.split('.').pop().toLowerCase();
       const storagePath = `${coachId}/photo.${ext}`;
-      const { error: uploadErr } = await sb.storage
-        .from('coach-profiles')
-        .upload(storagePath, photoFile, { upsert: true, contentType: photoFile.type });
-      if (uploadErr) throw new Error('Photo upload failed: ' + uploadErr.message);
-
-      const { data: urlData } = sb.storage
-        .from('coach-profiles')
-        .getPublicUrl(storagePath);
-      avatarUrl = urlData?.publicUrl;
+      const uploadRes = await fetch(SUPABASE_URL + '/storage/v1/object/coach-profiles/' + storagePath, {
+        method: 'POST',
+        headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + token, 'Content-Type': photoFile.type, 'x-upsert': 'true' },
+        body: photoFile,
+      });
+      if (!uploadRes.ok) throw new Error('Photo upload failed: ' + uploadRes.status);
+      avatarUrl = SUPABASE_URL + '/storage/v1/object/public/coach-profiles/' + storagePath;
     }
 
-    // 1. Update coach profile fields
+    // 1. Update coach profile fields (raw fetch)
     const updateFields = {
       headline:    headline || null,
       bio:         bio || null,
@@ -3332,21 +3356,18 @@ async function saveProfile() {
     };
     if (avatarUrl) updateFields.avatar_url = avatarUrl;
 
-    const { error: profileErr } = await sb
-      .from('coaches')
-      .update(updateFields)
-      .eq('id', coachId);
-    if (profileErr) throw new Error(profileErr.message);
+    const profileRes = await fetch(SUPABASE_URL + '/rest/v1/coaches?id=eq.' + coachId, {
+      method: 'PATCH', headers, body: JSON.stringify(updateFields),
+    });
+    if (!profileRes.ok) throw new Error('Profile update failed: ' + profileRes.status);
 
     // 2. Sync availability: delete existing, insert current slots
-    const { error: delErr } = await sb
-      .from('coach_availability')
-      .delete()
-      .eq('coach_id', coachId);
-    if (delErr) throw new Error('Failed to clear old availability: ' + delErr.message);
+    const delRes = await fetch(SUPABASE_URL + '/rest/v1/coach_availability?coach_id=eq.' + coachId, {
+      method: 'DELETE', headers,
+    });
+    if (!delRes.ok) throw new Error('Failed to clear old availability');
 
     if (editingProfileSlots.length) {
-      // Validate time ranges
       for (const s of editingProfileSlots) {
         if (s.start_time >= s.end_time) {
           showToast('End time must be after start time for each slot', 'warning');
@@ -3355,17 +3376,14 @@ async function saveProfile() {
       }
 
       const inserts = editingProfileSlots.map(s => ({
-        coach_id:    coachId,
-        day_of_week: s.day_of_week,
-        start_time:  s.start_time,
-        end_time:    s.end_time,
-        is_active:   true,
+        coach_id: coachId, day_of_week: s.day_of_week,
+        start_time: s.start_time, end_time: s.end_time, is_active: true,
       }));
 
-      const { error: insErr } = await sb
-        .from('coach_availability')
-        .insert(inserts);
-      if (insErr) throw new Error('Failed to save availability: ' + insErr.message);
+      const insRes = await fetch(SUPABASE_URL + '/rest/v1/coach_availability', {
+        method: 'POST', headers, body: JSON.stringify(inserts),
+      });
+      if (!insRes.ok) throw new Error('Failed to save availability');
     }
 
     showToast('Profile updated', 'success');
@@ -3418,6 +3436,8 @@ async function loadDirectoryData() {
     const pending = allApplications.filter(a => a.status === 'pending').length;
     document.getElementById('app-count-badge').textContent = pending;
     document.getElementById('app-count-badge').style.display = pending > 0 ? 'inline-block' : 'none';
+    document.getElementById('dir-app-count-badge').textContent = pending;
+    document.getElementById('dir-app-count-badge').style.display = pending > 0 ? 'inline-block' : 'none';
 
     renderApplications();
     renderListings();
@@ -3567,7 +3587,9 @@ async function rejectApplication(id) {
 
 function renderListings() {
   const filter = document.getElementById('listing-cat-filter').value;
-  const filtered = filter ? allProviders.filter(p => p.category === filter) : allProviders;
+  const search = (document.getElementById('listing-search')?.value || '').toLowerCase();
+  let filtered = filter ? allProviders.filter(p => p.category === filter) : allProviders;
+  if (search) filtered = filtered.filter(p => (p.company_name || '').toLowerCase().includes(search) || (p.email || '').toLowerCase().includes(search) || (p.contact_name || '').toLowerCase().includes(search));
   const grid = document.getElementById('listings-grid');
 
   if (!filtered.length) {

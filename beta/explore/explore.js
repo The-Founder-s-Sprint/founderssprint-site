@@ -274,14 +274,63 @@
   };
 
   // ============================================================
-  //   SEARCH KEYWORDS (per discipline)
+  //   SEARCH KEYWORDS (per discipline + per L3 synonyms)
   // ============================================================
   const DISCIPLINE_KEYWORDS = {
-    0: "marketing branding brand logo voice tone messaging campaign launch growth content social media seo advertising storytelling customer acquisition awareness funnel leads",
-    1: "finance financial model modelling spreadsheet revenue forecast burn rate runway cash flow unit economics cac ltv valuation cap table term sheet budget projection",
-    2: "investment fundraising raise capital pitch deck investor angel seed series grant funding round due diligence data room term sheet pre-seed dfi",
-    3: "strategy team hiring culture org structure competitive analysis moat scenario planning okr kpi process decision framework operations leadership management",
-    4: "product development pricing mvp roadmap iteration ship build feature pmf product-market fit validation testing prototype ux ui design",
+    0: "marketing branding brand logo voice tone messaging campaign launch growth content social media seo advertising storytelling customer acquisition awareness funnel leads reach engagement audience distribution channels",
+    1: "finance financial model modelling spreadsheet revenue forecast burn rate runway cash flow unit economics cac ltv valuation cap table term sheet budget projection numbers money profit loss p&l balance sheet",
+    2: "investment fundraising raise capital pitch deck investor angel seed series grant funding round due diligence data room term sheet pre-seed dfi money funding donors partners accelerator incubator",
+    3: "strategy team hiring culture org structure competitive analysis moat scenario planning okr kpi process decision framework operations leadership management people hr talent organisation",
+    4: "product development pricing mvp roadmap iteration ship build feature pmf product-market fit validation testing prototype ux ui design tiers packages offering",
+  };
+
+  // Synonyms and related terms per L3 specialty — dramatically improves search hit rate
+  const L3_KEYWORDS = {
+    "Brand Positioning":       "differentiation unique selling proposition usp target audience perception identity niche competitive advantage what makes us different why choose us stand out crowded market category creation blue ocean positioning statement value prop promise trust credibility authority premium luxury affordable aspirational rebrand refresh pivot identity crisis who are we",
+    "Messaging Architecture":  "copywriting tagline elevator pitch value proposition story narrative key messages communication words slogan headline hook one-liner about page website copy landing page email subject line tone of voice brand voice how to describe my business explain what we do clarity confusion simplifying complex ideas words that sell persuasion influence",
+    "Visual Identity":         "design logo colours colors fonts typography graphics look feel style guide brand kit aesthetic brand book mockup template figma canva creative direction photography art direction mood board palette visual language iconography illustration rebrand refresh modernize outdated identity professional polished amateur",
+    "Market Entry":            "go-to-market gtm launch country expansion geography first market beachhead reach territory distribution where to start which market enter new market international cross-border east africa uganda kenya rwanda localization pilot test market soft launch when to launch how to enter timing first customers early adopters",
+    "Channel Mix":             "distribution reach social media paid ads organic referral partnerships affiliates instagram linkedin tiktok facebook google youtube twitter x whatsapp marketing channels acquisition where to find customers how to get users growth hacking viral loop ambassador programme influencer digital marketing offline events word of mouth community grassroots",
+    "Launch Sequencing":       "timeline schedule campaign pre-launch beta soft launch go live rollout calendar milestones journey countdown checklist dependencies launch day event press release media coverage announcement PR communications stakeholder readiness not ready when to launch launch plan sequence order of operations",
+    "Content Strategy":        "blog posts articles video social media editorial calendar thought leadership publishing content marketing keywords seo writing podcast newsletter email marketing inbound what to post how often content creation content plan topics ideas engagement followers audience building authority credibility sharing repurpose",
+    "SEO & Discoverability":   "google search ranking keywords optimization meta tags backlinks ai search citations authority discoverability findability organic traffic search engine perplexity chatgpt claude ai overviews featured snippets schema structured data domain authority page rank how to get found online visibility indexed crawled",
+    "Customer Research":       "interviews surveys focus groups user research persona journey mapping feedback insights discovery empathy customer understanding who is my customer target market demographics psychographics behaviour patterns needs pain points desires frustrations jobs to be done jtbd design thinking observation",
+    "CAC & LTV":               "customer acquisition cost lifetime value payback ratio economics efficiency cost per lead conversion cost per click cpc cpa cost per acquisition how much to spend marketing roi return on ad spend roas unit economics healthy ratio profitable customers expensive cheap efficient",
+    "Payback Period":          "break even roi return on investment recovery time months cash cycle when do i make money back how long until profitable recoup investment payback months time to value cash positive self-sustaining sustainable",
+    "Contribution Margin":     "gross margin profit per unit variable costs cogs cost of goods economics unit profitability how much do i make per sale margin analysis product margins service margins low margin high margin improving margins cost reduction",
+    "Revenue Forecasting":     "projections sales forecast pipeline prediction model assumptions growth rate trajectory how much will we make next month quarter year financial planning budget targets top line bottom line conservative aggressive realistic scenario modelling excel spreadsheet",
+    "Burn Rate & Runway":      "monthly spend expenses cash remaining months survival capital efficiency zero date running out of money how long can we survive cash crunch emergency fundraise extend runway reduce costs cut expenses layoffs belt tightening conservation mode default alive default dead",
+    "Cash Flow Management":    "working capital liquidity invoicing receivables payables timing cash in cash out treasury late payments cash crunch float bridge managing money when payments come in when bills are due seasonal cyclical managing payroll making payroll rent expenses",
+    "Valuation Methods":       "worth dcf discounted cash flow multiples comparable companies enterprise value how much is my company worth pre-money post-money overvalued undervalued fair value negotiation what are we worth startup valuation early stage valuation revenue multiple arr valuation",
+    "Cap Table Design":        "equity ownership shares options vesting dilution esop pool founder split shareholders agreement co-founder equity how much equity to give vesting schedule cliff four year one year advisor shares convertible note safe equity split fair unfair dilution protection",
+    "Term Sheet Analysis":     "terms conditions negotiation clauses liquidation preference anti-dilution pro-rata rights board seats control protective provisions drag along tag along participation rights investor friendly founder friendly red flags what to watch for lawyer review legal",
+    "Pitch Deck Structure":    "slides presentation story problem solution market traction team ask demo day format how to pitch investors deck template slide order sequence narrative flow opening closing hook ten slides twelve slides appendix backup slides competition slide financial slide",
+    "Investor Narrative":      "story why now why us why this market thesis conviction founder story compelling narrative vision mission purpose big picture dream ambition passion credibility track record unique insight contrarian belief timing wave tailwind macro trend",
+    "Executive Summary":       "one pager overview brief memo summary document introduction teaser first impression email to investor cold outreach deck summary blurb description paragraph overview snapshot highlights key points concise clear punchy",
+    "Investor Targeting":      "vc venture capital angel network family office dfi fund partners who to pitch warm intro reach out connections crunchbase dealroom investor database pipeline outreach cold email warm introduction portfolio companies thesis match stage match geography match sector focus cheque size ticket size",
+    "Due Diligence Prep":      "documents legal financial compliance audit review records contracts ip intellectual property ready prepared organized background check references verification proof evidence documentation legal structure corporate governance board minutes shareholder agreements employment contracts",
+    "Data Room":               "files documents folder shared drive organize investor access virtual data room portal google drive dropbox notion sharepoint organized structured clean professional index table of contents categories sections access permissions version control confidential nda",
+    "Pre-seed Rounds":         "first money friends family angel micro fund initial capital pre-revenue early stage bootstrap fools gold love money starting from scratch need money to start how to fund my idea bootstrapping side hustle self-funded first cheque minimum viable capital",
+    "Seed Rounds":             "seed funding round lead investor institutional raise series sizing commitment certification accreditation closing the round oversubscribed allocation pro-rata follow-on bridge extension runway twelve to eighteen months milestone-based tranche",
+    "Grants & DFIs":           "free money non-dilutive grant application usaid mastercard foundation dfid world bank programme donor funds certification proposal writing log frame theory of change impact measurement social enterprise development finance bilateral multilateral concessional blended finance patient capital catalytic capital",
+    "Market Analysis":         "competition landscape research tam sam som market size competitors benchmarking industry trends total addressable market serviceable addressable serviceable obtainable market opportunity how big is the market growth rate cagr market dynamics forces disruption threats substitutes",
+    "Positioning & Moats":     "defensibility barrier competitive advantage differentiation switching costs network effects lock-in moat first mover advantage last mover scale economies of scale brand loyalty habit proprietary technology data advantage patent trademark trade secret regulatory barrier license certification",
+    "Scenario Planning":       "contingency what if worst case best case planning risk strategy pivot adapt uncertainty future planning stress test sensitivity analysis downside protection upside capture optionality flexibility resilience antifragile black swan tail risk macro political economic regulatory",
+    "Hiring Strategy":         "recruit talent hire team build roles job description compensation culture fit first hire key hires who to hire first engineer developer designer marketer salesperson operations finance coo cto cmo when to hire full time part time contractor freelancer agency outsource",
+    "Culture Design":          "values mission purpose workplace remote team norms rituals belonging culture code handbook toxic culture good culture bad culture retention turnover engagement satisfaction happiness meaning purpose autonomy mastery belonging psychological safety diversity inclusion equity",
+    "Org Structure":           "reporting hierarchy flat structure departments roles responsibilities org chart leadership team architecture scale managing people management span of control centralized decentralized matrix functional divisional how to structure my team growing pains scaling people reorganization",
+    "Process Design":          "workflows sop standard operating procedure systems automation efficiency repeatability playbook operations manual documentation handoff delegation onboarding training checklists quality control consistency scaling without me founder dependency bottleneck systems thinking",
+    "OKRs & KPIs":             "goals objectives key results metrics tracking dashboard performance measurement targets milestones progress north star metric leading indicators lagging indicators vanity metrics actionable metrics scoreboard accountability weekly monthly quarterly review what to measure how to track success failure",
+    "Decision Frameworks":     "raci who decides delegation authority speed governance alignment accountability consensus meetings too many meetings slow decisions fast decisions bias action analysis paralysis data-driven intuition gut feel disagreement conflict resolution alignment stakeholder management communication",
+    "Problem Validation":      "customer discovery pain point need demand evidence proof real problem worth solving research does anyone want this will people pay for this problem interview mom test talking to customers need finding desirability viability feasibility assumption risk",
+    "Solution Testing":        "prototype experiment test concierge wizard of oz fake door landing page validation learning build measure learn hypothesis test fail fast cheap test smoke test mockup clickable demo interactive wireframe paper prototype no-code low-code rapid prototyping",
+    "PMF Signals":             "product market fit retention engagement nps net promoter score pull organic growth repeat cohort churn stickiness active users daily weekly monthly usage frequency depth of use power users love advocacy referral word of mouth when do i have pmf how to know pmf",
+    "MVP Design":              "minimum viable product lean startup build measure learn smallest version prototype ship fast first version scope creep feature bloat over-engineering simplest thing that works core feature essential functionality cut scope reduce complexity focus prioritize what to build first",
+    "Roadmapping":             "roadmap backlog priorities features timeline releases plan sprint agile what to build next quarterly planning prioritization framework rice moscow ice scoring stakeholder requests customer requests technical debt maintenance innovation exploration exploitation balance short term long term vision",
+    "Iteration Cycles":        "agile sprint retrospective ship learn improve velocity cadence deployment release cycle feedback loop continuous improvement kaizen lean scrum kanban two week sprint daily standup demo review planning estimation story points shipping faster",
+    "Value-Based Pricing":     "willingness to pay perceived value premium pricing power how much to charge what to charge tiers packages bundles plans pricing model subscription saas per seat per use usage based freemium free trial enterprise pricing custom pricing negotiation discounting anchor price psychology",
+    "Competitive Pricing":     "benchmark market rate comparison undercutting matching premium economy mid-range pricing strategy race to bottom price war commoditization differentiation on price competitor pricing analysis mystery shopping market research how much do competitors charge underpriced overpriced leaving money on the table",
+    "Price Testing":           "ab test experiment pricing page conversion rate elasticity discount trial free tier freemium pricing experiment van westendorp conjoint analysis willingness to pay survey price sensitivity demand curve optimal price price increase price decrease grandfathering early bird launch pricing promotional pricing seasonal",
   };
 
   // ============================================================
@@ -323,6 +372,7 @@
     dragging: false,
     lastDragX: 0,
     searchQuery: '',
+    lastInteraction: 0,  // timestamp of last node click/hover — auto-reset after 12s
   };
   window.__constellation = { state, TAXONOMY, COACHES };
 
@@ -455,16 +505,17 @@
   const centerGroup = el('g', { id: 'center-mark' });
   centerGroup.appendChild(el('circle', { cx: CX, cy: CY, r: 80, fill: 'url(#g-center)' }));
   const PETAL_COLS = ['#c8531f','#c9923a','#8aab5c','#3d4a2e','#777770'];
-  const MARK_SCALE = 0.78;
+  const MARK_SCALE = 1.8;
   const petalsGroup = el('g', { id: 'center-petals', transform: `translate(${CX} ${CY})` });
   PETAL_COLS.forEach((c, i) => {
     const src = [[50,8],[57.5,50],[50,92],[42.5,50]];
     const pts = src.map(([x,y]) => [(x-50)*MARK_SCALE, (y-50)*MARK_SCALE].join(',')).join(' ');
-    const p = el('polygon', { points: pts, fill: c, opacity: 0.92, transform: `rotate(${i*72})` });
+    const p = el('polygon', { points: pts, fill: c, opacity: 0.85, transform: `rotate(${i*72})` });
     petalsGroup.appendChild(p);
   });
-  petalsGroup.appendChild(el('circle', { cx: 0, cy: 0, r: 7, fill: COL_PAPER }));
-  petalsGroup.appendChild(el('circle', { cx: 0, cy: 0, r: 3.5, fill: COL_INK }));
+  // Open circle eye — paper ring with ink center (V6 mark signature)
+  petalsGroup.appendChild(el('circle', { cx: 0, cy: 0, r: 14, fill: COL_PAPER }));
+  petalsGroup.appendChild(el('circle', { cx: 0, cy: 0, r: 6, fill: COL_INK }));
   centerGroup.appendChild(petalsGroup);
   const centerHit = el('circle', {
     cx: CX, cy: CY, r: 92,
@@ -577,6 +628,7 @@
     g.addEventListener('pointerleave', () => { if (state.hoveredId === n.id) { state.hoveredId = null; updateInfoPanel(); } });
     g.addEventListener('click', (e) => {
       e.stopPropagation();
+      state.lastInteraction = Date.now();
       if (n.level === 1) {
         focusOnDiscipline(n.l1Idx);
       } else if (n.level === 3) {
@@ -625,6 +677,7 @@
   //   FOCUS MODE
   // ============================================================
   function focusOnDiscipline(i) {
+    state.lastInteraction = Date.now();
     state.focusedL1 = i;
     const desiredYaw = 90 - (i * L1_STEP - 90);
     state.yawTarget = normaliseAngleTowards(state.yaw, desiredYaw);
@@ -1121,6 +1174,7 @@
       DISCIPLINE_KEYWORDS[n.l1Idx] || '',
     ];
     if (n.level === 3 && L3_DESC[n.name]) parts.push(L3_DESC[n.name]);
+    if (n.level === 3 && L3_KEYWORDS[n.name]) parts.push(L3_KEYWORDS[n.name]);
     const hay = parts.join(' ').toLowerCase();
     HAYSTACK_CACHE.set(n.id, hay);
     return hay;
@@ -1329,6 +1383,17 @@
       pentagonEl.setAttribute('stroke', `rgba(239,231,216,${ringOp * 0.9})`);
     }
 
+    // Auto-reset: after 12 seconds of no interaction, clear selection and resume rotation
+    if (state.lastInteraction && (state.pinnedId || state.focusedL1 != null)) {
+      const idle = Date.now() - state.lastInteraction;
+      if (idle > 12000) {
+        state.lastInteraction = 0;
+        if (state.focusedL1 != null) unfocus();
+        else { state.pinnedId = null; state.hoveredId = null; state.paused = false; updateInfoPanel(); }
+        closeDetail();
+      }
+    }
+
     // Project nodes + build O(1) lookup map for connection endpoints
     const projected = NODES.map(n => ({ n, p: projectAngle(n.theta, n.r, n.yLift, renderTilt) }));
     const projMap = new Map();
@@ -1361,31 +1426,34 @@
       const minOp = lerp(1, 0.08, fog);
       const baseOp = minOp + (1 - minOp) * tNorm;
 
-      let isActive = false, isLineage = false, isDimmed = !!activeNode || focusing;
+      let isActive = false, isLineage = false, isSibling = false, isDimmed = !!activeNode || focusing;
       if (focusing && n.l1Idx === state.focusedL1) { isLineage = true; isDimmed = false; }
       if (activeNode) {
         if (n.id === activeNode.id) { isActive = true; isDimmed = false; }
         else if (activeNode.ancestors.includes(n.id)) { isLineage = true; isDimmed = false; }
         else if (n.ancestors.includes(activeNode.id)) { isLineage = true; isDimmed = false; }
         else if (activeNode.level === 1 && n.l1Idx === activeNode.l1Idx) { isLineage = true; isDimmed = false; }
+        // Same discipline but not in the selected tree — recede but don't fully gray out
+        else if (n.l1Idx === activeNode.l1Idx && n.level > 1) { isSibling = true; isDimmed = true; }
       }
 
       const GRAY = '#6b6862';
       const GRAY_LABEL = 'rgba(239,231,216,0.55)';
-      const SIBLING_DESAT = '#8a857d'; // desaturated sibling color
+      const SIBLING_DESAT = '#8a857d';
       const isGray = isDimmed && !isActive && !isLineage;
-      // Active node: full color. Lineage siblings: desaturated. Others: gray.
-      const fillCol = isActive ? n.color : isLineage ? SIBLING_DESAT : isGray ? GRAY : n.color;
+      // Active: full color. Lineage: discipline color. Siblings: desaturated. Others: gray.
+      const fillCol = isActive ? n.color : isLineage ? n.color : isSibling ? SIBLING_DESAT : isGray ? GRAY : n.color;
       const labelCol = isActive ? (n.level === 3 ? '#efe7d8' : n.color)
-        : isLineage ? 'rgba(239,231,216,0.50)'
+        : isLineage ? n.color
+        : isSibling ? 'rgba(239,231,216,0.30)'
         : isGray ? GRAY_LABEL
         : (n.level === 3 ? 'rgba(239,231,216,0.78)' : n.color);
 
       if (n.level === 1) {
-        const op = isActive ? 1 : isLineage ? 0.7 : isGray ? 0.45 : baseOp;
+        const op = isActive ? 1 : isLineage ? 0.95 : isGray ? 0.45 : baseOp;
         n._group.style.opacity = op * introOp;
         n._glow.setAttribute('fill', isActive ? n.color : fillCol);
-        n._glow.setAttribute('opacity', isActive ? 0.75 : isLineage ? 0.15 : isGray ? 0.06 : 0.18 * baseOp);
+        n._glow.setAttribute('opacity', isActive ? 0.75 : isLineage ? 0.35 : isGray ? 0.06 : 0.18 * baseOp);
         n._ring.setAttribute('stroke', isActive ? n.color : fillCol);
         n._innerDot.setAttribute('fill', isActive ? n.color : fillCol);
         if (n._innerLabel) n._innerLabel.forEach(t => t.setAttribute('fill', isActive ? n.color : fillCol));
@@ -1400,10 +1468,10 @@
         n._coach.setAttribute('opacity', isActive ? 0.9 : isGray ? 0.15 : isDimmed && !isLineage ? 0.06 : baseOp * 0.5);
 
       } else if (n.level === 2) {
-        const op = isActive ? 1 : isLineage ? 0.65 : isGray ? 0.5 : baseOp;
+        const op = isActive ? 1 : isLineage ? 0.9 : isSibling ? 0.2 : isGray ? 0.5 : baseOp;
         n._group.style.opacity = op * introOp;
         n._glow.setAttribute('fill', isActive ? n.color : fillCol);
-        n._glow.setAttribute('opacity', isActive ? 0.6 : isLineage ? 0.12 : isGray ? 0.05 : 0.15 * baseOp);
+        n._glow.setAttribute('opacity', isActive ? 0.6 : isLineage ? 0.12 : isSibling ? 0.04 : isGray ? 0.05 : 0.15 * baseOp);
         n._ring.setAttribute('stroke', isActive ? n.color : fillCol);
         n._innerDot.setAttribute('fill', isActive ? n.color : fillCol);
         n._label.setAttribute('fill', isActive ? n.color : labelCol);
@@ -1412,11 +1480,11 @@
         const [dx, dy] = labelOffset(n, p, scale, labelPos, 30, -28);
         n._label.setAttribute('x', dx);
         n._label.setAttribute('y', dy);
-        const labelOp = isActive ? 1 : isLineage ? 0.6 : Math.max(0, (tNorm - 0.45) * 1.8) * (isGray ? 0.45 : 1);
+        const labelOp = isActive ? 1 : isLineage ? 0.8 : isSibling ? 0.1 : Math.max(0, (tNorm - 0.45) * 1.8) * (isGray ? 0.45 : 1);
         n._label.setAttribute('opacity', labelOp);
 
       } else {
-        const op = isActive ? 1 : isLineage ? 0.55 : isGray ? 0.35 : 0.55 * baseOp;
+        const op = isActive ? 1 : isLineage ? 0.85 : isSibling ? 0.2 : isGray ? 0.35 : 0.55 * baseOp;
         n._group.style.opacity = op * introOp;
         n._innerDot.setAttribute('fill', isActive ? n.color : fillCol);
         n._innerDot.setAttribute('r', isActive ? 6 : isLineage ? 3 : 3);
@@ -1446,8 +1514,10 @@
         let labelOp;
         if (isActive) labelOp = 1;
         else if (isLineage) labelOp = 0.95;
-        else labelOp = Math.max(0, (tNorm - 0.6) * 2.2);
-        if (isGray) labelOp *= 0.55;
+        else if (isSibling) labelOp = 0;  // hide sibling L3 labels completely to avoid clutter
+        else if (activeNode && isGray) labelOp = 0;  // hide unrelated L3 labels when a node is selected
+        else labelOp = Math.max(0, (tNorm - 0.6) * 2.2);  // depth-based fade for idle state
+        if (isGray && !activeNode) labelOp *= 0.55;
         if (matchHide) { labelOp = 0; n._group.style.opacity = 0.05 * introOp; }
         n._label.setAttribute('opacity', labelOp);
         if (n._tick) n._tick.setAttribute('opacity', labelOp * 0.5);
@@ -1500,9 +1570,13 @@
           return false;
         };
         const isLineageLine = !isActiveLine && (inLin(fromN) && inLin(toN));
-        if (isActiveLine) { lineOp = 0.9; line.setAttribute('stroke', c.color); }
-        else if (isLineageLine) { lineOp = 0.5; line.setAttribute('stroke', c.color); }
-        else { lineOp = baseLineOp * 0.3; line.setAttribute('stroke', '#6b6862'); }
+        // Same discipline but not in the lineage tree
+        const isSiblingLine = !isActiveLine && !isLineageLine &&
+          ((fromN && fromN.l1Idx === activeNode.l1Idx) || (toN && toN.l1Idx === activeNode.l1Idx));
+        if (isActiveLine) { lineOp = 0.95; line.setAttribute('stroke', c.color); line.setAttribute('stroke-width', '1.5'); }
+        else if (isLineageLine) { lineOp = 0.8; line.setAttribute('stroke', c.color); line.setAttribute('stroke-width', '1.2'); }
+        else if (isSiblingLine) { lineOp = baseLineOp * 0.12; line.setAttribute('stroke', '#8a857d'); line.setAttribute('stroke-width', '0.5'); }
+        else { lineOp = baseLineOp * 0.15; line.setAttribute('stroke', '#6b6862'); line.setAttribute('stroke-width', '0.5'); }
       } else if (focusing) {
         const fromN = NODE_MAP.get(c.fromId);
         const toN   = NODE_MAP.get(c.toId);
@@ -1515,6 +1589,7 @@
         }
       } else {
         line.setAttribute('stroke', c.color);
+        line.setAttribute('stroke-width', '0.6');
       }
       line.setAttribute('opacity', lineOp * introT);
     });

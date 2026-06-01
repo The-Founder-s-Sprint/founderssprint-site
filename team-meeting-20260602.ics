@@ -1,0 +1,27 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//The Founder's Sprint//Team Meeting//EN
+CALSCALE:GREGORIAN
+METHOD:REQUEST
+BEGIN:VEVENT
+DTSTART:20260602T150000Z
+DTEND:20260602T163000Z
+DTSTAMP:20260601T120000Z
+UID:fs-team-meeting-20260602@founderssprint.co
+SUMMARY:The Founder's Sprint — Founding Team Meeting
+DESCRIPTION:Agenda:\n\n1. Platform demo — dashboard\, profiles\, directory\, sponsor system\n2. Launch timing — July 1st event vs Cohort 1 start date\n3. Coach profiles — what's complete\, what's needed\n4. Marketing plan + founder contributions\n5. Next steps and assignments\n\nLogin before the meeting:\nhttps://founderssprint.co/dashboard.html\n\nChange your password on first login.
+LOCATION:Google Meet (link below)
+ORGANIZER;CN=Teddy Ruge:mailto:teddy@founderssprint.co
+ATTENDEE;ROLE=REQ-PARTICIPANT;CN=Joseph Kalema:mailto:j.kalema@founderssprint.co
+ATTENDEE;ROLE=REQ-PARTICIPANT;CN=Moses Engwau Okudu:mailto:m.engwau@founderssprint.co
+ATTENDEE;ROLE=REQ-PARTICIPANT;CN=Barry Wojega:mailto:b.wojega@founderssprint.co
+ATTENDEE;ROLE=REQ-PARTICIPANT;CN=Patrick Ngolobe:mailto:p.ngolobe@founderssprint.co
+STATUS:CONFIRMED
+SEQUENCE:0
+BEGIN:VALARM
+TRIGGER:-PT30M
+ACTION:DISPLAY
+DESCRIPTION:Team meeting in 30 minutes
+END:VALARM
+END:VEVENT
+END:VCALENDAR

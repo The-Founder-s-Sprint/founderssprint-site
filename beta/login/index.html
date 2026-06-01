@@ -159,8 +159,10 @@ async function handleSignin(e) {
     var sbKey = 'sb-' + SUPABASE_URL.split('//')[1].split('.')[0] + '-auth-token';
     localStorage.setItem(sbKey, JSON.stringify(data));
 
-    // Check redirect param or go to dashboard
-    var redirect = params.get('redirect') || '/dashboard.html';
+    // Return to the page the user came from, or homepage
+    var redirect = params.get('redirect') || document.referrer || '../index.html';
+    // Don't redirect back to login itself
+    if (redirect.includes('/login')) redirect = '../index.html';
     window.location.href = redirect;
   } catch (ex) {
     err.textContent = ex.message;
