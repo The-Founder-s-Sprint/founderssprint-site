@@ -711,7 +711,7 @@
         <div id="dash-avatar-dropdown" style="display:none;position:absolute;top:42px;right:0;background:var(--card);border:1px solid var(--border);min-width:200px;z-index:999;padding:8px 0;box-shadow:0 8px 24px rgba(0,0,0,0.08)">
           <div style="padding:8px 16px 10px;font-family:var(--body);font-size:11px;color:var(--muted);border-bottom:1px solid var(--border);margin-bottom:4px" id="dash-avatar-email"></div>
           <a href="#" onclick="showChangePassword();document.getElementById('dash-avatar-wrap').classList.remove('open');return false" style="display:block;padding:10px 16px;font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--text);text-decoration:none">Change Password</a>
-          <a href="#" onclick="signOut();return false" style="display:block;padding:10px 16px;font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--danger);text-decoration:none">Sign Out</a>
+          <a href="javascript:void(0)" onmousedown="event.stopPropagation();signOut()" style="display:block;padding:10px 16px;font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--danger);text-decoration:none;cursor:pointer">Sign Out</a>
         </div>
       </div>
     </div>
@@ -1919,16 +1919,12 @@ async function sendPasswordReset() {
 }
 
 function signOut() {
-  // Clear session from localStorage (bypasses slow Supabase client)
+  // Clear session from localStorage
   localStorage.removeItem(_SB_KEY);
   // Also try Supabase client signout (non-blocking)
   try { sb.auth.signOut().catch(function(){}); } catch(e) {}
-  // Reset state
-  booted = false;
-  currentSession = null;
-  // Show login
-  document.getElementById('app').style.display = 'none';
-  document.getElementById('login-screen').style.display = 'flex';
+  // Full page reload clears all state including the instant-visibility style injection
+  window.location.reload();
 }
 
 function showChangePassword() {
