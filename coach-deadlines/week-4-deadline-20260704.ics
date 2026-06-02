@@ -1,0 +1,33 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//The Founder's Sprint//Content Schedule//EN
+CALSCALE:GREGORIAN
+METHOD:REQUEST
+BEGIN:VEVENT
+DTSTART:20260704T060000Z
+DTEND:20260704T070000Z
+DTSTAMP:20260602T223112Z
+UID:fs-content-week4-20260704@founderssprint.co
+SUMMARY:📋 Week 4 Presentation Due — The Founder's Sprint
+DESCRIPTION:Week 4 presentation is due today (04 July 2026).\n\nEach coach: submit your Session 4 presentation (PowerPoint or Google Slides link).\n\nRequirements:\n• Minimum 15 slides\, maximum 40\n• Include speaker notes\n• Cover one L2 sub-category or L3 specialty from your discipline\n\nSend to: teddy@founderssprint.co\n\nWe will brand-align\, convert to HTML\, upload\, and test next week.
+LOCATION:Email submission to teddy@founderssprint.co
+ORGANIZER;CN=Teddy Ruge:mailto:teddy@founderssprint.co
+ATTENDEE;ROLE=REQ-PARTICIPANT;CN=Teddy Ruge:mailto:teddy@founderssprint.co
+ATTENDEE;ROLE=REQ-PARTICIPANT;CN=Barry Wojega:mailto:b.wojega@founderssprint.co
+ATTENDEE;ROLE=REQ-PARTICIPANT;CN=Joseph Kalema:mailto:j.kalema@founderssprint.co
+ATTENDEE;ROLE=REQ-PARTICIPANT;CN=Moses Engwau Okudu:mailto:m.engwau@founderssprint.co
+ATTENDEE;ROLE=REQ-PARTICIPANT;CN=Patrick Ngolobe:mailto:p.ngolobe@founderssprint.co
+STATUS:CONFIRMED
+SEQUENCE:0
+BEGIN:VALARM
+TRIGGER:-P2D
+ACTION:DISPLAY
+DESCRIPTION:Presentation due in 2 days
+END:VALARM
+BEGIN:VALARM
+TRIGGER:-PT2H
+ACTION:DISPLAY
+DESCRIPTION:Presentation due today at end of day
+END:VALARM
+END:VEVENT
+END:VCALENDAR
