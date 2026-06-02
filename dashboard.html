@@ -1236,11 +1236,11 @@
         </div>
         <div>
           <label>Description</label>
-          <textarea id="sess-description" rows="2" placeholder="Session agenda or notes…" style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--border);font-family:var(--font);font-size:14px;background:var(--card);color:var(--text)"></textarea>
+          <textarea id="sess-description" rows="2" placeholder="Session agenda or notes…" style="width:100%;padding:8px;border-radius:0;border:1px solid var(--border);font-family:var(--font);font-size:14px;background:var(--card);color:var(--text)"></textarea>
         </div>
         <div style="margin-top:8px">
           <label>Attendee Emails * <span style="font-weight:400;color:var(--muted)">(one per line)</span></label>
-          <textarea id="sess-attendees" rows="3" placeholder="founder1@example.com&#10;founder2@example.com" style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--border);font-family:var(--mono);font-size:13px;background:var(--card);color:var(--text)"></textarea>
+          <textarea id="sess-attendees" rows="3" placeholder="founder1@example.com&#10;founder2@example.com" style="width:100%;padding:8px;border-radius:0;border:1px solid var(--border);font-family:var(--mono);font-size:13px;background:var(--card);color:var(--text)"></textarea>
         </div>
         <div style="margin-top:16px;display:flex;gap:12px">
           <button class="btn-confirm" onclick="createSession()" id="btn-create-session">Schedule Session</button>
@@ -1326,7 +1326,7 @@
         </div>
         <div>
           <label>Description</label>
-          <textarea id="pres-desc" rows="2" placeholder="Brief description of the presentation…" style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--border);font-family:var(--font);font-size:14px;background:var(--card);color:var(--text)"></textarea>
+          <textarea id="pres-desc" rows="2" placeholder="Brief description of the presentation…" style="width:100%;padding:8px;border-radius:0;border:1px solid var(--border);font-family:var(--font);font-size:14px;background:var(--card);color:var(--text)"></textarea>
         </div>
         <div class="dir-form-row two-col">
           <div>
@@ -1656,7 +1656,7 @@
         </div>
         <div>
           <label>Description</label>
-          <textarea id="mat-desc" rows="2" placeholder="Brief description of this module…" style="width:100%;padding:8px;border-radius:8px;border:1px solid var(--border);font-family:var(--font);font-size:14px;background:var(--card);color:var(--text)"></textarea>
+          <textarea id="mat-desc" rows="2" placeholder="Brief description of this module…" style="width:100%;padding:8px;border-radius:0;border:1px solid var(--border);font-family:var(--font);font-size:14px;background:var(--card);color:var(--text)"></textarea>
         </div>
         <div style="margin-top:16px;display:flex;gap:12px">
           <button class="btn-confirm" onclick="saveMaterial()" id="btn-save-mat">Add Module</button>
@@ -1910,8 +1910,15 @@ async function sendPasswordReset() {
   successEl.style.display = 'block';
 }
 
-async function signOut() {
-  await sb.auth.signOut();
+function signOut() {
+  // Clear session from localStorage (bypasses slow Supabase client)
+  localStorage.removeItem(_SB_KEY);
+  // Also try Supabase client signout (non-blocking)
+  try { sb.auth.signOut().catch(function(){}); } catch(e) {}
+  // Reset state
+  booted = false;
+  currentSession = null;
+  // Show login
   document.getElementById('app').style.display = 'none';
   document.getElementById('login-screen').style.display = 'flex';
 }
@@ -3284,13 +3291,13 @@ function renderAvailabilityGrid() {
   editingProfileSlots.sort((a, b) => a.day_of_week - b.day_of_week || (a.start_time || '').localeCompare(b.start_time || ''));
 
   grid.innerHTML = editingProfileSlots.map((s, idx) => `
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;padding:6px 8px;background:var(--surface);border-radius:6px">
-      <select onchange="editingProfileSlots[${idx}].day_of_week=+this.value" style="font-size:12px;padding:3px 6px;border:1px solid var(--border);border-radius:4px;background:var(--card)">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;padding:6px 8px;background:var(--surface);border-radius:0">
+      <select onchange="editingProfileSlots[${idx}].day_of_week=+this.value" style="font-size:12px;padding:3px 6px;border:1px solid var(--border);border-radius:0;background:var(--card)">
         ${DAY_LABELS.map((d, i) => `<option value="${i}" ${i === s.day_of_week ? 'selected' : ''}>${d}</option>`).join('')}
       </select>
-      <input type="time" value="${(s.start_time||'09:00').slice(0,5)}" onchange="editingProfileSlots[${idx}].start_time=this.value+':00'" style="font-size:12px;padding:3px 6px;border:1px solid var(--border);border-radius:4px;background:var(--card)">
+      <input type="time" value="${(s.start_time||'09:00').slice(0,5)}" onchange="editingProfileSlots[${idx}].start_time=this.value+':00'" style="font-size:12px;padding:3px 6px;border:1px solid var(--border);border-radius:0;background:var(--card)">
       <span style="color:var(--muted)">to</span>
-      <input type="time" value="${(s.end_time||'10:00').slice(0,5)}" onchange="editingProfileSlots[${idx}].end_time=this.value+':00'" style="font-size:12px;padding:3px 6px;border:1px solid var(--border);border-radius:4px;background:var(--card)">
+      <input type="time" value="${(s.end_time||'10:00').slice(0,5)}" onchange="editingProfileSlots[${idx}].end_time=this.value+':00'" style="font-size:12px;padding:3px 6px;border:1px solid var(--border);border-radius:0;background:var(--card)">
       <button onclick="removeAvailabilitySlot(${idx})" style="background:none;border:none;color:var(--danger);cursor:pointer;font-size:16px;padding:0 4px" title="Remove">×</button>
     </div>
   `).join('');
@@ -3881,18 +3888,18 @@ function buildCoachDetailHTML(a) {
   // ── Course Materials (only for approved coaches with auth accounts) ─────
   if (a.user_id) {
     html += `
-      <div style="margin:16px 0 12px;padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:6px">
+      <div style="margin:16px 0 12px;padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:0">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
           <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--gold)">Course Materials</div>
           <button class="btn-confirm" onclick="event.stopPropagation(); showAddPresentationForm('${a.user_id}')" style="padding:4px 12px;font-size:10px">+ Link Presentation</button>
         </div>
         <div id="coach-presentations-${a.user_id}" style="font-size:12px;color:var(--muted)">Loading presentations...</div>
-        <div id="add-presentation-form-${a.user_id}" style="display:none;margin-top:12px;padding:12px;background:var(--card);border:1px solid var(--border);border-radius:6px">
+        <div id="add-presentation-form-${a.user_id}" style="display:none;margin-top:12px;padding:12px;background:var(--card);border:1px solid var(--border);border-radius:0">
           <div style="font-size:11px;font-weight:600;margin-bottom:8px">Link a new presentation</div>
           <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
-            <input id="pres-title-${a.user_id}" placeholder="Title (e.g. Understanding Your Market)" style="padding:6px 10px;border:1px solid var(--border);border-radius:4px;font-size:12px;font-family:var(--font);background:var(--surface)">
-            <input id="pres-code-${a.user_id}" placeholder="Session code (e.g. L2-1-1)" style="padding:6px 10px;border:1px solid var(--border);border-radius:4px;font-size:12px;font-family:var(--font);background:var(--surface)">
-            <select id="pres-l1-${a.user_id}" style="padding:6px 10px;border:1px solid var(--border);border-radius:4px;font-size:12px;font-family:var(--font);background:var(--surface)">
+            <input id="pres-title-${a.user_id}" placeholder="Title (e.g. Understanding Your Market)" style="padding:6px 10px;border:1px solid var(--border);border-radius:0;font-size:12px;font-family:var(--font);background:var(--surface)">
+            <input id="pres-code-${a.user_id}" placeholder="Session code (e.g. L2-1-1)" style="padding:6px 10px;border:1px solid var(--border);border-radius:0;font-size:12px;font-family:var(--font);background:var(--surface)">
+            <select id="pres-l1-${a.user_id}" style="padding:6px 10px;border:1px solid var(--border);border-radius:0;font-size:12px;font-family:var(--font);background:var(--surface)">
               <option value="">Select discipline...</option>
               <option value="Marketing & Branding">Marketing & Branding</option>
               <option value="Financial Modelling & Business Finance">Financial Modelling</option>
@@ -3900,9 +3907,9 @@ function buildCoachDetailHTML(a) {
               <option value="Investment Readiness & Fundraising">Investment Readiness</option>
               <option value="Product Development & Pricing">Product Dev & Pricing</option>
             </select>
-            <input id="pres-path-${a.user_id}" placeholder="File path (e.g. /presentations/L2-1-1.html)" style="padding:6px 10px;border:1px solid var(--border);border-radius:4px;font-size:12px;font-family:var(--font);background:var(--surface)">
+            <input id="pres-path-${a.user_id}" placeholder="File path (e.g. /presentations/L2-1-1.html)" style="padding:6px 10px;border:1px solid var(--border);border-radius:0;font-size:12px;font-family:var(--font);background:var(--surface)">
           </div>
-          <input id="pres-desc-${a.user_id}" placeholder="Brief description (optional)" style="width:100%;padding:6px 10px;border:1px solid var(--border);border-radius:4px;font-size:12px;font-family:var(--font);background:var(--surface);margin-bottom:8px;box-sizing:border-box">
+          <input id="pres-desc-${a.user_id}" placeholder="Brief description (optional)" style="width:100%;padding:6px 10px;border:1px solid var(--border);border-radius:0;font-size:12px;font-family:var(--font);background:var(--surface);margin-bottom:8px;box-sizing:border-box">
           <div style="display:flex;gap:8px">
             <button class="btn-confirm" onclick="event.stopPropagation(); savePresentationLink('${a.user_id}')" style="padding:5px 16px;font-size:10px">Save</button>
             <button class="btn-cancel" onclick="event.stopPropagation(); hideAddPresentationForm('${a.user_id}')" style="padding:5px 16px;font-size:10px">Cancel</button>
@@ -3923,7 +3930,7 @@ function buildCoachDetailHTML(a) {
   const isMyApplication = currentReviewerEmail && a.email && currentReviewerEmail.toLowerCase() === a.email.toLowerCase();
 
   if (votes.length > 0 || a.status === 'pending') {
-    html += `<div style="margin:16px 0 12px;padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:6px">`;
+    html += `<div style="margin:16px 0 12px;padding:12px 16px;background:var(--surface);border:1px solid var(--border);border-radius:0">`;
     html += `<div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;color:var(--gold);margin-bottom:10px">Peer Review — ${approvals.length} of ${required} approvals</div>`;
 
     // Progress bar
@@ -3941,7 +3948,7 @@ function buildCoachDetailHTML(a) {
         const icon = isApprove ? '&#10003;' : '&#10007;';
         const label = esc(v.reviewer_name || v.reviewer_email);
         const time = v.created_at ? new Date(v.created_at).toLocaleDateString() : '';
-        html += `<span style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;background:${isApprove ? 'rgba(10,143,100,0.08)' : 'rgba(220,53,69,0.08)'};border:1px solid ${color};border-radius:4px;font-size:11px">
+        html += `<span style="display:inline-flex;align-items:center;gap:5px;padding:4px 10px;background:${isApprove ? 'rgba(10,143,100,0.08)' : 'rgba(220,53,69,0.08)'};border:1px solid ${color};border-radius:0;font-size:11px">
           <span style="color:${color};font-weight:700">${icon}</span>
           <span>${label}</span>
           <span style="color:var(--muted);font-size:10px">${time}</span>
@@ -3958,18 +3965,18 @@ function buildCoachDetailHTML(a) {
 
   // Admin notes / rejection reason
   if (a.admin_notes) {
-    html += `<div style="margin-bottom:12px;padding:8px 12px;background:var(--gold-dim);border-radius:6px"><strong>Admin notes:</strong> ${esc(a.admin_notes)}</div>`;
+    html += `<div style="margin-bottom:12px;padding:8px 12px;background:var(--gold-dim);border-radius:0"><strong>Admin notes:</strong> ${esc(a.admin_notes)}</div>`;
   }
   if (a.status === 'rejected' && a.rejection_reason) {
-    html += `<div style="margin-bottom:12px;padding:8px 12px;background:rgba(220,53,69,0.08);border-radius:6px"><strong>Rejection reason:</strong> ${esc(a.rejection_reason)}</div>`;
+    html += `<div style="margin-bottom:12px;padding:8px 12px;background:rgba(220,53,69,0.08);border-radius:0"><strong>Rejection reason:</strong> ${esc(a.rejection_reason)}</div>`;
   }
 
   // ── Vote buttons for pending applications ────────────────────────────────
   if (a.status === 'pending') {
     if (isMyApplication) {
-      html += `<div style="margin-top:12px;padding:10px 16px;background:var(--gold-dim);border-radius:6px;font-size:12px;color:var(--muted)">This is your application — waiting for peer reviews.</div>`;
+      html += `<div style="margin-top:12px;padding:10px 16px;background:var(--gold-dim);border-radius:0;font-size:12px;color:var(--muted)">This is your application — waiting for peer reviews.</div>`;
     } else if (myVote) {
-      html += `<div style="margin-top:12px;padding:10px 16px;background:${myVote.vote === 'approve' ? 'rgba(10,143,100,0.08)' : 'rgba(220,53,69,0.08)'};border-radius:6px;font-size:12px">
+      html += `<div style="margin-top:12px;padding:10px 16px;background:${myVote.vote === 'approve' ? 'rgba(10,143,100,0.08)' : 'rgba(220,53,69,0.08)'};border-radius:0;font-size:12px">
         You voted to <strong>${myVote.vote}</strong> this application on ${new Date(myVote.created_at).toLocaleDateString()}.
       </div>`;
     } else {
@@ -3980,7 +3987,7 @@ function buildCoachDetailHTML(a) {
         </div>
         <div id="coach-reject-form-${a.id}" style="display:none;margin-top:12px">
           <label style="font-size:11px;font-weight:600;display:block;margin-bottom:4px">Rejection reason (sent to applicant if application is rejected):</label>
-          <textarea id="coach-reject-reason-${a.id}" rows="3" style="width:100%;max-width:500px;padding:8px;border:1px solid var(--border);border-radius:6px;font-family:var(--font);font-size:12px;background:var(--surface);resize:vertical" placeholder="Explain why you think this application should not be accepted..."></textarea>
+          <textarea id="coach-reject-reason-${a.id}" rows="3" style="width:100%;max-width:500px;padding:8px;border:1px solid var(--border);border-radius:0;font-family:var(--font);font-size:12px;background:var(--surface);resize:vertical" placeholder="Explain why you think this application should not be accepted..."></textarea>
           <div style="margin-top:8px;display:flex;gap:12px">
             <button class="btn-cancel" onclick="event.stopPropagation(); castVote('${a.id}', 'reject')" style="background:var(--danger);color:#fff">Confirm Rejection Vote</button>
             <button class="btn-cancel" onclick="event.stopPropagation(); hideRejectForm('${a.id}')">Cancel</button>
@@ -4100,7 +4107,7 @@ function renderPresentations(coachId, presentations) {
     const dur = p.duration_minutes ? `<span style="font-size:10px;color:var(--muted)">${p.duration_minutes} min</span>` : '';
 
     html += `
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--card);border:1px solid var(--border);border-radius:6px">
+      <div style="display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--card);border:1px solid var(--border);border-radius:0">
         <div style="flex:1;min-width:0">
           <div style="font-size:12px;font-weight:600;margin-bottom:2px">${codeTag}${esc(p.title)}</div>
           <div style="display:flex;gap:12px;align-items:center">${l1Tag}${dur}</div>
@@ -4281,16 +4288,16 @@ function renderSessions() {
     const attendeeCount = s.session_attendees ? s.session_attendees.length : 0;
     const attendeeList = s.session_attendees ? s.session_attendees.map(a => a.email).join(', ') : '';
     const typeBadge = s.session_type === 'group'
-      ? '<span style="background:var(--sage);color:#fff;padding:2px 8px;border-radius:6px;font-size:12px">Group</span>'
-      : '<span style="background:var(--ochre);color:#fff;padding:2px 8px;border-radius:6px;font-size:12px">1-on-1</span>';
+      ? '<span style="background:var(--sage);color:#fff;padding:2px 8px;border-radius:0;font-size:12px">Group</span>'
+      : '<span style="background:var(--ochre);color:#fff;padding:2px 8px;border-radius:0;font-size:12px">1-on-1</span>';
     const statusColors = { scheduled:'var(--ochre)', completed:'var(--success)', cancelled:'var(--danger)', no_show:'var(--stone)' };
-    const statusBadge = `<span style="background:${statusColors[s.status] || 'var(--stone)'};color:#fff;padding:2px 8px;border-radius:6px;font-size:12px">${s.status}</span>`;
+    const statusBadge = `<span style="background:${statusColors[s.status] || 'var(--stone)'};color:#fff;padding:2px 8px;border-radius:0;font-size:12px">${s.status}</span>`;
     const meetCell = s.meet_link
       ? `<a href="${s.meet_link}" target="_blank" style="color:var(--terra);font-size:12px">Join</a>`
       : '<span style="color:var(--muted);font-size:12px">—</span>';
     const actions = s.status === 'scheduled'
-      ? `<button onclick="cancelSession(${s.id})" style="background:var(--danger);color:#fff;border:none;padding:4px 10px;border-radius:6px;font-size:12px;cursor:pointer">Cancel</button>
-         <button onclick="completeSession(${s.id})" style="background:var(--success);color:#fff;border:none;padding:4px 10px;border-radius:6px;font-size:12px;cursor:pointer;margin-left:4px">Complete</button>`
+      ? `<button onclick="cancelSession(${s.id})" style="background:var(--danger);color:#fff;border:none;padding:4px 10px;border-radius:0;font-size:12px;cursor:pointer">Cancel</button>
+         <button onclick="completeSession(${s.id})" style="background:var(--success);color:#fff;border:none;padding:4px 10px;border-radius:0;font-size:12px;cursor:pointer;margin-left:4px">Complete</button>`
       : '';
 
     return `<tr>
@@ -4447,11 +4454,11 @@ function renderPresentations() {
     const coach = (inviteCoaches || []).find(c => c.user_id === p.coach_id);
     const coachName = coach ? `${coach.first_name} ${coach.last_name}` : (p.coach_id ? p.coach_id.slice(0,8) + '…' : '—');
     const activeBadge = p.is_active
-      ? '<span style="background:var(--success);color:#fff;padding:2px 8px;border-radius:6px;font-size:12px">Active</span>'
-      : '<span style="background:var(--stone);color:#fff;padding:2px 8px;border-radius:6px;font-size:12px">Inactive</span>';
+      ? '<span style="background:var(--success);color:#fff;padding:2px 8px;border-radius:0;font-size:12px">Active</span>'
+      : '<span style="background:var(--stone);color:#fff;padding:2px 8px;border-radius:0;font-size:12px">Inactive</span>';
     const actions = p.is_active
-      ? `<button onclick="deactivatePresentation(${p.id})" style="background:var(--danger);color:#fff;border:none;padding:4px 10px;border-radius:6px;font-size:12px;cursor:pointer">Deactivate</button>`
-      : `<button onclick="reactivatePresentation(${p.id})" style="background:var(--success);color:#fff;border:none;padding:4px 10px;border-radius:6px;font-size:12px;cursor:pointer">Reactivate</button>`;
+      ? `<button onclick="deactivatePresentation(${p.id})" style="background:var(--danger);color:#fff;border:none;padding:4px 10px;border-radius:0;font-size:12px;cursor:pointer">Deactivate</button>`
+      : `<button onclick="reactivatePresentation(${p.id})" style="background:var(--success);color:#fff;border:none;padding:4px 10px;border-radius:0;font-size:12px;cursor:pointer">Reactivate</button>`;
 
     return `<tr>
       <td>${p.title}</td>
@@ -4557,7 +4564,7 @@ function renderCohorts() {
   const sorted = [...allCohorts].sort((a, b) => b.id - a.id);
   tbody.innerHTML = sorted.map(c => {
     const statusColors = { open:'var(--success)', closed:'var(--stone)', full:'var(--ochre)', cancelled:'var(--danger)' };
-    const statusBadge = `<span style="background:${statusColors[c.status] || 'var(--stone)'};color:#fff;padding:2px 8px;border-radius:6px;font-size:12px">${c.status}</span>`;
+    const statusBadge = `<span style="background:${statusColors[c.status] || 'var(--stone)'};color:#fff;padding:2px 8px;border-radius:0;font-size:12px">${c.status}</span>`;
     const singleBar = capacityBar(c.single_taken || 0, c.single_max || 50);
     const pick3Bar  = capacityBar(c.pick3_taken  || 0, c.pick3_max  || 30);
     const cohortBar = capacityBar(c.cohort_taken || 0, c.cohort_max || 20);
@@ -4567,9 +4574,9 @@ function renderCohorts() {
       : (c.dates || '—');
 
     const actions = c.status === 'open'
-      ? `<button onclick="closeCohort(${c.id})" style="background:var(--stone);color:#fff;border:none;padding:4px 10px;border-radius:6px;font-size:12px;cursor:pointer">Close</button>`
+      ? `<button onclick="closeCohort(${c.id})" style="background:var(--stone);color:#fff;border:none;padding:4px 10px;border-radius:0;font-size:12px;cursor:pointer">Close</button>`
       : (c.status === 'closed'
-        ? `<button onclick="reopenCohort(${c.id})" style="background:var(--success);color:#fff;border:none;padding:4px 10px;border-radius:6px;font-size:12px;cursor:pointer">Reopen</button>`
+        ? `<button onclick="reopenCohort(${c.id})" style="background:var(--success);color:#fff;border:none;padding:4px 10px;border-radius:0;font-size:12px;cursor:pointer">Reopen</button>`
         : '');
 
     return `<tr>
@@ -4795,11 +4802,11 @@ function renderCurriculumMap() {
     // Status indicator
     let statusBadge = '';
     if (total === 0) {
-      statusBadge = '<span style="background:var(--paper-mid);color:#fff;padding:2px 8px;border-radius:6px;font-size:10px">Empty</span>';
+      statusBadge = '<span style="background:var(--paper-mid);color:#fff;padding:2px 8px;border-radius:0;font-size:10px">Empty</span>';
     } else if (published === total) {
-      statusBadge = '<span style="background:var(--success);color:#fff;padding:2px 8px;border-radius:6px;font-size:10px">Published</span>';
+      statusBadge = '<span style="background:var(--success);color:#fff;padding:2px 8px;border-radius:0;font-size:10px">Published</span>';
     } else {
-      statusBadge = `<span style="background:var(--warning);color:#fff;padding:2px 8px;border-radius:6px;font-size:10px">${published}/${total} published</span>`;
+      statusBadge = `<span style="background:var(--warning);color:#fff;padding:2px 8px;border-radius:0;font-size:10px">${published}/${total} published</span>`;
     }
 
     // Find coach for this discipline
@@ -4848,7 +4855,7 @@ function renderMaterialsTable() {
 
     // Status badge
     const statusColors = { draft: 'var(--paper-mid)', in_review: 'var(--warning)', published: 'var(--success)' };
-    const statusBadge = `<span style="background:${statusColors[m.status] || 'var(--paper-mid)'};color:#fff;padding:2px 8px;border-radius:6px;font-size:12px">${m.status}</span>`;
+    const statusBadge = `<span style="background:${statusColors[m.status] || 'var(--paper-mid)'};color:#fff;padding:2px 8px;border-radius:0;font-size:12px">${m.status}</span>`;
 
     // Format badge
     const formatLabels = { html_native: 'HTML', google_slides: 'Slides', converted: 'Converted' };
@@ -4859,12 +4866,12 @@ function renderMaterialsTable() {
 
     // Actions
     const previewBtn = m.file_path
-      ? `<button onclick="previewMaterial(${m.id})" style="background:var(--terra);color:#fff;border:none;padding:4px 10px;border-radius:6px;font-size:12px;cursor:pointer;margin-right:4px" title="Preview">Preview</button>`
+      ? `<button onclick="previewMaterial(${m.id})" style="background:var(--terra);color:#fff;border:none;padding:4px 10px;border-radius:0;font-size:12px;cursor:pointer;margin-right:4px" title="Preview">Preview</button>`
       : '';
-    const editBtn = `<button onclick="toggleMatForm(${m.id})" style="background:var(--ink-mute);color:#fff;border:none;padding:4px 10px;border-radius:6px;font-size:12px;cursor:pointer;margin-right:4px">Edit</button>`;
+    const editBtn = `<button onclick="toggleMatForm(${m.id})" style="background:var(--ink-mute);color:#fff;border:none;padding:4px 10px;border-radius:0;font-size:12px;cursor:pointer;margin-right:4px">Edit</button>`;
     const statusBtn = m.status === 'published'
-      ? `<button onclick="updateMatStatus(${m.id},'draft')" style="background:var(--warning);color:#fff;border:none;padding:4px 10px;border-radius:6px;font-size:12px;cursor:pointer">Unpublish</button>`
-      : `<button onclick="updateMatStatus(${m.id},'published')" style="background:var(--success);color:#fff;border:none;padding:4px 10px;border-radius:6px;font-size:12px;cursor:pointer">Publish</button>`;
+      ? `<button onclick="updateMatStatus(${m.id},'draft')" style="background:var(--warning);color:#fff;border:none;padding:4px 10px;border-radius:0;font-size:12px;cursor:pointer">Unpublish</button>`
+      : `<button onclick="updateMatStatus(${m.id},'published')" style="background:var(--success);color:#fff;border:none;padding:4px 10px;border-radius:0;font-size:12px;cursor:pointer">Publish</button>`;
 
     return `<tr>
       <td><strong>${m.title}</strong><br><span style="font-size:11px;color:var(--muted)">${coachName}</span></td>
