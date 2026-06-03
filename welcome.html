@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Welcome · The Founder's Sprint</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://ivedeivyotwevjxvcuoe.supabase.co" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+  :root{
+    --bg:#EFE7D8; --surface:#E6DCC7; --card:#EFE7D8; --ink:#1A1A1A; --ink-mid:#444; --muted:#5A564F;
+    --border:rgba(26,26,26,0.18); --border-hi:rgba(26,26,26,0.35);
+    --terra:#C8531F; --terra-deep:#9A3E16; --ochre:#C9923A; --sage:#8AAB5C; --moss:#3D4A2E; --stone:#A59B8C;
+    --sans:'Josefin Sans',Inter,system-ui,sans-serif; --display:'Cormorant Garamond',Georgia,serif; --body:'Inter',system-ui,sans-serif;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--ink);font-family:var(--body);font-size:14px;-webkit-font-smoothing:antialiased;line-height:1.55;}
+  a{color:inherit;}
+  .geo-line{height:1px;background:var(--border-hi);}
+  /* topbar */
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;border-bottom:1px solid var(--border-hi);background:var(--card);position:sticky;top:0;z-index:50;}
+  .topbar-left{display:flex;align-items:center;gap:12px;}
+  .topbar-mark svg{width:26px;height:26px;display:block;}
+  .topbar-logo{font-family:var(--sans);font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;}
+  .topbar-sep{width:1px;height:18px;background:var(--border-hi);}
+  .topbar-sub{font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--terra);}
+  .topbar-right{display:flex;align-items:center;gap:14px;}
+  .topbar-user{font-size:12px;color:var(--muted);}
+  .btn-ghost-sm{background:none;color:var(--terra);border:1px solid var(--border-hi);padding:8px 14px;font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;text-decoration:none;}
+  /* layout */
+  .wrap{max-width:980px;margin:0 auto;padding:46px 28px 90px;}
+  .eyebrow{font-family:var(--sans);font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--terra);margin-bottom:12px;}
+  .hero h1{font-family:var(--display);font-size:clamp(34px,5vw,52px);font-weight:600;line-height:1.04;letter-spacing:-0.01em;margin-bottom:14px;}
+  .hero p.lede{font-family:var(--display);font-style:italic;font-size:21px;color:var(--ink-mid);max-width:640px;margin-bottom:26px;}
+  .cta-row{display:flex;gap:12px;flex-wrap:wrap;align-items:center;}
+  .btn{background:var(--terra);color:#fff;border:none;padding:15px 26px;font-family:var(--sans);font-weight:700;font-size:12px;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;text-decoration:none;display:inline-block;transition:background .2s;}
+  .btn:hover{background:var(--terra-deep);}
+  .btn-ghost{background:none;color:var(--terra);border:1px solid var(--border-hi);padding:15px 26px;font-family:var(--sans);font-weight:700;font-size:12px;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;text-decoration:none;display:inline-block;}
+  .btn-ghost:hover{background:rgba(200,83,31,0.07);}
+  .section-title{font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--ink-mid);margin:54px 0 18px;}
+  /* steps */
+  .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);}
+  .step{background:var(--card);padding:22px 22px 24px;}
+  .step .n{font-family:var(--display);font-size:30px;font-weight:700;color:var(--terra);line-height:1;}
+  .step h3{font-family:var(--display);font-size:20px;font-weight:600;margin:10px 0 6px;}
+  .step p{font-size:13px;color:var(--ink-mid);}
+  /* discipline week */
+  .week{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px;}
+  .day{background:var(--card);border:1px solid var(--border);border-top:3px solid var(--stone);padding:16px 18px;}
+  .day .dow{font-family:var(--sans);font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);}
+  .day .disc{font-family:var(--display);font-size:18px;font-weight:600;margin:4px 0 2px;}
+  .day .coach{font-size:11.5px;color:var(--ink-mid);}
+  .day .time{font-size:10.5px;color:var(--muted);margin-top:8px;font-family:var(--sans);letter-spacing:.06em;}
+  /* data room card */
+  .dr-card{background:var(--card);border:1px solid var(--border);border-top:2px solid var(--terra);padding:26px 28px;}
+  .dr-card h2{font-family:var(--display);font-size:26px;font-weight:600;margin-bottom:8px;}
+  .dr-list{margin:14px 0 0;padding:0;list-style:none;}
+  .dr-list li{display:flex;gap:10px;padding:8px 0;border-top:1px solid var(--border);font-size:13.5px;}
+  .dr-list li:first-child{border-top:none;}
+  .dr-dot{width:7px;height:7px;border-radius:50%;background:var(--terra);margin-top:6px;flex-shrink:0;}
+  .lock-note{margin-top:18px;background:rgba(200,83,31,0.08);border-left:3px solid var(--terra);padding:12px 14px;font-size:12.5px;color:var(--ink-mid);line-height:1.5;}
+  .pill{font-family:var(--sans);font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 9px;border-radius:2px;background:rgba(200,83,31,0.1);color:var(--terra);}
+  .final{margin-top:54px;background:var(--ink);color:var(--bg);padding:38px 34px;text-align:center;}
+  .final h2{font-family:var(--display);font-size:28px;font-weight:600;margin-bottom:8px;color:var(--bg);}
+  .final p{color:rgba(239,231,216,0.72);font-size:14px;margin-bottom:22px;}
+  .final .btn{background:var(--terra);} .final .btn:hover{background:var(--terra-deep);}
+  .foot{text-align:center;padding:30px;font-family:var(--sans);font-size:9px;letter-spacing:.24em;text-transform:uppercase;color:var(--muted);}
+  #app{display:none;}
+  @media(max-width:560px){.wrap{padding:34px 18px 70px;}}
+</style>
+</head>
+<body>
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-mark"><svg viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.85"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.8" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.78" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.82" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg></div>
+      <span class="topbar-logo">Founder's Sprint</span><div class="topbar-sep"></div><span class="topbar-sub">Founder</span>
+    </div>
+    <div class="topbar-right"><span class="topbar-user" id="user-email"></span><a class="btn-ghost-sm" href="#" onclick="signOut();return false">Sign Out</a></div>
+  </div>
+
+  <div class="wrap">
+    <div class="hero">
+      <div class="eyebrow">Welcome to The Founder's Sprint</div>
+      <h1 id="hero-title">Welcome.</h1>
+      <p class="lede">Build with direction. Expert coaching across five disciplines, structured into vetted, take-home deliverables — and an investor-ready data room that grows with every session.</p>
+      <div class="cta-row" id="hero-cta"></div>
+    </div>
+
+    <div class="section-title">How it works</div>
+    <div class="steps">
+      <div class="step"><div class="n">1</div><h3>Book a course</h3><p>Start with a single 1:1, a Pick&nbsp;3 bundle, or the full cohort. Reserve your place with a 10% deposit.</p></div>
+      <div class="step"><div class="n">2</div><h3>Get coached</h3><p>Live 2-hour sessions with a discipline expert — on your phone via Google Meet, no downloads.</p></div>
+      <div class="step"><div class="n">3</div><h3>Produce deliverables</h3><p>Every session ends in a vetted artifact: a model, a pitch deck, a go-to-market plan — yours to keep.</p></div>
+      <div class="step"><div class="n">4</div><h3>Build your data room</h3><p>Your deliverables collect into a standardised, investor-ready data room you can share when you're ready.</p></div>
+    </div>
+
+    <div class="section-title">Five disciplines, every week</div>
+    <div class="week" id="week"></div>
+
+    <div class="section-title">Your data room</div>
+    <div class="dr-card">
+      <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px">
+        <h2 style="margin:0">An investor-ready file hub <span class="pill" id="dr-status">Locked</span></h2>
+      </div>
+      <p style="color:var(--ink-mid)">As you complete coaching, each discipline contributes a coach-vetted deliverable. Together they form a data room investors can trust — because every document was produced under expert supervision, not self-reported.</p>
+      <ul class="dr-list">
+        <li><span class="dr-dot"></span><span><strong>Deliverables vault</strong> — downloadable, coach-vetted artifacts for each discipline.</span></li>
+        <li><span class="dr-dot"></span><span><strong>Readiness tracker</strong> — your completeness % across the five disciplines.</span></li>
+        <li><span class="dr-dot"></span><span><strong>Investor visibility</strong> — opt in to share a read-only data room once you cross 75%.</span></li>
+        <li><span class="dr-dot"></span><span><strong>Your journey timeline</strong> — every L3 course, lit up as your coach signs it off.</span></li>
+      </ul>
+      <div class="lock-note" id="dr-lock-note">Your data room activates once you've booked and paid for your first course. Until then, it's reserved and waiting — explore the programme and book when you're ready.</div>
+    </div>
+
+    <div class="final">
+      <h2 id="final-title">Ready to build?</h2>
+      <p id="final-sub">Pick your first course and reserve your place with a 10% deposit.</p>
+      <a class="btn" id="final-cta" href="/beta/explore/index.html">Book your first course</a>
+    </div>
+  </div>
+
+  <div class="foot">Kampala · The Founder's Sprint</div>
+</div>
+
+<script>
+const SUPABASE_URL='https://ivedeivyotwevjxvcuoe.supabase.co';
+const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss';
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON,{auth:{detectSessionInUrl:true,autoRefreshToken:true,persistSession:true}});
+
+// Locked teaching week (mirrors CLAUDE.md cohort schedule)
+const WEEK=[
+ {dow:'Monday',disc:'Marketing & Branding',coach:'Teddy',color:'#C8531F'},
+ {dow:'Tuesday',disc:'Financial Modelling',coach:'Barry',color:'#C9923A'},
+ {dow:'Wednesday',disc:'Investment Readiness',coach:'Joseph',color:'#8AAB5C'},
+ {dow:'Thursday',disc:'Strategy & Team Building',coach:'Moses',color:'#3D4A2E'},
+ {dow:'Friday',disc:'Product Development & Pricing',coach:'Patrick',color:'#A59B8C'}
+];
+
+const _SB_KEY='sb-'+SUPABASE_URL.split('//')[1].split('.')[0]+'-auth-token';
+function _stored(){try{return JSON.parse(localStorage.getItem(_SB_KEY)||'{}');}catch{return{};}}
+async function _token(){const s=_stored(); if(s.access_token && s.expires_at && (Date.now()/1000)<(s.expires_at-60)) return s.access_token;
+  // refresh
+  if(s.refresh_token){ const r=await fetch(SUPABASE_URL+'/auth/v1/token?grant_type=refresh_token',{method:'POST',headers:{apikey:SUPABASE_ANON,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:s.refresh_token})}); if(r.ok){const j=await r.json();localStorage.setItem(_SB_KEY,JSON.stringify(j));return j.access_token;}}
+  return s.access_token||null; }
+async function _q(table,params){const t=await _token(); if(!t) throw new Error('no session'); const r=await fetch(SUPABASE_URL+'/rest/v1/'+table+'?'+params,{headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t}}); if(!r.ok) throw new Error('q'); return r.json(); }
+async function _w(method,table,params,body){const t=await _token(); const r=await fetch(SUPABASE_URL+'/rest/v1/'+table+(params?('?'+params):''),{method,headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t,'Content-Type':'application/json',Prefer:'return=representation'},body:body?JSON.stringify(body):undefined}); if(!r.ok) throw new Error(await r.text()); const x=await r.text(); return x?JSON.parse(x):null; }
+// Ensure a founder_profiles row exists (also fires the trigger that links the founder's registration)
+async function ensureProfile(user){
+  const rows = await _q('founder_profiles','user_id=eq.'+user.id+'&select=id,first_name&limit=1');
+  if(rows && rows.length) return rows[0];
+  const m = user.user_metadata||{};
+  const created = await _w('POST','founder_profiles','',{ user_id:user.id, email:user.email,
+    first_name:m.first_name||'', last_name:m.last_name||'', phone:m.phone||null, company_name:m.company||null, sector:m.sector||null });
+  return Array.isArray(created)?created[0]:created;
+}
+function signOut(){localStorage.removeItem(_SB_KEY);try{sb.auth.signOut().catch(()=>{});}catch(e){} window.location.href='/login-founder.html';}
+
+let booted=false;
+sb.auth.onAuthStateChange((ev,s)=>{ if((ev==='SIGNED_IN'||ev==='INITIAL_SESSION')&&s) boot(s.user); });
+(async()=>{ const s=_stored(); const u=s.user; if(u && !booted) boot(u); })();
+sb.auth.getSession().then(({data:{session}})=>{ if(session && !booted) boot(session.user); });
+// if no session at all, send to the portal
+setTimeout(()=>{ if(!booted && !_stored().access_token) window.location.href='/login-founder.html'; }, 1200);
+
+function renderWeek(){
+  document.getElementById('week').innerHTML = WEEK.map(d =>
+    '<div class="day" style="border-top-color:'+d.color+'"><div class="dow">'+d.dow+'</div>'
+    + '<div class="disc">'+d.disc+'</div><div class="coach">Coach '+d.coach+'</div>'
+    + '<div class="time">10:00–12:00 EAT</div></div>').join('');
+}
+
+async function boot(user){
+  if(booted||!user) return; booted=true;
+  document.getElementById('app').style.display='block';
+  document.getElementById('user-email').textContent = user.email;
+  renderWeek();
+
+  // name + paid status (ensureProfile also links the founder's registration via DB trigger)
+  let first='', paid=false;
+  try {
+    const prof = await ensureProfile(user);
+    if(prof) first = (prof.first_name||'').trim();
+    const fid = prof && prof.id;
+    const regs = await _q('registrations','or=(user_id.eq.'+user.id+(fid?(',founder_id.eq.'+fid):'')+')&select=deposit_paid');
+    paid = (regs||[]).some(r => r.deposit_paid);
+  } catch(e){}
+
+  document.getElementById('hero-title').textContent = first ? ('Welcome, '+first+'.') : 'Welcome.';
+
+  const hero = document.getElementById('hero-cta');
+  if(paid){
+    document.getElementById('dr-status').textContent = 'Active';
+    document.getElementById('dr-lock-note').innerHTML = 'Your data room is <strong>active</strong>. Head to your dashboard to view deliverables, your readiness score, and your journey timeline.';
+    document.getElementById('final-title').textContent = 'Pick up where you left off';
+    document.getElementById('final-sub').textContent = 'Your dashboard has your sessions, deliverables, and data room.';
+    const cta=document.getElementById('final-cta'); cta.textContent='Go to my dashboard'; cta.href='/founder.html';
+    hero.innerHTML = '<a class="btn" href="/founder.html">Go to my dashboard</a><a class="btn-ghost" href="/beta/explore/index.html">Book another course</a>';
+  } else {
+    hero.innerHTML = '<a class="btn" href="/beta/explore/index.html">Book your first course</a><a class="btn-ghost" href="/founder.html">Look around my dashboard</a>';
+  }
+}
+</script>
+</body>
+</html>
