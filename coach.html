@@ -169,7 +169,7 @@ sb.auth.onAuthStateChange((ev,s)=>{currentSession=s;if((ev==='SIGNED_IN'||ev==='
 (async()=>{try{const s=_stored();const u=s.user;if(!u||booted)return;if(_exp(s)){try{await _refresh();}catch(e){return;}}if(!booted)boot(u);}catch(e){}})();
 sb.auth.getSession().then(({data:{session}})=>{if(session&&!booted){currentSession=session;boot(session.user);}});
 
-let coach=null, founders=[], myDiscKey=null;
+let coach=null, founders=[], myDiscKeys=new Set();
 
 async function boot(user){
   if(booted||!user)return;booted=true;
@@ -180,11 +180,13 @@ async function boot(user){
     const c=await _q('coaches','or=(user_id.eq.'+user.id+',email.eq.'+encodeURIComponent(user.email)+',founderssprint_email.eq.'+encodeURIComponent(user.email)+')&select=id,first_name,last_name,sector_l1,user_id&limit=1');
     if(!c.length){ document.querySelector('.main').innerHTML='<div class="empty"><div class="empty-mark">◇</div><div style="font-weight:600;color:var(--ink-mid)">This isn’t a coach account.</div></div>'; return; }
     coach=c[0];
-    // map coach -> discipline (by first name against the locked schedule, fallback to sector_l1)
-    const d=TAXONOMY.find(t=>t.coach.toLowerCase()===String(coach.first_name||'').toLowerCase())
-         || TAXONOMY.find(t=>String(coach.sector_l1||'').toLowerCase().includes(t.key));
-    myDiscKey=d?d.key:null;
-    document.getElementById('coach-disc').textContent = d?d.label:'Coach';
+    // data-driven coverage (scales to many coaches / multiple disciplines per coach)
+    let topics=[];
+    try{ topics=await _q('coach_topics','coach_id=eq.'+coach.id+'&select=discipline_key,is_lead'); }catch(e){}
+    myDiscKeys=new Set(topics.map(t=>t.discipline_key));
+    const isLead=topics.some(t=>t.is_lead);
+    const labels=TAXONOMY.filter(t=>myDiscKeys.has(t.key)).map(t=>t.label);
+    document.getElementById('coach-disc').textContent = (labels.length?labels.join(' · '):'Coach') + (isLead?' · Discipline Lead':'');
     await loadRoster(); await loadAvailability();
   }catch(e){ showToast('Load failed — '+e.message,'error'); }
 }
@@ -207,7 +209,7 @@ async function openFounder(fid){
   document.getElementById('view-roster').style.display='none';
   const dv=document.getElementById('view-founder');dv.style.display='block';
   const blocks=TAXONOMY.map(d=>{
-    const mine=d.key===myDiscKey;
+    const mine=myDiscKeys.has(d.key);
     const isEnr=enrolled.has(d.key);
     const rows=[];
     d.l2.forEach((l2,li)=>l2.l3.forEach((l3,l3i)=>{
@@ -224,7 +226,7 @@ async function openFounder(fid){
   dv.innerHTML='<span class="back" onclick="closeFounder()">← All founders</span>'
     +'<div class="page-eyebrow">Mark progress</div>'
     +'<div class="page-title">'+esc(f.company_name||((f.first_name||'')+' '+(f.last_name||'')))+'</div>'
-    +'<div class="page-sub">Tick a course once the founder has completed it. You can mark courses in <strong>your</strong> discipline ('+(TAXONOMY.find(t=>t.key===myDiscKey)?.label||'—')+'); other disciplines are read-only here.</div>'
+    +'<div class="page-sub">Tick a course once the founder has completed it. You can mark courses in <strong>your</strong> discipline'+(TAXONOMY.filter(t=>myDiscKeys.has(t.key)).length?' ('+TAXONOMY.filter(t=>myDiscKeys.has(t.key)).map(t=>t.label).join(', ')+')':'')+'; other disciplines are read-only here.</div>'
     +blocks;
   window.scrollTo(0,0);
 }

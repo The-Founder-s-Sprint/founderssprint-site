@@ -177,16 +177,21 @@ async function routeByRole(token, user, email) {
   email = (email || (user && user.email) || '').toLowerCase();
   var uid = user && user.id;
   var hdrs = { apikey: SUPABASE_ANON, Authorization: 'Bearer ' + token };
-  var staff = email.endsWith('@founderssprint.co')
-    || ['teddy@tmsruge.com','teddy@raintreefarms.com'].indexOf(email) >= 0;
+  // Platform admin (multi-staff) → admin dashboard
   try {
-    if (!staff) {
-      var ch = await fetch(SUPABASE_URL + '/rest/v1/coaches?select=id&or=(email.eq.' + encodeURIComponent(email) + ',founderssprint_email.eq.' + encodeURIComponent(email) + ')&limit=1', { headers: hdrs });
-      var chj = await ch.json();
-      if (Array.isArray(chj) && chj.length) staff = true;
+    if (uid) {
+      var ad = await fetch(SUPABASE_URL + '/rest/v1/user_roles?select=role&user_id=eq.' + uid + '&role=eq.admin&limit=1', { headers: hdrs });
+      var adj = await ad.json();
+      if (Array.isArray(adj) && adj.length) return '/dashboard.html';
     }
   } catch (e) {}
-  if (staff) return '/dashboard.html';
+  // Coach → their own coach dashboard
+  try {
+    var ch = await fetch(SUPABASE_URL + '/rest/v1/coaches?select=id&or=(user_id.eq.' + uid + ',email.eq.' + encodeURIComponent(email) + ',founderssprint_email.eq.' + encodeURIComponent(email) + ')&limit=1', { headers: hdrs });
+    var chj = await ch.json();
+    if (Array.isArray(chj) && chj.length) return '/coach.html';
+  } catch (e) {}
+  // Investor → investor portal
   try {
     if (uid) {
       var iv = await fetch(SUPABASE_URL + '/rest/v1/investors?select=id&user_id=eq.' + uid + '&limit=1', { headers: hdrs });

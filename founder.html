@@ -466,6 +466,7 @@ let mySessions = [];
 let courseProgress = [];
 let completedCourses = new Set();
 let coaches = [];
+let coachTopics = [];
 let bookingCoach = null;
 
 // ── DISCIPLINE MODEL (CLAUDE.md §4) ──
@@ -694,7 +695,8 @@ async function loadAll(user){
     _pgQuery('registrations', 'or=(user_id.eq.'+user.id+',founder_id.eq.'+profile.id+')&order=created_at.desc'),
     _pgQuery('session_attendees', 'user_id=eq.'+user.id+'&select=attended,sessions(id,title,description,scheduled_at,status,meet_link,duration_minutes)'),
     _pgQuery('founder_course_progress', 'founder_id=eq.'+profile.id+'&select=course_label,status'),
-    _pgQuery('coaches', 'select=id,first_name,last_name,user_id,sector_l1,avatar_url&status=eq.active&order=id')
+    _pgQuery('coaches', 'select=id,first_name,last_name,user_id,sector_l1,avatar_url&status=eq.active&order=id'),
+    _pgQuery('coach_topics', 'select=coach_id,discipline_key')
   ]);
   deliverables = results[0].status==='fulfilled' ? (results[0].value||[]) : [];
   myRegs       = results[1].status==='fulfilled' ? (results[1].value||[]) : [];
@@ -703,6 +705,7 @@ async function loadAll(user){
   courseProgress = results[3].status==='fulfilled' ? (results[3].value||[]) : [];
   completedCourses = new Set(courseProgress.filter(c => c.status==='complete').map(c => c.course_label));
   coaches = results[4].status==='fulfilled' ? (results[4].value||[]) : [];
+  coachTopics = results[5].status==='fulfilled' ? (results[5].value||[]) : [];
 
   renderTimeline(); renderOverview(); renderDataRoom(); renderSessions(); renderPayments(); renderBooking(); fillProfile();
 }
@@ -924,8 +927,13 @@ function renderPayments(){
 
 // ── 1:1 BOOKING ──
 function coachForDiscipline(key){
-  const d = DISCIPLINES.find(x=>x.key===key); if(!d) return null;
-  return coaches.find(c => String(c.first_name||'').toLowerCase() === d.coach.toLowerCase()) || null;
+  // Data-driven: resolve coaches whose coverage (coach_topics) includes this discipline.
+  // (Multiple coaches per discipline at scale — for now we take the first available.)
+  const ids = coachTopics.filter(t => t.discipline_key === key).map(t => t.coach_id);
+  let c = coaches.find(x => ids.indexOf(x.id) >= 0 && x.user_id);
+  // Fallback for ITM data without coverage rows: match the locked-schedule coach name.
+  if(!c){ const d = DISCIPLINES.find(x=>x.key===key); if(d) c = coaches.find(x => String(x.first_name||'').toLowerCase() === d.coach.toLowerCase() && x.user_id); }
+  return c || null;
 }
 let bookAvail = [];
 function renderBooking(){
