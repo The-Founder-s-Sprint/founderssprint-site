@@ -159,7 +159,7 @@ const DASHBOARD='founder.html';
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON,{auth:{detectSessionInUrl:true,autoRefreshToken:true,persistSession:true,flowType:'pkce'}});
 
 // ── Rotating background photo (random on each load, B&W, fades in) ──
-const PHOTOS=['portal-bg-1.jpg','portal-bg-2.jpg','portal-bg-3.jpg','portal-bg-4.jpg','portal-bg-5.jpg','portal-bg-6.jpg','portal-bg-7.jpg','portal-bg-8.jpg'];
+const PHOTOS=['images/portal-bg-1.jpg','images/portal-bg-2.jpg','images/portal-bg-3.jpg','images/portal-bg-4.jpg','images/portal-bg-5.jpg','images/portal-bg-6.jpg','images/portal-bg-7.jpg','images/portal-bg-8.jpg'];
 (function(){
   const el=document.querySelector('.bg-photo'); if(!el) return;
   const pick=PHOTOS[Math.floor(Math.random()*PHOTOS.length)];

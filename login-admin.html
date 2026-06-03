@@ -154,7 +154,7 @@ const DASHBOARD='dashboard.html';
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON,{auth:{detectSessionInUrl:true,autoRefreshToken:true,persistSession:true,flowType:'pkce'}});
 
 // ── Rotating background photo (random on each load, B&W, fades in) ──
-const PHOTOS=['admin-bg-1.jpg','admin-bg-2.jpg','admin-bg-3.jpg','admin-bg-4.jpg','admin-bg-5.jpg','admin-bg-6.jpg'];
+const PHOTOS=['images/admin-bg-1.jpg','images/admin-bg-2.jpg','images/admin-bg-3.jpg','images/admin-bg-4.jpg','images/admin-bg-5.jpg','images/admin-bg-6.jpg'];
 (function(){
   const el=document.querySelector('.bg-photo'); if(!el) return;
   const pick=PHOTOS[Math.floor(Math.random()*PHOTOS.length)];

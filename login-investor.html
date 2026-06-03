@@ -154,7 +154,7 @@ const DASHBOARD='investor.html';
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON,{auth:{detectSessionInUrl:true,autoRefreshToken:true,persistSession:true,flowType:'pkce'}});
 
 // ── Rotating background photo (random on each load, B&W, fades in) ──
-const PHOTOS=['investor-bg-1.jpg','investor-bg-2.jpg','investor-bg-3.jpg','investor-bg-4.jpg','investor-bg-5.jpg','investor-bg-6.jpg'];
+const PHOTOS=['images/investor-bg-1.jpg','images/investor-bg-2.jpg','images/investor-bg-3.jpg','images/investor-bg-4.jpg','images/investor-bg-5.jpg','images/investor-bg-6.jpg'];
 (function(){
   const el=document.querySelector('.bg-photo'); if(!el) return;
   const pick=PHOTOS[Math.floor(Math.random()*PHOTOS.length)];
