@@ -379,7 +379,7 @@
         <p class="section-label">Deposit payment</p>
 
         <div class="payment-info" id="paymentInfo">
-          <div class="amount-label">Deposit due now</div>
+          <div class="amount-label">Deposit due now (10%, non-refundable)</div>
           <div class="amount" id="depositDisplay">UGX —</div>
           <div style="margin-top:6px;font-size:.82rem;color:var(--text-muted)" id="balanceDisplay"></div>
         </div>
@@ -543,8 +543,8 @@
   document.getElementById('depositDisplay').textContent =
     'UGX ' + deposit.toLocaleString();
   document.getElementById('balanceDisplay').textContent =
-    isVIP ? 'Balance (due before sessions begin): UGX ' + balance.toLocaleString()
-          : 'Balance (due before cohort): UGX ' + balance.toLocaleString();
+    'Balance UGX ' + balance.toLocaleString() + ' — due in full 48 hours before your '
+    + (isVIP ? 'first session' : 'cohort starts') + '. The 10% deposit is non-refundable.';
 
   // ── Helpers ──────────────────────────────────────────────────────────────────
   function showStatus(msg, type) {   // type: 'error' | 'success' | 'info'

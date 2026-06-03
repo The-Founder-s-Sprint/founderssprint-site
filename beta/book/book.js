@@ -427,28 +427,16 @@
       schedSection.style.display = 'none';
     }
 
-    // Payment amount
-    let payNow = t.price;
-    let payLabel = 'Total due now';
+    // Payment — 10% non-refundable deposit reserves the booking; balance due 48h before start
+    const deposit = Math.round(t.price * 0.10);
+    const balance = t.price - deposit;
     const instNote = $('#review-instalment');
-
-    if (state.tier === 'cohort' && state.plan === '2x') {
-      payNow = 1250000;
-      payLabel = 'Due now (instalment 1 of 2)';
-      instNote.style.display = 'block';
-      instNote.textContent = 'Second instalment of UGX 1,250,000 due before Week 3.';
-    } else if (state.tier === 'cohort' && state.plan === '3x') {
-      payNow = 835000;
-      payLabel = 'Due now (instalment 1 of 3)';
-      instNote.style.display = 'block';
-      instNote.textContent = 'UGX 835,000 due before Week 2 and Week 4.';
-    } else {
-      instNote.style.display = 'none';
-    }
-
-    $('#review-pay-label').textContent = payLabel;
-    $('#review-amount').textContent = 'UGX ' + payNow.toLocaleString('en-UG');
-    $('#btn-pay-amount').textContent = payNow.toLocaleString('en-UG');
+    $('#review-pay-label').textContent = 'Deposit due now (10%)';
+    $('#review-amount').textContent = 'UGX ' + deposit.toLocaleString('en-UG');
+    $('#btn-pay-amount').textContent = deposit.toLocaleString('en-UG');
+    instNote.style.display = 'block';
+    instNote.textContent = 'Balance of UGX ' + balance.toLocaleString('en-UG') + ' is due in full 48 hours before your '
+      + (state.tier === 'cohort' ? 'cohort starts' : 'first session') + '. The 10% deposit is non-refundable.';
 
     // MoMo phone
     $('#momo-phone-display').textContent = state.phoneCode + ' ' + state.phone;
@@ -506,9 +494,7 @@
     $('#nav-progress').style.opacity = '0';
 
     const t = TIER_DATA[state.tier];
-    let payNow = t.price;
-    if (state.tier === 'cohort' && state.plan === '2x') payNow = 1250000;
-    if (state.tier === 'cohort' && state.plan === '3x') payNow = 835000;
+    const payNow = Math.round(t.price * 0.10);  // 10% deposit
 
     // Generate mock transaction ID
     const now = new Date();
