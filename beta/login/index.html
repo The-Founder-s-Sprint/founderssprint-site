@@ -159,17 +159,42 @@ async function handleSignin(e) {
     var sbKey = 'sb-' + SUPABASE_URL.split('//')[1].split('.')[0] + '-auth-token';
     localStorage.setItem(sbKey, JSON.stringify(data));
 
-    // Return to the page the user came from, or homepage
-    var redirect = params.get('redirect') || document.referrer || '../index.html';
-    // Don't redirect back to login itself
-    if (redirect.includes('/login')) redirect = '../index.html';
-    window.location.href = redirect;
+    // Honour an explicit redirect target, otherwise route by role
+    var explicit = params.get('redirect');
+    if (explicit && !explicit.includes('/login')) { window.location.href = explicit; return false; }
+    window.location.href = await routeByRole(data.access_token, data.user, email);
   } catch (ex) {
     err.textContent = ex.message;
   } finally {
     btn.disabled = false; btn.textContent = 'Sign In';
   }
   return false;
+}
+
+// Route a signed-in user to the right dashboard based on their role.
+// (Routing convenience only — RLS is the real access boundary.)
+async function routeByRole(token, user, email) {
+  email = (email || (user && user.email) || '').toLowerCase();
+  var uid = user && user.id;
+  var hdrs = { apikey: SUPABASE_ANON, Authorization: 'Bearer ' + token };
+  var staff = email.endsWith('@founderssprint.co')
+    || ['teddy@tmsruge.com','teddy@raintreefarms.com'].indexOf(email) >= 0;
+  try {
+    if (!staff) {
+      var ch = await fetch(SUPABASE_URL + '/rest/v1/coaches?select=id&or=(email.eq.' + encodeURIComponent(email) + ',founderssprint_email.eq.' + encodeURIComponent(email) + ')&limit=1', { headers: hdrs });
+      var chj = await ch.json();
+      if (Array.isArray(chj) && chj.length) staff = true;
+    }
+  } catch (e) {}
+  if (staff) return '/dashboard.html';
+  try {
+    if (uid) {
+      var iv = await fetch(SUPABASE_URL + '/rest/v1/investors?select=id&user_id=eq.' + uid + '&limit=1', { headers: hdrs });
+      var ivj = await iv.json();
+      if (Array.isArray(ivj) && ivj.length) return '/investor.html';
+    }
+  } catch (e) {}
+  return '/founder.html';
 }
 
 async function handleSignup(e) {
@@ -230,8 +255,9 @@ async function handleForgot(e) {
     try {
       var session = JSON.parse(stored);
       if (session.access_token && session.expires_at && (Date.now() / 1000) < session.expires_at) {
-        var redirect = params.get('redirect') || '/dashboard.html';
-        window.location.href = redirect;
+        var explicit = params.get('redirect');
+        if (explicit && !explicit.includes('/login')) { window.location.href = explicit; }
+        else { routeByRole(session.access_token, session.user, session.user && session.user.email).then(function(u){ window.location.href = u; }); }
       }
     } catch(e) {}
   }

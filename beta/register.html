@@ -365,6 +365,13 @@
         </select>
       </div>
 
+      <div class="form-group">
+        <label>Dashboard password <span class="req">*</span></label>
+        <input type="password" name="password" autocomplete="new-password" minlength="8"
+               placeholder="Choose a password (min 8 characters)" />
+        <div class="phone-hint">You'll use your email and this password to sign in to your founder dashboard, where your coaching deliverables and data room live.</div>
+      </div>
+
       <hr class="section-divider" />
 
       <!-- ── STEP 2: Payment ── -->
@@ -507,6 +514,8 @@
   document.getElementById('yr').textContent = new Date().getFullYear();
 
   const API = 'https://api.founderssprint.co';
+  const SUPABASE_URL  = 'https://ivedeivyotwevjxvcuoe.supabase.co';
+  const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss';
 
   // ── Read URL params ──────────────────────────────────────────────────────────
   const params   = new URLSearchParams(location.search);
@@ -560,6 +569,7 @@
     const lastName     = data.get('lastName')?.trim();
     const email        = data.get('email')?.trim();
     const whatsapp     = data.get('whatsapp')?.trim();
+    const password     = data.get('password') || '';
     const businessName = data.get('businessName')?.trim();
     const sector       = data.get('sector');
     const paymentPhone = data.get('paymentPhone')?.trim() || whatsapp;
@@ -567,6 +577,10 @@
     // Basic validation
     if (!firstName || !lastName || !email || !whatsapp || !sector) {
       showStatus('Please fill in all required fields.', 'error');
+      return;
+    }
+    if (!password || password.length < 8) {
+      showStatus('Please choose a dashboard password of at least 8 characters.', 'error');
       return;
     }
     if (!cohortId && !isVIP) {
@@ -606,6 +620,28 @@
 
     const { registrationId, depositAmount } = regResult;
 
+    // ── Step 1b: Create founder dashboard account (Supabase Auth) ─────────────
+    // Non-blocking: if this fails (e.g. email already registered), the registration
+    // and payment still proceed. The founder can reset their password later.
+    btn.textContent = 'Creating your dashboard…';
+    try {
+      const suResp = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
+        method:  'POST',
+        headers: { 'apikey': SUPABASE_ANON, 'Content-Type': 'application/json' },
+        body:    JSON.stringify({
+          email,
+          password,
+          data: { first_name: firstName, last_name: lastName, phone: whatsapp, company: businessName, sector },
+        }),
+      });
+      const suData = await suResp.json();
+      if (!suResp.ok && !(suData.msg || '').toLowerCase().includes('already')) {
+        console.warn('[Auth] signup non-fatal error:', suData.msg || suData.error_description);
+      }
+    } catch (suErr) {
+      console.warn('[Auth] signup request failed (non-fatal):', suErr);
+    }
+
     // ── Step 2: Initiate mobile money payment ────────────────────────────────
     btn.textContent = 'Sending payment prompt…';
 
@@ -636,6 +672,7 @@
           `<strong>Check your ${network} phone!</strong><br><br>
           A payment prompt of <strong>UGX ${depositAmount?.toLocaleString()}</strong> has been sent to <strong>${paymentPhone}</strong>.<br><br>
           Enter your mobile money PIN to confirm your deposit. A confirmation email will follow automatically.<br><br>
+          <strong>Your founder dashboard is ready.</strong> Confirm your email if prompted, then sign in at <a href="/founder.html">founderssprint.co/founder.html</a> with your email and the password you just set.<br><br>
           <em>Registration ID: #${registrationId}</em>`,
           'success'
         );

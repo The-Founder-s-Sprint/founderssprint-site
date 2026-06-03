@@ -1,0 +1,1071 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Founder Dashboard · The Founder's Sprint</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://ivedeivyotwevjxvcuoe.supabase.co" crossorigin>
+<link rel="dns-prefetch" href="https://ivedeivyotwevjxvcuoe.supabase.co">
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600;1,700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+  :root {
+    /* FS Design System — core tokens (mirrors dashboard.html) */
+    --bg:#EFE7D8; --surface:#E6DCC7; --card:#EFE7D8; --card-hi:#E6DCC7;
+    --ink:#1A1A1A; --ink-soft:#2A2826; --ink-mid:#444444; --ink-mute:#5A564F;
+    --text:#1A1A1A; --muted:#5A564F;
+    --border:rgba(26,26,26,0.18); --border-hi:rgba(26,26,26,0.35);
+    /* Discipline colours */
+    --terra:#C8531F; --terra-deep:#9A3E16; --ochre:#C9923A; --sage:#8AAB5C; --moss:#3D4A2E; --stone:#777770;
+    --gold:#C8531F; --gold-light:#9A3E16; --gold-dim:rgba(200,83,31,0.10);
+    --success:#0A8F64; --danger:#DC3545; --warning:#C47F08;
+    --sans:'Josefin Sans', Inter, system-ui, sans-serif;
+    --display:'Cormorant Garamond','Times New Roman',serif;
+    --body:'Inter', system-ui, sans-serif;
+    --mono:'JetBrains Mono', ui-monospace, monospace;
+    --font:'Inter', system-ui, sans-serif;
+  }
+  *, *::before, *::after { box-sizing:border-box; margin:0; padding:0; }
+  html, body { height:100%; }
+  body { background:var(--bg); color:var(--text); font-family:var(--font); font-size:13px; letter-spacing:0.01em; -webkit-font-smoothing:antialiased; }
+  a { color:inherit; }
+  .geo-line { width:100%; height:1px; background:var(--border-hi); }
+
+  /* ── LOGIN ── */
+  #login-screen { display:flex; align-items:center; justify-content:center; min-height:100vh; background:var(--bg); }
+  .login-card { background:var(--card); border:1px solid var(--border-hi); border-top:2px solid var(--terra); padding:52px 44px 44px; width:380px; position:relative; }
+  .login-eyebrow { font-family:var(--sans); font-size:9px; letter-spacing:4px; text-transform:uppercase; color:var(--terra); margin-bottom:4px; opacity:0.8; }
+  .login-title { font-size:28px; font-weight:700; color:var(--text); line-height:1.1; margin-bottom:8px; }
+  .login-rule { display:flex; align-items:center; gap:10px; margin-bottom:32px; margin-top:4px; }
+  .login-rule .geo-line { flex:1; }
+  .login-input { width:100%; background:rgba(0,0,0,0.03); border:1px solid var(--border); color:var(--text); padding:12px 14px; font-size:14px; font-family:var(--font); margin-bottom:10px; outline:none; transition:border-color 0.2s; }
+  .login-input:focus { border-color:var(--terra); }
+  .login-input::placeholder { color:var(--muted); }
+  .btn-login { width:100%; background:var(--terra); color:#fff; border:none; padding:13px; font-family:var(--sans); font-weight:700; font-size:12px; letter-spacing:0.18em; text-transform:uppercase; cursor:pointer; transition:background 0.2s; margin-top:6px; }
+  .btn-login:hover { background:var(--terra-deep); }
+  .btn-login:disabled { opacity:0.5; cursor:default; }
+  .login-error { color:var(--danger); font-size:12px; min-height:16px; margin-top:10px; }
+  .login-success { color:var(--moss); font-size:12px; background:rgba(61,74,46,0.08); border-left:3px solid var(--moss); padding:12px; margin-top:10px; display:none; }
+  .login-link { display:inline-block; margin-top:14px; font-family:var(--sans); font-size:10px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--terra); text-decoration:none; cursor:pointer; }
+
+  /* ── TOPBAR ── */
+  #app { display:none; }
+  .topbar { display:flex; align-items:center; justify-content:space-between; padding:14px 28px; border-bottom:1px solid var(--border-hi); background:var(--card); position:sticky; top:0; z-index:50; }
+  .topbar-left { display:flex; align-items:center; gap:12px; }
+  .topbar-mark svg { width:26px; height:26px; display:block; }
+  .topbar-logo { font-family:var(--sans); font-size:13px; font-weight:700; letter-spacing:0.16em; text-transform:uppercase; }
+  .topbar-sep { width:1px; height:18px; background:var(--border-hi); }
+  .topbar-sub { font-family:var(--sans); font-size:10px; font-weight:600; letter-spacing:0.18em; text-transform:uppercase; color:var(--terra); }
+  .topbar-right { display:flex; align-items:center; gap:14px; }
+  .topbar-user { font-size:12px; color:var(--muted); }
+  .avatar-btn { width:34px; height:34px; border-radius:50%; border:2px solid var(--border); background:var(--surface); cursor:pointer; overflow:hidden; padding:0; display:flex; align-items:center; justify-content:center; font-family:var(--sans); font-size:12px; font-weight:700; color:var(--muted); }
+  .avatar-dd { display:none; position:absolute; top:42px; right:0; background:var(--card); border:1px solid var(--border); min-width:210px; z-index:999; padding:8px 0; box-shadow:0 8px 24px rgba(0,0,0,0.10); }
+  #avatar-wrap.open .avatar-dd { display:block; }
+  .avatar-dd-email { padding:8px 16px 10px; font-size:11px; color:var(--muted); border-bottom:1px solid var(--border); margin-bottom:4px; }
+  .avatar-dd a { display:block; padding:10px 16px; font-family:var(--sans); font-size:10px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; text-decoration:none; cursor:pointer; }
+
+  /* ── TABS ── */
+  .tabs-wrap { display:flex; gap:0; padding:0 28px; border-bottom:1px solid var(--border); background:var(--card); overflow-x:auto; }
+  .tab { background:none; border:none; border-bottom:2px solid transparent; padding:14px 18px; font-family:var(--sans); font-size:10px; font-weight:600; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); cursor:pointer; white-space:nowrap; transition:all 0.2s; }
+  .tab:hover { color:var(--text); }
+  .tab.active { color:var(--terra); border-bottom-color:var(--terra); }
+  .main { max-width:1080px; margin:0 auto; padding:32px 28px 80px; }
+  .tab-panel { display:none; }
+  .tab-panel.active { display:block; animation:fade 0.25s ease; }
+  @keyframes fade { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:none; } }
+
+  /* ── HEADINGS ── */
+  .page-eyebrow { font-family:var(--sans); font-size:10px; letter-spacing:0.2em; text-transform:uppercase; color:var(--terra); margin-bottom:6px; }
+  .page-title { font-family:var(--display); font-size:32px; font-weight:600; line-height:1.05; margin-bottom:6px; }
+  .page-sub { font-size:14px; color:var(--muted); margin-bottom:26px; max-width:640px; line-height:1.5; }
+  .section-title { font-family:var(--sans); font-size:11px; font-weight:700; letter-spacing:0.16em; text-transform:uppercase; color:var(--ink-mid); margin:30px 0 14px; }
+
+  /* ── CARDS / STATS ── */
+  .stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:1px; background:var(--border); border:1px solid var(--border); margin-bottom:8px; }
+  .stat-card { background:var(--card); padding:18px 20px; }
+  .stat-label { font-family:var(--sans); font-size:9px; letter-spacing:0.14em; text-transform:uppercase; color:var(--muted); margin-bottom:8px; }
+  .stat-value { font-family:var(--display); font-size:30px; font-weight:600; line-height:1; }
+  .stat-value.gold { color:var(--terra); } .stat-value.green { color:var(--success); } .stat-value.orange { color:var(--warning); }
+  .stat-sub { font-size:11px; color:var(--muted); margin-top:6px; }
+
+  .card { background:var(--card); border:1px solid var(--border); padding:22px 24px; margin-bottom:16px; }
+  .card-top { border-top:2px solid var(--terra); }
+
+  /* ── READINESS RING ── */
+  .readiness { display:flex; gap:28px; align-items:center; flex-wrap:wrap; }
+  .ring-wrap { position:relative; width:140px; height:140px; flex-shrink:0; }
+  .ring-wrap svg { transform:rotate(-90deg); }
+  .ring-center { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+  .ring-pct { font-family:var(--display); font-size:34px; font-weight:700; line-height:1; }
+  .ring-cap { font-family:var(--sans); font-size:8px; letter-spacing:0.16em; text-transform:uppercase; color:var(--muted); margin-top:3px; }
+  .readiness-copy { flex:1; min-width:240px; }
+  .readiness-copy h3 { font-family:var(--display); font-size:22px; font-weight:600; margin-bottom:6px; }
+  .readiness-copy p { font-size:13px; color:var(--ink-mid); line-height:1.55; }
+
+  /* ── DISCIPLINE / DELIVERABLES ── */
+  .disc-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(300px,1fr)); gap:14px; }
+  .disc-card { background:var(--card); border:1px solid var(--border); border-left:3px solid var(--stone); padding:18px 20px; }
+  .disc-head { display:flex; align-items:center; justify-content:space-between; margin-bottom:4px; }
+  .disc-week { font-family:var(--sans); font-size:8px; letter-spacing:0.16em; text-transform:uppercase; color:var(--muted); }
+  .disc-name { font-family:var(--display); font-size:19px; font-weight:600; margin-bottom:12px; }
+  .disc-status { font-family:var(--sans); font-size:8px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; padding:3px 8px; border-radius:2px; }
+  .st-complete { background:rgba(10,143,100,0.14); color:var(--success); }
+  .st-progress { background:rgba(196,127,8,0.14); color:var(--warning); }
+  .st-missing { background:rgba(26,26,26,0.07); color:var(--muted); }
+  .deliv-row { display:flex; align-items:center; gap:8px; padding:7px 0; border-top:1px solid var(--border); font-size:12.5px; }
+  .deliv-row:first-of-type { border-top:none; }
+  .deliv-dot { width:7px; height:7px; border-radius:50%; flex-shrink:0; background:var(--paper-mid,#C0B8A8); }
+  .deliv-dot.done { background:var(--success); }
+  .deliv-dot.prog { background:var(--warning); }
+  .deliv-name { flex:1; }
+  .deliv-missing .deliv-name { color:var(--muted); }
+  .deliv-link { font-family:var(--sans); font-size:9px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--terra); text-decoration:none; }
+  .disc-nudge { margin-top:12px; font-size:11.5px; color:var(--ink-mid); background:var(--gold-dim); border-left:2px solid var(--terra); padding:9px 11px; line-height:1.45; }
+
+  /* ── TABLES / LISTS ── */
+  .list-row { display:flex; align-items:center; justify-content:space-between; gap:14px; padding:14px 0; border-top:1px solid var(--border); }
+  .list-row:first-child { border-top:none; }
+  .list-main { font-size:14px; font-weight:500; }
+  .list-sub { font-size:11.5px; color:var(--muted); margin-top:3px; }
+  .pill { font-family:var(--sans); font-size:8px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; padding:4px 9px; border-radius:2px; }
+  .pill-green { background:rgba(10,143,100,0.14); color:var(--success); }
+  .pill-orange { background:rgba(196,127,8,0.14); color:var(--warning); }
+  .pill-grey { background:rgba(26,26,26,0.07); color:var(--muted); }
+  .pill-terra { background:var(--gold-dim); color:var(--terra); }
+
+  .empty { text-align:center; padding:40px 20px; color:var(--muted); font-size:13px; }
+  .empty-mark { font-family:var(--display); font-size:40px; color:var(--border-hi); margin-bottom:8px; }
+
+  /* ── FORM ── */
+  .form-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:14px 18px; }
+  .field { display:flex; flex-direction:column; }
+  .field.full { grid-column:1/-1; }
+  .field label { font-family:var(--sans); font-size:9px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); margin-bottom:6px; }
+  .field input, .field select, .field textarea { background:var(--bg); border:1px solid var(--border); color:var(--text); padding:10px 12px; font-size:13.5px; font-family:var(--font); outline:none; transition:border-color 0.2s; }
+  .field input:focus, .field select:focus, .field textarea:focus { border-color:var(--terra); }
+  .field textarea { resize:vertical; min-height:80px; }
+  .btn { background:var(--terra); color:#fff; border:none; padding:11px 22px; font-family:var(--sans); font-weight:700; font-size:11px; letter-spacing:0.14em; text-transform:uppercase; cursor:pointer; transition:background 0.2s; }
+  .btn:hover { background:var(--terra-deep); }
+  .btn:disabled { opacity:0.5; cursor:default; }
+  .btn-ghost { background:none; color:var(--terra); border:1px solid var(--border-hi); }
+  .btn-ghost:hover { background:var(--gold-dim); }
+
+  .switch { display:flex; align-items:center; gap:12px; }
+  .switch-track { width:42px; height:24px; border-radius:12px; background:var(--paper-mid,#C0B8A8); position:relative; cursor:pointer; transition:background 0.2s; flex-shrink:0; }
+  .switch-track.on { background:var(--success); }
+  .switch-knob { position:absolute; top:3px; left:3px; width:18px; height:18px; border-radius:50%; background:#fff; transition:left 0.2s; }
+  .switch-track.on .switch-knob { left:21px; }
+
+  /* ── TOAST / MODAL ── */
+  #toast { position:fixed; bottom:28px; left:50%; transform:translateX(-50%) translateY(80px); background:var(--ink); color:#fff; padding:13px 22px; font-size:13px; opacity:0; transition:all 0.3s; z-index:2000; box-shadow:0 8px 24px rgba(0,0,0,0.2); }
+  #toast.show { transform:translateX(-50%) translateY(0); opacity:1; }
+  #toast.success { background:var(--success); } #toast.error { background:var(--danger); } #toast.info { background:var(--ink); }
+  .modal { display:none; position:fixed; inset:0; background:rgba(26,26,26,0.45); z-index:1500; align-items:center; justify-content:center; }
+  .modal.open { display:flex; }
+  .modal-card { background:var(--card); border-top:2px solid var(--terra); padding:34px 32px; width:380px; }
+  .modal-card h3 { font-family:var(--display); font-size:22px; font-weight:600; margin-bottom:16px; }
+  .skel { background:linear-gradient(90deg, var(--surface) 25%, var(--card) 50%, var(--surface) 75%); background-size:200% 100%; animation:sk 1.2s infinite; color:transparent!important; border-radius:2px; }
+  @keyframes sk { from { background-position:200% 0; } to { background-position:-200% 0; } }
+  /* ── JOURNEY TIMELINE ── */
+  .timeline-card { background:var(--card); border:1px solid var(--border); border-top:2px solid var(--terra); padding:20px 22px 8px; margin-bottom:18px; }
+  .tl-head { display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:4px; }
+  .tl-title { font-family:var(--sans); font-size:11px; font-weight:700; letter-spacing:0.16em; text-transform:uppercase; color:var(--ink-mid); }
+  .tl-track { font-family:var(--sans); font-size:9px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; padding:4px 10px; border-radius:2px; background:var(--gold-dim); color:var(--terra); }
+  .tl-meta { font-size:12px; color:var(--muted); margin-bottom:14px; }
+  .tl-scroll { overflow-x:auto; padding-bottom:14px; }
+  .tl-track-row { display:flex; align-items:flex-start; gap:0; min-width:max-content; position:relative; }
+  .tl-disc { padding:0 16px; position:relative; }
+  .tl-disc:not(:last-child)::after { content:''; position:absolute; right:0; top:34px; width:1px; height:46px; background:var(--border); }
+  .tl-disc-label { font-family:var(--sans); font-size:8.5px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:3px; white-space:nowrap; }
+  .tl-disc-week { font-family:var(--sans); font-size:7.5px; letter-spacing:0.12em; text-transform:uppercase; color:var(--muted); margin-bottom:12px; }
+  .tl-disc.locked .tl-disc-label, .tl-disc.locked .tl-disc-week { color:var(--paper-dim,#A09888); }
+  .tl-nodes { display:flex; align-items:center; gap:0; }
+  .tl-node-wrap { display:flex; align-items:center; }
+  .tl-conn { width:18px; height:2px; background:var(--border); }
+  .tl-conn.done { background:var(--success); }
+  .tl-node { width:20px; height:20px; border-radius:50%; border:2px solid var(--paper-mid,#C0B8A8); background:var(--bg); cursor:default; position:relative; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:transform 0.15s; }
+  .tl-node:hover { transform:scale(1.25); z-index:5; }
+  .tl-node.enrolled { border-color:var(--node-c); }
+  .tl-node.complete { background:var(--node-c); border-color:var(--node-c); box-shadow:0 0 0 3px color-mix(in srgb, var(--node-c) 22%, transparent); }
+  .tl-node.complete::after { content:''; width:6px; height:10px; border:solid #fff; border-width:0 2px 2px 0; transform:rotate(45deg) translateY(-1px); }
+  .tl-node.locked { border-color:var(--paper-mid,#C0B8A8); background:rgba(26,26,26,0.04); filter:grayscale(1); opacity:0.55; }
+  .tl-tip { position:absolute; bottom:28px; left:50%; transform:translateX(-50%); background:var(--ink); color:#fff; font-size:10.5px; line-height:1.3; padding:6px 9px; border-radius:3px; white-space:nowrap; opacity:0; pointer-events:none; transition:opacity 0.15s; z-index:10; }
+  .tl-tip b { font-weight:600; } .tl-tip .tip-st { display:block; font-size:9px; opacity:0.8; margin-top:1px; }
+  .tl-node:hover .tl-tip { opacity:1; }
+  .tl-legend { display:flex; gap:18px; flex-wrap:wrap; padding:10px 2px 4px; border-top:1px solid var(--border); margin-top:6px; }
+  .tl-leg { display:flex; align-items:center; gap:7px; font-size:11px; color:var(--muted); }
+  .tl-leg-dot { width:13px; height:13px; border-radius:50%; }
+
+  /* ── PROGRESS BAR ── */
+  .pbar { height:7px; background:var(--border); border-radius:4px; overflow:hidden; }
+  .pbar-fill { height:100%; background:var(--terra); border-radius:4px; transition:width 0.7s ease; }
+  .pbar-fill.met { background:var(--success); }
+  .dr-overall { display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+  .dr-overall .pbar { flex:1; min-width:200px; }
+  .dr-pct { font-family:var(--display); font-size:30px; font-weight:700; line-height:1; }
+  .disc-mini { margin:10px 0 2px; }
+  .switch-track.disabled { opacity:0.4; pointer-events:none; cursor:not-allowed; }
+  .gate-note { font-size:11px; color:var(--muted); margin-top:6px; }
+
+  @media (max-width:560px){ .form-grid { grid-template-columns:1fr; } .page-title { font-size:26px; } .main { padding:24px 18px 70px; } }
+</style>
+</head>
+<body>
+
+<!-- ══ LOGIN ══ -->
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-eyebrow">The Founder's Sprint</div>
+    <div class="login-title">Founder Portal</div>
+    <div class="login-rule"><div class="geo-line"></div></div>
+
+    <div id="login-form">
+      <input class="login-input" type="email" id="login-email" placeholder="Email address" autocomplete="email">
+      <input class="login-input" type="password" id="login-password" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')signIn()">
+      <button class="btn-login" onclick="signIn()">Enter</button>
+      <div class="login-error" id="login-error"></div>
+      <a class="login-link" onclick="showResetForm()">Forgot password?</a>
+      <span style="color:var(--border-hi)"> · </span>
+      <a class="login-link" href="beta/register.html">Create account</a>
+    </div>
+
+    <div id="reset-form" style="display:none">
+      <input class="login-input" type="email" id="reset-email" placeholder="Email address" autocomplete="email">
+      <button class="btn-login" onclick="sendPasswordReset()">Send reset link</button>
+      <div class="login-error" id="reset-error"></div>
+      <div class="login-success" id="reset-success">Reset link sent — check your inbox.</div>
+      <a class="login-link" onclick="showLoginForm()">← Back to sign in</a>
+    </div>
+  </div>
+</div>
+
+<!-- ══ APP ══ -->
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-mark"><svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.85"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.80" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.78" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.82" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg></div>
+      <span class="topbar-logo">Founder's Sprint</span>
+      <div class="topbar-sep"></div>
+      <span class="topbar-sub">Founder</span>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-user" id="user-email"></span>
+      <div style="position:relative" id="avatar-wrap">
+        <button class="avatar-btn" id="avatar-btn" onclick="document.getElementById('avatar-wrap').classList.toggle('open')">?</button>
+        <div class="avatar-dd">
+          <div class="avatar-dd-email" id="avatar-email"></div>
+          <a style="color:var(--text)" onclick="switchTab('profile');document.getElementById('avatar-wrap').classList.remove('open')">My Profile</a>
+          <a style="color:var(--text)" onclick="showChangePassword();document.getElementById('avatar-wrap').classList.remove('open')">Change Password</a>
+          <a style="color:var(--danger)" onmousedown="event.stopPropagation();signOut()">Sign Out</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tabs-wrap">
+    <button class="tab active" onclick="switchTab('overview')">Overview</button>
+    <button class="tab" onclick="switchTab('dataroom')">Data Room</button>
+    <button class="tab" onclick="switchTab('sessions')">Sessions</button>
+    <button class="tab" onclick="switchTab('payments')">Payments</button>
+    <button class="tab" onclick="switchTab('profile')">Profile</button>
+  </div>
+
+  <div class="main">
+
+    <!-- ── OVERVIEW ── -->
+    <div class="tab-panel active" id="panel-overview">
+      <div class="page-eyebrow">Your journey</div>
+      <div class="page-title" id="ov-greeting">Welcome</div>
+      <div class="page-sub">Your data room grows with every coaching session. Each completed discipline is a vetted, investor-ready signal — the gaps below are your roadmap.</div>
+
+      <!-- ── JOURNEY TIMELINE ── -->
+      <div class="timeline-card">
+        <div class="tl-head">
+          <span class="tl-title">Your TFS journey</span>
+          <span class="tl-track" id="tl-track">—</span>
+        </div>
+        <div class="tl-meta" id="tl-meta"></div>
+        <div class="tl-scroll"><div class="tl-track-row" id="tl-row"></div></div>
+        <div class="tl-legend">
+          <span class="tl-leg"><span class="tl-leg-dot" style="background:var(--terra)"></span>Completed (coach-verified)</span>
+          <span class="tl-leg"><span class="tl-leg-dot" style="background:var(--bg);border:2px solid var(--terra)"></span>In your plan</span>
+          <span class="tl-leg"><span class="tl-leg-dot" style="background:rgba(26,26,26,0.04);border:2px solid var(--paper-mid,#C0B8A8);filter:grayscale(1);opacity:0.6"></span>Not enrolled</span>
+        </div>
+      </div>
+
+      <div class="card card-top">
+        <div class="readiness">
+          <div class="ring-wrap">
+            <svg width="140" height="140" viewBox="0 0 140 140">
+              <circle cx="70" cy="70" r="60" fill="none" stroke="var(--border)" stroke-width="12"/>
+              <circle id="ring-prog" cx="70" cy="70" r="60" fill="none" stroke="var(--terra)" stroke-width="12" stroke-linecap="butt" stroke-dasharray="376.99" stroke-dashoffset="376.99" style="transition:stroke-dashoffset 0.8s ease"/>
+            </svg>
+            <div class="ring-center">
+              <div class="ring-pct" id="ring-pct">0%</div>
+              <div class="ring-cap">Readiness</div>
+            </div>
+          </div>
+          <div class="readiness-copy">
+            <h3 id="ready-head">Let's build your data room</h3>
+            <p id="ready-copy">Complete coaching sessions across all five disciplines to reach an investor-ready 100%.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">Courses Complete</div><div class="stat-value" id="ov-complete">—</div><div class="stat-sub" id="ov-complete-sub">L3 modules</div></div>
+        <div class="stat-card"><div class="stat-label">Data Room</div><div class="stat-value gold" id="ov-dataroom">—</div><div class="stat-sub">documents ready</div></div>
+        <div class="stat-card"><div class="stat-label">Sessions Attended</div><div class="stat-value green" id="ov-sessions">—</div></div>
+        <div class="stat-card"><div class="stat-label">Next Session</div><div class="stat-value" id="ov-next" style="font-size:18px;line-height:1.2">—</div></div>
+      </div>
+
+      <div class="section-title">Recommended next step</div>
+      <div id="ov-nudge"></div>
+    </div>
+
+    <!-- ── DATA ROOM ── -->
+    <div class="tab-panel" id="panel-dataroom">
+      <div class="page-eyebrow">Investor-ready</div>
+      <div class="page-title">Your Data Room</div>
+      <div class="page-sub">Every deliverable here was produced under expert coaching and is structured to a standard investors trust. Green is complete, amber is in progress, grey is still to come.</div>
+
+      <div class="card card-top">
+        <div style="font-family:var(--sans);font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--ink-mid);margin-bottom:12px">Due-diligence completeness</div>
+        <div class="dr-overall">
+          <div class="dr-pct" id="dr-pct">0%</div>
+          <div style="flex:1;min-width:200px">
+            <div class="pbar"><div class="pbar-fill" id="dr-bar" style="width:0%"></div></div>
+            <div class="gate-note" id="dr-overall-note"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
+        <div style="max-width:520px">
+          <div style="font-family:var(--display);font-size:18px;font-weight:600;margin-bottom:3px">Shareable investor access</div>
+          <div style="font-size:12.5px;color:var(--ink-mid);line-height:1.5">When enabled, approved investors on the platform get <strong>read-only</strong> access to your standardised profile and vetted deliverables. Unlocks once your data room reaches 75%. You stay in control — switch it off anytime.</div>
+          <div class="gate-note" id="gate-note"></div>
+        </div>
+        <div class="switch">
+          <span style="font-size:11px;color:var(--muted)" id="share-label">Private</span>
+          <div class="switch-track disabled" id="share-toggle" onclick="toggleShare()"><div class="switch-knob"></div></div>
+        </div>
+      </div>
+
+      <div class="disc-grid" id="disc-grid"></div>
+    </div>
+
+    <!-- ── SESSIONS ── -->
+    <div class="tab-panel" id="panel-sessions">
+      <div class="page-eyebrow">Your calendar</div>
+      <div class="page-title">Sessions</div>
+      <div class="page-sub">Upcoming coaching sessions, prep materials, and your session history.</div>
+
+      <div class="section-title">Book a 1:1</div>
+      <div class="card card-top">
+        <div style="font-size:12.5px;color:var(--ink-mid);line-height:1.5;margin-bottom:14px">Choose a discipline, then pick a slot inside that coach's stated availability. Group cohort sessions (Mon–Fri 10:00–12:00 EAT) run automatically and aren't booked here.</div>
+        <div id="book-disciplines" style="display:flex;flex-wrap:wrap;gap:8px;margin-bottom:6px"></div>
+        <div id="book-slots"></div>
+      </div>
+
+      <div class="section-title">Upcoming</div>
+      <div class="card" id="sessions-upcoming"></div>
+      <div class="section-title">Past sessions</div>
+      <div class="card" id="sessions-past"></div>
+    </div>
+
+    <!-- ── PAYMENTS ── -->
+    <div class="tab-panel" id="panel-payments">
+      <div class="page-eyebrow">Billing</div>
+      <div class="page-title">Payments</div>
+      <div class="page-sub">Your enrollment, deposits, and outstanding balance.</div>
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">Programme Fee</div><div class="stat-value" id="pay-fee">—</div></div>
+        <div class="stat-card"><div class="stat-label">Paid</div><div class="stat-value green" id="pay-paid">—</div></div>
+        <div class="stat-card"><div class="stat-label">Balance Due</div><div class="stat-value orange" id="pay-balance">—</div></div>
+      </div>
+      <div class="section-title">Enrollment</div>
+      <div class="card" id="pay-list"></div>
+    </div>
+
+    <!-- ── PROFILE ── -->
+    <div class="tab-panel" id="panel-profile">
+      <div class="page-eyebrow">About you</div>
+      <div class="page-title">Your Profile</div>
+      <div class="page-sub">This is what coaches see before your sessions, and what powers your data room. Keep it current.</div>
+      <div class="card card-top">
+        <form id="profile-form" onsubmit="return saveProfile(event)">
+          <div class="form-grid">
+            <div class="field"><label>First name</label><input id="p-first" type="text"></div>
+            <div class="field"><label>Last name</label><input id="p-last" type="text"></div>
+            <div class="field"><label>Email</label><input id="p-email" type="email" disabled style="opacity:0.6"></div>
+            <div class="field"><label>Phone</label><input id="p-phone" type="tel" placeholder="+256 7XX XXX XXX"></div>
+            <div class="field"><label>WhatsApp</label><input id="p-whatsapp" type="tel" placeholder="+256 7XX XXX XXX"></div>
+            <div class="field"><label>Company / Venture</label><input id="p-company" type="text"></div>
+            <div class="field"><label>Sector</label><input id="p-sector" type="text" placeholder="e.g. Agritech"></div>
+            <div class="field"><label>Stage</label>
+              <select id="p-stage">
+                <option value="idea">Idea</option>
+                <option value="mvp">MVP / Prototype</option>
+                <option value="early_revenue">Early revenue</option>
+                <option value="growth">Growth</option>
+                <option value="scaling">Scaling</option>
+              </select>
+            </div>
+            <div class="field"><label>City</label><input id="p-city" type="text"></div>
+            <div class="field"><label>Country</label><input id="p-country" type="text"></div>
+            <div class="field full"><label>One-line bio</label><input id="p-bio" type="text" placeholder="What you're building, in a sentence"></div>
+            <div class="field"><label>LinkedIn URL</label><input id="p-linkedin" type="url" placeholder="https://linkedin.com/in/..."></div>
+            <div class="field"><label>Website</label><input id="p-website" type="url" placeholder="https://..."></div>
+          </div>
+          <div style="margin-top:20px;display:flex;align-items:center;gap:14px">
+            <button class="btn" type="submit" id="p-save">Save Profile</button>
+            <span style="font-size:11px;color:var(--muted)" id="p-completeness"></span>
+          </div>
+        </form>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- CHANGE PASSWORD MODAL -->
+<div class="modal" id="password-modal">
+  <div class="modal-card">
+    <h3>Change password</h3>
+    <input class="login-input" type="password" id="new-password" placeholder="New password (min 8 chars)">
+    <input class="login-input" type="password" id="confirm-password" placeholder="Confirm new password">
+    <div class="login-error" id="password-error"></div>
+    <div style="display:flex;gap:10px;margin-top:14px">
+      <button class="btn" onclick="changePassword()">Update</button>
+      <button class="btn btn-ghost" onclick="closePasswordModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+const SUPABASE_URL  = 'https://ivedeivyotwevjxvcuoe.supabase.co';
+const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss';
+
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
+  auth: { detectSessionInUrl: true, autoRefreshToken: true, persistSession: true }
+});
+
+window.requestIdleCallback = window.requestIdleCallback || function(cb, opts){ return setTimeout(() => cb({didTimeout:false,timeRemaining:()=>50}), opts?.timeout||1); };
+
+// ── STATE ──
+let profile = null;
+let deliverables = [];
+let myRegs = [];
+let mySessions = [];
+let courseProgress = [];
+let completedCourses = new Set();
+let coaches = [];
+let bookingCoach = null;
+
+// ── DISCIPLINE MODEL (CLAUDE.md §4) ──
+// Full taxonomy mirrors beta/explore/explore.js. idx = explore L1 index (used for course-progress).
+// dd = the due-diligence documents that make up the investor data room for this discipline.
+// LOCKED cohort schedule: each discipline has a fixed weekday + lead coach (group sessions 10:00–12:00 EAT,
+// every weekday). Display order is by dayNum (Mon→Fri). See CLAUDE.md "Cohort Coaching Schedule (LOCKED)".
+const DISCIPLINES = [
+  { key:'marketing', idx:0, label:'Marketing & Branding', day:'Monday', dayNum:1, coach:'Teddy', color:'#C8531F',
+    dd:['Go-to-market strategy','Brand positioning'],
+    nudge:'Marketing & Branding runs Mondays with Teddy — define your go-to-market and positioning.',
+    l2:[ {name:'Brand Strategy', l3:['Brand Positioning','Messaging Architecture','Visual Identity']},
+         {name:'Go-to-Market', l3:['Market Entry','Channel Mix','Launch Sequencing']},
+         {name:'Growth & Discovery', l3:['Content Strategy','SEO & Discoverability','Customer Research']} ] },
+  { key:'financial', idx:1, label:'Financial Modelling', day:'Tuesday', dayNum:2, coach:'Barry', color:'#C9923A',
+    dd:['Financial model','Unit economics'],
+    nudge:'Financial Modelling runs Tuesdays with Barry — a model and unit economics are what investors open first.',
+    l2:[ {name:'Unit Economics', l3:['CAC & LTV','Payback Period','Contribution Margin']},
+         {name:'Financial Planning', l3:['Revenue Forecasting','Burn Rate & Runway','Cash Flow Management']},
+         {name:'Capital Architecture', l3:['Valuation Methods','Cap Table Design','Term Sheet Analysis']} ] },
+  { key:'investment', idx:2, label:'Investment Readiness', day:'Wednesday', dayNum:3, coach:'Joseph', color:'#8AAB5C',
+    dd:['Pitch deck','Fundraising strategy','Investor target list'],
+    nudge:'Investment Readiness runs Wednesdays with Joseph — produces a pitch deck and target list, and unlocks investor visibility.',
+    l2:[ {name:'Pitch Craft', l3:['Pitch Deck Structure','Investor Narrative','Executive Summary']},
+         {name:'Investor Relations', l3:['Investor Targeting','Due Diligence Prep','Data Room']},
+         {name:'Funding Strategy', l3:['Pre-seed Rounds','Seed Rounds','Grants & DFIs']} ] },
+  { key:'strategy', idx:3, label:'Strategy & Team Building', day:'Thursday', dayNum:4, coach:'Moses', color:'#3D4A2E',
+    dd:['Competitive analysis','Team & org plan'],
+    nudge:'Strategy & Team runs Thursdays with Moses — map your competition and team structure.',
+    l2:[ {name:'Competitive Strategy', l3:['Market Analysis','Positioning & Moats','Scenario Planning']},
+         {name:'Team Architecture', l3:['Hiring Strategy','Culture Design','Org Structure']},
+         {name:'Operational Systems', l3:['Process Design','OKRs & KPIs','Decision Frameworks']} ] },
+  { key:'product', idx:4, label:'Product Development & Pricing', day:'Friday', dayNum:5, coach:'Patrick', color:'#A59B8C',
+    dd:['Product roadmap','Pricing strategy','Product-market fit'],
+    nudge:'Product Dev & Pricing runs Fridays with Patrick — sharpen your roadmap and pricing.',
+    l2:[ {name:'Product-Market Fit', l3:['Problem Validation','Solution Testing','PMF Signals']},
+         {name:'Product Development', l3:['MVP Design','Roadmapping','Iteration Cycles']},
+         {name:'Pricing Strategy', l3:['Value-Based Pricing','Competitive Pricing','Price Testing']} ] }
+];
+const DD_TOTAL = DISCIPLINES.reduce((a,d)=>a+d.dd.length,0); // total due-diligence docs across all 5
+const INVESTOR_GATE = 75; // % of data room required to unlock investor visibility
+
+function disciplineOf(text){
+  if(!text) return null;
+  const t = String(text).toLowerCase();
+  for(const d of DISCIPLINES){
+    if(t.includes(d.key)) return d.key;
+    if(t.includes(d.label.toLowerCase().split(' ')[0])) return d.key;
+  }
+  if(t.includes('market')||t.includes('brand')||t.includes('gtm')) return 'marketing';
+  if(t.includes('financ')||t.includes('unit econ')||t.includes('model')) return 'financial';
+  if(t.includes('strateg')||t.includes('team')||t.includes('competit')||t.includes('org')) return 'strategy';
+  if(t.includes('invest')||t.includes('pitch')||t.includes('fundrais')||t.includes('deck')) return 'investment';
+  if(t.includes('product')||t.includes('pricing')||t.includes('roadmap')||t.includes('pmf')) return 'product';
+  return null;
+}
+
+// ════ AUTH (Safari-safe layer, mirrors dashboard.html) ════
+const _SB_KEY = 'sb-' + SUPABASE_URL.split('//')[1].split('.')[0] + '-auth-token';
+let _refreshPromise = null, currentSession = null, booted = false;
+
+function _getStoredSession(){ try { return JSON.parse(localStorage.getItem(_SB_KEY)||'{}'); } catch { return {}; } }
+function _isTokenExpired(s){ const e=s.expires_at; if(!e) return true; return (Date.now()/1000) > (e-60); }
+
+async function _refreshToken(){
+  if(_refreshPromise) return _refreshPromise;
+  _refreshPromise = (async () => {
+    const stored = _getStoredSession();
+    const rt = stored.refresh_token;
+    if(!rt) throw new Error('No refresh token — please sign in again');
+    const res = await fetch(SUPABASE_URL + '/auth/v1/token?grant_type=refresh_token', {
+      method:'POST', headers:{ 'apikey':SUPABASE_ANON, 'Content-Type':'application/json' },
+      body: JSON.stringify({ refresh_token: rt })
+    });
+    if(!res.ok){ localStorage.removeItem(_SB_KEY); throw new Error('Session expired — please sign in again'); }
+    const session = await res.json();
+    localStorage.setItem(_SB_KEY, JSON.stringify(session));
+    currentSession = session;
+    return session.access_token;
+  })();
+  try { return await _refreshPromise; } finally { _refreshPromise = null; }
+}
+
+async function _getValidToken(){
+  if(currentSession?.access_token){
+    const e = currentSession.expires_at;
+    if(e && (Date.now()/1000) < (e-60)) return currentSession.access_token;
+  }
+  const stored = _getStoredSession();
+  if(stored.access_token && !_isTokenExpired(stored)) return stored.access_token;
+  try { return await _refreshToken(); }
+  catch(err){
+    showToast('Your session has expired. Signing you out…','error');
+    setTimeout(()=>{ booted=false; document.getElementById('app').style.display='none'; document.getElementById('login-screen').style.display='flex'; }, 1500);
+    throw err;
+  }
+}
+
+async function _pgQuery(table, params){
+  const token = await _getValidToken();
+  const res = await fetch(SUPABASE_URL + '/rest/v1/' + table + '?' + params, {
+    headers: { 'apikey':SUPABASE_ANON, 'Authorization':'Bearer '+token }
+  });
+  if(!res.ok){ const txt = await res.text(); throw new Error('Query failed ('+res.status+'): '+txt); }
+  return res.json();
+}
+
+async function _pgWrite(method, table, params, body){
+  const token = await _getValidToken();
+  const res = await fetch(SUPABASE_URL + '/rest/v1/' + table + (params?('?'+params):''), {
+    method,
+    headers: { 'apikey':SUPABASE_ANON, 'Authorization':'Bearer '+token, 'Content-Type':'application/json', 'Prefer':'return=representation' },
+    body: body ? JSON.stringify(body) : undefined
+  });
+  if(!res.ok){ const txt = await res.text(); throw new Error('Write failed ('+res.status+'): '+txt); }
+  const txt = await res.text();
+  return txt ? JSON.parse(txt) : null;
+}
+
+// ── sign in / out / reset ──
+async function signIn(){
+  const email = document.getElementById('login-email').value.trim();
+  const password = document.getElementById('login-password').value;
+  const errEl = document.getElementById('login-error');
+  const btn = document.querySelector('.btn-login');
+  errEl.textContent = '';
+  if(!email||!password){ errEl.textContent='Please enter email and password'; return; }
+  try {
+    btn.disabled = true; btn.textContent = 'Signing in…';
+    const { data, error } = await sb.auth.signInWithPassword({ email, password });
+    if(error){ errEl.textContent = error.message; return; }
+  } catch(err){ errEl.textContent = err.message || 'Sign-in failed'; }
+  finally { btn.disabled = false; btn.textContent = 'Enter'; }
+}
+function showResetForm(){ document.getElementById('login-form').style.display='none'; document.getElementById('reset-form').style.display='block'; document.getElementById('reset-email').value = document.getElementById('login-email').value||''; }
+function showLoginForm(){ document.getElementById('reset-form').style.display='none'; document.getElementById('login-form').style.display='block'; }
+async function sendPasswordReset(){
+  const email = document.getElementById('reset-email').value.trim();
+  const errEl = document.getElementById('reset-error');
+  errEl.textContent='';
+  if(!email){ errEl.textContent='Please enter your email address'; return; }
+  const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + '/founder.html' });
+  if(error){ errEl.textContent = error.message; return; }
+  document.getElementById('reset-success').style.display='block';
+}
+function signOut(){ localStorage.removeItem(_SB_KEY); try{ sb.auth.signOut().catch(()=>{}); }catch(e){} window.location.reload(); }
+
+function showChangePassword(){ const m=document.getElementById('password-modal'); m.classList.add('open'); document.getElementById('new-password').value=''; document.getElementById('confirm-password').value=''; document.getElementById('password-error').textContent=''; }
+function closePasswordModal(){ document.getElementById('password-modal').classList.remove('open'); }
+async function changePassword(){
+  const pw=document.getElementById('new-password').value, conf=document.getElementById('confirm-password').value, err=document.getElementById('password-error');
+  err.textContent='';
+  if(pw.length<8){ err.textContent='Password must be at least 8 characters'; return; }
+  if(pw!==conf){ err.textContent='Passwords do not match'; return; }
+  const { error } = await sb.auth.updateUser({ password: pw });
+  if(error){ err.textContent = error.message; return; }
+  closePasswordModal(); showToast('Password updated','success');
+}
+
+// ── auth state ──
+sb.auth.onAuthStateChange((event, session) => {
+  currentSession = session;
+  if(event==='PASSWORD_RECOVERY' && session){ bootApp(session.user).then(()=>{ showChangePassword(); showToast('Set your new password below','info'); }); return; }
+  if((event==='SIGNED_IN'||event==='INITIAL_SESSION') && session){ bootApp(session.user); }
+});
+// Fast-path (Safari): boot from localStorage immediately
+(async () => {
+  try {
+    const stored = _getStoredSession();
+    const user = stored.user || (stored.currentSession && stored.currentSession.user);
+    if(!user || booted) return;
+    if(_isTokenExpired(stored)){ try { await _refreshToken(); } catch(e){ return; } }
+    if(!booted) bootApp(user);
+  } catch(e){}
+})();
+sb.auth.getSession().then(({ data:{ session } }) => { if(session && !booted){ currentSession = session; bootApp(session.user); } });
+
+// ════ BOOT ════
+async function bootApp(user){
+  if(booted || !user) return;
+  booted = true;
+  try {
+    document.getElementById('login-screen').style.display='none';
+    document.getElementById('app').style.display='block';
+    document.getElementById('user-email').textContent = user.email;
+    document.getElementById('avatar-email').textContent = user.email;
+    document.getElementById('avatar-btn').textContent = (user.email||'?')[0].toUpperCase();
+    document.addEventListener('click', (e)=>{ const w=document.getElementById('avatar-wrap'); if(w && !w.contains(e.target)) w.classList.remove('open'); });
+    await ensureProfile(user);
+    await loadAll(user);
+    sb.auth.refreshSession().catch(()=>{});
+  } catch(err){ console.error('[Boot] crash:', err); showToast('Could not load your dashboard — '+err.message,'error'); }
+}
+
+// Self-heal: ensure a founder_profiles row exists for this user, hydrate from registration if present
+async function ensureProfile(user){
+  let rows = await _pgQuery('founder_profiles', 'user_id=eq.'+user.id+'&limit=1');
+  if(rows && rows.length){ profile = rows[0]; return; }
+  // No profile — look for a matching registration by email
+  let reg = null;
+  try {
+    const regs = await _pgQuery('registrations', 'email=eq.'+encodeURIComponent(user.email)+'&order=created_at.desc&limit=1');
+    reg = regs && regs[0];
+  } catch(e){ /* RLS may block until founder_id linked; ignore */ }
+  const meta = user.user_metadata || {};
+  const payload = {
+    user_id: user.id,
+    email: user.email,
+    first_name: (reg && reg.first_name) || meta.first_name || '',
+    last_name:  (reg && reg.last_name)  || meta.last_name  || '',
+    phone:      (reg && reg.phone) || meta.phone || null,
+    company_name: (reg && reg.company) || meta.company || null,
+    sector:     (reg && reg.sector) || null
+  };
+  const created = await _pgWrite('POST', 'founder_profiles', '', payload);
+  profile = Array.isArray(created) ? created[0] : created;
+  // Link the registration back to this founder + auth user
+  if(reg && profile){
+    try { await _pgWrite('PATCH', 'registrations', 'id=eq.'+reg.id, { founder_id: profile.id, user_id: user.id }); } catch(e){}
+  }
+}
+
+async function loadAll(user){
+  const results = await Promise.allSettled([
+    _pgQuery('founder_deliverables', 'founder_id=eq.'+profile.id+'&order=created_at.desc'),
+    _pgQuery('registrations', 'or=(user_id.eq.'+user.id+',founder_id.eq.'+profile.id+')&order=created_at.desc'),
+    _pgQuery('session_attendees', 'user_id=eq.'+user.id+'&select=attended,sessions(id,title,description,scheduled_at,status,meet_link,duration_minutes)'),
+    _pgQuery('founder_course_progress', 'founder_id=eq.'+profile.id+'&select=course_label,status'),
+    _pgQuery('coaches', 'select=id,first_name,last_name,user_id,sector_l1,avatar_url&status=eq.active&order=id')
+  ]);
+  deliverables = results[0].status==='fulfilled' ? (results[0].value||[]) : [];
+  myRegs       = results[1].status==='fulfilled' ? (results[1].value||[]) : [];
+  const att    = results[2].status==='fulfilled' ? (results[2].value||[]) : [];
+  mySessions   = att.map(a => Object.assign({ attended:a.attended }, a.sessions)).filter(s => s && s.id);
+  courseProgress = results[3].status==='fulfilled' ? (results[3].value||[]) : [];
+  completedCourses = new Set(courseProgress.filter(c => c.status==='complete').map(c => c.course_label));
+  coaches = results[4].status==='fulfilled' ? (results[4].value||[]) : [];
+
+  renderTimeline(); renderOverview(); renderDataRoom(); renderSessions(); renderPayments(); renderBooking(); fillProfile();
+}
+
+// ════ RENDER ════
+function enrolledSet(){ return new Set(profile.enrolled_disciplines || []); }
+function simil(a,b){ a=String(a||'').toLowerCase().trim(); b=String(b||'').toLowerCase().trim(); return !!a && !!b && (a===b || a.includes(b) || b.includes(a)); }
+
+// Due-diligence completeness across ALL five disciplines (the investor data-room metric)
+function dataRoomStats(){
+  const per = {}; let earned = 0;
+  DISCIPLINES.forEach(d => {
+    const vetted = deliverables.filter(x => disciplineOf(x.discipline||x.title)===d.key
+      && ['complete','completed','vetted','final','published','approved'].includes(String(x.status||'').toLowerCase())).length;
+    const count = Math.min(vetted, d.dd.length);
+    earned += count;
+    per[d.key] = { vetted, count, total:d.dd.length, pct: Math.round(count/d.dd.length*100) };
+  });
+  const pct = Math.round(earned / DD_TOTAL * 100);
+  return { earned, total:DD_TOTAL, pct, per, eligible: pct >= INVESTOR_GATE };
+}
+
+function trackInfo(){
+  const enrolled = profile.enrolled_disciplines || [];
+  const track = (myRegs[0]||{}).track;
+  const labels = { single:'Single Session', pick3:'Pick 3 Bundle', cohort:'Full Cohort', group:'Full Cohort', vip:'VIP Track', vip1on1:'VIP 1-on-1' };
+  let label = labels[track];
+  if(!label){ label = enrolled.length>=5 ? 'Full Cohort' : enrolled.length===3 ? 'Pick 3 Bundle' : enrolled.length===1 ? 'Single Session' : 'Not enrolled'; }
+  return { label, enrolledCount: enrolled.length };
+}
+
+// Linear journey timeline: 45 L3 courses across the 5 disciplines, in teaching-week order.
+function renderTimeline(){
+  const enrolled = enrolledSet();
+  const ti = trackInfo();
+  const enrolledCourses = DISCIPLINES.filter(d=>enrolled.has(d.key)).reduce((a,d)=>a+d.l2.reduce((b,x)=>b+x.l3.length,0),0);
+  document.getElementById('tl-track').textContent = ti.label;
+  document.getElementById('tl-meta').textContent = enrolledCourses
+    ? (completedCourses.size+' of '+enrolledCourses+' courses complete · '+ti.enrolledCount+' of 5 disciplines in your plan')
+    : 'No courses enrolled yet — explore the curriculum to begin your journey.';
+
+  const byWeek = [...DISCIPLINES].sort((a,b)=>a.dayNum-b.dayNum);
+  document.getElementById('tl-row').innerHTML = byWeek.map(d => {
+    const isEnrolled = enrolled.has(d.key);
+    const nodes = []; d.l2.forEach(l2 => l2.l3.forEach(l3 => nodes.push(l3)));
+    const nodeHtml = nodes.map((l3,i) => {
+      const done = isEnrolled && completedCourses.has(l3);
+      const cls = !isEnrolled ? 'locked' : done ? 'complete enrolled' : 'enrolled';
+      const st  = !isEnrolled ? 'Not enrolled' : done ? 'Completed' : 'In your plan';
+      const conn = i>0 ? '<span class="tl-conn'+(done?' done':'')+'"></span>' : '';
+      return conn + '<span class="tl-node-wrap"><span class="tl-node '+cls+'" style="--node-c:'+d.color+'">'
+        + '<span class="tl-tip"><b>'+esc(l3)+'</b><span class="tip-st">'+st+'</span></span></span></span>';
+    }).join('');
+    return '<div class="tl-disc '+(isEnrolled?'':'locked')+'">'
+      + '<div class="tl-disc-label" style="'+(isEnrolled?'color:'+d.color:'')+'">'+esc(d.label)+'</div>'
+      + '<div class="tl-disc-week">'+d.day+' · '+esc(d.coach)+'</div>'
+      + '<div class="tl-nodes">'+nodeHtml+'</div></div>';
+  }).join('');
+}
+
+function renderOverview(){
+  const dr = dataRoomStats();
+  const enrolled = enrolledSet();
+  const C = 2*Math.PI*60;
+  const ring = document.getElementById('ring-prog');
+  ring.style.strokeDashoffset = (C * (1 - dr.pct/100)).toFixed(2);
+  ring.setAttribute('stroke', dr.eligible ? 'var(--success)' : 'var(--terra)');
+  document.getElementById('ring-pct').textContent = dr.pct + '%';
+  const cap = document.querySelector('.ring-cap'); if(cap) cap.textContent = 'Data Room';
+  const name = (profile.first_name||'').trim();
+  document.getElementById('ov-greeting').textContent = name ? ('Welcome, ' + name) : 'Welcome';
+
+  const nextDoc = DISCIPLINES.find(d => enrolled.has(d.key) && dr.per[d.key].count < dr.per[d.key].total);
+  let head, copy;
+  if(dr.pct===0){ head='Let’s build your data room'; copy='Complete coaching sessions and upload deliverables to build an investor-ready data room.'; }
+  else if(dr.eligible){ head='Your data room is investor-ready'; copy='You’ve crossed '+INVESTOR_GATE+'%. Switch on investor access in your Data Room to become visible to investors on the platform.'; }
+  else { head=dr.pct+'% data-room complete'; copy='You’re '+(INVESTOR_GATE-dr.pct)+' points from unlocking investor visibility ('+INVESTOR_GATE+'%). '+(nextDoc?nextDoc.nudge:''); }
+  document.getElementById('ready-head').textContent = head;
+  document.getElementById('ready-copy').textContent = copy;
+
+  const enrolledCourses = DISCIPLINES.filter(d=>enrolled.has(d.key)).reduce((a,d)=>a+d.l2.reduce((b,x)=>b+x.l3.length,0),0);
+  document.getElementById('ov-complete').textContent = completedCourses.size;
+  document.getElementById('ov-complete-sub').textContent = enrolledCourses ? ('of '+enrolledCourses+' enrolled') : 'L3 modules';
+  document.getElementById('ov-dataroom').textContent = dr.pct + '%';
+  document.getElementById('ov-sessions').textContent = mySessions.filter(s=>s.attended || s.status==='completed').length;
+  const upcoming = upcomingSessions();
+  document.getElementById('ov-next').textContent = upcoming.length ? fmtDate(upcoming[0].scheduled_at) : 'None booked';
+
+  // nudge = first enrolled discipline with incomplete docs, else first non-enrolled discipline
+  const incomplete = nextDoc || DISCIPLINES.find(d => !enrolled.has(d.key));
+  const nudgeEl = document.getElementById('ov-nudge');
+  if(incomplete){
+    const why = enrolled.has(incomplete.key) ? incomplete.nudge : ('Not in your current plan. Adding '+incomplete.label+' would complete your data room — '+incomplete.nudge);
+    nudgeEl.innerHTML = '<div class="card" style="border-left:3px solid '+incomplete.color+'">'
+      + '<div style="font-family:var(--display);font-size:20px;font-weight:600;margin-bottom:4px">'+esc(incomplete.label)+'</div>'
+      + '<div style="font-size:13px;color:var(--ink-mid);line-height:1.5;margin-bottom:14px">'+esc(why)+'</div>'
+      + '<a class="btn" href="beta/book/index.html" style="text-decoration:none;display:inline-block">Book this session</a></div>';
+  } else {
+    nudgeEl.innerHTML = '<div class="card" style="border-left:3px solid var(--success)"><div style="font-size:13px;color:var(--ink-mid)">Your data room is complete across all five disciplines. Keep deliverables current as your venture evolves.</div></div>';
+  }
+}
+
+function renderDataRoom(){
+  const dr = dataRoomStats();
+  const enrolled = enrolledSet();
+
+  document.getElementById('dr-pct').textContent = dr.pct + '%';
+  const bar = document.getElementById('dr-bar');
+  bar.style.width = dr.pct + '%';
+  bar.classList.toggle('met', dr.eligible);
+  document.getElementById('dr-overall-note').textContent =
+    dr.earned + ' of ' + dr.total + ' due-diligence documents vetted across all five disciplines'
+    + (dr.eligible ? ' — investor access unlocked.' : ' — ' + (INVESTOR_GATE - dr.pct) + ' points to unlock investor access.');
+
+  const grid = document.getElementById('disc-grid');
+  grid.innerHTML = DISCIPLINES.map(d => {
+    const items = deliverables.filter(x => disciplineOf(x.discipline||x.title)===d.key);
+    const isEnrolled = enrolled.has(d.key);
+    const p = dr.per[d.key];
+    const state = (p.count>=p.total && p.total>0) ? 'complete' : items.length ? 'progress' : 'missing';
+    const stClass = state==='complete'?'st-complete':state==='progress'?'st-progress':'st-missing';
+    const stLabel = !isEnrolled ? 'Not enrolled' : state==='complete'?'Complete':state==='progress'?'In progress':'Not started';
+    const rows = d.dd.map(docName => {
+      const match = items.find(x => simil(x.title, docName));
+      if(match){
+        const dn = ['complete','completed','vetted','final','published','approved'].includes(String(match.status||'').toLowerCase());
+        return '<div class="deliv-row"><span class="deliv-dot '+(dn?'done':'prog')+'"></span>'
+          + '<span class="deliv-name">'+esc(docName)+'</span>'
+          + (match.file_url ? '<a class="deliv-link" href="'+esc(match.file_url)+'" target="_blank">Open</a>' : '<span class="pill pill-orange">Draft</span>') + '</div>';
+      }
+      return '<div class="deliv-row deliv-missing"><span class="deliv-dot"></span><span class="deliv-name">'+esc(docName)+'</span></div>';
+    }).join('');
+    const mini = '<div class="disc-mini"><div class="pbar"><div class="pbar-fill'+((p.count>=p.total&&p.total>0)?' met':'')+'" style="width:'+p.pct+'%"></div></div></div>';
+    const nudge = (isEnrolled && state!=='complete') ? '<div class="disc-nudge">'+esc(d.nudge)+'</div>'
+                : (!isEnrolled ? '<div class="disc-nudge">Not in your current plan. Add '+esc(d.label)+' to complete your data room.</div>' : '');
+    return '<div class="disc-card" style="border-left-color:'+(isEnrolled?d.color:'var(--paper-mid,#C0B8A8)')+';'+(isEnrolled?'':'opacity:0.72')+'">'
+      + '<div class="disc-head"><span class="disc-week">'+d.day+' · '+esc(d.coach)+' · '+p.count+'/'+p.total+' docs</span><span class="disc-status '+stClass+'">'+stLabel+'</span></div>'
+      + '<div class="disc-name">'+esc(d.label)+'</div>'+mini+rows+nudge+'</div>';
+  }).join('');
+
+  // gated share toggle
+  const tog = document.getElementById('share-toggle');
+  const on = !!profile.data_room_shared;
+  tog.classList.toggle('on', on);
+  tog.classList.toggle('disabled', !dr.eligible && !on);
+  document.getElementById('share-label').textContent = on ? 'Shared (read-only)' : 'Private';
+  document.getElementById('gate-note').textContent = dr.eligible
+    ? (on ? 'Investors with platform access can view your vetted data room (read-only).' : 'Eligible — switch on to grant investors read-only access.')
+    : 'Locked · reach '+INVESTOR_GATE+'% to unlock (currently '+dr.pct+'%).';
+}
+
+async function toggleShare(){
+  const dr = dataRoomStats();
+  if(!profile.data_room_shared && !dr.eligible){
+    showToast('Investor access unlocks at '+INVESTOR_GATE+'% — your data room is at '+dr.pct+'%.','info');
+    return;
+  }
+  const next = !profile.data_room_shared;
+  const tog = document.getElementById('share-toggle');
+  tog.classList.toggle('on', next);
+  document.getElementById('share-label').textContent = next ? 'Shared (read-only)' : 'Private';
+  try {
+    await _pgWrite('PATCH', 'founder_profiles', 'id=eq.'+profile.id, { data_room_shared: next, investor_visible: next });
+    profile.data_room_shared = next; profile.investor_visible = next;
+    renderDataRoom();
+    showToast(next ? 'Investors can now view your data room (read-only)' : 'Your data room is private','success');
+  } catch(e){
+    tog.classList.toggle('on', !next);
+    document.getElementById('share-label').textContent = !next ? 'Shared (read-only)' : 'Private';
+    showToast('Could not update sharing — '+e.message,'error');
+  }
+}
+
+function upcomingSessions(){
+  const now = Date.now();
+  return mySessions.filter(s => s.scheduled_at && new Date(s.scheduled_at).getTime() >= now && s.status!=='cancelled')
+                   .sort((a,b)=> new Date(a.scheduled_at) - new Date(b.scheduled_at));
+}
+function pastSessions(){
+  const now = Date.now();
+  return mySessions.filter(s => !s.scheduled_at || new Date(s.scheduled_at).getTime() < now || s.status==='completed')
+                   .sort((a,b)=> new Date(b.scheduled_at||0) - new Date(a.scheduled_at||0));
+}
+
+function renderSessions(){
+  const up = upcomingSessions(), past = pastSessions();
+  const upEl = document.getElementById('sessions-upcoming');
+  if(!up.length){ upEl.innerHTML = emptyState('No upcoming sessions','Book a coaching session to start building your data room.'); }
+  else { upEl.innerHTML = up.map(s =>
+      '<div class="list-row"><div><div class="list-main">'+esc(s.title||'Coaching session')+'</div>'
+      + '<div class="list-sub">'+fmtDateTime(s.scheduled_at)+(s.duration_minutes?(' · '+s.duration_minutes+' min'):'')+'</div></div>'
+      + (s.meet_link ? '<a class="btn btn-ghost" href="'+esc(s.meet_link)+'" target="_blank" style="text-decoration:none">Join</a>' : '<span class="pill pill-terra">Scheduled</span>')
+      + '</div>').join(''); }
+  const pastEl = document.getElementById('sessions-past');
+  if(!past.length){ pastEl.innerHTML = emptyState('No past sessions yet',''); }
+  else { pastEl.innerHTML = past.map(s =>
+      '<div class="list-row"><div><div class="list-main">'+esc(s.title||'Coaching session')+'</div>'
+      + '<div class="list-sub">'+fmtDateTime(s.scheduled_at)+'</div></div>'
+      + '<span class="pill '+(s.attended?'pill-green':'pill-grey')+'">'+(s.attended?'Attended':(s.status||'Done'))+'</span></div>').join(''); }
+}
+
+function renderPayments(){
+  const fee = myRegs.reduce((a,r)=>a+(r.full_fee||0),0);
+  const paid = myRegs.reduce((a,r)=>a+((r.deposit_paid?r.deposit_amount||0:0)+(r.balance_paid?r.balance_amount||0:0)),0);
+  const bal = myRegs.reduce((a,r)=>a+((!r.balance_paid?(r.balance_amount||0):0)+(!r.deposit_paid?(r.deposit_amount||0):0)),0);
+  document.getElementById('pay-fee').textContent = fee?ugx(fee):'—';
+  document.getElementById('pay-paid').textContent = ugx(paid);
+  document.getElementById('pay-balance').textContent = ugx(bal);
+  const el = document.getElementById('pay-list');
+  if(!myRegs.length){ el.innerHTML = emptyState('No enrollment on file','Once you register and pay a deposit, it appears here.'); return; }
+  el.innerHTML = myRegs.map(r => {
+    const status = (r.deposit_paid && r.balance_paid) ? ['pill-green','Fully paid']
+      : r.deposit_paid ? ['pill-orange','Deposit paid'] : ['pill-grey','Unpaid'];
+    return '<div class="list-row"><div><div class="list-main">'+esc(trackLabel(r.track))+'</div>'
+      + '<div class="list-sub">Fee '+ugx(r.full_fee||0)+' · Deposit '+ugx(r.deposit_amount||0)+' · Balance '+ugx(r.balance_amount||0)+'</div></div>'
+      + '<span class="pill '+status[0]+'">'+status[1]+'</span></div>';
+  }).join('');
+}
+
+// ── 1:1 BOOKING ──
+function coachForDiscipline(key){
+  const d = DISCIPLINES.find(x=>x.key===key); if(!d) return null;
+  return coaches.find(c => String(c.first_name||'').toLowerCase() === d.coach.toLowerCase()) || null;
+}
+let bookAvail = [];
+function renderBooking(){
+  const wrap = document.getElementById('book-disciplines'); if(!wrap) return;
+  wrap.innerHTML = DISCIPLINES.map(d => {
+    const c = coachForDiscipline(d.key);
+    const active = bookingCoach && bookingCoach.key===d.key;
+    return '<button class="btn '+(active?'':'btn-ghost')+'" '
+      + (c ? 'onclick="selectBookingDiscipline(\''+d.key+'\')"' : 'disabled title="Coach not configured"')
+      + ' style="border-left:3px solid '+d.color+'">'+esc(d.label)+'</button>';
+  }).join('');
+  if(!bookingCoach) document.getElementById('book-slots').innerHTML = '<div style="font-size:12px;color:var(--muted);padding:6px 2px">Select a discipline to see available 1:1 slots.</div>';
+}
+async function selectBookingDiscipline(key){
+  const d = DISCIPLINES.find(x=>x.key===key);
+  const c = coachForDiscipline(key);
+  if(!c){ showToast('No coach is configured for '+d.label+' yet.','info'); return; }
+  bookingCoach = { key, coach:c, disc:d };
+  renderBooking();
+  document.getElementById('book-slots').innerHTML = '<div style="font-size:12px;color:var(--muted);padding:6px 2px">Loading '+esc(c.first_name)+'’s availability…</div>';
+  try { bookAvail = await _pgQuery('coach_availability', 'coach_id=eq.'+c.id+'&is_active=eq.true&select=day_of_week,start_time,end_time'); }
+  catch(e){ bookAvail = []; }
+  renderSlots();
+}
+function renderSlots(){
+  const el = document.getElementById('book-slots'); if(!bookingCoach) return;
+  if(!bookAvail.length){ el.innerHTML = '<div style="font-size:12px;color:var(--muted);padding:6px 2px">'+esc(bookingCoach.coach.first_name)+' hasn’t published 1:1 availability yet.</div>'; return; }
+  const slots = []; const now = Date.now();
+  for(let i=0;i<28;i++){
+    const day = new Date(); day.setDate(day.getDate()+i);
+    const dow = day.getDay();
+    bookAvail.filter(w=>w.day_of_week===dow).forEach(w=>{
+      const [sh,sm] = w.start_time.split(':').map(Number);
+      const [eh,em] = w.end_time.split(':').map(Number);
+      let mins = sh*60+sm; const endMins = eh*60+em;
+      while(mins+60 <= endMins){
+        const hh = String(Math.floor(mins/60)).padStart(2,'0'), mm = String(mins%60).padStart(2,'0');
+        const y = day.getFullYear(), mo = String(day.getMonth()+1).padStart(2,'0'), dd = String(day.getDate()).padStart(2,'0');
+        const iso = y+'-'+mo+'-'+dd+'T'+hh+':'+mm+':00+03:00';
+        if(new Date(iso).getTime() > now){
+          const clash = mySessions.some(s=>s.scheduled_at && Math.abs(new Date(s.scheduled_at)-new Date(iso))<30*60000);
+          if(!clash) slots.push({ iso, label:hh+':'+mm, dateKey:y+'-'+mo+'-'+dd, date:new Date(day) });
+        }
+        mins += 60;
+      }
+    });
+  }
+  if(!slots.length){ el.innerHTML = '<div style="font-size:12px;color:var(--muted);padding:6px 2px">No open slots in the next four weeks.</div>'; return; }
+  const byDate = {};
+  slots.forEach(s=>{ (byDate[s.dateKey]=byDate[s.dateKey]||{date:s.date,items:[]}).items.push(s); });
+  const keys = Object.keys(byDate).sort().slice(0,14);
+  el.innerHTML = '<div style="font-size:11px;color:var(--muted);margin:4px 0 12px">'+esc(bookingCoach.coach.first_name)+' · '+esc(bookingCoach.disc.label)+' · 60-min 1:1, times in EAT</div>'
+    + keys.map(k=>{
+      const g = byDate[k];
+      const dlabel = g.date.toLocaleDateString('en-GB',{weekday:'short',day:'numeric',month:'short'});
+      return '<div style="margin-bottom:12px"><div style="font-family:var(--sans);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-mid);margin-bottom:6px">'+dlabel+'</div>'
+        + '<div style="display:flex;flex-wrap:wrap;gap:6px">'
+        + g.items.map(s=>'<button class="btn btn-ghost" onclick="bookSlot(\''+s.iso+'\')">'+s.label+'</button>').join('')
+        + '</div></div>';
+    }).join('');
+}
+async function bookSlot(iso){
+  if(!bookingCoach) return;
+  const c = bookingCoach.coach, d = bookingCoach.disc;
+  const when = new Date(iso).toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'});
+  if(!confirm('Book a 1:1 on '+d.label+' with '+c.first_name+' at '+when+' EAT?')) return;
+  try {
+    const sess = await _pgWrite('POST','sessions','', {
+      coach_id: c.user_id, session_type:'individual',
+      title: d.label+' 1:1 — '+((profile.company_name||((profile.first_name||'')+' '+(profile.last_name||''))).trim()),
+      scheduled_at: iso, duration_minutes:60, created_by: profile.user_id, status:'scheduled'
+    });
+    const s = Array.isArray(sess)?sess[0]:sess;
+    if(s && s.id){
+      await _pgWrite('POST','session_attendees','', { session_id:s.id, email:profile.email, name:((profile.first_name||'')+' '+(profile.last_name||'')).trim(), user_id:profile.user_id });
+      mySessions.push(Object.assign({attended:false}, s));
+    }
+    showToast('Booked with '+c.first_name+' on '+new Date(iso).toLocaleDateString('en-GB',{day:'numeric',month:'short'}),'success');
+    renderSessions(); renderSlots();
+  } catch(e){
+    const msg = e.message||'';
+    if(msg.includes('outside')) showToast('That time is outside the coach’s availability — pick another slot.','error');
+    else if(msg.includes('already booked')) showToast('That slot was just taken — pick another.','error');
+    else showToast('Booking failed — '+msg,'error');
+  }
+}
+
+function fillProfile(){
+  const g = (id,v)=>{ document.getElementById(id).value = v||''; };
+  g('p-first',profile.first_name); g('p-last',profile.last_name); g('p-email',profile.email);
+  g('p-phone',profile.phone); g('p-whatsapp',profile.whatsapp); g('p-company',profile.company_name);
+  g('p-sector',profile.sector); g('p-city',profile.city); g('p-country',profile.country);
+  g('p-bio',profile.bio); g('p-linkedin',profile.linkedin_url); g('p-website',profile.website_url);
+  document.getElementById('p-stage').value = profile.stage || 'idea';
+  updateProfCompleteness();
+}
+function updateProfCompleteness(){
+  const fields = ['first_name','last_name','phone','company_name','sector','city','country','bio'];
+  const filled = fields.filter(f => (profile[f]||'').toString().trim()).length;
+  document.getElementById('p-completeness').textContent = filled+' of '+fields.length+' key fields complete';
+}
+
+async function saveProfile(e){
+  e.preventDefault();
+  const btn = document.getElementById('p-save');
+  const v = id => document.getElementById(id).value.trim() || null;
+  const payload = {
+    first_name:v('p-first'), last_name:v('p-last'), phone:v('p-phone'), whatsapp:v('p-whatsapp'),
+    company_name:v('p-company'), sector:v('p-sector'), stage:document.getElementById('p-stage').value,
+    city:v('p-city'), country:v('p-country'), bio:v('p-bio'), linkedin_url:v('p-linkedin'), website_url:v('p-website'),
+    updated_at: new Date().toISOString()
+  };
+  try {
+    btn.disabled = true; btn.textContent = 'Saving…';
+    const updated = await _pgWrite('PATCH', 'founder_profiles', 'id=eq.'+profile.id, payload);
+    profile = Object.assign(profile, Array.isArray(updated)?updated[0]:updated);
+    updateProfCompleteness();
+    renderOverview();
+    showToast('Profile saved','success');
+  } catch(err){ showToast('Save failed — '+err.message,'error'); }
+  finally { btn.disabled = false; btn.textContent = 'Save Profile'; }
+  return false;
+}
+
+// ── UI helpers ──
+function switchTab(name){
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
+  const idx = ['overview','dataroom','sessions','payments','profile'].indexOf(name);
+  if(idx>=0) document.querySelectorAll('.tab')[idx].classList.add('active');
+  document.getElementById('panel-'+name).classList.add('active');
+  window.scrollTo(0,0);
+}
+function emptyState(title, sub){ return '<div class="empty"><div class="empty-mark">◇</div><div style="font-weight:600;color:var(--ink-mid)">'+esc(title)+'</div>'+(sub?'<div style="margin-top:4px">'+esc(sub)+'</div>':'')+'</div>'; }
+function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+function ugx(n){ n=Number(n)||0; return 'UGX ' + n.toLocaleString('en-US'); }
+function trackLabel(t){ return ({ single:'Single Session', pick3:'Pick 3 Bundle', cohort:'Full Cohort', group:'Group Track', vip:'VIP Track', vip1on1:'VIP 1-on-1' })[t] || (t? t.charAt(0).toUpperCase()+t.slice(1) : 'Enrollment'); }
+function fmtDate(d){ if(!d) return '—'; return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short'}); }
+function fmtDateTime(d){ if(!d) return 'Date TBC'; return new Date(d).toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}); }
+function showToast(msg, type){ const t=document.getElementById('toast'); t.textContent=msg; t.className=type||'info'; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3200); }
+</script>
+</body>
+</html>
