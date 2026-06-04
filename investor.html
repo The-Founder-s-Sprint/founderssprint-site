@@ -83,7 +83,13 @@
   .pill-green{background:rgba(10,143,100,.14);color:var(--success);} .pill-grey{background:rgba(26,26,26,.07);color:var(--muted);}
   #toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:#fff;padding:13px 22px;font-size:13px;opacity:0;transition:all .3s;z-index:2000;}
   #toast.show{transform:translateX(-50%) translateY(0);opacity:1;} #toast.error{background:#DC3545;}
-  @media(max-width:560px){.main{padding:24px 18px 70px;}.page-title{font-size:26px;}}
+  .kpi-liner{font-family:var(--display);font-size:19px;font-style:italic;line-height:1.45;color:var(--text);margin-bottom:14px;}
+  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:8px;}
+  .kpi-card{background:var(--card);border:1px solid var(--border);border-left:2px solid var(--terra);padding:13px 15px;}
+  .kpi-val{font-family:var(--display);font-size:22px;font-weight:600;line-height:1.15;color:var(--text);}
+  .kpi-lab{font-family:var(--sans);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:5px;}
+  .kpi-sub{font-size:11px;color:var(--success);margin-top:4px;}
+  @media(max-width:560px){.main{padding:24px 18px 70px;}.page-title{font-size:26px;}.kpi-grid{grid-template-columns:repeat(2,1fr);}}
 </style>
 </head>
 <body>
@@ -221,6 +227,27 @@ function readinessPct(cid){ const req=taxonomy.filter(t=>t.required); let e=0; r
 function vettedCount(cid){ return (filesByCompany[cid]||[]).length + (delivByCompany[cid]||[]).filter(d=>isVetted(d.status)).length; }
 function drCategories(){ const m={}; taxonomy.forEach(t=>{(m[t.category_key]=m[t.category_key]||{key:t.category_key,label:t.category_label,sort:t.sort_order,items:[]}).items.push(t);}); return Object.values(m).sort((a,b)=>a.sort-b.sort); }
 
+// ── Investor snapshot (founder-curated highlights) ──
+function compactMoney(amt,cur){ amt=Number(amt)||0; cur=cur||'UGX'; const a=Math.abs(amt);
+  const s=a>=1e9?(amt/1e9).toFixed(amt%1e9?1:0)+'B':a>=1e6?(amt/1e6).toFixed(amt%1e6?1:0)+'M':a>=1e3?(amt/1e3).toFixed(0)+'k':String(amt); return cur+' '+s; }
+function prettyStage(s){ return String(s||'').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()); }
+function kpiCard(val,lab,sub){ return '<div class="kpi-card"><div class="kpi-val">'+esc(val)+'</div><div class="kpi-lab">'+esc(lab)+'</div>'+(sub?'<div class="kpi-sub">'+esc(sub)+'</div>':'')+'</div>'; }
+function highlightBlock(c){
+  const h=c.highlights||{}; const cards=[];
+  if(c.sector) cards.push(kpiCard(c.sector,'Sector'));
+  if(c.stage)  cards.push(kpiCard(prettyStage(c.stage),'Stage'));
+  if(h.revenue_amount) cards.push(kpiCard(compactMoney(h.revenue_amount,h.revenue_currency),(h.revenue_period==='monthly'?'Monthly':'Annual')+' revenue', h.revenue_growth_pct?('▲ '+h.revenue_growth_pct+'% YoY'):''));
+  if(h.customers!=null && h.customers!=='') cards.push(kpiCard(h.customers,'Customers'));
+  if(h.profitability) cards.push(kpiCard(h.profitability,'Profitability', h.gross_margin_pct?(h.gross_margin_pct+'% gross margin'):''));
+  if(h.team_size) cards.push(kpiCard(h.team_size,'Team'));
+  if(h.funding_raised) cards.push(kpiCard(h.funding_raised,'Raised to date'));
+  if(h.funding_seeking) cards.push(kpiCard(h.funding_seeking,'Seeking'));
+  if(h.markets) cards.push(kpiCard(h.markets,'Markets'));
+  if(h.founded_year) cards.push(kpiCard(h.founded_year,'Founded'));
+  if(cards.length<=2 && !h.one_liner) return '';
+  return (h.one_liner?'<div class="kpi-liner">“'+esc(h.one_liner)+'”</div>':'')+'<div class="kpi-grid">'+cards.join('')+'</div>';
+}
+
 function renderList(){
   const grid=document.getElementById('deal-grid');
   if(!companies.length){ grid.innerHTML='<div class="empty"><div class="empty-mark">◇</div><div style="font-weight:600;color:var(--ink-mid)">No founders are investor-visible yet</div><div style="margin-top:6px">Companies appear here once a founder opts in and reaches a complete data room.</div></div>'; return; }
@@ -268,6 +295,8 @@ function openCompany(cid){
     +'<div class="page-eyebrow">Founder data room</div>'
     +'<div class="page-title">'+esc(c.name||'—')+'<span class="ro-badge">Read-only</span></div>'
     +'<div class="page-sub">'+esc(c.bio||'')+'</div>'
+    +(highlightBlock(c)?'<div class="section-title">At a glance</div>'+highlightBlock(c):'')
+    +'<div class="section-title">Profile</div>'
     +'<div class="card card-top"><div class="kv">'
       +'<div><div class="k">Founder</div><div class="v">'+esc(((fp.first_name||'')+' '+(fp.last_name||'')).trim()||'—')+'</div></div>'
       +'<div><div class="k">Sector</div><div class="v">'+esc(c.sector||'—')+'</div></div>'

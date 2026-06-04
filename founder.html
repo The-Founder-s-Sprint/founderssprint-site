@@ -224,7 +224,19 @@
   .src-badge.coach { color:var(--terra); background:var(--gold-dim); }
   .up-btn { font-family:var(--sans); font-size:9px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:#fff; background:var(--terra); padding:6px 11px; cursor:pointer; white-space:nowrap; }
   .up-btn:hover { background:var(--terra-deep); }
-  @media (max-width:560px){ .form-grid { grid-template-columns:1fr; } .page-title { font-size:26px; } .main { padding:24px 18px 70px; } .doc-name { font-size:12px; } }
+  /* Investor snapshot KPI cards */
+  .kpi-liner { font-family:var(--display); font-size:18px; font-style:italic; line-height:1.45; color:var(--text); margin-bottom:14px; }
+  .kpi-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(150px,1fr)); gap:12px; }
+  .kpi-card { background:var(--bg); border:1px solid var(--border); border-left:2px solid var(--terra); padding:13px 15px; }
+  .kpi-val { font-family:var(--display); font-size:21px; font-weight:600; line-height:1.15; color:var(--text); }
+  .kpi-lab { font-family:var(--sans); font-size:9.5px; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink-mid); margin-top:5px; }
+  .kpi-sub { font-size:11px; color:var(--success); margin-top:4px; }
+  .hl-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:12px; }
+  .hl-f { display:flex; flex-direction:column; gap:5px; }
+  .hl-f span { font-family:var(--sans); font-size:9.5px; letter-spacing:0.1em; text-transform:uppercase; color:var(--ink-mid); }
+  .hl-f input, .hl-f select { font-family:var(--body); font-size:13px; padding:8px 10px; background:var(--bg); border:1px solid var(--border); color:var(--text); }
+  .hl-f input:focus, .hl-f select:focus { outline:none; border-color:var(--terra); }
+  @media (max-width:560px){ .form-grid { grid-template-columns:1fr; } .page-title { font-size:26px; } .main { padding:24px 18px 70px; } .doc-name { font-size:12px; } .kpi-grid { grid-template-columns:repeat(2,1fr); } }
 </style>
 </head>
 <body>
@@ -363,6 +375,8 @@
           </div>
         </div>
       </div>
+
+      <div id="dr-highlights"></div>
 
       <div class="card" style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap">
         <div style="max-width:520px">
@@ -926,6 +940,7 @@ function renderDataRoomLocked(){
   document.getElementById('dr-pct').textContent = '—';
   const pbar = document.getElementById('dr-bar'); pbar.style.width = '0%'; pbar.classList.remove('met');
   document.getElementById('dr-overall-note').textContent = 'Your data room activates after your first course booking.';
+  const hl = document.getElementById('dr-highlights'); if(hl) hl.innerHTML = '';
   document.getElementById('dr-vault').innerHTML =
     '<div class="cat-card" style="text-align:center;padding:40px 24px">'
     + '<div style="font-size:32px;margin-bottom:10px">🔒</div>'
@@ -961,6 +976,8 @@ function renderDataRoom(){
   document.getElementById('dr-overall-note').textContent =
     dr.earned + ' of ' + dr.total + ' required documents in place'
     + (dr.eligible ? ' — investor access unlocked.' : ' — ' + (INVESTOR_GATE - dr.pct) + ' points to unlock investor access.');
+
+  renderHighlights();
 
   // vault by DD category (cohort upsell banner first, when applicable)
   vault.innerHTML = upsellBanner() + drCategories().map(cat => {
@@ -1008,6 +1025,104 @@ async function switchCompany(id){
   company = c;
   try { drFiles = await _pgQuery('data_room_files','company_id=eq.'+company.id+'&order=created_at.desc'); } catch(e){ drFiles=[]; }
   renderTimeline(); renderOverview(); renderDataRoom();
+}
+
+// ── Investor snapshot (founder-curated highlights) ──
+function compactMoney(amt, cur){
+  amt = Number(amt)||0; cur = cur||'UGX';
+  const a = Math.abs(amt);
+  const s = a>=1e9 ? (amt/1e9).toFixed(amt%1e9?1:0)+'B'
+          : a>=1e6 ? (amt/1e6).toFixed(amt%1e6?1:0)+'M'
+          : a>=1e3 ? (amt/1e3).toFixed(0)+'k' : String(amt);
+  return cur+' '+s;
+}
+function prettyStage(s){ return String(s||'').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()); }
+function kpiCard(val, lab, sub){
+  return '<div class="kpi-card"><div class="kpi-val">'+esc(val)+'</div><div class="kpi-lab">'+esc(lab)+'</div>'
+    + (sub?'<div class="kpi-sub">'+esc(sub)+'</div>':'')+'</div>';
+}
+function highlightCards(c){
+  const h = c.highlights || {};
+  const cards = [];
+  if(c.sector) cards.push(kpiCard(c.sector,'Sector'));
+  if(c.stage)  cards.push(kpiCard(prettyStage(c.stage),'Stage'));
+  if(h.revenue_amount) cards.push(kpiCard(compactMoney(h.revenue_amount,h.revenue_currency),(h.revenue_period==='monthly'?'Monthly':'Annual')+' revenue', h.revenue_growth_pct?('▲ '+h.revenue_growth_pct+'% YoY'):''));
+  if(h.customers!=null && h.customers!=='') cards.push(kpiCard(h.customers,'Customers'));
+  if(h.profitability) cards.push(kpiCard(h.profitability,'Profitability', h.gross_margin_pct?(h.gross_margin_pct+'% gross margin'):''));
+  if(h.team_size) cards.push(kpiCard(h.team_size,'Team'));
+  if(h.funding_raised) cards.push(kpiCard(h.funding_raised,'Raised to date'));
+  if(h.funding_seeking) cards.push(kpiCard(h.funding_seeking,'Seeking'));
+  if(h.markets) cards.push(kpiCard(h.markets,'Markets'));
+  if(h.founded_year) cards.push(kpiCard(h.founded_year,'Founded'));
+  return { cards, liner: h.one_liner||'' };
+}
+
+function renderHighlights(){
+  const el = document.getElementById('dr-highlights'); if(!el) return;
+  if(!company){ el.innerHTML=''; return; }
+  const hc = highlightCards(company);
+  const hasAny = hc.cards.length>2 || hc.liner;
+  el.innerHTML = '<div class="card card-top">'
+    + '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:'+(hasAny?'12px':'4px')+'">'
+    +   '<div style="font-family:var(--sans);font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--ink-mid)">Investor snapshot</div>'
+    +   '<button class="btn-ghost" style="padding:6px 12px;font-size:10px" onclick="editHighlights()">'+(hasAny?'Edit':'Add highlights')+'</button>'
+    + '</div>'
+    + (hc.liner?'<div class="kpi-liner">“'+esc(hc.liner)+'”</div>':'')
+    + (hc.cards.length?'<div class="kpi-grid">'+hc.cards.join('')+'</div>'
+        : '<div style="font-size:12.5px;color:var(--ink-mid);line-height:1.5">Add a quick-glance snapshot — revenue, traction, customers, team — so investors can size you up before opening a single document. <span style="color:var(--muted)">AI auto-fill from your documents is coming soon.</span></div>')
+    + '</div>';
+}
+
+function editHighlights(){
+  const h = (company && company.highlights) || {};
+  const f = (id,label,val,type,ph)=>'<label class="hl-f"><span>'+label+'</span><input id="hl-'+id+'" type="'+(type||'text')+'" value="'+esc(val==null?'':val)+'" placeholder="'+(ph||'')+'"></label>';
+  const sel = (id,label,val,opts)=>'<label class="hl-f"><span>'+label+'</span><select id="hl-'+id+'">'+opts.map(o=>'<option'+(o===val?' selected':'')+'>'+o+'</option>').join('')+'</select></label>';
+  document.getElementById('dr-highlights').innerHTML = '<div class="card card-top">'
+    + '<div style="font-family:var(--display);font-size:18px;font-weight:600;margin-bottom:4px">Investor snapshot</div>'
+    + '<div style="font-size:12px;color:var(--ink-mid);margin-bottom:16px">You control exactly what investors see at a glance. Leave a field blank to hide its card.</div>'
+    + '<label class="hl-f" style="grid-column:1/-1"><span>One-line pitch</span><input id="hl-one_liner" type="text" value="'+esc(h.one_liner||'')+'" placeholder="What you do, in one sentence"></label>'
+    + '<div class="hl-grid">'
+    +   f('revenue_amount','Revenue (amount)',h.revenue_amount,'number','480000000')
+    +   sel('revenue_period','Period',h.revenue_period||'annual',['annual','monthly'])
+    +   sel('revenue_currency','Currency',h.revenue_currency||'UGX',['UGX','USD','KES'])
+    +   f('revenue_growth_pct','Growth % (YoY)',h.revenue_growth_pct,'number','140')
+    +   f('customers','Customers',h.customers,'text','32 SME manufacturers')
+    +   sel('profitability','Profitability',h.profitability||'Pre-revenue',['Pre-revenue','Pre-profit','Break-even','Profitable'])
+    +   f('gross_margin_pct','Gross margin %',h.gross_margin_pct,'number','52')
+    +   f('team_size','Team size',h.team_size,'number','14')
+    +   f('funding_raised','Raised to date',h.funding_raised,'text','USD 250k pre-seed')
+    +   f('funding_seeking','Seeking',h.funding_seeking,'text','USD 1.2M seed')
+    +   f('founded_year','Founded',h.founded_year,'number','2023')
+    +   f('markets','Markets',h.markets,'text','Uganda, Kenya')
+    + '</div>'
+    + '<div style="display:flex;gap:10px;margin-top:16px"><button class="btn" style="padding:9px 18px;font-size:11px" onclick="saveHighlights()">Save snapshot</button>'
+    +   '<button class="btn-ghost" style="padding:9px 18px;font-size:11px" onclick="renderHighlights()">Cancel</button></div>'
+    + '</div>';
+}
+
+async function saveHighlights(){
+  if(!company) return;
+  const num = id => { const v=document.getElementById('hl-'+id).value.trim(); return v===''?undefined:(isNaN(Number(v))?v:Number(v)); };
+  const txt = id => { const v=document.getElementById('hl-'+id).value.trim(); return v===''?undefined:v; };
+  const val = id => document.getElementById('hl-'+id).value;
+  const h = {};
+  const ol=txt('one_liner'); if(ol) h.one_liner=ol;
+  const rev=num('revenue_amount'); if(rev!=null){ h.revenue_amount=rev; h.revenue_period=val('revenue_period'); h.revenue_currency=val('revenue_currency'); }
+  const g=num('revenue_growth_pct'); if(g!=null) h.revenue_growth_pct=g;
+  const cu=txt('customers'); if(cu) h.customers=cu;
+  h.profitability=val('profitability');
+  const gm=num('gross_margin_pct'); if(gm!=null) h.gross_margin_pct=gm;
+  const ts=num('team_size'); if(ts!=null) h.team_size=ts;
+  const fr=txt('funding_raised'); if(fr) h.funding_raised=fr;
+  const fs=txt('funding_seeking'); if(fs) h.funding_seeking=fs;
+  const fy=num('founded_year'); if(fy!=null) h.founded_year=fy;
+  const mk=txt('markets'); if(mk) h.markets=mk;
+  try {
+    await _pgWrite('PATCH','companies','id=eq.'+company.id,{ highlights:h, updated_at:new Date().toISOString() });
+    company.highlights = h;
+    renderHighlights();
+    showToast('Investor snapshot saved','success');
+  } catch(e){ showToast('Could not save — '+e.message,'error'); }
 }
 
 async function uploadDoc(catKey,itemKey,input){
