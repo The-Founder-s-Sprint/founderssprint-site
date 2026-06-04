@@ -210,7 +210,21 @@
   .switch-track.disabled { opacity:0.4; pointer-events:none; cursor:not-allowed; }
   .gate-note { font-size:11px; color:var(--muted); margin-top:6px; }
 
-  @media (max-width:560px){ .form-grid { grid-template-columns:1fr; } .page-title { font-size:26px; } .main { padding:24px 18px 70px; } }
+  /* ── DATA ROOM VAULT ── */
+  .cat-card { background:var(--card); border:1px solid var(--border); border-top:2px solid var(--paper-mid,#C0B8A8); padding:16px 20px; margin-bottom:14px; }
+  .cat-head { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:6px; }
+  .cat-name { font-family:var(--display); font-size:19px; font-weight:600; }
+  .cat-meta { font-family:var(--sans); font-size:9px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); }
+  .doc-row { display:flex; align-items:center; gap:10px; padding:9px 0; border-top:1px solid var(--border); }
+  .doc-row:first-of-type { border-top:none; }
+  .doc-name { flex:1; font-size:13px; display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .doc-right { display:flex; align-items:center; gap:8px; flex-shrink:0; }
+  .req-badge { font-family:var(--sans); font-size:7.5px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--terra); border:1px solid var(--terra); border-radius:2px; padding:1px 5px; }
+  .src-badge { font-family:var(--sans); font-size:7.5px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:var(--muted); background:rgba(26,26,26,0.05); border-radius:2px; padding:2px 6px; }
+  .src-badge.coach { color:var(--terra); background:var(--gold-dim); }
+  .up-btn { font-family:var(--sans); font-size:9px; font-weight:700; letter-spacing:0.08em; text-transform:uppercase; color:#fff; background:var(--terra); padding:6px 11px; cursor:pointer; white-space:nowrap; }
+  .up-btn:hover { background:var(--terra-deep); }
+  @media (max-width:560px){ .form-grid { grid-template-columns:1fr; } .page-title { font-size:26px; } .main { padding:24px 18px 70px; } .doc-name { font-size:12px; } }
 </style>
 </head>
 <body>
@@ -335,7 +349,9 @@
     <div class="tab-panel" id="panel-dataroom">
       <div class="page-eyebrow">Investor-ready</div>
       <div class="page-title">Your Data Room</div>
-      <div class="page-sub">Every deliverable here was produced under expert coaching and is structured to a standard investors trust. Green is complete, amber is in progress, grey is still to come.</div>
+      <div class="page-sub">A due-diligence vault investors trust. Coaching produces the strategic documents; you add the legal, statutory and operational records. Green = vetted/provided, amber = in progress, grey = still to come.</div>
+
+      <div id="company-bar" style="display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:16px"></div>
 
       <div class="card card-top">
         <div style="font-family:var(--sans);font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--ink-mid);margin-bottom:12px">Due-diligence completeness</div>
@@ -360,7 +376,7 @@
         </div>
       </div>
 
-      <div class="disc-grid" id="disc-grid"></div>
+      <div id="dr-vault"></div>
     </div>
 
     <!-- ── SESSIONS ── -->
@@ -488,6 +504,7 @@ let coaches = [];
 let coachTopics = [];
 let pricing = {};
 let cohortsById = {};
+let companies = [], company = null, taxonomy = [], drFiles = [];
 
 // ── DISCIPLINE MODEL (CLAUDE.md §4) ──
 // Full taxonomy mirrors beta/explore/explore.js. idx = explore L1 index (used for course-progress).
@@ -717,7 +734,9 @@ async function loadAll(user){
     _pgQuery('founder_course_progress', 'founder_id=eq.'+profile.id+'&select=course_label,status'),
     _pgQuery('coaches', 'select=id,first_name,last_name,user_id,sector_l1,avatar_url&status=eq.active&order=id'),
     _pgQuery('coach_topics', 'select=coach_id,discipline_key'),
-    _pgQuery('track_pricing', 'select=track_key,label,full_fee,deposit_pct')
+    _pgQuery('track_pricing', 'select=track_key,label,full_fee,deposit_pct'),
+    _pgQuery('companies', 'founder_id=eq.'+profile.id+'&order=is_primary.desc,created_at&select=*'),
+    _pgQuery('dr_taxonomy', 'select=*&order=sort_order,item_label')
   ]);
   deliverables = results[0].status==='fulfilled' ? (results[0].value||[]) : [];
   myRegs       = results[1].status==='fulfilled' ? (results[1].value||[]) : [];
@@ -729,6 +748,13 @@ async function loadAll(user){
   coachTopics = results[5].status==='fulfilled' ? (results[5].value||[]) : [];
   const pr = results[6].status==='fulfilled' ? (results[6].value||[]) : [];
   pricing = {}; pr.forEach(p => { pricing[p.track_key] = p; });
+  companies = results[7].status==='fulfilled' ? (results[7].value||[]) : [];
+  company   = companies.find(c => c.is_primary) || companies[0] || null;
+  taxonomy  = results[8].status==='fulfilled' ? (results[8].value||[]) : [];
+
+  // per-company data room files
+  drFiles = [];
+  if(company){ try { drFiles = await _pgQuery('data_room_files', 'company_id=eq.'+company.id+'&order=created_at.desc'); } catch(e){} }
 
   // cohorts for the founder's registrations (for the balance-due deadline)
   const cids = [...new Set(myRegs.map(r => r.cohort_id).filter(Boolean))];
@@ -739,21 +765,43 @@ async function loadAll(user){
 }
 
 // ════ RENDER ════
-function enrolledSet(){ return new Set(profile.enrolled_disciplines || []); }
+function enrolledSet(){ return new Set((company && company.enrolled_disciplines) || profile.enrolled_disciplines || []); }
+function isShared(){ return !!(company ? company.data_room_shared : profile.data_room_shared); }
 function simil(a,b){ a=String(a||'').toLowerCase().trim(); b=String(b||'').toLowerCase().trim(); return !!a && !!b && (a===b || a.includes(b) || b.includes(a)); }
 
 // Due-diligence completeness across ALL five disciplines (the investor data-room metric)
-function dataRoomStats(){
-  const per = {}; let earned = 0;
-  DISCIPLINES.forEach(d => {
-    const vetted = deliverables.filter(x => disciplineOf(x.discipline||x.title)===d.key
-      && ['complete','completed','vetted','final','published','approved'].includes(String(x.status||'').toLowerCase())).length;
-    const count = Math.min(vetted, d.dd.length);
-    earned += count;
-    per[d.key] = { vetted, count, total:d.dd.length, pct: Math.round(count/d.dd.length*100) };
-  });
-  const pct = Math.round(earned / DD_TOTAL * 100);
-  return { earned, total:DD_TOTAL, pct, per, eligible: pct >= INVESTOR_GATE };
+// ── Data-room readiness (full DD taxonomy: coach-produced + founder-uploaded) ──
+const VETTED = ['complete','completed','vetted','final','published','approved'];
+function isVetted(s){ return VETTED.includes(String(s||'').toLowerCase()); }
+// Resolve an item's state + the file backing it (coach deliverable or founder upload).
+function itemState(it){
+  if(it.source==='coach'){
+    const cf = drFiles.find(f => f.category_key===it.category_key && f.item_key===it.item_key && isVetted(f.status));
+    const del = deliverables.find(x => disciplineOf(x.discipline||x.title)===it.discipline_key && isVetted(x.status));
+    if(cf) return { st:'vetted', file:cf };
+    if(del) return { st:'vetted', file:del };
+    const draft = deliverables.find(x => disciplineOf(x.discipline||x.title)===it.discipline_key);
+    return { st: draft?'draft':'missing', file:draft||null };
+  }
+  const files = drFiles.filter(f => f.category_key===it.category_key && f.item_key===it.item_key);
+  const v = files.find(f => isVetted(f.status));
+  if(v) return { st:'vetted', file:v, files };
+  if(files.length) return { st:'uploaded', file:files[0], files };
+  return { st:'missing', file:null, files:[] };
+}
+function itemSatisfied(it){ const s=itemState(it).st; return s==='vetted' || (it.source==='founder' && s==='uploaded'); }
+function drReadiness(){
+  const req = taxonomy.filter(t => t.required);
+  let earned = 0; req.forEach(it => { if(itemSatisfied(it)) earned++; });
+  const total = req.length || 1;
+  const pct = Math.round(earned / total * 100);
+  return { earned, total: req.length, pct, eligible: pct >= INVESTOR_GATE };
+}
+// Categories grouped from the taxonomy, in sort order
+function drCategories(){
+  const map = {};
+  taxonomy.forEach(t => { (map[t.category_key] = map[t.category_key] || { key:t.category_key, label:t.category_label, sort:t.sort_order, items:[] }).items.push(t); });
+  return Object.values(map).sort((a,b)=>a.sort-b.sort);
 }
 
 function trackInfo(){
@@ -795,7 +843,7 @@ function renderTimeline(){
 }
 
 function renderOverview(){
-  const dr = dataRoomStats();
+  const dr = drReadiness();
   const enrolled = enrolledSet();
   const C = 2*Math.PI*60;
   const ring = document.getElementById('ring-prog');
@@ -806,11 +854,11 @@ function renderOverview(){
   const name = (profile.first_name||'').trim();
   document.getElementById('ov-greeting').textContent = name ? ('Welcome, ' + name) : 'Welcome';
 
-  const nextDoc = DISCIPLINES.find(d => enrolled.has(d.key) && dr.per[d.key].count < dr.per[d.key].total);
+  const miss = taxonomy.filter(t=>t.required).map(it=>({it,ok:itemSatisfied(it)})).find(o=>!o.ok);
   let head, copy;
-  if(dr.pct===0){ head='Let’s build your data room'; copy='Complete coaching sessions and upload deliverables to build an investor-ready data room.'; }
-  else if(dr.eligible){ head='Your data room is investor-ready'; copy='You’ve crossed '+INVESTOR_GATE+'%. Switch on investor access in your Data Room to become visible to investors on the platform.'; }
-  else { head=dr.pct+'% data-room complete'; copy='You’re '+(INVESTOR_GATE-dr.pct)+' points from unlocking investor visibility ('+INVESTOR_GATE+'%). '+(nextDoc?nextDoc.nudge:''); }
+  if(dr.pct===0){ head='Let’s build your data room'; copy='Complete coaching and upload your key documents to build an investor-ready data room.'; }
+  else if(dr.eligible){ head='Your data room is investor-ready'; copy='You’ve crossed '+INVESTOR_GATE+'%. Switch on investor access in your Data Room to become visible to investors.'; }
+  else { head=dr.pct+'% data-room complete'; copy='You’re '+(INVESTOR_GATE-dr.pct)+' points from unlocking investor visibility ('+INVESTOR_GATE+'%).'; }
   document.getElementById('ready-head').textContent = head;
   document.getElementById('ready-copy').textContent = copy;
 
@@ -822,61 +870,83 @@ function renderOverview(){
   const upcoming = upcomingSessions();
   document.getElementById('ov-next').textContent = upcoming.length ? fmtDate(upcoming[0].scheduled_at) : 'None booked';
 
-  // nudge = first enrolled discipline with incomplete docs, else first non-enrolled discipline
-  const incomplete = nextDoc || DISCIPLINES.find(d => !enrolled.has(d.key));
   const nudgeEl = document.getElementById('ov-nudge');
-  if(incomplete){
-    const why = enrolled.has(incomplete.key) ? incomplete.nudge : ('Not in your current plan. Adding '+incomplete.label+' would complete your data room — '+incomplete.nudge);
-    nudgeEl.innerHTML = '<div class="card" style="border-left:3px solid '+incomplete.color+'">'
-      + '<div style="font-family:var(--display);font-size:20px;font-weight:600;margin-bottom:4px">'+esc(incomplete.label)+'</div>'
-      + '<div style="font-size:13px;color:var(--ink-mid);line-height:1.5;margin-bottom:14px">'+esc(why)+'</div>'
-      + '<a class="btn" href="beta/book/index.html" style="text-decoration:none;display:inline-block">Book this session</a></div>';
+  if(miss){
+    const it = miss.it;
+    if(it.source==='coach'){
+      const d = DISCIPLINES.find(x=>x.key===it.discipline_key) || {label:'coaching',color:'#C8531F'};
+      nudgeEl.innerHTML = '<div class="card" style="border-left:3px solid '+(d.color||'#C8531F')+'">'
+        + '<div style="font-family:var(--display);font-size:20px;font-weight:600;margin-bottom:4px">'+esc(it.item_label)+'</div>'
+        + '<div style="font-size:13px;color:var(--ink-mid);line-height:1.5;margin-bottom:14px">Produced in '+esc(d.label)+' coaching. Book the session to add this to your data room.</div>'
+        + '<a class="btn" href="/beta/explore/index.html" style="text-decoration:none;display:inline-block">Book a course</a></div>';
+    } else {
+      nudgeEl.innerHTML = '<div class="card" style="border-left:3px solid #C8531F">'
+        + '<div style="font-family:var(--display);font-size:20px;font-weight:600;margin-bottom:4px">Upload: '+esc(it.item_label)+'</div>'
+        + '<div style="font-size:13px;color:var(--ink-mid);line-height:1.5;margin-bottom:14px">This document isn’t produced in coaching — add it to your data room to keep building toward investor-ready.</div>'
+        + '<a class="btn" href="#" onclick="switchTab(\'dataroom\');return false" style="text-decoration:none;display:inline-block">Go to Data Room</a></div>';
+    }
   } else {
-    nudgeEl.innerHTML = '<div class="card" style="border-left:3px solid var(--success)"><div style="font-size:13px;color:var(--ink-mid)">Your data room is complete across all five disciplines. Keep deliverables current as your venture evolves.</div></div>';
+    nudgeEl.innerHTML = '<div class="card" style="border-left:3px solid var(--success)"><div style="font-size:13px;color:var(--ink-mid)">Your required documents are all in place. Keep your data room current as your venture evolves.</div></div>';
   }
 }
 
 function renderDataRoom(){
-  const dr = dataRoomStats();
-  const enrolled = enrolledSet();
+  const vault = document.getElementById('dr-vault');
+  if(!company){ vault.innerHTML = emptyState('No company yet','Your data room is created with your first company.'); return; }
+  const dr = drReadiness();
 
+  // company bar
+  const bar = document.getElementById('company-bar');
+  if(bar){
+    const opts = companies.map(c => '<option value="'+c.id+'"'+(c.id===company.id?' selected':'')+'>'+esc(c.name||'Untitled')+(c.status==='archived'?' (archived)':'')+'</option>').join('');
+    bar.innerHTML = '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">'
+      + (companies.length>1
+          ? '<select onchange="switchCompany(this.value)" style="background:var(--bg);border:1px solid var(--border);padding:8px 12px;font-family:var(--display);font-size:18px;font-weight:600;color:var(--text)">'+opts+'</select>'
+          : '<span style="font-family:var(--display);font-size:20px;font-weight:600">'+esc(company.name||'Your venture')+'</span>')
+      + '<span class="pill pill-grey">'+esc(company.sector||'—')+'</span></div>'
+      + '<span style="font-size:11px;color:var(--muted)">Each company has its own data room.</span>';
+  }
+
+  // overall readiness
   document.getElementById('dr-pct').textContent = dr.pct + '%';
-  const bar = document.getElementById('dr-bar');
-  bar.style.width = dr.pct + '%';
-  bar.classList.toggle('met', dr.eligible);
+  const pbar = document.getElementById('dr-bar'); pbar.style.width = dr.pct + '%'; pbar.classList.toggle('met', dr.eligible);
   document.getElementById('dr-overall-note').textContent =
-    dr.earned + ' of ' + dr.total + ' due-diligence documents vetted across all five disciplines'
+    dr.earned + ' of ' + dr.total + ' required documents in place'
     + (dr.eligible ? ' — investor access unlocked.' : ' — ' + (INVESTOR_GATE - dr.pct) + ' points to unlock investor access.');
 
-  const grid = document.getElementById('disc-grid');
-  grid.innerHTML = DISCIPLINES.map(d => {
-    const items = deliverables.filter(x => disciplineOf(x.discipline||x.title)===d.key);
-    const isEnrolled = enrolled.has(d.key);
-    const p = dr.per[d.key];
-    const state = (p.count>=p.total && p.total>0) ? 'complete' : items.length ? 'progress' : 'missing';
-    const stClass = state==='complete'?'st-complete':state==='progress'?'st-progress':'st-missing';
-    const stLabel = !isEnrolled ? 'Not enrolled' : state==='complete'?'Complete':state==='progress'?'In progress':'Not started';
-    const rows = d.dd.map(docName => {
-      const match = items.find(x => simil(x.title, docName));
-      if(match){
-        const dn = ['complete','completed','vetted','final','published','approved'].includes(String(match.status||'').toLowerCase());
-        return '<div class="deliv-row"><span class="deliv-dot '+(dn?'done':'prog')+'"></span>'
-          + '<span class="deliv-name">'+esc(docName)+'</span>'
-          + (match.file_url ? '<a class="deliv-link" href="'+esc(match.file_url)+'" target="_blank">Open</a>' : '<span class="pill pill-orange">Draft</span>') + '</div>';
+  // vault by DD category
+  vault.innerHTML = drCategories().map(cat => {
+    const rows = cat.items.map(it => {
+      const s = itemState(it);
+      const dot = s.st==='vetted' ? 'done' : (s.st==='uploaded'||s.st==='draft') ? 'prog' : '';
+      const reqBadge = it.required ? '<span class="req-badge">Required</span>' : '';
+      const srcBadge = it.source==='coach' ? '<span class="src-badge coach">Coaching</span>' : '<span class="src-badge">You provide</span>';
+      const stPill = s.st==='vetted' ? '<span class="pill pill-green">Vetted</span>'
+        : s.st==='uploaded' ? '<span class="pill pill-terra">Uploaded</span>'
+        : s.st==='draft' ? '<span class="pill pill-orange">In progress</span>' : '<span class="pill pill-grey">Missing</span>';
+      let right;
+      if(it.source==='coach'){
+        if(s.file && s.file.file_url) right = '<a class="deliv-link" href="'+esc(s.file.file_url)+'" target="_blank">Open</a>';
+        else if(s.file && s.file.storage_path) right = '<a class="deliv-link" href="#" onclick="openDoc(\''+esc(s.file.storage_path)+'\');return false">Open</a>';
+        else right = '<span style="font-size:10.5px;color:var(--muted)">From coaching</span>';
+      } else {
+        const openLink = (s.file && s.file.storage_path) ? '<a class="deliv-link" href="#" onclick="openDoc(\''+esc(s.file.storage_path)+'\');return false">Open</a> ' : '';
+        right = openLink + '<label class="up-btn">'+(s.st==='missing'?'Upload':'Replace')+'<input type="file" style="display:none" onchange="uploadDoc(\''+it.category_key+'\',\''+it.item_key+'\',this)"></label>';
       }
-      return '<div class="deliv-row deliv-missing"><span class="deliv-dot"></span><span class="deliv-name">'+esc(docName)+'</span></div>';
+      return '<div class="doc-row"><span class="deliv-dot '+dot+'"></span>'
+        + '<span class="doc-name">'+esc(it.item_label)+' '+reqBadge+srcBadge+'</span>'
+        + '<span class="doc-right">'+stPill+right+'</span></div>';
     }).join('');
-    const mini = '<div class="disc-mini"><div class="pbar"><div class="pbar-fill'+((p.count>=p.total&&p.total>0)?' met':'')+'" style="width:'+p.pct+'%"></div></div></div>';
-    const nudge = (isEnrolled && state!=='complete') ? '<div class="disc-nudge">'+esc(d.nudge)+'</div>'
-                : (!isEnrolled ? '<div class="disc-nudge">Not in your current plan. Add '+esc(d.label)+' to complete your data room.</div>' : '');
-    return '<div class="disc-card" style="border-left-color:'+(isEnrolled?d.color:'var(--paper-mid,#C0B8A8)')+';'+(isEnrolled?'':'opacity:0.72')+'">'
-      + '<div class="disc-head"><span class="disc-week">'+d.day+' · '+esc(d.coach)+' · '+p.count+'/'+p.total+' docs</span><span class="disc-status '+stClass+'">'+stLabel+'</span></div>'
-      + '<div class="disc-name">'+esc(d.label)+'</div>'+mini+rows+nudge+'</div>';
+    const reqHave = cat.items.filter(it=>it.required && itemSatisfied(it)).length;
+    const reqTot = cat.items.filter(it=>it.required).length;
+    const have = cat.items.filter(itemSatisfied).length;
+    return '<div class="cat-card"><div class="cat-head"><span class="cat-name">'+esc(cat.label)+'</span>'
+      + '<span class="cat-meta">'+(reqTot ? reqHave+'/'+reqTot+' required' : have+'/'+cat.items.length)+'</span></div>'+rows+'</div>';
   }).join('');
 
-  // gated share toggle
+  // gated share toggle (per company)
   const tog = document.getElementById('share-toggle');
-  const on = !!profile.data_room_shared;
+  const on = isShared();
   tog.classList.toggle('on', on);
   tog.classList.toggle('disabled', !dr.eligible && !on);
   document.getElementById('share-label').textContent = on ? 'Shared (read-only)' : 'Private';
@@ -885,19 +955,53 @@ function renderDataRoom(){
     : 'Locked · reach '+INVESTOR_GATE+'% to unlock (currently '+dr.pct+'%).';
 }
 
+async function switchCompany(id){
+  const c = companies.find(x=>x.id===id); if(!c) return;
+  company = c;
+  try { drFiles = await _pgQuery('data_room_files','company_id=eq.'+company.id+'&order=created_at.desc'); } catch(e){ drFiles=[]; }
+  renderTimeline(); renderOverview(); renderDataRoom();
+}
+
+async function uploadDoc(catKey,itemKey,input){
+  const file = input.files && input.files[0]; if(!file || !company) return;
+  if(file.size > 25*1024*1024){ showToast('File must be under 25MB','error'); input.value=''; return; }
+  try {
+    const token = await _getValidToken();
+    const safe = file.name.replace(/[^A-Za-z0-9._-]/g,'_');
+    const path = company.id+'/'+catKey+'/'+Date.now()+'-'+safe;
+    const res = await fetch(SUPABASE_URL+'/storage/v1/object/data-room/'+encodeURI(path), { method:'POST', headers:{ apikey:SUPABASE_ANON, Authorization:'Bearer '+token, 'Content-Type':file.type||'application/octet-stream', 'x-upsert':'true' }, body:file });
+    if(!res.ok) throw new Error(await res.text());
+    const rec = await _pgWrite('POST','data_room_files','',{ company_id:company.id, category_key:catKey, item_key:itemKey, title:file.name, storage_path:path, mime_type:file.type||null, file_size:file.size, source:'founder', status:'uploaded', uploaded_by:profile.user_id });
+    const r = Array.isArray(rec)?rec[0]:rec; if(r) drFiles.unshift(r);
+    showToast('Uploaded '+file.name,'success'); renderDataRoom(); renderOverview();
+  } catch(e){ showToast('Upload failed — '+(e.message||e),'error'); }
+  finally { input.value=''; }
+}
+
+async function openDoc(path){
+  try {
+    const token = await _getValidToken();
+    const res = await fetch(SUPABASE_URL+'/storage/v1/object/sign/data-room/'+encodeURI(path), { method:'POST', headers:{ apikey:SUPABASE_ANON, Authorization:'Bearer '+token, 'Content-Type':'application/json' }, body:JSON.stringify({ expiresIn:300 }) });
+    const j = await res.json();
+    if(j && j.signedURL){ window.open(SUPABASE_URL+'/storage/v1'+j.signedURL, '_blank'); }
+    else throw new Error('not available');
+  } catch(e){ showToast('Could not open file — '+(e.message||e),'error'); }
+}
+
 async function toggleShare(){
-  const dr = dataRoomStats();
-  if(!profile.data_room_shared && !dr.eligible){
+  const dr = drReadiness();
+  if(!isShared() && !dr.eligible){
     showToast('Investor access unlocks at '+INVESTOR_GATE+'% — your data room is at '+dr.pct+'%.','info');
     return;
   }
-  const next = !profile.data_room_shared;
+  const next = !isShared();
   const tog = document.getElementById('share-toggle');
   tog.classList.toggle('on', next);
   document.getElementById('share-label').textContent = next ? 'Shared (read-only)' : 'Private';
   try {
-    await _pgWrite('PATCH', 'founder_profiles', 'id=eq.'+profile.id, { data_room_shared: next, investor_visible: next });
-    profile.data_room_shared = next; profile.investor_visible = next;
+    await _pgWrite('PATCH', 'companies', 'id=eq.'+company.id, { data_room_shared: next, investor_visible: next, updated_at:new Date().toISOString() });
+    company.data_room_shared = next; company.investor_visible = next;
+    try { await _pgWrite('PATCH','founder_profiles','id=eq.'+profile.id,{ data_room_shared: next, investor_visible: next }); profile.data_room_shared=next; profile.investor_visible=next; } catch(e){}
     renderDataRoom();
     showToast(next ? 'Investors can now view your data room (read-only)' : 'Your data room is private','success');
   } catch(e){
