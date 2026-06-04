@@ -176,7 +176,9 @@ sb.auth.onAuthStateChange((ev,s)=>{currentSession=s;if((ev==='SIGNED_IN'||ev==='
 (async()=>{try{const s=_stored();const u=s.user;if(!u||booted)return;if(_exp(s)){try{await _refresh();}catch(e){return;}}if(!booted)boot(u);}catch(e){}})();
 sb.auth.getSession().then(({data:{session}})=>{if(session&&!booted){currentSession=session;boot(session.user);}});
 
-let founders=[], delivByFounder={}, progByFounder={};
+let companies=[], filesByCompany={}, delivByCompany={}, progByCompany={}, taxonomy=[];
+const VETTED=['complete','completed','vetted','final','published','approved'];
+function isVetted(s){ return VETTED.includes(String(s||'').toLowerCase()); }
 
 async function boot(user){
   if(booted||!user)return; booted=true;
@@ -184,91 +186,104 @@ async function boot(user){
   document.getElementById('app').style.display='block';
   document.getElementById('user-email').textContent=user.email;
   try{
-    // Verify investor access
     const me=await _q('investors','user_id=eq.'+user.id+'&select=id,approved&limit=1');
     if(!me.length || !me[0].approved){
       document.getElementById('view-list').innerHTML='<div class="empty"><div class="empty-mark">◇</div><div style="font-weight:600;color:var(--ink-mid)">This isn’t an approved investor account</div><div style="margin-top:6px">Contact The Founder’s Sprint team to request investor access.</div></div>';
       return;
     }
     const res=await Promise.allSettled([
-      _q('founder_profiles','data_room_shared=eq.true&order=company_name'),
-      _q('founder_deliverables','select=founder_id,discipline,title,file_url,status'),
-      _q('founder_course_progress','select=founder_id,course_label,status')
+      _q('companies','data_room_shared=eq.true&select=*,founder_profiles(first_name,last_name)&order=name'),
+      _q('data_room_files','select=company_id,category_key,item_key,title,storage_path,file_url,status,source'),
+      _q('founder_deliverables','select=company_id,discipline,title,file_url,status'),
+      _q('founder_course_progress','select=company_id,course_label,status'),
+      _q('dr_taxonomy','select=*&order=sort_order,item_label')
     ]);
-    founders=res[0].status==='fulfilled'?(res[0].value||[]):[];
-    (res[1].status==='fulfilled'?res[1].value:[]).forEach(d=>{(delivByFounder[d.founder_id]=delivByFounder[d.founder_id]||[]).push(d);});
-    (res[2].status==='fulfilled'?res[2].value:[]).forEach(p=>{(progByFounder[p.founder_id]=progByFounder[p.founder_id]||[]).push(p);});
+    companies=res[0].status==='fulfilled'?(res[0].value||[]):[];
+    (res[1].status==='fulfilled'?res[1].value:[]).forEach(f=>{(filesByCompany[f.company_id]=filesByCompany[f.company_id]||[]).push(f);});
+    (res[2].status==='fulfilled'?res[2].value:[]).forEach(d=>{(delivByCompany[d.company_id]=delivByCompany[d.company_id]||[]).push(d);});
+    (res[3].status==='fulfilled'?res[3].value:[]).forEach(p=>{(progByCompany[p.company_id]=progByCompany[p.company_id]||[]).push(p);});
+    taxonomy=res[4].status==='fulfilled'?(res[4].value||[]):[];
     renderList();
   }catch(e){ showToast('Could not load deal flow — '+e.message,'error'); }
 }
 
-function dataRoomPct(fid){
-  const items=delivByFounder[fid]||[];
-  let earned=0;
-  DISCIPLINES.forEach(d=>{
-    const vetted=items.filter(x=>disciplineOf(x.discipline||x.title)===d.key).length;
-    earned+=Math.min(vetted,d.dd.length);
-  });
-  return Math.round(earned/DD_TOTAL*100);
+function itemState(cid,it){
+  const files=filesByCompany[cid]||[], dels=delivByCompany[cid]||[];
+  if(it.source==='coach'){
+    const cf=files.find(f=>f.category_key===it.category_key&&f.item_key===it.item_key&&isVetted(f.status));
+    const del=dels.find(x=>disciplineOf(x.discipline||x.title)===it.discipline_key&&isVetted(x.status));
+    return {st:(cf||del)?'vetted':'missing', file:cf||del};
+  }
+  const fs=files.filter(f=>f.category_key===it.category_key&&f.item_key===it.item_key&&isVetted(f.status));
+  return {st:fs.length?'vetted':'missing', file:fs[0]};
 }
+function readinessPct(cid){ const req=taxonomy.filter(t=>t.required); let e=0; req.forEach(it=>{ if(itemState(cid,it).st==='vetted') e++; }); return Math.round(e/(req.length||1)*100); }
+function vettedCount(cid){ return (filesByCompany[cid]||[]).length + (delivByCompany[cid]||[]).filter(d=>isVetted(d.status)).length; }
+function drCategories(){ const m={}; taxonomy.forEach(t=>{(m[t.category_key]=m[t.category_key]||{key:t.category_key,label:t.category_label,sort:t.sort_order,items:[]}).items.push(t);}); return Object.values(m).sort((a,b)=>a.sort-b.sort); }
 
 function renderList(){
   const grid=document.getElementById('deal-grid');
-  if(!founders.length){ grid.innerHTML='<div class="empty"><div class="empty-mark">◇</div><div style="font-weight:600;color:var(--ink-mid)">No founders are investor-visible yet</div><div style="margin-top:6px">Founders appear here once they opt in and reach a complete data room.</div></div>'; return; }
-  grid.innerHTML=founders.map(f=>{
-    const pct=dataRoomPct(f.id);
-    const courses=(progByFounder[f.id]||[]).filter(p=>p.status==='complete').length;
-    return '<div class="deal-card" onclick="openFounder(\''+f.id+'\')">'
-      +'<div class="deal-co">'+esc(f.company_name||'—')+'</div>'
-      +'<div class="deal-meta">'+esc(f.sector||'—')+' · '+esc((f.stage||'').replace('_',' '))+' · '+esc(f.city||'')+'</div>'
+  if(!companies.length){ grid.innerHTML='<div class="empty"><div class="empty-mark">◇</div><div style="font-weight:600;color:var(--ink-mid)">No founders are investor-visible yet</div><div style="margin-top:6px">Companies appear here once a founder opts in and reaches a complete data room.</div></div>'; return; }
+  grid.innerHTML=companies.map(c=>{
+    const pct=readinessPct(c.id);
+    const courses=(progByCompany[c.id]||[]).filter(p=>p.status==='complete').length;
+    return '<div class="deal-card" onclick="openCompany(\''+c.id+'\')">'
+      +'<div class="deal-co">'+esc(c.name||'—')+'</div>'
+      +'<div class="deal-meta">'+esc(c.sector||'—')+' · '+esc((c.stage||'').replace('_',' '))+'</div>'
       +'<div class="deal-stat"><div><span class="ds-val">'+pct+'%</span><span class="ds-lab">Data room</span></div>'
       +'<div><span class="ds-val">'+courses+'</span><span class="ds-lab">Courses done</span></div>'
-      +'<div><span class="ds-val">'+(delivByFounder[f.id]||[]).length+'</span><span class="ds-lab">Documents</span></div></div>'
+      +'<div><span class="ds-val">'+vettedCount(c.id)+'</span><span class="ds-lab">Vetted docs</span></div></div>'
       +'<div class="pbar"><div class="pbar-fill'+(pct>=75?' met':'')+'" style="width:'+pct+'%"></div></div></div>';
   }).join('');
 }
 
-function openFounder(fid){
-  const f=founders.find(x=>x.id===fid); if(!f)return;
-  const items=delivByFounder[fid]||[];
-  const pct=dataRoomPct(fid);
-  const cards=DISCIPLINES.map(d=>{
-    const di=items.filter(x=>disciplineOf(x.discipline||x.title)===d.key);
-    const rows=d.dd.map(doc=>{
-      const m=di.find(x=>simil(x.title,doc));
-      if(m){ return '<div class="deliv-row"><span class="deliv-dot done"></span><span class="deliv-name">'+esc(doc)+'</span>'
-        +(m.file_url?'<a class="deliv-link" href="'+esc(m.file_url)+'" target="_blank">Open</a>':'<span class="pill pill-grey">On file</span>')+'</div>'; }
-      return '<div class="deliv-row deliv-missing"><span class="deliv-dot"></span><span class="deliv-name">'+esc(doc)+'</span></div>';
+async function openDoc(path){
+  try{ const t=await _token();
+    const r=await fetch(SUPABASE_URL+'/storage/v1/object/sign/data-room/'+encodeURI(path),{method:'POST',headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify({expiresIn:300})});
+    const j=await r.json(); if(j&&j.signedURL){ window.open(SUPABASE_URL+'/storage/v1'+j.signedURL,'_blank'); } else throw new Error('na');
+  }catch(e){ showToast('Could not open file','error'); }
+}
+
+function openCompany(cid){
+  const c=companies.find(x=>x.id===cid); if(!c)return;
+  const pct=readinessPct(cid);
+  const courses=(progByCompany[cid]||[]).filter(p=>p.status==='complete').length;
+  const fp=c.founder_profiles||{};
+  const cats=drCategories().map(cat=>{
+    const rows=cat.items.map(it=>{
+      const s=itemState(cid,it);
+      if(s.st==='vetted'){
+        const open = (s.file&&s.file.file_url) ? '<a class="deliv-link" href="'+esc(s.file.file_url)+'" target="_blank">Open</a>'
+          : (s.file&&s.file.storage_path ? '<a class="deliv-link" href="#" onclick="openDoc(\''+esc(s.file.storage_path)+'\');return false">Open</a>' : '<span class="pill pill-grey">On file</span>');
+        return '<div class="deliv-row"><span class="deliv-dot done"></span><span class="deliv-name">'+esc(it.item_label)+'</span>'+open+'</div>';
+      }
+      return '<div class="deliv-row deliv-missing"><span class="deliv-dot"></span><span class="deliv-name">'+esc(it.item_label)+(it.required?' <span class="pill pill-grey">Required</span>':'')+'</span></div>';
     }).join('');
-    const have=di.length, tot=d.dd.length;
-    return '<div class="disc-card" style="border-left-color:'+d.color+'">'
-      +'<div class="disc-head"><span class="disc-week">'+d.day+' · '+d.coach+' · '+Math.min(have,tot)+'/'+tot+'</span>'
-      +'<span class="pill '+(have>=tot?'pill-green':'pill-grey')+'">'+(have>=tot?'Complete':have?'Partial':'—')+'</span></div>'
-      +'<div class="disc-name">'+esc(d.label)+'</div>'+rows+'</div>';
+    const have=cat.items.filter(it=>itemState(cid,it).st==='vetted').length;
+    return '<div class="disc-card" style="border-left-color:var(--terra)"><div class="disc-head"><span class="disc-week">'+esc(cat.label)+'</span><span class="pill '+(have?'pill-green':'pill-grey')+'">'+have+'/'+cat.items.length+'</span></div>'+rows+'</div>';
   }).join('');
-  const courses=(progByFounder[fid]||[]).filter(p=>p.status==='complete').length;
   document.getElementById('view-list').style.display='none';
   const dv=document.getElementById('view-detail'); dv.style.display='block';
-  dv.innerHTML='<span class="back" onclick="closeFounder()">← All founders</span>'
+  dv.innerHTML='<span class="back" onclick="closeCompany()">← All companies</span>'
     +'<div class="page-eyebrow">Founder data room</div>'
-    +'<div class="page-title">'+esc(f.company_name||'—')+'<span class="ro-badge">Read-only</span></div>'
-    +'<div class="page-sub">'+esc(f.bio||'')+'</div>'
+    +'<div class="page-title">'+esc(c.name||'—')+'<span class="ro-badge">Read-only</span></div>'
+    +'<div class="page-sub">'+esc(c.bio||'')+'</div>'
     +'<div class="card card-top"><div class="kv">'
-      +'<div><div class="k">Founder</div><div class="v">'+esc((f.first_name||'')+' '+(f.last_name||''))+'</div></div>'
-      +'<div><div class="k">Sector</div><div class="v">'+esc(f.sector||'—')+'</div></div>'
-      +'<div><div class="k">Stage</div><div class="v">'+esc((f.stage||'—').replace('_',' '))+'</div></div>'
-      +'<div><div class="k">Location</div><div class="v">'+esc((f.city||'')+(f.country?', '+f.country:''))+'</div></div>'
+      +'<div><div class="k">Founder</div><div class="v">'+esc(((fp.first_name||'')+' '+(fp.last_name||'')).trim()||'—')+'</div></div>'
+      +'<div><div class="k">Sector</div><div class="v">'+esc(c.sector||'—')+'</div></div>'
+      +'<div><div class="k">Stage</div><div class="v">'+esc((c.stage||'—').replace('_',' '))+'</div></div>'
       +'<div><div class="k">Data room</div><div class="v">'+pct+'%</div></div>'
       +'<div><div class="k">Courses completed</div><div class="v">'+courses+'</div></div>'
+      +'<div><div class="k">Vetted documents</div><div class="v">'+vettedCount(cid)+'</div></div>'
     +'</div></div>'
-    +'<div class="section-title">Vetted deliverables by discipline</div>'
-    +'<div class="disc-grid">'+cards+'</div>'
-    +(f.linkedin_url||f.website_url?'<div class="section-title">Links</div><div class="card">'
-      +(f.website_url?'<a class="deliv-link" href="'+esc(f.website_url)+'" target="_blank">Website</a>  ':'')
-      +(f.linkedin_url?'<a class="deliv-link" href="'+esc(f.linkedin_url)+'" target="_blank">LinkedIn</a>':'')+'</div>':'');
+    +'<div class="section-title">Due-diligence vault</div>'
+    +'<div class="disc-grid">'+cats+'</div>'
+    +(c.linkedin_url||c.website_url?'<div class="section-title">Links</div><div class="card">'
+      +(c.website_url?'<a class="deliv-link" href="'+esc(c.website_url)+'" target="_blank">Website</a>  ':'')
+      +(c.linkedin_url?'<a class="deliv-link" href="'+esc(c.linkedin_url)+'" target="_blank">LinkedIn</a>':'')+'</div>':'');
   window.scrollTo(0,0);
 }
-function closeFounder(){document.getElementById('view-detail').style.display='none';document.getElementById('view-list').style.display='block';window.scrollTo(0,0);}
+function closeCompany(){document.getElementById('view-detail').style.display='none';document.getElementById('view-list').style.display='block';window.scrollTo(0,0);}
 
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 function simil(a,b){a=String(a||'').toLowerCase().trim();b=String(b||'').toLowerCase().trim();return !!a&&!!b&&(a===b||a.includes(b)||b.includes(a));}
