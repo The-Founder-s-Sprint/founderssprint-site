@@ -653,8 +653,13 @@
 (function(){
   try {
     var k = Object.keys(localStorage).find(function(x){return x.startsWith('sb-') && x.endsWith('-auth-token')});
-    if (k && JSON.parse(localStorage.getItem(k)).user) {
+    var sess = k ? JSON.parse(localStorage.getItem(k)) : null;
+    if (sess && sess.user) {
       document.write('<style>#login-screen{display:none!important}#app{display:block!important}</style>');
+    } else if (window.self === window.top) {
+      // Standalone + unauthenticated → themed Admin portal (never the bare card).
+      // When embedded in the Next.js iframe bridge, auth is handled by the shell — don't redirect.
+      location.replace('/login-admin.html');
     }
   } catch(e){}
 })();

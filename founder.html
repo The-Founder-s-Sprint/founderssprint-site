@@ -694,6 +694,9 @@ sb.auth.onAuthStateChange((event, session) => {
   } catch(e){}
 })();
 sb.auth.getSession().then(({ data:{ session } }) => { if(session && !booted){ currentSession = session; bootApp(session.user); } });
+// Unauthenticated visitors get the themed portal (login-founder.html), never the bare card.
+(function(){ const s=_getStoredSession(); if(!s || !s.refresh_token){ location.replace('/login-founder.html'); } })();
+setTimeout(()=>{ if(!booted){ const s=_getStoredSession(); if(!s || !s.access_token){ location.replace('/login-founder.html'); } } }, 1600);
 
 // ════ BOOT ════
 async function bootApp(user){

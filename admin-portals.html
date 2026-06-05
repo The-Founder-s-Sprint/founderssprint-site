@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Command Centre · Portals · The Founder's Sprint</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://ivedeivyotwevjxvcuoe.supabase.co" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+  :root{
+    --bg:#EFE7D8; --surface:#E6DCC7; --card:#EFE7D8; --ink:#1A1A1A; --ink-mid:#444; --muted:#5A564F;
+    --border:rgba(26,26,26,0.18); --border-hi:rgba(26,26,26,0.35);
+    --terra:#C8531F; --terra-deep:#9A3E16; --ochre:#C9923A; --ochre-deep:#A6741F; --sage:#8AAB5C; --moss:#3D4A2E; --stone:#A59B8C;
+    --success:#0A8F64; --warning:#C47F08; --paper-mid:#C0B8A8; --text:#1A1A1A;
+    --sans:'Josefin Sans',Inter,system-ui,sans-serif; --display:'Cormorant Garamond',serif; --font:'Inter',system-ui,sans-serif;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:13px;-webkit-font-smoothing:antialiased;}
+  .geo-line{height:1px;background:var(--border-hi);width:100%;}
+  /* login */
+  #login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;}
+  .login-card{background:#15161A;border:1px solid #2A2C33;border-top:2px solid var(--ochre);padding:52px 44px 44px;width:380px;color:#EDE7DA;}
+  .login-eyebrow{font-family:var(--sans);font-size:9px;letter-spacing:4px;text-transform:uppercase;color:var(--ochre);margin-bottom:4px;opacity:.9;}
+  .login-title{font-size:28px;font-weight:700;line-height:1.1;margin-bottom:8px;color:#fff;}
+  .login-rule{display:flex;gap:10px;margin:4px 0 32px;} .login-rule .geo-line{background:#33353D;}
+  .login-input{width:100%;background:#1F2127;border:1px solid #33353D;color:#EDE7DA;padding:12px 14px;font-size:14px;font-family:var(--font);margin-bottom:10px;outline:none;}
+  .login-input:focus{border-color:var(--ochre);}
+  .btn-login{width:100%;background:var(--ochre);color:#15161A;border:none;padding:13px;font-family:var(--sans);font-weight:700;font-size:12px;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;margin-top:6px;}
+  .btn-login:hover{background:var(--ochre-deep);color:#fff;} .btn-login:disabled{opacity:.5;}
+  .login-error{color:#E2685A;font-size:12px;min-height:16px;margin-top:10px;}
+  /* app */
+  #app{display:none;}
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;background:#15161A;color:#EDE7DA;position:sticky;top:0;z-index:50;}
+  .topbar-left{display:flex;align-items:center;gap:12px;}
+  .topbar-mark svg{width:26px;height:26px;display:block;}
+  .topbar-logo{font-family:var(--sans);font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#fff;}
+  .topbar-sep{width:1px;height:18px;background:#33353D;}
+  .topbar-sub{font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--ochre);}
+  .topbar-right{display:flex;align-items:center;gap:14px;}
+  .topbar-user{font-size:12px;color:#A8A498;}
+  .btn-ghost{background:none;color:var(--ochre);border:1px solid #3A3C44;padding:8px 14px;font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;}
+  .btn-ghost:hover{background:rgba(201,146,58,.12);}
+  /* tabs */
+  .tabs{display:flex;gap:0;background:#1B1C21;padding:0 28px;overflow-x:auto;}
+  .tab{font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#9A968C;padding:14px 18px;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;display:flex;align-items:center;gap:8px;}
+  .tab:hover{color:#EDE7DA;}
+  .tab.active{color:#fff;border-bottom-color:var(--ochre);}
+  .tab .cnt{font-family:var(--font);font-size:10px;font-weight:700;background:rgba(201,146,58,.18);color:var(--ochre);padding:2px 7px;border-radius:9px;}
+  .main{max-width:1180px;margin:0 auto;padding:30px 28px 80px;}
+  .page-eyebrow{font-family:var(--sans);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ochre-deep);margin-bottom:6px;}
+  .page-title{font-family:var(--display);font-size:32px;font-weight:600;line-height:1.05;margin-bottom:6px;}
+  .page-sub{font-size:14px;color:var(--muted);margin-bottom:22px;max-width:680px;line-height:1.5;}
+  /* stat chips */
+  .stat-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;}
+  .stat{background:var(--card);border:1px solid var(--border);border-top:2px solid var(--ochre);padding:12px 18px;min-width:120px;}
+  .stat .v{font-family:var(--display);font-size:26px;font-weight:700;line-height:1;}
+  .stat .l{font-family:var(--sans);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:5px;}
+  /* search */
+  .search{width:100%;max-width:340px;background:rgba(0,0,0,.03);border:1px solid var(--border);padding:10px 13px;font-size:13px;font-family:var(--font);outline:none;margin-bottom:14px;}
+  .search:focus{border-color:var(--ochre);}
+  /* table */
+  .tbl-wrap{background:var(--card);border:1px solid var(--border);overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;font-size:12.5px;}
+  th{font-family:var(--sans);font-size:8.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);text-align:left;padding:11px 16px;border-bottom:1px solid var(--border-hi);white-space:nowrap;}
+  td{padding:11px 16px;border-bottom:1px solid var(--border);vertical-align:middle;}
+  tr:last-child td{border-bottom:none;}
+  tr.row:hover td{background:rgba(201,146,58,.06);}
+  .nm{font-weight:600;font-size:13px;}
+  .sub{color:var(--muted);font-size:11.5px;}
+  .pill{font-family:var(--sans);font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:2px;display:inline-block;}
+  .pill-green{background:rgba(10,143,100,.14);color:var(--success);} .pill-grey{background:rgba(26,26,26,.07);color:var(--muted);}
+  .pill-ochre{background:rgba(201,146,58,.16);color:var(--ochre-deep);} .pill-terra{background:rgba(200,83,31,.14);color:var(--terra);}
+  .pill-red{background:rgba(220,53,69,.13);color:#C0392B;}
+  .tag{display:inline-block;font-family:var(--sans);font-size:8px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 7px;border:1px solid var(--border-hi);color:var(--ink-mid);margin:1px 3px 1px 0;border-radius:2px;}
+  .tag.lead{border-color:var(--ochre);color:var(--ochre-deep);background:rgba(201,146,58,.08);}
+  .empty{text-align:center;padding:50px 20px;color:var(--muted);}
+  .deny{max-width:460px;margin:80px auto;text-align:center;color:var(--muted);}
+  .deny .m{font-family:var(--display);font-size:30px;color:var(--border-hi);margin-bottom:10px;}
+  #toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:#fff;padding:13px 22px;font-size:13px;opacity:0;transition:all .3s;z-index:2000;}
+  #toast.show{transform:translateX(-50%) translateY(0);opacity:1;} #toast.error{background:#DC3545;}
+  @media(max-width:560px){.main{padding:22px 16px 70px;}.page-title{font-size:26px;}}
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-eyebrow">The Founder's Sprint</div>
+    <div class="login-title">Command Centre</div>
+    <div class="login-rule"><div class="geo-line"></div></div>
+    <input class="login-input" type="email" id="login-email" placeholder="Email address" autocomplete="email">
+    <input class="login-input" type="password" id="login-password" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')signIn()">
+    <button class="btn-login" onclick="signIn()">Enter</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-mark"><svg viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.85"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.8" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.78" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.82" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#15161A"/><circle cx="50" cy="50" r="2" fill="#fff"/></svg></div>
+      <span class="topbar-logo">Founder's Sprint</span>
+      <div class="topbar-sep"></div><span class="topbar-sub">Command Centre</span>
+    </div>
+    <div class="topbar-right">
+      <span class="topbar-user" id="user-email"></span>
+      <button class="btn-ghost" onclick="signOut()">Sign Out</button>
+    </div>
+  </div>
+  <div class="tabs" id="tabs"></div>
+  <div class="main">
+    <div class="page-eyebrow">Super-admin · all portals</div>
+    <div class="page-title" id="portal-title">Portals</div>
+    <div class="page-sub" id="portal-sub"></div>
+    <div class="stat-row" id="stat-row"></div>
+    <input class="search" id="search" placeholder="Search…" oninput="renderActive()">
+    <div id="roster"></div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+const SUPABASE_URL='https://ivedeivyotwevjxvcuoe.supabase.co';
+const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss';
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON,{auth:{detectSessionInUrl:true,autoRefreshToken:true,persistSession:true}});
+
+const DISC_LABEL={marketing:'Marketing & Branding',financial:'Financial Modelling',investment:'Investment Readiness',strategy:'Strategy & Team',product:'Product Dev & Pricing'};
+const TRACK_LABEL={single:'1:1 Session',pick3:'Pick 3 Bundle',cohort:'Full Cohort',group:'Full Cohort',vip1on1:'VIP 1:1',vip:'VIP Track'};
+
+// ── auth layer (Safari-safe) ──
+const _SB_KEY='sb-'+SUPABASE_URL.split('//')[1].split('.')[0]+'-auth-token';
+let _rp=null,currentSession=null,booted=false;
+function _stored(){try{return JSON.parse(localStorage.getItem(_SB_KEY)||'{}');}catch{return{};}}
+function _exp(s){const e=s.expires_at;return !e||(Date.now()/1000)>(e-60);}
+async function _refresh(){if(_rp)return _rp;_rp=(async()=>{const s=_stored();if(!s.refresh_token)throw new Error('Please sign in again');
+  const r=await fetch(SUPABASE_URL+'/auth/v1/token?grant_type=refresh_token',{method:'POST',headers:{apikey:SUPABASE_ANON,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:s.refresh_token})});
+  if(!r.ok){localStorage.removeItem(_SB_KEY);throw new Error('Session expired');}const j=await r.json();localStorage.setItem(_SB_KEY,JSON.stringify(j));currentSession=j;return j.access_token;})();
+  try{return await _rp;}finally{_rp=null;}}
+async function _token(){if(currentSession?.access_token){const e=currentSession.expires_at;if(e&&(Date.now()/1000)<(e-60))return currentSession.access_token;}
+  const s=_stored();if(s.access_token&&!_exp(s))return s.access_token;return _refresh();}
+async function _q(table,params){const t=await _token();const r=await fetch(SUPABASE_URL+'/rest/v1/'+table+'?'+params,{headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t}});
+  if(!r.ok)throw new Error('Query failed '+r.status+': '+await r.text());return r.json();}
+
+async function signIn(){
+  const email=document.getElementById('login-email').value.trim();
+  const pw=document.getElementById('login-password').value;
+  const err=document.getElementById('login-error');const btn=document.querySelector('.btn-login');err.textContent='';
+  if(!email||!pw){err.textContent='Enter email and password';return;}
+  try{btn.disabled=true;btn.textContent='Signing in…';
+    const{error}=await sb.auth.signInWithPassword({email,password:pw});
+    if(error){err.textContent=error.message;}
+  }catch(e){err.textContent=e.message;}finally{btn.disabled=false;btn.textContent='Enter';}
+}
+function signOut(){localStorage.removeItem(_SB_KEY);try{sb.auth.signOut().catch(()=>{});}catch(e){}location.reload();}
+
+sb.auth.onAuthStateChange((ev,s)=>{currentSession=s;if((ev==='SIGNED_IN'||ev==='INITIAL_SESSION')&&s)boot(s.user);});
+(async()=>{try{const s=_stored();const u=s.user;if(!u||booted)return;if(_exp(s)){try{await _refresh();}catch(e){return;}}if(!booted)boot(u);}catch(e){}})();
+sb.auth.getSession().then(({data:{session}})=>{if(session&&!booted){currentSession=session;boot(session.user);}});
+// Unauthenticated visitors get the themed Admin portal, never a bare card.
+(function(){ const s=_stored(); if(!s||!s.refresh_token){ location.replace('/login-admin.html'); } })();
+setTimeout(()=>{ if(!booted){ const s=_stored(); if(!s||!s.access_token){ location.replace('/login-admin.html'); } } }, 1600);
+
+// ── state ──
+let founders=[], companies=[], regs=[], coaches=[], topics=[], investors=[], roles=[];
+let active='founders';
+const PORTALS=[
+  {key:'founders',  label:'Founders'},
+  {key:'coaches',   label:'Coaches'},
+  {key:'investors', label:'Investors'},
+  {key:'admins',    label:'Admin & Ops'}
+];
+const PORTAL_SUB={
+  founders:'Everyone with a founder account — their venture(s), enrolment, payment state and data-room sharing.',
+  coaches:'The coaching roster — disciplines covered, discipline leads (VPs), status and per-session pricing.',
+  investors:'Approved and pending investor accounts with read access to opted-in data rooms.',
+  admins:'Privileged roles — platform admins and hub partners. This is who can see across every portal.'
+};
+
+async function boot(user){
+  if(booted||!user)return; booted=true;
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+  document.getElementById('user-email').textContent=user.email;
+  try{
+    const me=await _q('user_roles','user_id=eq.'+user.id+'&role=eq.admin&limit=1');
+    if(!me.length){
+      document.querySelector('.tabs').style.display='none';
+      document.getElementById('stat-row').style.display='none';
+      document.getElementById('search').style.display='none';
+      document.getElementById('portal-title').textContent='Access restricted';
+      document.getElementById('portal-sub').textContent='';
+      document.getElementById('roster').innerHTML='<div class="deny"><div class="m">◇</div><div style="font-weight:600;color:var(--ink-mid)">This account isn’t a platform admin</div><div style="margin-top:6px">The Command Centre is limited to super-admin accounts.</div></div>';
+      return;
+    }
+    const r=await Promise.allSettled([
+      _q('founder_profiles','select=*&order=created_at.desc'),
+      _q('companies','select=id,founder_id,name,sector,stage,status,is_primary,data_room_shared,investor_visible'),
+      _q('registrations','select=founder_id,user_id,email,track,deposit_paid,balance_paid,forfeited'),
+      _q('coaches','select=*&order=created_at'),
+      _q('coach_topics','select=coach_id,discipline_key,is_lead'),
+      _q('investors','select=*&order=created_at.desc'),
+      _q('user_roles','select=user_id,role,created_at&order=created_at')
+    ]);
+    founders =r[0].status==='fulfilled'?(r[0].value||[]):[];
+    companies=r[1].status==='fulfilled'?(r[1].value||[]):[];
+    regs     =r[2].status==='fulfilled'?(r[2].value||[]):[];
+    coaches  =r[3].status==='fulfilled'?(r[3].value||[]):[];
+    topics   =r[4].status==='fulfilled'?(r[4].value||[]):[];
+    investors=r[5].status==='fulfilled'?(r[5].value||[]):[];
+    roles    =r[6].status==='fulfilled'?(r[6].value||[]):[];
+    renderTabs(); switchPortal('founders');
+  }catch(e){ showToast('Could not load — '+e.message,'error'); }
+}
+
+function counts(){
+  return { founders:founders.length, coaches:coaches.length, investors:investors.length,
+           admins:roles.filter(r=>r.role==='admin'||r.role==='hub_partner').length };
+}
+function renderTabs(){
+  const c=counts();
+  document.getElementById('tabs').innerHTML=PORTALS.map(p=>
+    '<div class="tab'+(p.key===active?' active':'')+'" onclick="switchPortal(\''+p.key+'\')">'+p.label+'<span class="cnt">'+(c[p.key]||0)+'</span></div>').join('');
+}
+function switchPortal(k){ active=k; document.getElementById('search').value=''; renderTabs();
+  document.getElementById('portal-title').textContent=PORTALS.find(p=>p.key===k).label;
+  document.getElementById('portal-sub').textContent=PORTAL_SUB[k]; renderActive(); }
+
+function match(q,...fields){ q=q.trim().toLowerCase(); if(!q)return true; return fields.some(f=>String(f||'').toLowerCase().includes(q)); }
+function tbl(headers,rows){
+  if(!rows.length) return '<div class="tbl-wrap"><div class="empty">No matching records.</div></div>';
+  return '<div class="tbl-wrap"><table><thead><tr>'+headers.map(h=>'<th>'+h+'</th>').join('')+'</tr></thead><tbody>'+rows.join('')+'</tbody></table></div>';
+}
+function stats(items){ document.getElementById('stat-row').innerHTML=items.map(i=>'<div class="stat"><div class="v">'+i.v+'</div><div class="l">'+i.l+'</div></div>').join(''); }
+
+function renderActive(){
+  const q=document.getElementById('search').value;
+  if(active==='founders')  renderFounders(q);
+  else if(active==='coaches')  renderCoaches(q);
+  else if(active==='investors') renderInvestors(q);
+  else renderAdmins(q);
+}
+
+function companiesOf(fid){ return companies.filter(c=>c.founder_id===fid); }
+function regOf(f){ return regs.find(r=>r.founder_id===f.id || (f.user_id && r.user_id===f.user_id) || (r.email&&f.email&&r.email.toLowerCase()===f.email.toLowerCase())); }
+
+function renderFounders(q){
+  const paid=founders.filter(f=>{const r=regOf(f);return r&&r.deposit_paid;}).length;
+  const shared=founders.filter(f=>companiesOf(f.id).some(c=>c.data_room_shared)||f.data_room_shared).length;
+  stats([{v:founders.length,l:'Founders'},{v:paid,l:'Paid ≥ deposit'},{v:companies.length,l:'Companies'},{v:shared,l:'Investor-visible'}]);
+  const rows=founders.filter(f=>match(q,f.first_name,f.last_name,f.email,f.company_name,(companiesOf(f.id).map(c=>c.name).join(' ')))).map(f=>{
+    const cos=companiesOf(f.id); const r=regOf(f);
+    const coNames=cos.length?cos.map(c=>esc(c.name)+(c.data_room_shared?' <span class="pill pill-ochre">shared</span>':'')).join('<br>'):(f.company_name?esc(f.company_name):'<span class="sub">—</span>');
+    const track=r&&r.track?TRACK_LABEL[r.track]||r.track:'—';
+    let pay='<span class="pill pill-grey">No booking</span>';
+    if(r){ if(r.forfeited)pay='<span class="pill pill-red">Forfeited</span>';
+      else if(r.deposit_paid&&r.balance_paid)pay='<span class="pill pill-green">Fully paid</span>';
+      else if(r.deposit_paid)pay='<span class="pill pill-terra">Balance due</span>';
+      else pay='<span class="pill pill-grey">Unpaid</span>'; }
+    return '<tr class="row"><td><div class="nm">'+esc((f.first_name||'')+' '+(f.last_name||''))+'</div><div class="sub">'+esc(f.email||'')+'</div></td>'
+      +'<td>'+coNames+'</td>'
+      +'<td>'+esc(f.sector||(cos[0]&&cos[0].sector)||'—')+'</td>'
+      +'<td>'+esc(track)+'</td>'
+      +'<td>'+pay+'</td>'
+      +'<td>'+esc((f.city||'')+(f.country?', '+f.country:''))+'</td></tr>';
+  });
+  document.getElementById('roster').innerHTML=tbl(['Founder','Company','Sector','Track','Payment','Location'],rows);
+}
+
+function discsOf(cid){ return topics.filter(t=>t.coach_id===cid); }
+function renderCoaches(q){
+  const active_=coaches.filter(c=>c.status==='active').length;
+  const leads=topics.filter(t=>t.is_lead).length;
+  stats([{v:coaches.length,l:'Coaches'},{v:active_,l:'Active'},{v:leads,l:'Discipline leads'}]);
+  const rows=coaches.filter(c=>match(q,c.first_name,c.last_name,c.email,c.headline,discsOf(c.id).map(t=>DISC_LABEL[t.discipline_key]).join(' '))).map(c=>{
+    const ds=discsOf(c.id);
+    const tags=ds.length?ds.map(t=>'<span class="tag'+(t.is_lead?' lead':'')+'">'+esc(DISC_LABEL[t.discipline_key]||t.discipline_key)+(t.is_lead?' · Lead':'')+'</span>').join(''):'<span class="sub">—</span>';
+    const st=c.status==='active'?'<span class="pill pill-green">Active</span>':'<span class="pill pill-grey">'+esc(c.status||'—')+'</span>';
+    return '<tr class="row"><td><div class="nm">'+esc((c.first_name||'')+' '+(c.last_name||''))+'</div><div class="sub">'+esc(c.email||c.founderssprint_email||'')+'</div></td>'
+      +'<td>'+tags+'</td>'
+      +'<td>'+st+'</td>'
+      +'<td>'+(c.session_fee?'UGX '+Number(c.session_fee).toLocaleString('en-US'):'—')+'</td></tr>';
+  });
+  document.getElementById('roster').innerHTML=tbl(['Coach','Disciplines covered','Status','1:1 fee'],rows);
+}
+
+function renderInvestors(q){
+  const appr=investors.filter(i=>i.approved).length;
+  const sharedCos=companies.filter(c=>c.data_room_shared).length;
+  stats([{v:investors.length,l:'Investors'},{v:appr,l:'Approved'},{v:investors.length-appr,l:'Pending'},{v:sharedCos,l:'Visible companies'}]);
+  const rows=investors.filter(i=>match(q,i.name,i.firm,i.email)).map(i=>{
+    const st=i.approved?'<span class="pill pill-green">Approved</span>':'<span class="pill pill-ochre">Pending</span>';
+    return '<tr class="row"><td><div class="nm">'+esc(i.name||'—')+'</div><div class="sub">'+esc(i.email||'')+'</div></td>'
+      +'<td>'+esc(i.firm||'—')+'</td>'
+      +'<td>'+st+'</td>'
+      +'<td class="sub">'+esc((i.created_at||'').slice(0,10))+'</td></tr>';
+  });
+  document.getElementById('roster').innerHTML=tbl(['Investor','Firm','Status','Joined'],rows);
+}
+
+// Resolve a name/email for a privileged user_id from the other tables (best-effort).
+function whoIs(uid){
+  const c=coaches.find(x=>x.user_id===uid); if(c)return{name:(c.first_name||'')+' '+(c.last_name||''),email:c.email||c.founderssprint_email,src:'Coach'};
+  const f=founders.find(x=>x.user_id===uid); if(f)return{name:(f.first_name||'')+' '+(f.last_name||''),email:f.email,src:'Founder'};
+  const i=investors.find(x=>x.user_id===uid); if(i)return{name:i.name,email:i.email,src:'Investor'};
+  return{name:'—',email:uid,src:''};
+}
+function renderAdmins(q){
+  const list=roles.filter(r=>r.role==='admin'||r.role==='hub_partner');
+  stats([{v:list.filter(r=>r.role==='admin').length,l:'Admins'},{v:list.filter(r=>r.role==='hub_partner').length,l:'Hub partners'}]);
+  const rows=list.map(r=>({r,who:whoIs(r.user_id)})).filter(o=>match(q,o.who.name,o.who.email,o.r.role)).map(o=>{
+    const roleP=o.r.role==='admin'?'<span class="pill pill-terra">Admin</span>':'<span class="pill pill-ochre">Hub partner</span>';
+    return '<tr class="row"><td><div class="nm">'+esc(o.who.name||'—')+'</div><div class="sub">'+esc(o.who.email||'')+'</div></td>'
+      +'<td>'+roleP+'</td>'
+      +'<td>'+(o.who.src?'<span class="tag">'+esc(o.who.src)+'</span>':'<span class="sub">—</span>')+'</td>'
+      +'<td class="sub">'+esc((o.r.created_at||'').slice(0,10))+'</td></tr>';
+  });
+  document.getElementById('roster').innerHTML=tbl(['Member','Role','Also a','Since'],rows)
+    + '<div class="page-sub" style="margin-top:18px;font-size:12.5px">Super-admins (role <b>admin</b>) see every portal above. Add or remove privileged roles in the <code>user_roles</code> table; finer-grained scoped-ops roles are planned for the SOM tier.</div>';
+}
+
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function showToast(m,t){const e=document.getElementById('toast');e.textContent=m;e.className=t||'';e.classList.add('show');setTimeout(()=>e.classList.remove('show'),3200);}
+</script>
+</body>
+</html>
