@@ -353,7 +353,8 @@ function renderCoachRoster(q){
 }
 
 function mask(s){ s=String(s||''); return s.length>4?('•••• '+s.slice(-4)):(s||'—'); }
-const STAGE_PILL={lead_review:'<span class="pill pill-ochre">Lead review</span>',admin_review:'<span class="pill pill-terra">Admin DD review</span>',listed:'<span class="pill pill-green">Listed</span>',rejected:'<span class="pill pill-red">Rejected</span>'};
+const STAGE_PILL={lead_review:'<span class="pill pill-ochre">Lead review</span>',admin_review:'<span class="pill pill-terra">Admin DD review</span>',changes_requested:'<span class="pill pill-ochre">Changes requested</span>',listed:'<span class="pill pill-green">Listed</span>',rejected:'<span class="pill pill-red">Rejected</span>'};
+function docLink(label,path){ return path ? '<a href="#" onclick="openCoachDoc(\''+esc(path)+'\');return false" style="color:var(--ochre-deep);font-size:10px;font-weight:700;text-decoration:none">Open '+label+'</a>' : '<span class="pill pill-grey">no '+label+'</span>'; }
 function appCard(a){
   const disc=normDisc(a.taxonomy_l1);
   const nm=a.display_name||((a.first_name||'')+' '+(a.last_name||''));
@@ -362,29 +363,64 @@ function appCard(a){
     +(a.current_role?'<div><div class="k">Current role</div><div class="v">'+esc(a.current_role)+'</div></div>':'')
     +(a.experience?'<div><div class="k">Experience</div><div class="v">'+esc(a.experience)+'</div></div>':'')
     +(a.notable_clients?'<div><div class="k">Notable clients</div><div class="v">'+esc(a.notable_clients)+'</div></div>':'')
+    +(a.credentials?'<div><div class="k">Qualifications</div><div class="v">'+esc(a.credentials)+'</div></div>':'')
     +'</div>'+(a.coaching_philosophy?'<div class="sub" style="margin-top:8px"><b>Philosophy:</b> '+esc(a.coaching_philosophy)+'</div>':'');
-  // due-diligence (admin only) — shown for admin_review/listed
-  const dd='<div class="dd"><div class="k" style="margin-bottom:6px">Due diligence (admin only)</div><div class="kv">'
+  // due-diligence (admin only) — documents openable from the private vault
+  const dd='<div class="dd"><div class="k" style="margin-bottom:6px">Due diligence (admin only) — verify before listing</div><div class="kv">'
     +'<div><div class="k">Email</div><div class="v">'+esc(a.email||'—')+'</div></div>'
     +'<div><div class="k">Phone</div><div class="v">'+esc((a.country_code||'')+' '+(a.phone||''))+'</div></div>'
-    +'<div><div class="k">ID type</div><div class="v">'+esc(a.id_type||'—')+(a.id_document_path?' <span class="pill pill-green">doc on file</span>':'')+'</div></div>'
+    +'<div><div class="k">ID ('+esc(a.id_type||'—')+')</div><div class="v">'+docLink('ID',a.id_document_path)+'</div></div>'
+    +'<div><div class="k">CV / qualifications</div><div class="v">'+docLink('CV',a.cv_path)+'</div></div>'
     +'<div><div class="k">TIN</div><div class="v">'+esc(a.tin||a.tin_number||'—')+'</div></div>'
     +'<div><div class="k">Payout</div><div class="v">'+(a.mobile_money_number?('MoMo '+mask(a.mobile_money_number)):(a.account_number?(esc(a.bank_name||'Bank')+' '+mask(a.account_number)):'—'))+'</div></div>'
-    +'<div><div class="k">CV</div><div class="v">'+(a.cv_path?'<span class="pill pill-green">on file</span>':'<span class="pill pill-grey">none</span>')+'</div></div>'
     +'</div></div>';
+  const noteBlk = a.admin_notes ? '<div class="sub" style="margin-top:8px;color:var(--terra)"><b>Admin note:</b> '+esc(a.admin_notes)+'</div>' : '';
   let actions='';
-  if(a.review_stage==='admin_review') actions='<div class="app-actions"><button class="btn-sm approve" onclick="adminApprove(\''+a.id+'\')">Approve &amp; list</button><button class="btn-sm reject" onclick="adminReject(\''+a.id+'\')">Reject</button></div>';
-  else if(a.review_stage==='lead_review') actions='<div class="sub" style="margin-top:10px">The discipline lead ('+esc(DISC_LEAD[disc]||'—')+') vets suitability first. You can still <a href="#" onclick="adminReject(\''+a.id+'\');return false" style="color:#C0392B">reject</a> on DD grounds.</div>';
+  if(a.review_stage==='admin_review'||a.review_stage==='changes_requested'){
+    actions='<div class="app-actions"><button class="btn-sm approve" onclick="adminApprove(\''+a.id+'\')">Approve &amp; list</button>'
+      +'<button class="btn-sm" style="background:var(--ochre);color:#15161A" onclick="adminRequestChanges(\''+a.id+'\')">Request changes</button>'
+      +'<button class="btn-sm reject" onclick="adminReject(\''+a.id+'\')">Reject</button></div>';
+  } else if(a.review_stage==='lead_review'){
+    actions='<div class="sub" style="margin-top:10px">The discipline lead ('+esc(DISC_LEAD[disc]||'—')+') vets suitability first. You can still <a href="#" onclick="adminReject(\''+a.id+'\');return false" style="color:#C0392B">reject</a> on DD grounds.</div>';
+  }
+  const showDD = a.review_stage==='admin_review'||a.review_stage==='listed'||a.review_stage==='changes_requested';
   return '<div class="app-card"><div class="app-head"><div><span class="nm">'+esc(nm)+'</span> <span class="tag">'+esc(DISC_LABEL[disc]||a.taxonomy_l1||'—')+'</span></div>'+(STAGE_PILL[a.review_stage]||STAGE_PILL.lead_review)+'</div>'
     +(a.headline?'<div class="sub">'+esc(a.headline)+'</div>':'')
-    +'<div class="sub" style="margin-top:6px">'+lead+'</div>'+suit
-    +(a.review_stage==='admin_review'||a.review_stage==='listed'?dd:'')+actions+'</div>';
+    +'<div class="sub" style="margin-top:6px">'+lead+'</div>'+suit+noteBlk
+    +(showDD?dd:'')+actions+'</div>';
 }
 function renderCoachApplications(q){
   const apps=applications.filter(a=>match(q,a.first_name,a.last_name,a.display_name,a.email,a.taxonomy_l1));
-  document.getElementById('coach-sub').innerHTML = apps.length
-    ? '<div class="sub" style="margin-bottom:12px">New coaches are vetted in two stages: the <b>discipline lead</b> confirms suitability, then <b>admin</b> verifies due-diligence (ID, payout, contact) before listing.</div>'+apps.map(appCard).join('')
-    : '<div class="tbl-wrap"><div class="empty">No applications.</div></div>';
+  document.getElementById('coach-sub').innerHTML =
+    '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">'
+    +'<div class="sub" style="max-width:560px">New coaches are vetted in two stages: the <b>discipline lead</b> confirms suitability, then <b>admin</b> verifies due-diligence (ID, CV, payout, contact) before listing. Approve, request changes, or reject.</div>'
+    +'<button class="btn-sm approve" onclick="showInviteCoach()">+ Invite a coach</button></div>'
+    +'<div id="invite-box"></div>'
+    +(apps.length ? apps.map(appCard).join('') : '<div class="tbl-wrap"><div class="empty">No applications.</div></div>');
+}
+function showInviteCoach(){
+  const el=document.getElementById('invite-box'); if(!el) return;
+  if(el.dataset.open==='1'){ el.innerHTML=''; el.dataset.open=''; return; }
+  el.dataset.open='1';
+  const url=location.origin+'/beta/coach-onboarding.html';
+  el.innerHTML='<div class="app-card"><div style="font-family:var(--display);font-size:18px;font-weight:600;margin-bottom:4px">Invite a coach</div>'
+    +'<div class="sub" style="margin-bottom:10px">Share this onboarding/application link with a prospective coach. Their submission lands in the pipeline above for lead → admin review. (Direct email send arrives when the API is connected.)</div>'
+    +'<div style="display:flex;gap:8px;align-items:center"><input id="invite-url" value="'+esc(url)+'" readonly><button class="btn-sm approve" onclick="copyInvite()">Copy link</button></div></div>';
+}
+function copyInvite(){ const i=document.getElementById('invite-url'); if(!i)return; i.select(); try{ navigator.clipboard.writeText(i.value); }catch(e){ try{document.execCommand('copy');}catch(_){} } showToast('Link copied','success'); }
+async function openCoachDoc(path){
+  try{ const t=await _token();
+    const r=await fetch(SUPABASE_URL+'/storage/v1/object/sign/coach-documents/'+encodeURI(path),{method:'POST',headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify({expiresIn:300})});
+    const j=await r.json(); if(j&&j.signedURL) window.open(SUPABASE_URL+'/storage/v1'+j.signedURL,'_blank'); else throw new Error('na');
+  }catch(e){ showToast('Could not open document','error'); }
+}
+async function adminRequestChanges(id){
+  const note=prompt('What does the applicant need to change or provide? (recorded on the application)');
+  if(note==null) return;
+  try{ await _w('PATCH','coach_applications','id=eq.'+id,{review_stage:'changes_requested',admin_notes:note,reviewed_at:new Date().toISOString()});
+    const a=applications.find(x=>x.id===id); if(a){a.review_stage='changes_requested';a.admin_notes=note;}
+    showToast('Changes requested — recorded on the application','success'); renderCoaches(document.getElementById('search').value);
+  }catch(e){ showToast('Could not update — '+e.message,'error'); }
 }
 async function adminApprove(id){
   if(!confirm('Approve and list this coach? This creates their coach profile + discipline coverage and makes them visible to founders.'))return;
