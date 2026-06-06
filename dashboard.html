@@ -729,13 +729,10 @@
     <button class="tab" onclick="switchTab('revenue')">Revenue</button>
     <button class="tab" onclick="switchTab('documents')">Documents</button>
     <button class="tab" onclick="switchTab('directory')">Directory <span class="badge" id="dir-app-count-badge" style="display:none">0</span></button>
-    <button class="tab" onclick="switchTab('coaches')">Applications <span class="badge" id="coach-app-count-badge" style="display:none">0</span></button>
     <button class="tab" onclick="switchTab('sessions')">Sessions</button>
-    <!-- Presentations tab removed — merged into Materials -->
     <button class="tab" onclick="switchTab('cohorts')">Cohorts</button>
     <button class="tab" onclick="switchTab('pricing')">Pricing</button>
-    <button class="tab" onclick="switchTab('profiles')">Profiles</button>
-    <button class="tab" onclick="switchTab('materials')">Materials</button>
+    <a class="tab" href="/admin-portals.html" style="text-decoration:none" title="Coach roster, applications & materials live in the Coaches Portal">Coaches ↗</a>
   </div>
 
   <div class="main">
@@ -1490,6 +1487,15 @@
           <strong style="color:var(--text)">How pricing works:</strong><br>
           Deposit is calculated as a percentage of the full fee. Changing prices here updates them for all future registrations — existing registrations keep the price they locked in at signup.
         </div>
+
+        <div class="section-head" style="margin:30px 0 12px"><span class="section-title">Data-room storage hosting</span></div>
+        <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Founders get 12 months free (up to 5GB) with any paid course; these tiers apply after the free year or on overage.</div>
+        <div class="table-wrap"><table><thead><tr><th>Tier</th><th>Price</th><th>Quota</th><th>Notes</th></tr></thead><tbody id="pricing-storage-body"><tr><td colspan="4" class="loading">Loading…</td></tr></tbody></table></div>
+
+        <div class="section-head" style="margin:30px 0 12px"><span class="section-title">Service-provider directory tiers</span></div>
+        <div class="table-wrap"><table><thead><tr><th>Tier</th><th>Price</th><th>Notes</th></tr></thead><tbody id="pricing-directory-body"><tr><td colspan="3" class="loading">Loading…</td></tr></tbody></table></div>
+
+        <div style="margin-top:14px;font-size:11px;color:var(--muted)">Storage and directory prices are stored in <code>pricing_items</code> and read live by the founder dashboard, marketplace and billing — never hardcoded.</div>
       </div>
     </div>
 
@@ -2562,42 +2568,28 @@ const DISCIPLINE_META = {
   product_development: { label: 'Product Dev & Pricing',     color: '#777770', icon: '◈' },
 };
 
+// Overview shows a per-discipline SUMMARY only (lead + # specialty coaches). Full coach
+// management lives in the Coaches Portal (admin-portals.html) — each card links there.
 function renderCoachRoster() {
   const grid = document.getElementById('coach-roster');
   if (!grid) return;
-
-  if (!inviteCoaches.length) {
-    grid.innerHTML = '<div class="empty" style="grid-column:1/-1">No active coaches</div>';
-    return;
-  }
-
-  grid.innerHTML = inviteCoaches.map(c => {
-    const meta = DISCIPLINE_META[c.sector_l1] || { label: c.sector_l1 || 'Coach', color: '#777770', icon: '◈' };
-    const initials = (c.first_name?.[0] || '') + (c.last_name?.[0] || '');
-    // Count registrations mentioning this coach (future: from sessions table)
-    const sessionCount = 0; // placeholder — wire to sessions table when populated
-    const earnings = 0;     // placeholder — wire to payment data when available
-
+  const DS = [
+    { sectors:['marketing'],                         label:'Marketing & Branding',  color:'#C8531F', lead:'Teddy Ruge' },
+    { sectors:['finance','financial'],               label:'Financial Modelling',   color:'#C9923A', lead:'Barry Wojega' },
+    { sectors:['investment_readiness','investment'], label:'Investment Readiness',   color:'#8AAB5C', lead:'Joseph Kalema' },
+    { sectors:['strategy'],                          label:'Strategy & Team',       color:'#3D4A2E', lead:'Moses Engwau Okudu' },
+    { sectors:['product_development','product'],     label:'Product Dev & Pricing', color:'#777770', lead:'Patrick Ngolobe' },
+  ];
+  grid.innerHTML = DS.map(d => {
+    const inDisc = (inviteCoaches || []).filter(c => d.sectors.includes(c.sector_l1));
+    const specialty = inDisc.filter(c => ((c.first_name||'') + ' ' + (c.last_name||'')).trim() !== d.lead).length;
     return `
-      <div style="background:var(--card);border:1px solid var(--border);padding:16px;position:relative">
-        <div style="display:flex;align-items:center;gap:10px;margin-bottom:10px">
-          ${c.avatar_url
-            ? `<img src="${esc(c.avatar_url)}" alt="" style="width:36px;height:36px;border-radius:50%;object-fit:cover">`
-            : `<div style="width:36px;height:36px;border-radius:50%;background:${meta.color};color:#fff;display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-weight:700;font-size:13px">${initials}</div>`
-          }
-          <div>
-            <div style="font-family:var(--sans);font-weight:700;font-size:13px">${esc(c.first_name)} ${esc(c.last_name)}</div>
-            <div style="font-size:10px;color:${meta.color};font-weight:600;letter-spacing:0.04em">${meta.label}</div>
-          </div>
-        </div>
-        <div style="display:flex;gap:16px;font-family:var(--mono);font-size:11px;color:var(--muted)">
-          <div><span style="font-weight:600;color:var(--ink)">${sessionCount}</span> sessions</div>
-          <div><span style="font-weight:600;color:var(--ink)">${earnings ? fmtUGX(earnings) : '—'}</span> earned</div>
-        </div>
-        <div style="position:absolute;top:12px;right:12px">
-          <span style="font-size:9px;font-family:var(--mono);letter-spacing:0.08em;color:var(--success);font-weight:600;text-transform:uppercase">Active</span>
-        </div>
-      </div>`;
+      <a href="/admin-portals.html" title="Manage coaches in the Coaches Portal" style="text-decoration:none;background:var(--card);border:1px solid var(--border);border-top:2px solid ${d.color};padding:16px;display:block">
+        <div style="font-family:var(--sans);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:${d.color};margin-bottom:6px">${d.label}</div>
+        <div style="font-family:var(--sans);font-weight:700;font-size:15px;color:var(--ink)">${esc(d.lead)}</div>
+        <div style="font-size:10px;color:var(--muted);letter-spacing:0.04em;margin-top:2px">Discipline Lead</div>
+        <div style="margin-top:10px;font-family:var(--mono);font-size:12px;color:var(--ink-mid)"><span style="font-weight:700;color:var(--ink)">${specialty}</span> specialty coach${specialty===1?'':'es'}</div>
+      </a>`;
   }).join('');
 }
 
@@ -3057,6 +3049,23 @@ async function loadPricing() {
     renderPricing();
     showToast('Failed to load pricing: ' + err.message, 'error');
   }
+  loadPricingItems();
+}
+async function loadPricingItems() {
+  let items = [];
+  try { items = await _pgQuery('pricing_items', 'select=*&order=category,sort_order'); } catch (e) { console.warn('[PricingItems]', e.message); }
+  const money = (p, cur) => Number(p) > 0 ? (cur || 'UGX') + ' ' + Number(p).toLocaleString('en-US') : 'Free';
+  const per = x => x.period ? ('<span style="font-size:10px;color:var(--muted)">/' + esc(x.period) + '</span>') : '';
+  const st = items.filter(i => i.category === 'storage');
+  const dr = items.filter(i => i.category === 'directory');
+  const sb = document.getElementById('pricing-storage-body');
+  if (sb) sb.innerHTML = st.length ? st.map(i =>
+    `<tr><td><strong>${esc(i.label)}</strong></td><td style="font-family:var(--mono);font-weight:600">${money(i.price,i.currency)} ${per(i)}</td><td>${esc(i.unit||'—')}</td><td style="font-size:11px;color:var(--muted)">${esc(i.notes||'')}</td></tr>`
+  ).join('') : '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:20px">No storage tiers</td></tr>';
+  const db = document.getElementById('pricing-directory-body');
+  if (db) db.innerHTML = dr.length ? dr.map(i =>
+    `<tr><td><strong>${esc(i.label)}</strong></td><td style="font-family:var(--mono);font-weight:600">${money(i.price,i.currency)} ${per(i)}</td><td style="font-size:11px;color:var(--muted)">${esc(i.notes||'')}</td></tr>`
+  ).join('') : '<tr><td colspan="3" style="text-align:center;color:var(--muted);padding:20px">No directory tiers</td></tr>';
 }
 
 function renderPricing() {
@@ -3835,8 +3844,7 @@ async function loadCoachApplications() {
 
     const pending = allCoachApps.filter(a => a.status === 'pending').length;
     const badge = document.getElementById('coach-app-count-badge');
-    badge.textContent = pending;
-    badge.style.display = pending > 0 ? 'inline-block' : 'none';
+    if (badge) { badge.textContent = pending; badge.style.display = pending > 0 ? 'inline-block' : 'none'; }
 
     renderCoachApplications();
   } catch (err) {

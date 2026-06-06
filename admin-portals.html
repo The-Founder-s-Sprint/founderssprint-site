@@ -81,6 +81,28 @@
   .deny .m{font-family:var(--display);font-size:30px;color:var(--border-hi);margin-bottom:10px;}
   #toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:#fff;padding:13px 22px;font-size:13px;opacity:0;transition:all .3s;z-index:2000;}
   #toast.show{transform:translateX(-50%) translateY(0);opacity:1;} #toast.error{background:#DC3545;}
+  /* Coaches portal hub */
+  .subtabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:18px;}
+  .subtab{font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:9px 14px;cursor:pointer;border-bottom:2px solid transparent;}
+  .subtab.active{color:var(--ochre-deep);border-bottom-color:var(--ochre);}
+  .disc-group{margin-bottom:22px;}
+  .disc-group-h{display:flex;justify-content:space-between;align-items:baseline;border-bottom:2px solid var(--ochre);padding-bottom:6px;margin-bottom:6px;}
+  .disc-group-h span:first-child{font-family:var(--display);font-size:19px;font-weight:600;}
+  .coach-row{display:flex;align-items:center;gap:12px;padding:11px 4px;border-bottom:1px solid var(--border);}
+  .coach-row:last-child{border-bottom:none;}
+  .avatar-sm{width:38px;height:38px;border-radius:50%;background:var(--surface);border:1px solid var(--border-hi);overflow:hidden;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:15px;color:var(--muted);flex-shrink:0;}
+  .avatar-sm img{width:100%;height:100%;object-fit:cover;}
+  .kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;}
+  .kv .k{font-family:var(--sans);font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:3px;}
+  .kv .v{font-size:13px;font-weight:500;}
+  .app-card{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--ochre);padding:16px 18px;margin-bottom:14px;}
+  .app-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:4px;}
+  .dd{margin-top:12px;padding-top:12px;border-top:1px dashed var(--border-hi);}
+  .app-actions{margin-top:14px;display:flex;gap:8px;}
+  .btn-sm{font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:8px 14px;border:none;cursor:pointer;}
+  .btn-sm.approve{background:var(--success);color:#fff;} .btn-sm.reject{background:none;color:#C0392B;border:1px solid var(--border-hi);}
+  .mat-coach{margin:8px 0 12px;} .mat-coach-h{font-size:12px;font-weight:600;color:var(--ink-mid);margin:6px 0 2px;}
+  .mat-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:7px 0;border-top:1px solid var(--border);font-size:12.5px;}
   @media(max-width:560px){.main{padding:22px 16px 70px;}.page-title{font-size:26px;}}
 </style>
 </head>
@@ -170,7 +192,11 @@ let _redir=false; function _toLogin(){ if(_redir||booted) return; _redir=true; l
 
 // ── state ──
 let founders=[], companies=[], regs=[], coaches=[], topics=[], investors=[], roles=[];
-let active='founders';
+let applications=[], materials=[], presentations=[];
+let active='founders', coachSub='roster';
+const DISC_ORDER=['marketing','financial','investment','strategy','product'];
+const DISC_LEAD={marketing:'Teddy Ruge',financial:'Barry Wojega',investment:'Joseph Kalema',strategy:'Moses Engwau Okudu',product:'Patrick Ngolobe'};
+function normDisc(x){ x=String(x||'').toLowerCase(); if(x.includes('market'))return'marketing'; if(x.includes('financ'))return'financial'; if(x.includes('invest'))return'investment'; if(x.includes('strateg')||x.includes('team'))return'strategy'; if(x.includes('product'))return'product'; return null; }
 const PORTALS=[
   {key:'founders',  label:'Founders'},
   {key:'coaches',   label:'Coaches'},
@@ -179,7 +205,7 @@ const PORTALS=[
 ];
 const PORTAL_SUB={
   founders:'Everyone with a founder account — their venture(s), enrolment, payment state and data-room sharing.',
-  coaches:'The coaching roster — disciplines covered, discipline leads (VPs), status and per-session pricing.',
+  coaches:'The single home for coach management — roster by discipline, the application pipeline (lead vets suitability → admin vets due-diligence), and all teaching materials.',
   investors:'Approved and pending investor accounts with read access to opted-in data rooms.',
   admins:'Privileged roles — platform admins and hub partners. This is who can see across every portal.'
 };
@@ -207,7 +233,10 @@ async function boot(user){
       _q('coaches','select=*&order=created_at'),
       _q('coach_topics','select=coach_id,discipline_key,is_lead'),
       _q('investors','select=*&order=created_at.desc'),
-      _q('user_roles','select=user_id,role,created_at&order=created_at')
+      _q('user_roles','select=user_id,role,created_at&order=created_at'),
+      _q('coach_applications','select=*&order=created_at.desc'),
+      _q('course_materials','select=id,coach_id,title,discipline,module_type,format,status,is_active&order=sort_order'),
+      _q('coach_presentations','select=id,coach_id,title,taxonomy_l1,is_active&order=sort_order')
     ]);
     founders =r[0].status==='fulfilled'?(r[0].value||[]):[];
     companies=r[1].status==='fulfilled'?(r[1].value||[]):[];
@@ -216,6 +245,9 @@ async function boot(user){
     topics   =r[4].status==='fulfilled'?(r[4].value||[]):[];
     investors=r[5].status==='fulfilled'?(r[5].value||[]):[];
     roles    =r[6].status==='fulfilled'?(r[6].value||[]):[];
+    applications =r[7].status==='fulfilled'?(r[7].value||[]):[];
+    materials    =r[8].status==='fulfilled'?(r[8].value||[]):[];
+    presentations=r[9].status==='fulfilled'?(r[9].value||[]):[];
     renderTabs(); switchPortal('founders');
   }catch(e){ showToast('Could not load — '+e.message,'error'); }
 }
@@ -275,20 +307,112 @@ function renderFounders(q){
 }
 
 function discsOf(cid){ return topics.filter(t=>t.coach_id===cid); }
+function coachesInDiscipline(key){ const ids=topics.filter(t=>t.discipline_key===key).map(t=>t.coach_id); return coaches.filter(c=>ids.includes(c.id)); }
+function isLeadOf(c,key){ return topics.some(t=>t.coach_id===c.id&&t.discipline_key===key&&t.is_lead); }
+function appsPending(){ return applications.filter(a=>a.review_stage==='lead_review'||a.review_stage==='admin_review').length; }
+
+// ── Coaches Portal: the single coach-management hub (roster · applications · materials) ──
 function renderCoaches(q){
   const active_=coaches.filter(c=>c.status==='active').length;
   const leads=topics.filter(t=>t.is_lead).length;
-  stats([{v:coaches.length,l:'Coaches'},{v:active_,l:'Active'},{v:leads,l:'Discipline leads'}]);
-  const rows=coaches.filter(c=>match(q,c.first_name,c.last_name,c.email,c.headline,discsOf(c.id).map(t=>DISC_LABEL[t.discipline_key]).join(' '))).map(c=>{
-    const ds=discsOf(c.id);
-    const tags=ds.length?ds.map(t=>'<span class="tag'+(t.is_lead?' lead':'')+'">'+esc(DISC_LABEL[t.discipline_key]||t.discipline_key)+(t.is_lead?' · Lead':'')+'</span>').join(''):'<span class="sub">—</span>';
-    const st=c.status==='active'?'<span class="pill pill-green">Active</span>':'<span class="pill pill-grey">'+esc(c.status||'—')+'</span>';
-    return '<tr class="row"><td><div class="nm">'+esc((c.first_name||'')+' '+(c.last_name||''))+'</div><div class="sub">'+esc(c.email||c.founderssprint_email||'')+'</div></td>'
-      +'<td>'+tags+'</td>'
-      +'<td>'+st+'</td>'
-      +'<td>'+(c.session_fee?'UGX '+Number(c.session_fee).toLocaleString('en-US'):'—')+'</td></tr>';
-  });
-  document.getElementById('roster').innerHTML=tbl(['Coach','Disciplines covered','Status','1:1 fee'],rows);
+  stats([{v:coaches.length,l:'Coaches'},{v:active_,l:'Active'},{v:leads,l:'Discipline leads'},{v:appsPending(),l:'Applications in review'}]);
+  const subs=[['roster','Roster'],['applications','Applications'+(appsPending()?' ('+appsPending()+')':'')],['materials','Materials']];
+  document.getElementById('roster').innerHTML='<div class="subtabs">'
+    + subs.map(s=>'<span class="subtab'+(coachSub===s[0]?' active':'')+'" onclick="setCoachSub(\''+s[0]+'\')">'+s[1]+'</span>').join('')
+    + '</div><div id="coach-sub"></div>';
+  renderCoachSub(q);
+}
+function setCoachSub(k){ coachSub=k; renderCoaches(document.getElementById('search').value); }
+function renderCoachSub(q){ if(coachSub==='applications') renderCoachApplications(q); else if(coachSub==='materials') renderCoachMaterials(q); else renderCoachRoster(q); }
+
+function coachRow(c,lead){
+  const fee=c.session_fee?'UGX '+Number(c.session_fee).toLocaleString('en-US'):'—';
+  const st=c.status==='active'?'<span class="pill pill-green">Active</span>':'<span class="pill pill-grey">'+esc(c.status||'—')+'</span>';
+  const av=c.avatar_url?'<img src="'+esc(c.avatar_url)+'">':esc(((c.first_name||'?')[0]||'?').toUpperCase());
+  return '<div class="coach-row"><div class="avatar-sm">'+av+'</div>'
+    +'<div style="flex:1;min-width:0"><div class="nm">'+esc((c.first_name||'')+' '+(c.last_name||''))+(lead?' <span class="tag lead">Discipline Lead</span>':'')+'</div>'
+    +'<div class="sub">'+esc(c.headline||c.email||c.founderssprint_email||'')+'</div></div>'
+    +'<div style="text-align:right;flex-shrink:0">'+st+'<div class="sub" style="margin-top:4px">'+fee+'</div></div></div>';
+}
+function renderCoachRoster(q){
+  const html=DISC_ORDER.map(key=>{
+    const list=coachesInDiscipline(key).filter(c=>match(q,c.first_name,c.last_name,c.email,c.headline));
+    const ordered=[...list.filter(c=>isLeadOf(c,key)), ...list.filter(c=>!isLeadOf(c,key))];
+    const body=ordered.length?ordered.map(c=>coachRow(c,isLeadOf(c,key))).join('')
+      :'<div class="sub" style="padding:14px 4px">Lead: '+esc(DISC_LEAD[key])+' · no specialty coaches admitted yet.</div>';
+    return '<div class="disc-group"><div class="disc-group-h"><span>'+esc(DISC_LABEL[key])+'</span>'
+      +'<span class="sub">'+ordered.length+' coach'+(ordered.length===1?'':'es')+'</span></div>'+body+'</div>';
+  }).join('');
+  document.getElementById('coach-sub').innerHTML=html;
+}
+
+function mask(s){ s=String(s||''); return s.length>4?('•••• '+s.slice(-4)):(s||'—'); }
+const STAGE_PILL={lead_review:'<span class="pill pill-ochre">Lead review</span>',admin_review:'<span class="pill pill-terra">Admin DD review</span>',listed:'<span class="pill pill-green">Listed</span>',rejected:'<span class="pill pill-red">Rejected</span>'};
+function appCard(a){
+  const disc=normDisc(a.taxonomy_l1);
+  const nm=a.display_name||((a.first_name||'')+' '+(a.last_name||''));
+  const lead=a.lead_decision?('Lead: '+esc(a.lead_decision)+(a.lead_notes?(' — '+esc(a.lead_notes)):'')):'Awaiting discipline lead';
+  const suit='<div class="kv" style="margin-top:10px">'
+    +(a.current_role?'<div><div class="k">Current role</div><div class="v">'+esc(a.current_role)+'</div></div>':'')
+    +(a.experience?'<div><div class="k">Experience</div><div class="v">'+esc(a.experience)+'</div></div>':'')
+    +(a.notable_clients?'<div><div class="k">Notable clients</div><div class="v">'+esc(a.notable_clients)+'</div></div>':'')
+    +'</div>'+(a.coaching_philosophy?'<div class="sub" style="margin-top:8px"><b>Philosophy:</b> '+esc(a.coaching_philosophy)+'</div>':'');
+  // due-diligence (admin only) — shown for admin_review/listed
+  const dd='<div class="dd"><div class="k" style="margin-bottom:6px">Due diligence (admin only)</div><div class="kv">'
+    +'<div><div class="k">Email</div><div class="v">'+esc(a.email||'—')+'</div></div>'
+    +'<div><div class="k">Phone</div><div class="v">'+esc((a.country_code||'')+' '+(a.phone||''))+'</div></div>'
+    +'<div><div class="k">ID type</div><div class="v">'+esc(a.id_type||'—')+(a.id_document_path?' <span class="pill pill-green">doc on file</span>':'')+'</div></div>'
+    +'<div><div class="k">TIN</div><div class="v">'+esc(a.tin||a.tin_number||'—')+'</div></div>'
+    +'<div><div class="k">Payout</div><div class="v">'+(a.mobile_money_number?('MoMo '+mask(a.mobile_money_number)):(a.account_number?(esc(a.bank_name||'Bank')+' '+mask(a.account_number)):'—'))+'</div></div>'
+    +'<div><div class="k">CV</div><div class="v">'+(a.cv_path?'<span class="pill pill-green">on file</span>':'<span class="pill pill-grey">none</span>')+'</div></div>'
+    +'</div></div>';
+  let actions='';
+  if(a.review_stage==='admin_review') actions='<div class="app-actions"><button class="btn-sm approve" onclick="adminApprove(\''+a.id+'\')">Approve &amp; list</button><button class="btn-sm reject" onclick="adminReject(\''+a.id+'\')">Reject</button></div>';
+  else if(a.review_stage==='lead_review') actions='<div class="sub" style="margin-top:10px">The discipline lead ('+esc(DISC_LEAD[disc]||'—')+') vets suitability first. You can still <a href="#" onclick="adminReject(\''+a.id+'\');return false" style="color:#C0392B">reject</a> on DD grounds.</div>';
+  return '<div class="app-card"><div class="app-head"><div><span class="nm">'+esc(nm)+'</span> <span class="tag">'+esc(DISC_LABEL[disc]||a.taxonomy_l1||'—')+'</span></div>'+(STAGE_PILL[a.review_stage]||STAGE_PILL.lead_review)+'</div>'
+    +(a.headline?'<div class="sub">'+esc(a.headline)+'</div>':'')
+    +'<div class="sub" style="margin-top:6px">'+lead+'</div>'+suit
+    +(a.review_stage==='admin_review'||a.review_stage==='listed'?dd:'')+actions+'</div>';
+}
+function renderCoachApplications(q){
+  const apps=applications.filter(a=>match(q,a.first_name,a.last_name,a.display_name,a.email,a.taxonomy_l1));
+  document.getElementById('coach-sub').innerHTML = apps.length
+    ? '<div class="sub" style="margin-bottom:12px">New coaches are vetted in two stages: the <b>discipline lead</b> confirms suitability, then <b>admin</b> verifies due-diligence (ID, payout, contact) before listing.</div>'+apps.map(appCard).join('')
+    : '<div class="tbl-wrap"><div class="empty">No applications.</div></div>';
+}
+async function adminApprove(id){
+  if(!confirm('Approve and list this coach? They become visible to founders.'))return;
+  try{ await _w('PATCH','coach_applications','id=eq.'+id,{review_stage:'listed',status:'approved',reviewed_at:new Date().toISOString()});
+    const a=applications.find(x=>x.id===id); if(a){a.review_stage='listed';a.status='approved';}
+    showToast('Coach approved & listed','success'); renderCoaches(document.getElementById('search').value);
+  }catch(e){ showToast('Could not approve — '+e.message,'error'); }
+}
+async function adminReject(id){
+  const reason=prompt('Reason for rejection (optional):')||null;
+  try{ await _w('PATCH','coach_applications','id=eq.'+id,{review_stage:'rejected',status:'rejected',rejection_reason:reason,reviewed_at:new Date().toISOString()});
+    const a=applications.find(x=>x.id===id); if(a){a.review_stage='rejected';a.status='rejected';}
+    showToast('Application rejected','success'); renderCoaches(document.getElementById('search').value);
+  }catch(e){ showToast('Could not reject — '+e.message,'error'); }
+}
+
+function renderCoachMaterials(q){
+  const all=[];
+  materials.forEach(m=>all.push({disc:normDisc(m.discipline),coach_id:m.coach_id,title:m.title,type:m.module_type||m.format||'Material'}));
+  presentations.forEach(p=>all.push({disc:normDisc(p.taxonomy_l1),coach_id:p.coach_id,title:p.title,type:'Presentation'}));
+  const filt=all.filter(m=>match(q,m.title));
+  const html=DISC_ORDER.map(key=>{
+    const items=filt.filter(m=>m.disc===key);
+    if(!items.length) return '';
+    const byCoach={}; items.forEach(m=>{(byCoach[m.coach_id]=byCoach[m.coach_id]||[]).push(m);});
+    const blocks=Object.keys(byCoach).map(cid=>{
+      const c=coaches.find(x=>String(x.id)===String(cid));
+      const cn=c?((c.first_name||'')+' '+(c.last_name||'')):'Unassigned';
+      return '<div class="mat-coach"><div class="mat-coach-h">'+esc(cn)+'</div>'
+        +byCoach[cid].map(m=>'<div class="mat-row"><span>'+esc(m.title)+'</span><span class="tag">'+esc(m.type)+'</span></div>').join('')+'</div>';
+    }).join('');
+    return '<div class="disc-group"><div class="disc-group-h"><span>'+esc(DISC_LABEL[key])+'</span><span class="sub">'+items.length+' item'+(items.length===1?'':'s')+'</span></div>'+blocks+'</div>';
+  }).join('');
+  document.getElementById('coach-sub').innerHTML = html || '<div class="tbl-wrap"><div class="empty">No teaching materials uploaded yet.</div></div>';
 }
 
 function renderInvestors(q){
