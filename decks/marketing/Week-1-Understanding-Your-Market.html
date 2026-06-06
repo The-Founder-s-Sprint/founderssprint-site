@@ -1,0 +1,1042 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Week 1 · Understanding Your Market · The Founder's Sprint</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1A1A1A; --ink-soft:#2A2826; --ink-mid:#444; --ink-mute:#5A564F;
+  --paper:#EFE7D8; --paper-mid:#C0B8A8; --paper-dim:#A09888; --paper-deep:#E6DCC7;
+  --terra:#C8531F; --terra-deep:#9A3E16; --ochre:#C9923A; --sage:#8AAB5C; --moss:#3D4A2E; --stone:#777770;
+  --rule:rgba(26,26,26,0.18);
+  --sans:'Josefin Sans',Inter,system-ui,sans-serif;
+  --display:'Cormorant Garamond',Georgia,serif;
+  --body:'Inter',system-ui,sans-serif;
+  --accent:var(--terra);            /* Marketing & Branding discipline */
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--ink);color:var(--paper);font-family:var(--body);overflow:hidden;}
+
+/* ── DECK + SLIDES ── */
+.deck{position:fixed;inset:0;}
+.slide{position:absolute;inset:0;display:none;flex-direction:column;
+  padding:clamp(28px,4.4vw,76px) clamp(26px,5vw,96px) clamp(56px,5vw,82px);
+  opacity:0;}
+.slide.active{display:flex;opacity:1;}
+.slide.active .anim{animation:riseIn .52s cubic-bezier(.25,1,.5,1) both;}
+.slide.active .anim:nth-child(1){animation-delay:.06s}
+.slide.active .anim:nth-child(2){animation-delay:.12s}
+.slide.active .anim:nth-child(3){animation-delay:.17s}
+.slide.active .anim:nth-child(4){animation-delay:.22s}
+.slide.active .anim:nth-child(5){animation-delay:.27s}
+.slide.active .anim:nth-child(6){animation-delay:.32s}
+.slide.active .anim:nth-child(7){animation-delay:.37s}
+.slide.active .anim:nth-child(8){animation-delay:.42s}
+@keyframes riseIn{from{opacity:0;transform:translateY(15px);}to{opacity:1;transform:none;}}
+
+/* surfaces */
+.s-paper{background:var(--paper);color:var(--ink);}
+.s-dark{background:var(--ink);color:var(--paper);}
+
+/* ── CHROME ── */
+.s-paper .chip-bar,.s-dark .chip-bar{display:flex;justify-content:space-between;align-items:center;
+  font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.18em;text-transform:uppercase;}
+.s-paper .chip-bar{color:rgba(26,26,26,0.5);}
+.s-dark .chip-bar{color:rgba(239,231,216,0.5);}
+.accent-top{position:absolute;top:0;left:0;right:0;height:5px;background:var(--accent);}
+.mark-corner{position:absolute;top:clamp(20px,3vw,40px);right:clamp(20px,4vw,64px);width:clamp(34px,3.4vw,52px);height:auto;opacity:.95;z-index:3;}
+
+.eyebrow{font-family:var(--sans);font-size:clamp(10px,1.05vw,13px);font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:var(--accent);}
+.s-dark .eyebrow{color:var(--ochre);}
+h1.title{font-family:var(--display);font-weight:300;letter-spacing:-0.012em;font-size:clamp(30px,4.6vw,62px);line-height:1.04;margin-top:.32em;}
+.lede{font-family:var(--display);font-style:italic;font-weight:400;font-size:clamp(17px,2.1vw,30px);line-height:1.32;color:var(--ink-mute);margin-top:.5em;max-width:24ch;}
+.s-dark .lede{color:var(--paper-mid);}
+.body-col{margin-top:clamp(14px,2vw,26px);max-width:62ch;}
+p.body{font-size:clamp(14px,1.45vw,20px);line-height:1.55;font-weight:400;color:var(--ink-mid);}
+.s-dark p.body{color:var(--paper-mid);}
+strong{color:var(--terra-deep);font-weight:500;}
+.s-dark strong{color:var(--ochre);font-weight:500;}
+
+.slide-body{flex:1;display:flex;flex-direction:column;justify-content:center;min-height:0;}
+.foot{position:absolute;bottom:clamp(16px,2.4vw,30px);left:clamp(26px,5vw,96px);right:clamp(26px,5vw,96px);
+  display:flex;justify-content:space-between;align-items:center;
+  font-family:var(--sans);font-size:clamp(8px,.85vw,11px);letter-spacing:0.22em;text-transform:uppercase;}
+.s-paper .foot{color:rgba(26,26,26,0.4);} .s-dark .foot{color:rgba(239,231,216,0.4);}
+.foot .tag{font-family:var(--display);font-style:italic;letter-spacing:0;text-transform:none;color:var(--terra);opacity:.55;}
+
+/* ── TITLE SLIDE ── */
+#s-title{padding:0;background:var(--ink);}
+.title-bg{position:absolute;inset:0;overflow:hidden;}
+.title-photo{position:absolute;inset:0;background:#1A1A1A url('assets/title-market.jpg') center 38%/cover no-repeat;
+  filter:grayscale(1) contrast(1.08) brightness(0.5);}
+.title-tint{position:absolute;inset:0;background:
+   radial-gradient(95% 95% at 20% 16%, rgba(154,62,22,0.34) 0%, transparent 55%),
+   linear-gradient(180deg, rgba(26,26,26,0.42) 0%, rgba(26,26,26,0.30) 40%, rgba(26,26,26,0.86) 100%);}
+.title-grain{position:absolute;inset:0;opacity:.06;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+.title-vignette{position:absolute;inset:0;background:radial-gradient(118% 118% at 50% 42%, transparent 50%, rgba(0,0,0,0.55) 100%);}
+#cv-title{position:absolute;inset:0;width:100%;height:100%;opacity:.9;z-index:2;}
+.title-inner{position:relative;z-index:4;height:100%;display:flex;flex-direction:column;
+  padding:clamp(30px,4vw,64px) clamp(30px,5.5vw,104px);}
+.title-top{display:flex;align-items:center;gap:14px;}
+.title-top .mark{width:clamp(34px,3.2vw,46px);height:auto;animation:spin 64s linear infinite;}
+.title-top .wm{font-family:var(--sans);font-size:clamp(10px,1.05vw,13px);font-weight:700;letter-spacing:0.24em;text-transform:uppercase;color:var(--paper);}
+.title-mid{margin-top:auto;margin-bottom:auto;}
+.title-eyebrow{font-family:var(--sans);font-size:clamp(10px,1.1vw,14px);font-weight:700;letter-spacing:0.34em;text-transform:uppercase;color:var(--paper);opacity:.8;}
+.title-week{font-family:var(--sans);font-size:clamp(10px,1.05vw,13px);font-weight:600;letter-spacing:0.28em;text-transform:uppercase;color:var(--terra);margin-bottom:.7em;}
+.title-h{font-family:var(--display);font-weight:300;font-size:clamp(38px,6.6vw,98px);line-height:0.98;letter-spacing:-0.02em;color:var(--paper);}
+.title-h em{font-style:italic;color:var(--ochre);}
+.title-sub{font-family:var(--display);font-style:italic;font-size:clamp(16px,2.1vw,28px);color:var(--paper);opacity:.82;margin-top:.7em;max-width:28ch;}
+.title-foot{margin-top:clamp(20px,3vw,38px);display:flex;flex-wrap:wrap;gap:8px 26px;align-items:baseline;
+  font-family:var(--sans);font-size:clamp(9px,1vw,12px);letter-spacing:0.2em;text-transform:uppercase;color:var(--paper);opacity:.72;}
+.title-foot .dot{color:var(--terra);}
+.title-cta{margin-top:18px;font-family:var(--sans);font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:var(--paper);opacity:.5;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* ── DIVIDER SLIDE ── (copy block: homepage lockup style, left-middle) */
+.s-divider{background:var(--ink);color:var(--paper);overflow:hidden;justify-content:center;}
+.s-divider .div-photo{position:absolute;inset:0;background-position:center 32%;background-size:cover;
+  filter:sepia(.85) saturate(1.05) contrast(1.05) brightness(.5);opacity:.26;}
+.s-divider .div-overlay{position:absolute;inset:0;background:linear-gradient(110deg,rgba(26,26,26,0.82) 0%,rgba(26,26,26,0.58) 45%,rgba(26,26,26,0.88) 100%);}
+.s-divider .div-mark{position:absolute;top:clamp(26px,4vw,58px);right:clamp(26px,4.5vw,72px);width:clamp(50px,7vw,105px);height:auto;
+  animation:spin 18s linear infinite;opacity:.85;z-index:2;}
+.div-inner{position:relative;z-index:3;display:flex;flex-direction:column;align-items:flex-start;}
+.div-num{font-family:var(--display);font-weight:300;font-size:clamp(40px,6vw,86px);line-height:1;color:rgba(239,231,216,0.22);letter-spacing:-0.02em;margin-bottom:.18em;}
+.div-eyebrow{font-family:var(--sans);font-size:clamp(10px,1.05vw,13px);font-weight:700;letter-spacing:0.34em;text-transform:uppercase;color:var(--paper);opacity:.4;margin-bottom:.35em;}
+.div-title{font-family:var(--display);font-style:italic;font-weight:300;font-size:clamp(30px,5.4vw,84px);line-height:1.04;color:var(--paper);letter-spacing:-0.01em;}
+.div-meta{margin-top:1em;font-family:var(--display);font-style:italic;font-size:clamp(14px,1.7vw,22px);line-height:1.4;color:var(--terra);opacity:.9;max-width:34ch;}
+
+/* ── CARDS / GRIDS ── */
+.grid{display:grid;gap:clamp(12px,1.6vw,22px);}
+.g2{grid-template-columns:repeat(2,1fr);} .g3{grid-template-columns:repeat(3,1fr);} .g4{grid-template-columns:repeat(4,1fr);}
+.card{background:var(--paper-deep);border-left:3px solid var(--accent);padding:clamp(14px,1.7vw,24px);}
+.s-dark .card{background:rgba(239,231,216,0.06);border-left-color:var(--ochre);}
+.card h4{font-family:var(--sans);font-size:clamp(11px,1.15vw,15px);font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink);margin-bottom:.45em;}
+.s-dark .card h4{color:var(--paper);}
+.card p{font-size:clamp(12px,1.25vw,16px);line-height:1.5;color:var(--ink-mute);}
+.s-dark .card p{color:var(--paper-mid);}
+.card .num{font-family:var(--display);font-weight:300;font-size:clamp(26px,3vw,46px);color:var(--accent);line-height:1;}
+.card .num.big{font-size:clamp(54px,8vw,116px);letter-spacing:-0.02em;margin-bottom:.06em;display:block;}
+.card.stat{padding-top:clamp(18px,2vw,28px);}
+
+ul.list{list-style:none;margin-top:.4em;}
+ul.list li{position:relative;padding-left:1.4em;margin-bottom:.62em;font-size:clamp(13px,1.4vw,19px);line-height:1.5;color:var(--ink-mid);}
+.s-dark ul.list li{color:var(--paper-mid);}
+ul.list li::before{content:"";position:absolute;left:0;top:.55em;width:9px;height:9px;background:var(--accent);
+  clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);}
+
+.pull{font-family:var(--display);font-style:italic;font-weight:300;font-size:clamp(24px,4vw,56px);line-height:1.16;color:var(--paper);letter-spacing:-0.01em;max-width:20ch;}
+.pull .by{display:block;margin-top:.7em;font-family:var(--sans);font-style:normal;font-size:clamp(10px,1.1vw,14px);font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--ochre);}
+
+/* case study */
+.case{display:grid;grid-template-columns:auto 1fr;gap:clamp(14px,2vw,30px);align-items:start;}
+.case-badge{font-family:var(--sans);font-size:clamp(9px,.95vw,12px);font-weight:700;letter-spacing:0.18em;text-transform:uppercase;
+  background:var(--accent);color:var(--paper);padding:6px 12px;white-space:nowrap;align-self:start;}
+.case-flag{display:inline-block;font-family:var(--sans);font-size:clamp(9px,.9vw,11px);font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--accent);border:1px solid var(--accent);padding:3px 9px;margin-bottom:.7em;}
+
+/* ── INTERACTIVE: segmentation chips ── */
+.seg-wrap{display:grid;grid-template-columns:1fr 1fr;gap:clamp(16px,2.5vw,40px);align-items:center;}
+.seg-chips{display:flex;flex-wrap:wrap;gap:10px;}
+.seg-chip{font-family:var(--sans);font-size:clamp(11px,1.2vw,15px);font-weight:600;letter-spacing:0.06em;
+  border:1.5px solid var(--rule);background:var(--paper-deep);color:var(--ink);padding:11px 18px;cursor:pointer;
+  transition:all .2s ease;}
+.seg-chip:hover{border-color:var(--accent);}
+.seg-chip.on{background:var(--accent);color:var(--paper);border-color:var(--accent);}
+.seg-detail{background:var(--paper-deep);border-top:4px solid var(--accent);padding:clamp(16px,2vw,28px);min-height:clamp(150px,18vw,220px);}
+.seg-detail .k{font-family:var(--sans);font-size:clamp(11px,1.2vw,15px);font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--accent);margin-bottom:.5em;}
+.seg-detail .v{font-size:clamp(13px,1.4vw,18px);line-height:1.55;color:var(--ink-mid);}
+.seg-detail .eg{margin-top:.9em;font-family:var(--display);font-style:italic;font-size:clamp(13px,1.5vw,19px);color:var(--terra-deep);}
+
+/* ── INTERACTIVE: segmentation journey ── */
+.journey{display:flex;align-items:stretch;gap:0;margin-top:1em;flex-wrap:wrap;}
+.j-step{flex:1;min-width:130px;background:var(--paper-deep);border:1px solid var(--rule);border-right:none;
+  padding:clamp(13px,1.6vw,22px);cursor:pointer;transition:all .25s ease;position:relative;}
+.j-step:last-child{border-right:1px solid var(--rule);}
+.j-step .jn{font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:0.18em;color:var(--paper-dim);text-transform:uppercase;}
+.j-step .jt{font-family:var(--display);font-size:clamp(18px,2.1vw,30px);font-weight:500;color:var(--ink);margin-top:.2em;line-height:1.05;}
+.j-step .jd{font-size:clamp(11px,1.2vw,15px);line-height:1.45;color:var(--ink-mute);margin-top:.55em;
+  max-height:0;overflow:hidden;opacity:0;transition:all .35s ease;}
+.j-step.on{background:var(--accent);}
+.j-step.on .jn{color:rgba(239,231,216,0.75);}
+.j-step.on .jt{color:var(--paper);}
+.j-step.on .jd{color:var(--paper);max-height:200px;opacity:1;margin-top:.7em;}
+.j-step .jarrow{position:absolute;right:-1px;top:50%;transform:translate(50%,-50%) rotate(45deg);width:14px;height:14px;
+  background:var(--paper);border-top:1px solid var(--rule);border-right:1px solid var(--rule);z-index:2;}
+.j-step:last-child .jarrow{display:none;}
+.j-hint{font-family:var(--sans);font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:var(--paper-dim);margin-top:1em;}
+
+/* ── INTERACTIVE: TAM/SAM/SOM live calculator (slider-driven rings) ── */
+.calc-wrap{display:grid;grid-template-columns:1.05fr 1fr;gap:clamp(22px,4vw,72px);align-items:start;margin-top:clamp(10px,1.6vw,22px);}
+.calc-inputs{display:flex;flex-direction:column;gap:clamp(12px,1.7vw,22px);}
+.calc-row__head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:7px;}
+.calc-row__lbl{font-family:var(--sans);font-size:clamp(11px,1.15vw,14px);font-weight:600;letter-spacing:0.04em;color:var(--paper-mid);}
+.calc-row__val{font-family:var(--display);font-size:clamp(20px,2.3vw,34px);color:var(--paper);font-weight:400;line-height:1;}
+.calc-row__val em{font-style:italic;color:var(--ochre);}
+.calc-row__legend{display:flex;justify-content:space-between;font-family:var(--sans);font-size:clamp(9px,.95vw,11px);letter-spacing:0.14em;color:rgba(239,231,216,0.4);text-transform:uppercase;margin-top:4px;}
+.calc-row input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;background:rgba(239,231,216,0.18);outline:none;cursor:pointer;}
+.calc-row input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:22px;height:22px;border-radius:50%;background:var(--terra);border:2px solid var(--paper);cursor:pointer;box-shadow:0 0 0 4px rgba(200,83,31,0.2);}
+.calc-row input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--terra);border:2px solid var(--paper);cursor:pointer;box-shadow:0 0 0 4px rgba(200,83,31,0.2);}
+.calc-note{margin-top:2px;padding:11px 16px;background:rgba(200,83,31,0.1);border-left:3px solid var(--terra);
+  font-family:var(--sans);font-size:clamp(9px,1vw,12px);letter-spacing:0.14em;text-transform:uppercase;color:var(--paper-mid);}
+.calc-right{display:flex;flex-direction:column;gap:clamp(12px,1.6vw,20px);}
+.calc-rings{position:relative;width:100%;aspect-ratio:1.18/1;max-height:clamp(220px,34vh,420px);margin:auto;}
+.calc-rings svg{width:100%;height:100%;display:block;}
+#ring-sam,#ring-som,#lbl-sam,#lbl-som{transition:r .35s cubic-bezier(.2,.8,.2,1),y .35s cubic-bezier(.2,.8,.2,1);}
+.calc-outs{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(8px,1vw,14px);}
+.calc-out{padding:clamp(11px,1.3vw,18px) clamp(10px,1.1vw,16px);border:1px solid rgba(239,231,216,0.18);background:rgba(239,231,216,0.04);display:flex;flex-direction:column;gap:5px;}
+.calc-out--hot{background:rgba(200,83,31,0.12);border-color:rgba(200,83,31,0.55);}
+.calc-out__lbl{font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--ochre);}
+.calc-out__val{font-family:var(--display);font-style:italic;font-size:clamp(22px,3vw,40px);color:var(--paper);font-weight:400;line-height:1.05;}
+.calc-out--hot .calc-out__val{color:var(--ochre);}
+.calc-out__sub{font-family:var(--body);font-size:clamp(10px,1.05vw,13px);color:var(--paper-mid);letter-spacing:0.03em;}
+.calc-hint{font-family:var(--sans);font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:var(--paper-dim);margin-top:1em;}
+@media (max-width:768px){.calc-wrap{grid-template-columns:1fr;}}
+
+/* ── INTERACTIVE: competitive matrix ── */
+.matrix{width:100%;border-collapse:collapse;font-size:clamp(11px,1.25vw,16px);margin-top:.5em;}
+.matrix th,.matrix td{padding:clamp(8px,1vw,14px) clamp(6px,1vw,16px);text-align:center;border-bottom:1px solid var(--rule);}
+.matrix th{font-family:var(--sans);font-weight:700;letter-spacing:0.08em;text-transform:uppercase;font-size:clamp(10px,1.1vw,14px);color:var(--ink);cursor:pointer;transition:background .2s;}
+.matrix th.feat,.matrix td.feat{text-align:left;font-family:var(--body);font-weight:500;color:var(--ink-mid);text-transform:none;letter-spacing:0;cursor:default;}
+.matrix th.you{color:var(--paper);background:var(--terra);}
+.matrix td.yes{color:var(--sage);font-weight:700;}
+.matrix td.no{color:var(--paper-dim);}
+.matrix col.hl,.matrix th.hl{outline:none;}
+.matrix td.hlcol{background:rgba(200,83,31,0.12);}
+.matrix th.hlcol{background:var(--terra-deep);color:var(--paper);}
+.mx-hint{font-family:var(--sans);font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:var(--ink-mute);margin-top:.9em;}
+
+/* ── INTERACTIVE: customer journey map ── */
+.cjm{display:flex;gap:0;margin-top:1em;flex-wrap:wrap;}
+.cjm-stage{flex:1;min-width:120px;text-align:center;cursor:pointer;padding:clamp(10px,1.4vw,18px) 8px;border-bottom:3px solid var(--rule);transition:all .25s;}
+.cjm-stage.on{border-bottom-color:var(--accent);}
+.cjm-stage .ci{width:clamp(40px,4vw,58px);height:clamp(40px,4vw,58px);margin:0 auto .5em;border-radius:50%;border:2px solid var(--rule);
+  display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:clamp(18px,2vw,28px);color:var(--ink-mute);transition:all .25s;}
+.cjm-stage.on .ci{background:var(--accent);border-color:var(--accent);color:var(--paper);}
+.cjm-stage .cl{font-family:var(--sans);font-size:clamp(10px,1.1vw,14px);font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink);}
+.cjm-detail{margin-top:1.1em;background:var(--paper-deep);padding:clamp(14px,1.8vw,26px);border-left:4px solid var(--accent);
+  font-size:clamp(13px,1.4vw,18px);line-height:1.55;color:var(--ink-mid);min-height:clamp(70px,8vw,96px);}
+.cjm-detail b{color:var(--terra-deep);}
+
+/* exercise / homework callouts */
+.box{border:1.5px solid var(--accent);padding:clamp(16px,2.2vw,32px);background:rgba(200,83,31,0.05);}
+.s-dark .box{border-color:var(--ochre);background:rgba(201,146,58,0.08);}
+.box .bk{font-family:var(--sans);font-size:clamp(10px,1.1vw,14px);font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent);margin-bottom:.6em;}
+.s-dark .box .bk{color:var(--ochre);}
+
+/* ── Exercise worksheet (slide 23) ── */
+.ex-head{display:flex;flex-wrap:wrap;align-items:flex-end;gap:14px 20px;}
+.ex-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(10px,1.3vw,18px);margin-top:clamp(14px,2vw,26px);}
+.ex-card{position:relative;background:var(--paper-deep);border-top:3px solid var(--terra);padding:clamp(15px,1.8vw,24px) clamp(14px,1.5vw,20px) clamp(16px,1.8vw,24px);overflow:hidden;display:flex;flex-direction:column;}
+.ex-card .exn{position:absolute;top:-0.12em;right:8px;font-family:var(--display);font-weight:300;font-size:clamp(60px,7vw,118px);line-height:1;color:rgba(200,83,31,0.12);pointer-events:none;}
+.ex-card .exk{position:relative;font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--terra);}
+.ex-card .ext{position:relative;font-family:var(--display);font-weight:500;font-size:clamp(17px,1.9vw,26px);color:var(--ink);margin:.14em 0 .3em;line-height:1.08;}
+.ex-card .exp{position:relative;font-size:clamp(11px,1.2vw,15px);line-height:1.45;color:var(--ink-mute);}
+.ex-card .write{margin-top:auto;padding-top:1.1em;}
+.ex-card .write span{display:block;border-bottom:1.5px dashed var(--paper-dim);height:1.15em;}
+.ex-card .write span+span{margin-top:.5em;}
+.ex-review{margin-top:clamp(13px,1.8vw,22px);border-left:3px solid var(--moss);padding-left:15px;font-size:clamp(12px,1.3vw,17px);line-height:1.5;color:var(--ink-mute);max-width:84ch;}
+.ex-review b{color:var(--terra-deep);font-weight:600;}
+
+/* ── Homework brief (slide 24) ── */
+.due-tag{display:inline-flex;align-items:center;gap:8px;font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink);background:var(--ochre);padding:7px 15px;}
+.due-tag .d{width:9px;height:9px;background:var(--ink);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);}
+.hw-grid{display:grid;grid-template-columns:1.12fr .88fr;gap:clamp(20px,3.4vw,56px);align-items:start;margin-top:clamp(14px,2vw,26px);}
+.hw-klbl{font-family:var(--sans);font-size:clamp(10px,1.1vw,13px);font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--ochre);margin-bottom:.4em;}
+.hw-check{list-style:none;}
+.hw-check li{display:flex;gap:14px;align-items:flex-start;padding:clamp(10px,1.3vw,15px) 0;border-bottom:1px solid rgba(239,231,216,0.14);font-size:clamp(13px,1.4vw,18px);line-height:1.45;color:var(--paper-mid);}
+.hw-check li:last-child{border-bottom:none;}
+.hw-check .cbx{flex:none;width:clamp(21px,2vw,27px);height:clamp(21px,2vw,27px);border:1.5px solid var(--ochre);display:flex;align-items:center;justify-content:center;margin-top:1px;}
+.hw-check .cbx::after{content:"";width:46%;height:46%;background:var(--ochre);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);}
+.hw-check b{color:var(--paper);font-weight:600;}
+.hw-quote{background:rgba(201,146,58,0.09);border-left:3px solid var(--ochre);padding:clamp(18px,2.3vw,32px) clamp(18px,2.2vw,30px) clamp(20px,2.4vw,30px);}
+.hw-quote .qm{font-family:var(--display);font-size:clamp(52px,6vw,96px);line-height:.4;color:var(--ochre);display:block;height:.5em;}
+.hw-quote .qt{font-family:var(--display);font-style:italic;font-weight:300;font-size:clamp(19px,2.3vw,32px);line-height:1.26;color:var(--paper);}
+.hw-quote .qb{font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--ochre);margin-top:1em;}
+.hw-bridge{margin-top:clamp(13px,1.7vw,20px);font-size:clamp(13px,1.4vw,18px);line-height:1.55;color:var(--paper-mid);}
+@media (max-width:880px){.ex-grid{grid-template-columns:repeat(2,1fr);}}
+@media (max-width:768px){.hw-grid{grid-template-columns:1fr;}}
+@media (max-width:520px){.ex-grid{grid-template-columns:1fr;}}
+.timebox{display:inline-block;font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;
+  color:var(--paper);background:var(--ink);padding:5px 12px;margin-bottom:1em;}
+
+/* closer */
+#s-close{align-items:center;justify-content:center;text-align:center;}
+#s-close .mark{width:clamp(90px,13vw,180px);height:auto;}
+#s-close .ct{font-family:var(--display);font-style:italic;font-weight:300;font-size:clamp(22px,3.2vw,44px);color:var(--paper);margin-top:.6em;}
+#s-close .cc{font-family:var(--sans);font-size:clamp(9px,1vw,12px);letter-spacing:0.24em;text-transform:uppercase;color:var(--paper-mid);margin-top:1.4em;}
+
+/* ── NAV / HUD ── */
+.hud{position:fixed;bottom:0;left:0;right:0;height:0;z-index:40;pointer-events:none;}
+.progress{position:fixed;bottom:0;left:0;height:4px;background:var(--accent);width:0;z-index:41;transition:width .3s ease;}
+.nav{position:fixed;bottom:clamp(14px,2vw,26px);right:clamp(16px,2.5vw,34px);display:flex;gap:8px;z-index:42;pointer-events:auto;}
+.nav button{width:clamp(38px,3.6vw,46px);height:clamp(38px,3.6vw,46px);border:1px solid rgba(239,231,216,0.3);background:rgba(26,26,26,0.55);
+  color:var(--paper);font-size:18px;cursor:pointer;backdrop-filter:blur(4px);transition:all .2s;display:flex;align-items:center;justify-content:center;}
+.s-paper~.hud .nav button,body.on-paper .nav button{border-color:rgba(26,26,26,0.25);background:rgba(239,231,216,0.7);color:var(--ink);}
+.nav button:hover{border-color:var(--terra);color:var(--terra);}
+.counter{position:fixed;bottom:clamp(16px,2vw,28px);left:clamp(18px,2.5vw,34px);z-index:42;
+  font-family:var(--sans);font-size:clamp(10px,1.1vw,13px);font-weight:600;letter-spacing:0.16em;color:var(--paper-mid);pointer-events:none;}
+body.on-paper .counter{color:var(--ink-mute);}
+.kbd-hint{position:fixed;bottom:clamp(16px,2vw,28px);left:50%;transform:translateX(-50%);z-index:42;
+  font-family:var(--sans);font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--paper-dim);opacity:.7;pointer-events:none;}
+body.on-paper .kbd-hint{color:var(--paper-dim);}
+
+/* overview grid */
+.overview{position:fixed;inset:0;background:rgba(16,12,8,0.96);z-index:60;display:none;padding:clamp(20px,3vw,48px);overflow-y:auto;}
+.overview.show{display:block;}
+.ov-title{font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--ochre);margin-bottom:18px;}
+.ov-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;}
+.ov-item{background:rgba(239,231,216,0.06);border:1px solid rgba(239,231,216,0.14);padding:14px;cursor:pointer;transition:all .2s;}
+.ov-item:hover{border-color:var(--terra);background:rgba(200,83,31,0.12);}
+.ov-item .oi-n{font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:0.16em;color:var(--terra);}
+.ov-item .oi-t{font-family:var(--display);font-size:18px;color:var(--paper);margin-top:4px;line-height:1.15;}
+
+/* Unified caption style for all text below infographics (surface-aware) */
+.j-hint,.calc-hint,.mx-hint,.pick-hint,.pmap-hint,.tss-hint{
+  font-family:var(--sans);font-size:clamp(10px,1.1vw,12px);font-weight:600;letter-spacing:0.16em;
+  text-transform:uppercase;line-height:1.5;margin-top:clamp(12px,1.6vw,20px);color:var(--paper-dim);}
+.s-paper .j-hint,.s-paper .calc-hint,.s-paper .mx-hint,.s-paper .pick-hint,.s-paper .pmap-hint,.s-paper .tss-hint{color:var(--ink-mute);}
+
+/* Typographic widow & orphan control — no lone words on the last line */
+.slide h1,.slide h4,.slide p,.slide li,.lede,.div-meta,.title-sub,.pick-detail .pv,.pmap-panel .mv,.funnel-detail .fv,.seg-detail .v,.tss-panel .tv,.cjm-detail{text-wrap:pretty;}
+h1.title,.title-h,.div-title,.lede,.pull,.card h4,.ex-card .ext,.hw-quote .qt,.title-sub{text-wrap:balance;}
+
+@media (max-width:768px){
+  .grid.g3,.grid.g4{grid-template-columns:repeat(2,1fr);}
+  .seg-wrap,.tss-wrap{grid-template-columns:1fr;}
+  .case{grid-template-columns:1fr;}
+  .journey .j-step{flex-basis:100%;border-right:1px solid var(--rule);border-bottom:none;}
+  .journey .j-step .jarrow{display:none;}
+  .kbd-hint{display:none;}
+  .tss-rings{width:min(70vw,300px);}
+}
+@media (max-width:560px){
+  .grid.g2,.grid.g3,.grid.g4{grid-template-columns:1fr;}
+  .matrix{font-size:11px;}
+}
+@media (prefers-reduced-motion:reduce){
+  .title-top .mark,.s-divider .div-mark{animation:none;}
+  .slide.active .anim{animation:none;}
+}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<!-- ══════════ 1 · TITLE ══════════ -->
+<section class="slide" id="s-title" data-surface="dark" data-title="Title">
+  <div class="title-bg">
+    <div class="title-photo"></div>
+    <canvas id="cv-title"></canvas>
+    <div class="title-tint"></div>
+    <div class="title-grain"></div>
+    <div class="title-vignette"></div>
+  </div>
+  <div class="title-inner">
+    <div class="title-top">
+      <svg class="mark" viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.92"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.86" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.83" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.86" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#EFE7D8" opacity="0.8" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+      <span class="wm">The Founder's Sprint</span>
+    </div>
+    <div class="title-mid">
+      <div class="title-eyebrow">Marketing &amp; Branding · with Teddy Ruge</div>
+      <div class="title-week">Week 1 of 5 · Monday Cohort Session</div>
+      <h1 class="title-h">Understanding<br>your <em>market</em>.</h1>
+      <div class="title-sub">Before the logo, before the ads — know exactly who you serve, and how many of them exist.</div>
+      <div class="title-foot">
+        <span><span class="dot">●</span> Segmentation</span>
+        <span><span class="dot">●</span> Research</span>
+        <span><span class="dot">●</span> Personas</span>
+        <span><span class="dot">●</span> Competition</span>
+        <span><span class="dot">●</span> TAM / SAM / SOM</span>
+      </div>
+      <div class="title-cta">Press → or Space to begin · Press O for slide overview</div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ 2 · AGENDA ══════════ -->
+<section class="slide s-paper" data-surface="paper" data-title="Today's map">
+  <div class="accent-top"></div>
+  <svg class="mark-corner" viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.92"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.86" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.83" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.86" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.8" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#1A1A1A"/><circle cx="50" cy="50" r="2" fill="#EFE7D8"/></svg>
+  <div class="chip-bar anim"><span>Marketing &amp; Branding · Week 1</span><span>Understanding Your Market</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Today's map · 60 min teaching + 60 min Q&amp;A</div>
+    <h1 class="title anim">Five things we'll lock down today.</h1>
+    <div class="grid g3 anim" style="margin-top:clamp(18px,2.5vw,34px)">
+      <div class="card"><div class="num">01</div><h4>Segmentation &amp; Targeting</h4><p>Cut the market into groups. Pick the one you'll win first.</p></div>
+      <div class="card"><div class="num">02</div><h4>Market Research</h4><p>Primary &amp; secondary — how to get real answers cheaply.</p></div>
+      <div class="card"><div class="num">03</div><h4>Customer Behaviour</h4><p>Build a persona. Map the journey from first contact to purchase.</p></div>
+      <div class="card"><div class="num">04</div><h4>Competitive Analysis</h4><p>Find the gap competitors leave open — and your USP.</p></div>
+      <div class="card"><div class="num">05</div><h4>Market Sizing</h4><p>TAM / SAM / SOM for an African market, with real numbers.</p></div>
+      <div class="card" style="border-left-color:var(--ink)"><div class="num" style="color:var(--ink)">→</div><h4>You leave with</h4><p>A defined market, one persona, and a sized opportunity.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- ══════════ 3 · DIVIDER 01 ══════════ -->
+<section class="slide s-divider" data-surface="dark" data-title="01 · Why market first" data-photo="assets/div-01.jpg">
+  <div class="div-photo"></div><div class="div-overlay"></div>
+  <svg class="div-mark" viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.92"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.86" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.83" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.86" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#EFE7D8" opacity="0.8" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+  <div class="div-inner">
+    <div class="div-num anim">01</div>
+    <div class="div-eyebrow anim">The foundation</div>
+    <div class="div-title anim">Marketing starts with the<br>market — not the logo.</div>
+    <div class="div-meta anim">Most founders build a product, then go hunting for customers. We do it the other way round.</div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- ══════════ 4 · WHY ══════════ -->
+<section class="slide s-paper" data-surface="paper" data-title="The cost of guessing">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Marketing &amp; Branding · Week 1</span><span>Why the market comes first</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">The expensive mistake</div>
+    <h1 class="title anim">You can't out-market a<br>market you don't understand.</h1>
+    <div class="grid g2 anim" style="margin-top:clamp(18px,2.5vw,34px);align-items:start">
+      <div class="body-col">
+        <p class="body">Effective marketing isn't louder ads or a prettier logo. It's the <strong>discipline of knowing your customer better than your competitors do</strong> — their pain, their language, their wallet, and where they already spend their attention.</p>
+        <p class="body" style="margin-top:1em">Get the market right and everything downstream — your brand, your channels, your pitch — gets cheaper and sharper. Get it wrong and you'll burn cash talking to people who were never going to buy.</p>
+      </div>
+      <div class="grid" style="gap:14px">
+        <div class="card"><h4>Targeted approach</h4><p>Identify and reach your <em>ideal</em> customer — not everyone.</p></div>
+        <div class="card"><h4>Customer pain points</h4><p>Are you solving a problem people will actually pay to remove?</p></div>
+        <div class="card"><h4>Market opportunity</h4><p>Do you have intimate knowledge of where the gap and the money are?</p></div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- ══════════ 5 · DIVIDER 02 ══════════ -->
+<section class="slide s-divider" data-surface="dark" data-title="02 · Segmentation" data-photo="assets/div-02.jpg">
+  <div class="div-photo"></div><div class="div-overlay"></div>
+  <svg class="div-mark" viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.92"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.86" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.83" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.86" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#EFE7D8" opacity="0.8" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+  <div class="div-inner">
+    <div class="div-num anim">02</div>
+    <div class="div-eyebrow anim">L3-1.1.1</div>
+    <div class="div-title anim">Segmentation &amp; targeting.</div>
+    <div class="div-meta anim">Everyone is not your customer. Cut the market into groups, then pick your beachhead.</div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- ══════════ 6 · SEGMENTATION (interactive chips) ══════════ -->
+<section class="slide s-paper" data-surface="paper" data-title="Four ways to segment">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Marketing &amp; Branding · Week 1</span><span>Segmentation criteria</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Interactive · tap a lens</div>
+    <h1 class="title anim">Four lenses to slice your market.</h1>
+    <div class="seg-wrap anim" style="margin-top:clamp(16px,2.2vw,30px)">
+      <div>
+        <div class="seg-chips" id="segChips">
+          <button class="seg-chip on" data-seg="demo">Demographic</button>
+          <button class="seg-chip" data-seg="geo">Geographic</button>
+          <button class="seg-chip" data-seg="behav">Behavioural</button>
+          <button class="seg-chip" data-seg="psych">Psychographic</button>
+        </div>
+        <p class="body" style="margin-top:1.1em;font-size:clamp(13px,1.35vw,18px)">Segmentation groups customers who share characteristics, needs, or behaviours — so you can build a tailored strategy for each. <strong>Targeting</strong> is then choosing which segment becomes your primary focus.</p>
+      </div>
+      <div class="seg-detail" id="segDetail"></div>
+    </div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- ══════════ 7 · SEGMENTATION JOURNEY (interactive) ══════════ -->
+<section class="slide s-paper" data-surface="paper" data-title="The segmentation journey">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Marketing &amp; Branding · Week 1</span><span>From whole market to one person</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Interactive · walk the steps</div>
+    <h1 class="title anim">The segmentation journey.</h1>
+    <p class="lede anim" style="max-width:40ch">Narrowing focus is not losing customers — it's earning the right to be relevant.</p>
+    <div class="journey anim" id="journey">
+      <div class="j-step on" data-j="0"><span class="jarrow"></span><div class="jn">Step 1 · Market</div><div class="jt">The whole market</div><div class="jd">Everyone who could conceivably use a product like yours. Too broad to serve well — nobody markets to "everyone" and wins.</div></div>
+      <div class="j-step" data-j="1"><span class="jarrow"></span><div class="jn">Step 2 · Segments</div><div class="jt">Distinct groups</div><div class="jd">Split by demographic, geographic, behavioural and psychographic traits. E.g. for a beauty brand: teens, working professionals, mature skin, diaspora.</div></div>
+      <div class="j-step" data-j="2"><span class="jarrow"></span><div class="jn">Step 3 · Target</div><div class="jt">Your beachhead</div><div class="jd">Pick the one segment you can win first and profitably. It should be reachable, willing to pay, and underserved by competitors.</div></div>
+      <div class="j-step" data-j="3"><div class="jn">Step 4 · Persona</div><div class="jt">One real person</div><div class="jd">Compress the target into a single named human with a face, a budget and a pain. Every message you write speaks to them.</div></div>
+    </div>
+    <div class="j-hint anim">Tap each step → it expands. This is the funnel you'll run on your own business in today's exercise.</div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- ══════════ 8 · CASE: QWEZI (targeting) ══════════ -->
+<section class="slide s-paper" data-surface="paper" data-title="Case · Qwezi Beauty">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Marketing &amp; Branding · Week 1</span><span>Case study · Uganda</span></div>
+  <div class="slide-body">
+    <div class="case anim">
+      <div class="case-badge">Case Study</div>
+      <div>
+        <span class="case-flag">🇺🇬 Qwezi Beauty · Kampala</span>
+        <h1 class="title" style="margin-top:0">"Have something for everyone" is a trap.</h1>
+        <div class="grid g2" style="margin-top:1.1em;align-items:start">
+          <div class="body-col" style="margin-top:0">
+            <p class="body">A clothing boutique's customers come in every size, age and income. The temptation is to stock for all of them. But a startup can't out-spend a market — it has to out-focus it.</p>
+            <p class="body" style="margin-top:.9em">Qwezi Beauty, a natural skincare brand, refused to be "beauty for everyone." It chose a precise target and built everything — product, packaging, story — around her.</p>
+          </div>
+          <div class="card" style="border-left-color:var(--terra)">
+            <h4>The target, in one line</h4>
+            <p style="font-size:clamp(14px,1.5vw,20px);color:var(--ink)"><em>"Professional Black women, 21–48, searching for natural beauty products."</em></p>
+            <p style="margin-top:.9em">That single sentence tells you the product, the price point, the imagery, the channel, and the tone of voice. <strong>Focus is leverage.</strong></p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- ══════════ 9 · DIVIDER 03 ══════════ -->
+<section class="slide s-divider" data-surface="dark" data-title="03 · Research" data-photo="assets/div-03.jpg">
+  <div class="div-photo"></div><div class="div-overlay"></div>
+  <svg class="div-mark" viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.92"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.86" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.83" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.86" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#EFE7D8" opacity="0.8" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+  <div class="div-inner">
+    <div class="div-num anim">03</div>
+    <div class="div-eyebrow anim">L3-1.1.2</div>
+    <div class="div-title anim">Market research that<br>doesn't need a budget.</div>
+    <div class="div-meta anim">Primary &amp; secondary research — informing decisions, finding opportunity, killing risk.</div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- ══════════ 10 · RESEARCH METHODS ══════════ -->
+<section class="slide s-paper" data-surface="paper" data-title="How to conduct research">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Marketing &amp; Branding · Week 1</span><span>Primary vs secondary</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">The point of research</div>
+    <h1 class="title anim">Read between the lines.<br>See what competitors miss.</h1>
+    <div class="grid g3 anim" style="margin-top:clamp(16px,2.4vw,32px)">
+      <div class="card"><h4>Data collection</h4><p><b>Primary:</b> talk to customers — interviews, surveys, WhatsApp groups. <b>Secondary:</b> reports, publications, public data.</p></div>
+      <div class="card"><h4>Customer insights</h4><p>Get to the root of the problem. How they want to be reached. How much they'll actually pay.</p></div>
+      <div class="card"><h4>Competitor scan</h4><p>What are existing players doing about this customer issue — and where are they weak?</p></div>
+      <div class="card"><h4>Market analysis</h4><p>Interpret the data. What pattern do you see that the rest of the market is ignoring?</p></div>
+      <div class="card"><h4>Decision-making</h4><p>Define, refine, execute. Research is worthless until it changes what you do next.</p></div>
+      <div class="card" style="border-left-color:var(--moss)"><h4>The bar for founders</h4><p>You don't need an agency. 15 real customer conversations beat one expensive report.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- ══════════ 11 · CASE: eaxit WhatsApp survey ══════════ -->
+<section class="slide s-dark" data-surface="dark" data-title="Case · eaxit research">
+  <div class="chip-bar anim"><span>Marketing &amp; Branding · Week 1</span><span>Case study · zero-budget research</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">🇺🇬 eaxit.co · diaspora marketplace</div>
+    <h1 class="title anim" style="color:var(--paper)">A WhatsApp group is a research lab.</h1>
+    <p class="lede anim">No budget, no agency — one survey in a diaspora WhatsApp group surfaced the whole strategy.</p>
+    <div class="grid g3 anim" style="margin-top:clamp(16px,2.4vw,32px)">
+      <div class="card stat"><div class="num big" style="color:var(--ochre)">56%</div><h4>spend $100–250</h4><p>on Ugandan products every time they visit home.</p></div>
+      <div class="card stat"><div class="num big" style="color:var(--ochre)">31%</div><h4>spend over $250</h4><p>per visit — a premium, underserved nostalgia market.</p></div>
+      <div class="card stat"><div class="num big" style="color:var(--ochre)">5</div><h4>states</h4><p>hold the majority of Ugandans in America — concentrated &amp; reachable.</p></div>
+    </div>
+    <p class="pick-hint anim">The insight: <strong>sell nostalgia</strong> — target diaspora demand that already exists, proven with real numbers before a shilling is spent on inventory.</p>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- ══════════ 12 · DIVIDER 04 ══════════ -->
+<section class="slide s-divider" data-surface="dark" data-title="04 · Customer behaviour" data-photo="assets/div-04.jpg">
+  <div class="div-photo"></div><div class="div-overlay"></div>
+  <svg class="div-mark" viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.92"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.86" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.83" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.86" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#EFE7D8" opacity="0.8" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+  <div class="div-inner">
+    <div class="div-num anim">04</div>
+    <div class="div-eyebrow anim">L3-1.1.3</div>
+    <div class="div-title anim">Customer behaviour<br>&amp; personas.</div>
+    <div class="div-meta anim">Walk in your customer's shoes for a day. Then map every step they take toward you.</div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- ══════════ 13 · PERSONA ══════════ -->
+<section class="slide s-paper" data-surface="paper" data-title="Build a persona">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Marketing &amp; Branding · Week 1</span><span>Customer personas</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">From a segment to a person</div>
+    <h1 class="title anim">Give your customer a name<br>and a face.</h1>
+    <div class="grid g2 anim" style="margin-top:clamp(16px,2.2vw,30px);align-items:start">
+      <div class="body-col" style="margin-top:0">
+        <p class="body">A persona is a fictional but evidence-based portrait of your ideal customer, built from your research. It keeps the whole team — and every marketing message — pointed at one real human instead of a vague crowd.</p>
+        <ul class="list" style="margin-top:1em">
+          <li><b>Personas</b> — name, age, job, income, daily life.</li>
+          <li><b>Feedback loops</b> — ask, listen, then actually act on it.</li>
+          <li><b>Data analytics</b> — let behaviour, not opinion, decide.</li>
+          <li><b>Empathy</b> — their aspirations and frustrations, in their words.</li>
+        </ul>
+      </div>
+      <div class="card" style="border-left-color:var(--terra)">
+        <h4>Meet "Sanyu"</h4>
+        <p style="color:var(--ink)"><b>34, marketing manager, Kampala → diaspora in Boston.</b></p>
+        <p style="margin-top:.7em"><b>Wants:</b> authentic Ugandan products without flying home for them.</p>
+        <p style="margin-top:.5em"><b>Pain:</b> shipping is unreliable; quality is a gamble; she misses home.</p>
+        <p style="margin-top:.5em"><b>Pays:</b> $100–250 a trip already — happily spends online if trust is solved.</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- ══════════ 14 · CUSTOMER JOURNEY MAP (interactive) ══════════ -->
+<section class="slide s-paper" data-surface="paper" data-title="Customer journey map">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Marketing &amp; Branding · Week 1</span><span>Journey mapping</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Interactive · tap a stage</div>
+    <h1 class="title anim">Map every touchpoint to the sale.</h1>
+    <p class="lede anim" style="max-width:42ch">Hearing → Seeing → Acting → Purchasing. Each stage is a chance to win or lose them.</p>
+    <div class="cjm anim" id="cjm">
+      <div class="cjm-stage on" data-c="0"><div class="ci">1</div><div class="cl">Hearing</div></div>
+      <div class="cjm-stage" data-c="1"><div class="ci">2</div><div class="cl">Seeing</div></div>
+      <div class="cjm-stage" data-c="2"><div class="ci">3</div><div class="cl">Acting</div></div>
+      <div class="cjm-stage" data-c="3"><div class="ci">4</div><div class="cl">Purchasing</div></div>
+      <div class="cjm-stage" data-c="4"><div class="ci">5</div><div class="cl">Advocating</div></div>
+    </div>
+    <div class="cjm-detail anim" id="cjmDetail"></div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- ══════════ 15 · DIVIDER 05 ══════════ -->
+<section class="slide s-divider" data-surface="dark" data-title="05 · Competition" data-photo="assets/div-05.jpg">
+  <div class="div-photo"></div><div class="div-overlay"></div>
+  <svg class="div-mark" viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.92"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.86" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.83" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.86" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#EFE7D8" opacity="0.8" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+  <div class="div-inner">
+    <div class="div-num anim">05</div>
+    <div class="div-eyebrow anim">L3-1.1.4</div>
+    <div class="div-title anim">Competitive analysis<br>&amp; positioning.</div>
+    <div class="div-meta anim">Find the gap your competitors leave open — then plant your flag in it.</div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- ══════════ 16 · COMPETITIVE MATRIX (interactive) ══════════ -->
+<section class="slide s-paper" data-surface="paper" data-title="Competitive matrix">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Marketing &amp; Branding · Week 1</span><span>Case study · eaxit.co positioning</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Interactive · tap a competitor</div>
+    <h1 class="title anim" style="font-size:clamp(26px,3.8vw,50px)">Where do you win? Build the grid.</h1>
+    <table class="matrix anim" id="matrix">
+      <thead><tr>
+        <th class="feat">Feature</th>
+        <th class="you" data-col="0">eaxit.co</th>
+        <th data-col="1">anka.africa</th>
+        <th data-col="2">kwely.com</th>
+        <th data-col="3">amazon.com</th>
+      </tr></thead>
+      <tbody>
+        <tr><td class="feat">Features Ugandan brands</td><td class="yes" data-col="0">✓</td><td class="no" data-col="1">—</td><td class="no" data-col="2">—</td><td class="yes" data-col="3">✓</td></tr>
+        <tr><td class="feat">Branding assistance</td><td class="yes" data-col="0">✓</td><td class="no" data-col="1">—</td><td class="yes" data-col="2">✓</td><td class="no" data-col="3">—</td></tr>
+        <tr><td class="feat">Focused on America</td><td class="yes" data-col="0">✓</td><td class="no" data-col="1">—</td><td class="no" data-col="2">—</td><td class="no" data-col="3">—</td></tr>
+        <tr><td class="feat">Curated products</td><td class="yes" data-col="0">✓</td><td class="no" data-col="1">—</td><td class="yes" data-col="2">✓</td><td class="no" data-col="3">—</td></tr>
+        <tr><td class="feat">B2C / direct-to-consumer</td><td class="yes" data-col="0">✓</td><td class="no" data-col="1">—</td><td class="yes" data-col="2">✓</td><td class="yes" data-col="3">✓</td></tr>
+        <tr><td class="feat">Distributes from USA</td><td class="yes" data-col="0">✓</td><td class="no" data-col="1">—</td><td class="no" data-col="2">—</td><td class="yes" data-col="3">✓</td></tr>
+      </tbody>
+    </table>
+    <div class="mx-hint anim">The column with the most ✓ in the rows that matter to your customer is your <strong>position</strong>. eaxit owns "curated Ugandan brands, distributed in &amp; focused on America" — a box nobody else ticks.</div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- ══════════ 17 · USP ══════════ -->
+<section class="slide s-paper" data-surface="paper" data-title="Your USP">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Marketing &amp; Branding · Week 1</span><span>Unique selling proposition</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Turn the gap into a sentence</div>
+    <h1 class="title anim">The USP test.</h1>
+    <p class="lede anim" style="max-width:44ch">A distinctive, compelling benefit that sets you apart — that a customer can repeat back to you.</p>
+    <div class="grid g4 anim" style="margin-top:clamp(16px,2.2vw,30px)">
+      <div class="card"><h4>Identify the need</h4><p>How is what you're good at, good for <em>this</em> customer?</p></div>
+      <div class="card"><h4>Define the value</h4><p>Quality? Cost? Packaging? Service? Name the one you own.</p></div>
+      <div class="card"><h4>Beat the field</h4><p>Where do you clearly outperform or do it differently?</p></div>
+      <div class="card"><h4>Say it clearly</h4><p>One concise line your customer can grasp and associate with you.</p></div>
+    </div>
+    <div class="box anim" style="margin-top:clamp(14px,2vw,26px)"><div class="bk">Formula to fill in your exercise</div><p class="body" style="color:var(--ink);font-family:var(--display);font-style:italic;font-size:clamp(16px,2vw,26px)">For [target customer] who [need], we are the [category] that [unique benefit] — unlike [main competitor].</p></div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- ══════════ 18 · DIVIDER 06 ══════════ -->
+<section class="slide s-divider" data-surface="dark" data-title="06 · Market sizing" data-photo="assets/div-06.jpg">
+  <div class="div-photo"></div><div class="div-overlay"></div>
+  <svg class="div-mark" viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.92"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.86" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.83" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.86" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#EFE7D8" opacity="0.8" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+  <div class="div-inner">
+    <div class="div-num anim">06</div>
+    <div class="div-eyebrow anim">L3-1.1.5</div>
+    <div class="div-title anim">Sizing the prize:<br>TAM · SAM · SOM.</div>
+    <div class="div-meta anim">Investors don't fund "everyone." They fund a number you can defend.</div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- ══════════ 19 · TAM/SAM/SOM live calculator (interactive sliders) ══════════ -->
+<section class="slide s-dark" data-surface="dark" data-title="TAM / SAM / SOM · live">
+  <div class="chip-bar anim"><span>Marketing &amp; Branding · Week 1</span><span>Live market-sizing calculator</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Interactive · move the dials</div>
+    <h1 class="title anim" style="color:var(--paper);font-size:clamp(24px,3.6vw,48px)">Move the dials. <em style="font-style:italic;color:var(--ochre)">Watch</em> your market shrink.</h1>
+    <div class="calc-wrap anim">
+      <!-- inputs -->
+      <div class="calc-inputs">
+        <div class="calc-row">
+          <div class="calc-row__head"><span class="calc-row__lbl">Total people who could want it (TAM)</span><span class="calc-row__val" data-out="pop">2,100,000</span></div>
+          <input type="range" id="in-pop" min="100000" max="20000000" step="100000" value="2100000">
+          <div class="calc-row__legend"><span>100K</span><span>20M</span></div>
+        </div>
+        <div class="calc-row">
+          <div class="calc-row__head"><span class="calc-row__lbl">Serviceable in your geography</span><span class="calc-row__val"><em data-out="samPct">19</em>%</span></div>
+          <input type="range" id="in-sam" min="1" max="60" step="1" value="19">
+          <div class="calc-row__legend"><span>1%</span><span>60%</span></div>
+        </div>
+        <div class="calc-row">
+          <div class="calc-row__head"><span class="calc-row__lbl">Capturable in 5 years</span><span class="calc-row__val"><em data-out="somPct">8</em>%</span></div>
+          <input type="range" id="in-som" min="1" max="25" step="0.5" value="8">
+          <div class="calc-row__legend"><span>1%</span><span>25%</span></div>
+        </div>
+        <div class="calc-row">
+          <div class="calc-row__head"><span class="calc-row__lbl">Revenue per customer / year</span><span class="calc-row__val">$<em data-out="arpu">1,000</em></span></div>
+          <input type="range" id="in-arpu" min="100" max="5000" step="50" value="1000">
+          <div class="calc-row__legend"><span>$100</span><span>$5,000</span></div>
+        </div>
+        <div class="calc-note">Defaults &rarr; eaxit.co diaspora export example</div>
+      </div>
+      <!-- rings + outputs -->
+      <div class="calc-right">
+        <div class="calc-rings">
+          <svg viewBox="0 0 600 510" preserveAspectRatio="xMidYMid meet" aria-hidden="true">
+            <defs><linearGradient id="ringGrad" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="rgba(200,83,31,0.20)"/><stop offset="100%" stop-color="rgba(200,83,31,0.04)"/></linearGradient></defs>
+            <circle cx="300" cy="255" r="220" fill="url(#ringGrad)" stroke="rgba(200,83,31,0.4)" stroke-width="1" stroke-dasharray="3 5"/>
+            <text x="300" y="56" text-anchor="middle" font-family="Josefin Sans, sans-serif" font-size="14" font-weight="700" letter-spacing="4" fill="rgba(201,146,58,0.85)">TAM</text>
+            <circle id="ring-sam" cx="300" cy="265" r="120" fill="rgba(200,83,31,0.18)" stroke="rgba(200,83,31,0.6)" stroke-width="1.5"/>
+            <text id="lbl-sam" x="300" y="170" text-anchor="middle" font-family="Josefin Sans, sans-serif" font-size="14" font-weight="700" letter-spacing="4" fill="rgba(201,146,58,0.95)">SAM</text>
+            <circle id="ring-som" cx="300" cy="270" r="40" fill="var(--terra)" stroke="#EFE7D8" stroke-width="1.5"/>
+            <text id="lbl-som" x="300" y="276" text-anchor="middle" font-family="Josefin Sans, sans-serif" font-size="12" font-weight="700" letter-spacing="3" fill="#EFE7D8">SOM</text>
+          </svg>
+        </div>
+        <div class="calc-outs">
+          <div class="calc-out"><div class="calc-out__lbl">TAM</div><div class="calc-out__val" data-out="tam">$2.1B</div><div class="calc-out__sub">100% of pool</div></div>
+          <div class="calc-out"><div class="calc-out__lbl">SAM</div><div class="calc-out__val" data-out="sam">$399M</div><div class="calc-out__sub" data-out="samShare">19% of TAM</div></div>
+          <div class="calc-out calc-out--hot"><div class="calc-out__lbl">SOM · Yr 5</div><div class="calc-out__val" data-out="som">$32M</div><div class="calc-out__sub" data-out="somCust">32K customers</div></div>
+        </div>
+      </div>
+    </div>
+    <div class="calc-hint anim">TAM = all Africans in the US · SAM = East Africans · SOM = the Ugandan beachhead you can obtain. Drag any dial.</div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- ══════════ 20 · THE MATH ══════════ -->
+<section class="slide s-dark" data-surface="dark" data-title="The revenue math">
+  <div class="chip-bar anim"><span>Marketing &amp; Branding · Week 1</span><span>From SOM to a revenue line</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Make the number do work</div>
+    <h1 class="title anim" style="color:var(--paper)">A sized market becomes a forecast.</h1>
+    <div class="grid g2 anim" style="margin-top:clamp(16px,2.4vw,32px);align-items:center">
+      <div class="pull">If 10% of 32,900 Ugandans in the US spend $1,000/yr by year 3…
+        <span class="by">= $3.2M in annual sales</span>
+      </div>
+      <div class="body-col" style="margin-top:0">
+        <p class="body" style="color:var(--paper-mid)">The average Amazon Prime account spends ~$1,400 a year — so $1,000 from a high-intent, nostalgia-driven diaspora buyer is conservative, not optimistic.</p>
+        <p class="body" style="margin-top:1em;color:var(--paper-mid)">That's the move: <strong>start from a real, countable SOM</strong>, apply a defensible capture rate and spend, and you have a revenue line an investor can interrogate — which is exactly Week 4's pitch.</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- ══════════ 21 · CASE: SafeBoda ══════════ -->
+<section class="slide s-paper" data-surface="paper" data-title="Case · SafeBoda">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Marketing &amp; Branding · Week 1</span><span>Case study · positioning in a commodity market</span></div>
+  <div class="slide-body">
+    <div class="case anim">
+      <div class="case-badge">Case Study</div>
+      <div>
+        <span class="case-flag">🇺🇬 SafeBoda · Kampala</span>
+        <h1 class="title" style="margin-top:0;font-size:clamp(26px,3.8vw,52px)">Winning a market everyone "owned."</h1>
+        <div class="grid g3" style="margin-top:1.1em">
+          <div class="card"><h4>The market</h4><p>Boda-bodas were everywhere and identical — a pure commodity. No brand, no trust, real safety fear.</p></div>
+          <div class="card"><h4>The insight</h4><p>Research surfaced the unserved need riders &amp; passengers shared: <em>safety and reliability</em>.</p></div>
+          <div class="card"><h4>The position</h4><p>Helmets, training, a recognisable orange brand. They didn't sell rides — they sold <strong>trust</strong>.</p></div>
+        </div>
+        <p class="pick-hint anim">Same bikes as everyone else. A different understanding of the market turned a commodity into a category-defining brand.</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- ══════════ 22 · RECAP ══════════ -->
+<section class="slide s-dark" data-surface="dark" data-title="Recap">
+  <div class="chip-bar anim"><span>Marketing &amp; Branding · Week 1</span><span>What we locked down</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">The through-line</div>
+    <h1 class="title anim" style="color:var(--paper)">Understand the market → everything else gets cheaper.</h1>
+    <div class="grid g3 anim" style="margin-top:clamp(16px,2.4vw,32px)">
+      <div class="card"><h4>Segment &amp; target</h4><p>Pick one beachhead you can win first.</p></div>
+      <div class="card"><h4>Research</h4><p>15 conversations &gt; one report. Decide from data.</p></div>
+      <div class="card"><h4>Persona</h4><p>One named human every message speaks to.</p></div>
+      <div class="card"><h4>Competition &amp; USP</h4><p>Own the box no one else ticks.</p></div>
+      <div class="card"><h4>Size it</h4><p>TAM/SAM/SOM → a number you can defend.</p></div>
+      <div class="card" style="border-left-color:var(--ochre)"><h4>Next Monday</h4><p>We turn this market into a <em>brand</em>.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- ══════════ 23 · EXERCISE (in session) ══════════ -->
+<section class="slide s-paper" data-surface="paper" data-title="In-session exercise">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Marketing &amp; Branding · Week 1</span><span>Self-guided exercise · in session</span></div>
+  <div class="slide-body">
+    <div class="ex-head anim">
+      <div>
+        <div class="eyebrow">Self-guided worksheet · do it now</div>
+        <h1 class="title" style="margin-top:.15em">Define your market in 4 moves.</h1>
+      </div>
+      <span class="timebox" style="margin-left:auto;margin-bottom:.2em">⏱ 25 min solo · 35 min group</span>
+    </div>
+    <div class="ex-grid anim">
+      <div class="ex-card">
+        <span class="exn">1</span>
+        <div class="exk">Segment &amp; target</div>
+        <div class="ext">Your beachhead, in one line</div>
+        <div class="exp">Write the "Qwezi line" — who exactly you serve first.</div>
+        <div class="write"><span></span><span></span></div>
+      </div>
+      <div class="ex-card">
+        <span class="exn">2</span>
+        <div class="exk">One persona</div>
+        <div class="ext">Name a real human</div>
+        <div class="exp">Age, job, income, top pain, what they pay today.</div>
+        <div class="write"><span></span><span></span></div>
+      </div>
+      <div class="ex-card">
+        <span class="exn">3</span>
+        <div class="exk">Competitive grid</div>
+        <div class="ext">Find your empty box</div>
+        <div class="exp">3 competitors × 5 features. Circle the one only you tick.</div>
+        <div class="write"><span></span><span></span></div>
+      </div>
+      <div class="ex-card">
+        <span class="exn">4</span>
+        <div class="exk">Your USP</div>
+        <div class="ext">Fill the formula</div>
+        <div class="exp">"For ___ who ___, we are the ___ that ___ — unlike ___."</div>
+        <div class="write"><span></span><span></span></div>
+      </div>
+    </div>
+    <p class="pick-hint anim">How we'll review: each founder reads their <b>one-sentence target</b> and <b>USP</b> aloud — and the room pressure-tests two questions: is the target narrow enough to actually win, and does the USP tick a box competitors leave open?</p>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- ══════════ 24 · HOMEWORK ══════════ -->
+<section class="slide s-dark" data-surface="dark" data-title="Homework">
+  <div class="chip-bar anim"><span>Marketing &amp; Branding · Week 1</span><span>Homework · due next Monday</span></div>
+  <div class="slide-body">
+    <div class="anim"><span class="due-tag"><span class="d"></span>Due next Monday · Week 2 · Brand Strategy</span></div>
+    <h1 class="title anim" style="color:var(--paper);margin-top:.5em">Turn today's draft into evidence.</h1>
+    <div class="hw-grid anim">
+      <div>
+        <div class="hw-klbl">Four deliverables</div>
+        <ul class="hw-check">
+          <li><span class="cbx"></span><div><b>Talk to 5 real customers</b> in your target segment — record their exact words about the pain.</div></li>
+          <li><span class="cbx"></span><div><b>Finalise one persona</b> on a single page, backed by what those 5 people actually said.</div></li>
+          <li><span class="cbx"></span><div><b>TAM / SAM / SOM</b> for your business, with a source for every number.</div></li>
+          <li><span class="cbx"></span><div><b>Refine your USP</b> — did it survive contact with real customers?</div></li>
+        </ul>
+      </div>
+      <div>
+        <div class="hw-quote">
+          <span class="qm">&ldquo;</span>
+          <div class="qt">Your brand is what other people say about you when you're not in the room.</div>
+          <div class="qb">Jeff Bezos · Founder, Amazon</div>
+        </div>
+        <p class="hw-bridge">Next Monday we turn this market into a <strong>brand</strong> — promise, positioning, personality, identity. Upload your persona + sizing to your <strong>data room</strong> first; it becomes the first vetted document in your investor profile.</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- ══════════ 25 · CLOSER ══════════ -->
+<section class="slide s-dark" id="s-close" data-surface="dark" data-title="Close">
+  <svg class="mark" viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.92"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.86" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.83" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.86" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#EFE7D8" opacity="0.8" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+  <div class="ct anim">Build with direction.</div>
+  <div class="cc anim">The Founder's Sprint · Marketing &amp; Branding · Week 1 of 5 · Kampala</div>
+</section>
+
+</div>
+
+<!-- HUD -->
+<div class="progress" id="progress"></div>
+<div class="counter" id="counter">01 / 25</div>
+<div class="kbd-hint">← → navigate · O overview · F fullscreen</div>
+<div class="hud"><div class="nav">
+  <button id="resetBtn" aria-label="Restart from first slide" title="Restart">⟲</button>
+  <button id="prevBtn" aria-label="Previous slide">‹</button>
+  <button id="nextBtn" aria-label="Next slide">›</button>
+</div></div>
+
+<!-- Overview -->
+<div class="overview" id="overview"><div class="ov-title">Slide overview · click to jump · Esc to close</div><div class="ov-grid" id="ovGrid"></div></div>
+
+<script>
+(function(){
+  "use strict";
+  const slides = Array.from(document.querySelectorAll('.slide'));
+  let i = 0;
+  const counter = document.getElementById('counter');
+  const progress = document.getElementById('progress');
+  const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  // set divider photos
+  document.querySelectorAll('.s-divider').forEach(s=>{
+    const p = s.getAttribute('data-photo'); if(p){ const el=s.querySelector('.div-photo'); if(el) el.style.backgroundImage="url('"+p+"')"; }
+  });
+
+  function show(n){
+    n = Math.max(0, Math.min(slides.length-1, n));
+    slides[i].classList.remove('active');
+    i = n;
+    const cur = slides[i];
+    cur.classList.add('active');
+    // restart entrance animation
+    cur.querySelectorAll('.anim').forEach(el=>{ el.style.animation='none'; void el.offsetWidth; el.style.animation=''; });
+    counter.textContent = String(i+1).padStart(2,'0')+' / '+String(slides.length).padStart(2,'0');
+    progress.style.width = ((i)/(slides.length-1)*100)+'%';
+    document.body.classList.toggle('on-paper', cur.getAttribute('data-surface')==='paper');
+  }
+  function next(){ show(i+1); }
+  function prev(){ show(i-1); }
+
+  document.getElementById('nextBtn').addEventListener('click', next);
+  document.getElementById('prevBtn').addEventListener('click', prev);
+  document.getElementById('resetBtn').addEventListener('click', ()=>show(0));
+
+  // overview
+  const overview = document.getElementById('overview');
+  const ovGrid = document.getElementById('ovGrid');
+  slides.forEach((s,idx)=>{
+    const t = s.getAttribute('data-title')||('Slide '+(idx+1));
+    const d = document.createElement('div'); d.className='ov-item';
+    d.innerHTML = '<div class="oi-n">'+String(idx+1).padStart(2,'0')+'</div><div class="oi-t">'+t+'</div>';
+    d.addEventListener('click', ()=>{ overview.classList.remove('show'); show(idx); });
+    ovGrid.appendChild(d);
+  });
+  function toggleOverview(){ overview.classList.toggle('show'); }
+
+  document.addEventListener('keydown', (e)=>{
+    if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' '){ e.preventDefault(); next(); }
+    else if(e.key==='ArrowLeft'||e.key==='PageUp'){ e.preventDefault(); prev(); }
+    else if(e.key==='Home'){ show(0); }
+    else if(e.key==='End'){ show(slides.length-1); }
+    else if(e.key==='o'||e.key==='O'){ toggleOverview(); }
+    else if(e.key==='Escape'){ overview.classList.remove('show'); }
+    else if(e.key==='f'||e.key==='F'){ if(!document.fullscreenElement){ document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen(); } else { document.exitFullscreen&&document.exitFullscreen(); } }
+  });
+
+  // touch swipe
+  let tx=0,ty=0;
+  document.addEventListener('touchstart',e=>{ tx=e.touches[0].clientX; ty=e.touches[0].clientY; },{passive:true});
+  document.addEventListener('touchend',e=>{
+    const dx=e.changedTouches[0].clientX-tx, dy=e.changedTouches[0].clientY-ty;
+    if(Math.abs(dx)>55 && Math.abs(dx)>Math.abs(dy)){ dx<0?next():prev(); }
+  },{passive:true});
+
+  // ── INTERACTIVE: segmentation chips ──
+  const segData = {
+    demo:{k:'Demographic',v:'Age, gender, income, education, occupation, family status. The "who" on paper — easiest to measure and target.',eg:'Professional women, 21–48, mid-to-high income.'},
+    geo:{k:'Geographic',v:'Country, city, urban vs rural, climate, even neighbourhood. Critical where logistics and culture vary block to block.',eg:'Ugandans concentrated in just 5 US states.'},
+    behav:{k:'Behavioural',v:'How they buy and use: frequency, loyalty, occasion, benefits sought, spend per visit. Behaviour predicts revenue better than demographics.',eg:'Buys $100–250 of home products every visit.'},
+    psych:{k:'Psychographic',v:'Values, attitudes, lifestyle, aspirations. The "why" behind the buy — the richest seam for brand storytelling.',eg:'Misses home; proud of heritage; trusts authenticity.'}
+  };
+  const segChips = document.getElementById('segChips');
+  const segDetail = document.getElementById('segDetail');
+  function renderSeg(key){
+    const d = segData[key];
+    segDetail.innerHTML = '<div class="k">'+d.k+'</div><div class="v">'+d.v+'</div><div class="eg">e.g. '+d.eg+'</div>';
+    segChips.querySelectorAll('.seg-chip').forEach(c=>c.classList.toggle('on', c.getAttribute('data-seg')===key));
+  }
+  if(segChips){ segChips.addEventListener('click',e=>{ const b=e.target.closest('.seg-chip'); if(b) renderSeg(b.getAttribute('data-seg')); }); renderSeg('demo'); }
+
+  // ── INTERACTIVE: segmentation journey ──
+  const journey = document.getElementById('journey');
+  if(journey){ journey.addEventListener('click',e=>{ const s=e.target.closest('.j-step'); if(!s) return; journey.querySelectorAll('.j-step').forEach(x=>x.classList.remove('on')); s.classList.add('on'); }); }
+
+  // ── INTERACTIVE: customer journey map ──
+  const cjmData = [
+    {t:'Hearing', d:'<b>Awareness.</b> Word of mouth, a friend\'s WhatsApp status, a radio mention. They first learn you exist. Goal: be where the conversation already happens.'},
+    {t:'Seeing', d:'<b>Consideration.</b> They visit your page, see your packaging, read reviews. Goal: a clear, consistent brand that says "this is for me, and I can trust it."'},
+    {t:'Acting', d:'<b>Intent.</b> They add to cart, message you, ask a price. Goal: remove every friction — make the next step obvious and easy.'},
+    {t:'Purchasing', d:'<b>Conversion.</b> They pay. Goal: a smooth checkout (mobile money!), instant confirmation, and a delivery promise you keep.'},
+    {t:'Advocating', d:'<b>Loyalty.</b> They tell others and buy again. Goal: a follow-up, a reason to return, and a moment worth sharing. The cheapest customer is a referred one.'}
+  ];
+  const cjm = document.getElementById('cjm');
+  const cjmDetail = document.getElementById('cjmDetail');
+  function renderCjm(n){
+    cjmDetail.innerHTML = cjmData[n].d;
+    cjm.querySelectorAll('.cjm-stage').forEach((s,idx)=>s.classList.toggle('on', idx===n));
+  }
+  if(cjm){ cjm.addEventListener('click',e=>{ const s=e.target.closest('.cjm-stage'); if(s) renderCjm(+s.getAttribute('data-c')); }); renderCjm(0); }
+
+  // ── INTERACTIVE: competitive matrix ──
+  const matrix = document.getElementById('matrix');
+  if(matrix){
+    matrix.addEventListener('click',e=>{
+      const th=e.target.closest('th'); if(!th||th.classList.contains('feat')) return;
+      const col=th.getAttribute('data-col');
+      matrix.querySelectorAll('[data-col]').forEach(c=>{ c.classList.remove('hlcol'); });
+      matrix.querySelectorAll('[data-col="'+col+'"]').forEach(c=>c.classList.add('hlcol'));
+    });
+  }
+
+  // ── INTERACTIVE: TAM/SAM/SOM live calculator (slider-driven rings) ──
+  (function(){
+    const $ = (id)=>document.getElementById(id);
+    const out = (k)=>document.querySelectorAll('[data-out="'+k+'"]');
+    if(!$('in-pop')) return;
+    const fmtPop=(n)=>{ if(n>=1e9)return (n/1e9).toFixed(2).replace(/\.?0+$/,'')+'B'; if(n>=1e6)return (n/1e6).toFixed(1).replace(/\.0$/,'')+'M'; if(n>=1e3)return Math.round(n/1e3)+'K'; return Math.round(n).toLocaleString(); };
+    const fmtUSD=(n)=>{ if(n>=1e9)return '$'+(n/1e9).toFixed(1).replace(/\.0$/,'')+'B'; if(n>=1e6)return '$'+(n/1e6).toFixed(0)+'M'; if(n>=1e3)return '$'+(n/1e3).toFixed(0)+'K'; return '$'+Math.round(n).toLocaleString(); };
+    function recompute(){
+      const pop=+$('in-pop').value, samPct=+$('in-sam').value, somPct=+$('in-som').value, arpu=+$('in-arpu').value;
+      const samCust=pop*(samPct/100), somCust=samCust*(somPct/100);
+      out('pop').forEach(e=>e.textContent=pop.toLocaleString());
+      out('samPct').forEach(e=>e.textContent=samPct);
+      out('somPct').forEach(e=>e.textContent=somPct);
+      out('arpu').forEach(e=>e.textContent=arpu.toLocaleString());
+      out('tam').forEach(e=>e.textContent=fmtUSD(pop*arpu));
+      out('sam').forEach(e=>e.textContent=fmtUSD(samCust*arpu));
+      out('som').forEach(e=>e.textContent=fmtUSD(somCust*arpu));
+      out('samShare').forEach(e=>e.textContent=samPct+'% of TAM');
+      out('somCust').forEach(e=>e.textContent=fmtPop(somCust)+' customers');
+      const tamR=220;
+      const samR=Math.max(40,Math.min(tamR-12,tamR*Math.cbrt(samPct/100)));
+      const somR=Math.max(14,Math.min(samR-8,samR*Math.cbrt(somPct/100)));
+      const sam=$('ring-sam'),som=$('ring-som'),lblSam=$('lbl-sam'),lblSom=$('lbl-som');
+      if(sam)sam.setAttribute('r',samR);
+      if(som)som.setAttribute('r',somR);
+      if(lblSam)lblSam.setAttribute('y',265-samR+18);
+      if(lblSom)lblSom.style.opacity=somR<16?0:1;
+    }
+    ['in-pop','in-sam','in-som','in-arpu'].forEach(id=>{ const el=$(id); if(el) el.addEventListener('input',recompute); });
+    recompute();
+  })();
+
+  // init
+  show(0);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,780 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Week 3 · Digital Marketing Channels · The Founder's Sprint</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1A1A1A; --ink-soft:#2A2826; --ink-mid:#444; --ink-mute:#5A564F;
+  --paper:#EFE7D8; --paper-mid:#C0B8A8; --paper-dim:#A09888; --paper-deep:#E6DCC7;
+  --terra:#C8531F; --terra-deep:#9A3E16; --ochre:#C9923A; --sage:#8AAB5C; --moss:#3D4A2E; --stone:#777770;
+  --rule:rgba(26,26,26,0.18);
+  --sans:'Josefin Sans',Inter,system-ui,sans-serif;
+  --display:'Cormorant Garamond',Georgia,serif;
+  --body:'Inter',system-ui,sans-serif;
+  --accent:var(--terra);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--ink);color:var(--paper);font-family:var(--body);overflow:hidden;}
+
+.deck{position:fixed;inset:0;}
+.slide{position:absolute;inset:0;display:none;flex-direction:column;
+  padding:clamp(28px,4.4vw,76px) clamp(26px,5vw,96px) clamp(56px,5vw,82px);opacity:0;}
+.slide.active{display:flex;opacity:1;}
+.slide.active .anim{animation:riseIn .52s cubic-bezier(.25,1,.5,1) both;}
+.slide.active .anim:nth-child(1){animation-delay:.06s}
+.slide.active .anim:nth-child(2){animation-delay:.12s}
+.slide.active .anim:nth-child(3){animation-delay:.17s}
+.slide.active .anim:nth-child(4){animation-delay:.22s}
+.slide.active .anim:nth-child(5){animation-delay:.27s}
+.slide.active .anim:nth-child(6){animation-delay:.32s}
+.slide.active .anim:nth-child(7){animation-delay:.37s}
+.slide.active .anim:nth-child(8){animation-delay:.42s}
+@keyframes riseIn{from{opacity:0;transform:translateY(15px);}to{opacity:1;transform:none;}}
+
+.s-paper{background:var(--paper);color:var(--ink);}
+.s-dark{background:var(--ink);color:var(--paper);}
+.s-paper .chip-bar,.s-dark .chip-bar{display:flex;justify-content:space-between;align-items:center;
+  font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.18em;text-transform:uppercase;}
+.s-paper .chip-bar{color:rgba(26,26,26,0.5);}
+.s-dark .chip-bar{color:rgba(239,231,216,0.5);}
+.accent-top{position:absolute;top:0;left:0;right:0;height:5px;background:var(--accent);}
+.mark-corner{position:absolute;top:clamp(20px,3vw,40px);right:clamp(20px,4vw,64px);width:clamp(34px,3.4vw,52px);height:auto;opacity:.95;z-index:3;}
+
+.eyebrow{font-family:var(--sans);font-size:clamp(10px,1.05vw,13px);font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:var(--accent);}
+.s-dark .eyebrow{color:var(--ochre);}
+h1.title{font-family:var(--display);font-weight:300;letter-spacing:-0.012em;font-size:clamp(30px,4.6vw,62px);line-height:1.04;margin-top:.32em;}
+.lede{font-family:var(--display);font-style:italic;font-weight:400;font-size:clamp(17px,2.1vw,30px);line-height:1.32;color:var(--ink-mute);margin-top:.5em;max-width:24ch;}
+.s-dark .lede{color:var(--paper-mid);}
+.body-col{margin-top:clamp(14px,2vw,26px);max-width:62ch;}
+p.body{font-size:clamp(14px,1.45vw,20px);line-height:1.55;font-weight:400;color:var(--ink-mid);}
+.s-dark p.body{color:var(--paper-mid);}
+strong{color:var(--terra-deep);font-weight:500;}
+.s-dark strong{color:var(--ochre);font-weight:500;}
+
+.slide-body{flex:1;display:flex;flex-direction:column;justify-content:center;min-height:0;}
+.foot{position:absolute;bottom:clamp(16px,2.4vw,30px);left:clamp(26px,5vw,96px);right:clamp(26px,5vw,96px);
+  display:flex;justify-content:space-between;align-items:center;
+  font-family:var(--sans);font-size:clamp(8px,.85vw,11px);letter-spacing:0.22em;text-transform:uppercase;}
+.s-paper .foot{color:rgba(26,26,26,0.4);} .s-dark .foot{color:rgba(239,231,216,0.4);}
+.foot .tag{font-family:var(--display);font-style:italic;letter-spacing:0;text-transform:none;color:var(--terra);opacity:.55;}
+
+/* TITLE */
+#s-title{padding:0;background:var(--ink);}
+.title-bg{position:absolute;inset:0;overflow:hidden;}
+.title-photo{position:absolute;inset:0;background:#1A1A1A url('assets/title-channels.jpg') center 26%/cover no-repeat;filter:grayscale(1) contrast(1.08) brightness(0.5);}
+.title-tint{position:absolute;inset:0;background:
+   radial-gradient(95% 95% at 20% 16%, rgba(154,62,22,0.34) 0%, transparent 55%),
+   linear-gradient(180deg, rgba(26,26,26,0.42) 0%, rgba(26,26,26,0.30) 40%, rgba(26,26,26,0.86) 100%);}
+.title-grain{position:absolute;inset:0;opacity:.06;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+.title-vignette{position:absolute;inset:0;background:radial-gradient(118% 118% at 50% 42%, transparent 50%, rgba(0,0,0,0.55) 100%);}
+#cv-title{position:absolute;inset:0;width:100%;height:100%;opacity:.9;z-index:2;}
+.title-inner{position:relative;z-index:4;height:100%;display:flex;flex-direction:column;padding:clamp(30px,4vw,64px) clamp(30px,5.5vw,104px);}
+.title-top{display:flex;align-items:center;gap:14px;}
+.title-top .mark{width:clamp(34px,3.2vw,46px);height:auto;animation:spin 64s linear infinite;}
+.title-top .wm{font-family:var(--sans);font-size:clamp(10px,1.05vw,13px);font-weight:700;letter-spacing:0.24em;text-transform:uppercase;color:var(--paper);}
+.title-mid{margin-top:auto;margin-bottom:auto;}
+.title-eyebrow{font-family:var(--sans);font-size:clamp(10px,1.1vw,14px);font-weight:700;letter-spacing:0.34em;text-transform:uppercase;color:var(--paper);opacity:.8;}
+.title-week{font-family:var(--sans);font-size:clamp(10px,1.05vw,13px);font-weight:600;letter-spacing:0.28em;text-transform:uppercase;color:var(--terra);margin-bottom:.7em;}
+.title-h{font-family:var(--display);font-weight:300;font-size:clamp(38px,6.6vw,98px);line-height:0.98;letter-spacing:-0.02em;color:var(--paper);}
+.title-h em{font-style:italic;color:var(--ochre);}
+.title-sub{font-family:var(--display);font-style:italic;font-size:clamp(16px,2.1vw,28px);color:var(--paper);opacity:.82;margin-top:.7em;max-width:30ch;}
+.title-foot{margin-top:clamp(20px,3vw,38px);display:flex;flex-wrap:wrap;gap:8px 26px;align-items:baseline;font-family:var(--sans);font-size:clamp(9px,1vw,12px);letter-spacing:0.2em;text-transform:uppercase;color:var(--paper);opacity:.72;}
+.title-foot .dot{color:var(--terra);}
+.title-cta{margin-top:18px;font-family:var(--sans);font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:var(--paper);opacity:.5;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* DIVIDER */
+.s-divider{background:var(--ink);color:var(--paper);overflow:hidden;justify-content:center;}
+.s-divider .div-photo{position:absolute;inset:0;background-position:center 32%;background-size:cover;filter:sepia(.85) saturate(1.05) contrast(1.05) brightness(.5);opacity:.26;}
+.s-divider .div-overlay{position:absolute;inset:0;background:linear-gradient(110deg,rgba(26,26,26,0.82) 0%,rgba(26,26,26,0.58) 45%,rgba(26,26,26,0.88) 100%);}
+.s-divider .div-mark{position:absolute;top:clamp(26px,4vw,58px);right:clamp(26px,4.5vw,72px);width:clamp(50px,7vw,105px);height:auto;animation:spin 18s linear infinite;opacity:.85;z-index:2;}
+.div-inner{position:relative;z-index:3;display:flex;flex-direction:column;align-items:flex-start;}
+.div-num{font-family:var(--display);font-weight:300;font-size:clamp(40px,6vw,86px);line-height:1;color:rgba(239,231,216,0.22);letter-spacing:-0.02em;margin-bottom:.18em;}
+.div-eyebrow{font-family:var(--sans);font-size:clamp(10px,1.05vw,13px);font-weight:700;letter-spacing:0.34em;text-transform:uppercase;color:var(--paper);opacity:.4;margin-bottom:.35em;}
+.div-title{font-family:var(--display);font-style:italic;font-weight:300;font-size:clamp(30px,5.4vw,84px);line-height:1.04;color:var(--paper);letter-spacing:-0.01em;}
+.div-meta{margin-top:1em;font-family:var(--display);font-style:italic;font-size:clamp(14px,1.7vw,22px);line-height:1.4;color:var(--terra);opacity:.9;max-width:34ch;}
+
+/* CARDS / GRID */
+.grid{display:grid;gap:clamp(12px,1.6vw,22px);}
+.g2{grid-template-columns:repeat(2,1fr);} .g3{grid-template-columns:repeat(3,1fr);} .g4{grid-template-columns:repeat(4,1fr);}
+.card{background:var(--paper-deep);border-left:3px solid var(--accent);padding:clamp(14px,1.7vw,24px);}
+.s-dark .card{background:rgba(239,231,216,0.06);border-left-color:var(--ochre);}
+.card h4{font-family:var(--sans);font-size:clamp(11px,1.15vw,15px);font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink);margin-bottom:.45em;}
+.s-dark .card h4{color:var(--paper);}
+.card p{font-size:clamp(12px,1.25vw,16px);line-height:1.5;color:var(--ink-mute);}
+.s-dark .card p{color:var(--paper-mid);}
+.card .num{font-family:var(--display);font-weight:300;font-size:clamp(26px,3vw,46px);color:var(--accent);line-height:1;}
+
+ul.list{list-style:none;margin-top:.4em;}
+ul.list li{position:relative;padding-left:1.4em;margin-bottom:.62em;font-size:clamp(13px,1.4vw,19px);line-height:1.5;color:var(--ink-mid);}
+.s-dark ul.list li{color:var(--paper-mid);}
+ul.list li::before{content:"";position:absolute;left:0;top:.55em;width:9px;height:9px;background:var(--accent);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);}
+
+.pull{font-family:var(--display);font-style:italic;font-weight:300;font-size:clamp(24px,4vw,56px);line-height:1.16;color:var(--paper);letter-spacing:-0.01em;max-width:20ch;}
+.pull .by{display:block;margin-top:.7em;font-family:var(--sans);font-style:normal;font-size:clamp(10px,1.1vw,14px);font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--ochre);}
+
+.case{display:grid;grid-template-columns:auto 1fr;gap:clamp(14px,2vw,30px);align-items:start;}
+.case-badge{font-family:var(--sans);font-size:clamp(9px,.95vw,12px);font-weight:700;letter-spacing:0.18em;text-transform:uppercase;background:var(--accent);color:var(--paper);padding:6px 12px;white-space:nowrap;align-self:start;}
+.case-flag{display:inline-block;font-family:var(--sans);font-size:clamp(9px,.9vw,11px);font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--accent);border:1px solid var(--accent);padding:3px 9px;margin-bottom:.7em;}
+
+/* PICK-CHIP system */
+.pick-wrap{display:grid;grid-template-columns:0.8fr 1.2fr;gap:clamp(16px,2.5vw,42px);align-items:start;margin-top:clamp(14px,2vw,28px);}
+.pick-chips{display:flex;flex-wrap:wrap;gap:9px;}
+.pick-chip{font-family:var(--sans);font-size:clamp(10px,1.15vw,14px);font-weight:600;letter-spacing:0.05em;border:1.5px solid var(--rule);background:var(--paper-deep);color:var(--ink);padding:10px 15px;cursor:pointer;transition:all .2s ease;}
+.pick-chip:hover{border-color:var(--accent);}
+.pick-chip.on{background:var(--accent);color:var(--paper);border-color:var(--accent);}
+.pick-detail{background:var(--paper-deep);border-top:4px solid var(--accent);padding:clamp(16px,2vw,28px);min-height:clamp(190px,23vw,270px);}
+.pick-detail .pk{font-family:var(--sans);font-size:clamp(12px,1.3vw,17px);font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent);margin-bottom:.5em;}
+.pick-detail .pv{font-size:clamp(13px,1.4vw,18px);line-height:1.55;color:var(--ink-mid);}
+.pick-detail .peg{margin-top:.85em;font-family:var(--display);font-style:italic;font-size:clamp(14px,1.6vw,21px);color:var(--terra-deep);}
+.pick-hint{font-family:var(--sans);font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:var(--paper-dim);margin-top:1em;}
+
+/* meters (channel selector) */
+.meters{display:flex;gap:clamp(14px,2.4vw,40px);flex-wrap:wrap;margin:.85em 0 .2em;}
+.meter .ml{font-family:var(--sans);font-size:clamp(9px,.95vw,11px);font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-mute);margin-bottom:5px;}
+.meter .dots{display:flex;gap:5px;}
+.meter .dots i{width:clamp(10px,1.1vw,14px);height:clamp(10px,1.1vw,14px);border:1.5px solid var(--terra);background:transparent;clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);}
+.meter .dots i.f{background:var(--terra);}
+
+/* funnel */
+.funnel{display:flex;flex-direction:column;gap:7px;margin-top:1em;max-width:560px;}
+.fstage{cursor:pointer;display:flex;align-items:center;gap:14px;padding:clamp(10px,1.4vw,16px) clamp(14px,1.8vw,22px);
+  background:var(--paper-deep);border-left:4px solid var(--rule);transition:all .25s ease;}
+.fstage:nth-child(1){width:100%;} .fstage:nth-child(2){width:88%;} .fstage:nth-child(3){width:76%;} .fstage:nth-child(4){width:64%;}
+.fstage.on{border-left-color:var(--accent);background:var(--accent);}
+.fstage .fn{font-family:var(--display);font-size:clamp(18px,2.1vw,30px);color:var(--ink);line-height:1;}
+.fstage.on .fn{color:var(--paper);}
+.fstage .fl{font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--accent);}
+.fstage.on .fl{color:rgba(239,231,216,0.8);}
+.funnel-detail{margin-top:1em;background:var(--ink);color:var(--paper);border-left:4px solid var(--ochre);padding:clamp(16px,2vw,26px);min-height:clamp(96px,11vw,130px);}
+.funnel-detail .fk{font-family:var(--sans);font-size:clamp(10px,1.1vw,14px);font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--ochre);}
+.funnel-detail .fv{font-size:clamp(13px,1.4vw,18px);line-height:1.55;color:var(--paper-mid);margin-top:.4em;}
+.funnel-detail .fc{margin-top:.6em;display:flex;flex-wrap:wrap;gap:7px;}
+.funnel-detail .fc span{font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--paper);border:1px solid rgba(239,231,216,0.3);padding:4px 10px;}
+.funnel-wrap{display:grid;grid-template-columns:1fr 1fr;gap:clamp(18px,3vw,48px);align-items:start;margin-top:clamp(8px,1.4vw,20px);}
+
+/* boxes */
+.box{border:1.5px solid var(--accent);padding:clamp(16px,2.2vw,32px);background:rgba(200,83,31,0.05);}
+.s-dark .box{border-color:var(--ochre);background:rgba(201,146,58,0.08);}
+.box .bk{font-family:var(--sans);font-size:clamp(10px,1.1vw,14px);font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent);margin-bottom:.6em;}
+.s-dark .box .bk{color:var(--ochre);}
+
+/* Exercise worksheet */
+.ex-head{display:flex;flex-wrap:wrap;align-items:flex-end;gap:14px 20px;}
+.ex-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(10px,1.3vw,18px);margin-top:clamp(14px,2vw,26px);}
+.ex-card{position:relative;background:var(--paper-deep);border-top:3px solid var(--terra);padding:clamp(15px,1.8vw,24px) clamp(14px,1.5vw,20px) clamp(16px,1.8vw,24px);overflow:hidden;display:flex;flex-direction:column;}
+.ex-card .exn{position:absolute;top:-0.12em;right:8px;font-family:var(--display);font-weight:300;font-size:clamp(60px,7vw,118px);line-height:1;color:rgba(200,83,31,0.12);pointer-events:none;}
+.ex-card .exk{position:relative;font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--terra);}
+.ex-card .ext{position:relative;font-family:var(--display);font-weight:500;font-size:clamp(17px,1.9vw,26px);color:var(--ink);margin:.14em 0 .3em;line-height:1.08;}
+.ex-card .exp{position:relative;font-size:clamp(11px,1.2vw,15px);line-height:1.45;color:var(--ink-mute);}
+.ex-card .exeg{position:relative;margin-top:.6em;padding-left:10px;border-left:2px solid var(--ochre);font-family:var(--display);font-style:italic;font-size:clamp(12px,1.3vw,17px);line-height:1.32;color:var(--terra-deep);}
+.ex-card .exeg b{font-style:normal;font-family:var(--sans);font-weight:700;font-size:.7em;letter-spacing:0.14em;text-transform:uppercase;color:var(--ochre);display:block;margin-bottom:.2em;}
+.ex-card .write{margin-top:auto;padding-top:1em;}
+.ex-card .write span{display:block;border-bottom:1.5px dashed var(--paper-dim);height:1.15em;}
+.ex-review{margin-top:clamp(13px,1.8vw,22px);border-left:3px solid var(--moss);padding-left:15px;font-size:clamp(12px,1.3vw,17px);line-height:1.5;color:var(--ink-mute);max-width:84ch;}
+.ex-review b{color:var(--terra-deep);font-weight:600;}
+
+/* Homework */
+.due-tag{display:inline-flex;align-items:center;gap:8px;font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink);background:var(--ochre);padding:7px 15px;}
+.due-tag .d{width:9px;height:9px;background:var(--ink);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);}
+.hw-grid{display:grid;grid-template-columns:1.12fr .88fr;gap:clamp(20px,3.4vw,56px);align-items:start;margin-top:clamp(14px,2vw,26px);}
+.hw-klbl{font-family:var(--sans);font-size:clamp(10px,1.1vw,13px);font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--ochre);margin-bottom:.4em;}
+.hw-check{list-style:none;}
+.hw-check li{display:flex;gap:14px;align-items:flex-start;padding:clamp(10px,1.3vw,15px) 0;border-bottom:1px solid rgba(239,231,216,0.14);font-size:clamp(13px,1.4vw,18px);line-height:1.45;color:var(--paper-mid);}
+.hw-check li:last-child{border-bottom:none;}
+.hw-check .cbx{flex:none;width:clamp(21px,2vw,27px);height:clamp(21px,2vw,27px);border:1.5px solid var(--ochre);display:flex;align-items:center;justify-content:center;margin-top:1px;}
+.hw-check .cbx::after{content:"";width:46%;height:46%;background:var(--ochre);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);}
+.hw-check b{color:var(--paper);font-weight:600;}
+.hw-quote{background:rgba(201,146,58,0.09);border-left:3px solid var(--ochre);padding:clamp(18px,2.3vw,32px) clamp(18px,2.2vw,30px) clamp(20px,2.4vw,30px);}
+.hw-quote .qm{font-family:var(--display);font-size:clamp(52px,6vw,96px);line-height:.4;color:var(--ochre);display:block;height:.5em;}
+.hw-quote .qt{font-family:var(--display);font-style:italic;font-weight:300;font-size:clamp(19px,2.3vw,32px);line-height:1.26;color:var(--paper);}
+.hw-quote .qb{font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--ochre);margin-top:1em;}
+.hw-bridge{margin-top:clamp(13px,1.7vw,20px);font-size:clamp(13px,1.4vw,18px);line-height:1.55;color:var(--paper-mid);}
+
+/* closer */
+#s-close{align-items:center;justify-content:center;text-align:center;}
+#s-close .mark{width:clamp(90px,13vw,180px);height:auto;}
+#s-close .ct{font-family:var(--display);font-style:italic;font-weight:300;font-size:clamp(22px,3.2vw,44px);color:var(--paper);margin-top:.6em;}
+#s-close .cc{font-family:var(--sans);font-size:clamp(9px,1vw,12px);letter-spacing:0.24em;text-transform:uppercase;color:var(--paper-mid);margin-top:1.4em;}
+
+/* NAV / HUD */
+.progress{position:fixed;bottom:0;left:0;height:4px;background:var(--accent);width:0;z-index:41;transition:width .3s ease;}
+.nav{position:fixed;bottom:clamp(14px,2vw,26px);right:clamp(16px,2.5vw,34px);display:flex;gap:8px;z-index:42;}
+.nav button{width:clamp(38px,3.6vw,46px);height:clamp(38px,3.6vw,46px);border:1px solid rgba(239,231,216,0.3);background:rgba(26,26,26,0.55);color:var(--paper);font-size:18px;cursor:pointer;backdrop-filter:blur(4px);transition:all .2s;display:flex;align-items:center;justify-content:center;}
+body.on-paper .nav button{border-color:rgba(26,26,26,0.25);background:rgba(239,231,216,0.7);color:var(--ink);}
+.nav button:hover{border-color:var(--terra);color:var(--terra);}
+.counter{position:fixed;bottom:clamp(16px,2vw,28px);left:clamp(18px,2.5vw,34px);z-index:42;font-family:var(--sans);font-size:clamp(10px,1.1vw,13px);font-weight:600;letter-spacing:0.16em;color:var(--paper-mid);pointer-events:none;}
+body.on-paper .counter{color:var(--ink-mute);}
+.kbd-hint{position:fixed;bottom:clamp(16px,2vw,28px);left:50%;transform:translateX(-50%);z-index:42;font-family:var(--sans);font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--paper-dim);opacity:.7;pointer-events:none;}
+
+.overview{position:fixed;inset:0;background:rgba(16,12,8,0.96);z-index:60;display:none;padding:clamp(20px,3vw,48px);overflow-y:auto;}
+.overview.show{display:block;}
+.ov-title{font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--ochre);margin-bottom:18px;}
+.ov-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;}
+.ov-item{background:rgba(239,231,216,0.06);border:1px solid rgba(239,231,216,0.14);padding:14px;cursor:pointer;transition:all .2s;}
+.ov-item:hover{border-color:var(--terra);background:rgba(200,83,31,0.12);}
+.ov-item .oi-n{font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:0.16em;color:var(--terra);}
+.ov-item .oi-t{font-family:var(--display);font-size:18px;color:var(--paper);margin-top:4px;line-height:1.15;}
+
+/* Unified caption style for all text below infographics (surface-aware) */
+.j-hint,.calc-hint,.mx-hint,.pick-hint,.pmap-hint,.tss-hint{
+  font-family:var(--sans);font-size:clamp(10px,1.1vw,12px);font-weight:600;letter-spacing:0.16em;
+  text-transform:uppercase;line-height:1.5;margin-top:clamp(12px,1.6vw,20px);color:var(--paper-dim);}
+.s-paper .j-hint,.s-paper .calc-hint,.s-paper .mx-hint,.s-paper .pick-hint,.s-paper .pmap-hint,.s-paper .tss-hint{color:var(--ink-mute);}
+
+/* Typographic widow & orphan control — no lone words on the last line */
+.slide h1,.slide h4,.slide p,.slide li,.lede,.div-meta,.title-sub,.pick-detail .pv,.funnel-detail .fv{text-wrap:pretty;}
+h1.title,.title-h,.div-title,.lede,.pull,.card h4,.ex-card .ext,.hw-quote .qt,.title-sub{text-wrap:balance;}
+
+@media (max-width:880px){.ex-grid{grid-template-columns:repeat(2,1fr);}}
+@media (max-width:768px){
+  .grid.g3,.grid.g4{grid-template-columns:repeat(2,1fr);}
+  .pick-wrap,.funnel-wrap,.hw-grid,.case{grid-template-columns:1fr;}
+  .kbd-hint{display:none;}
+}
+@media (max-width:560px){.grid.g2,.grid.g3,.grid.g4{grid-template-columns:1fr;}}
+@media (max-width:520px){.ex-grid{grid-template-columns:1fr;}}
+@media (prefers-reduced-motion:reduce){.title-top .mark,.s-divider .div-mark{animation:none;}.slide.active .anim{animation:none;}}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<!-- 1 · TITLE -->
+<section class="slide" id="s-title" data-surface="dark" data-title="Title">
+  <div class="title-bg"><div class="title-photo"></div><canvas id="cv-title"></canvas><div class="title-tint"></div><div class="title-grain"></div><div class="title-vignette"></div></div>
+  <div class="title-inner">
+    <div class="title-top">
+      <svg class="mark" viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.92"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.86" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.83" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.86" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#EFE7D8" opacity="0.8" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+      <span class="wm">The Founder's Sprint</span>
+    </div>
+    <div class="title-mid">
+      <div class="title-eyebrow">Marketing &amp; Branding · with Teddy Ruge</div>
+      <div class="title-week">Week 3 of 5 · Monday Cohort Session</div>
+      <h1 class="title-h">Reaching your<br><em>customer</em>.</h1>
+      <div class="title-sub">You have a market and a brand. Now choose the channels that put it in front of the right people — without burning your budget.</div>
+      <div class="title-foot">
+        <span><span class="dot">●</span> Social</span>
+        <span><span class="dot">●</span> Content &amp; SEO</span>
+        <span><span class="dot">●</span> Email</span>
+        <span><span class="dot">●</span> Influencer</span>
+        <span><span class="dot">●</span> Paid ads</span>
+      </div>
+      <div class="title-cta">Press → or Space to begin · Press O for slide overview</div>
+    </div>
+  </div>
+</section>
+
+<!-- 2 · AGENDA -->
+<section class="slide s-paper" data-surface="paper" data-title="Today's map">
+  <div class="accent-top"></div>
+  <svg class="mark-corner" viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.92"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.86" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.83" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.86" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.8" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#1A1A1A"/><circle cx="50" cy="50" r="2" fill="#EFE7D8"/></svg>
+  <div class="chip-bar anim"><span>Marketing &amp; Branding · Week 3</span><span>Digital Marketing Channels</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Today's map · 60 min teaching + 60 min Q&amp;A</div>
+    <h1 class="title anim">Five channels. Pick the two that fit you.</h1>
+    <div class="grid g3 anim" style="margin-top:clamp(18px,2.5vw,34px)">
+      <div class="card"><div class="num">01</div><h4>Social Media</h4><p>Platform selection &amp; content — be where your customer already scrolls.</p></div>
+      <div class="card"><div class="num">02</div><h4>Content &amp; SEO</h4><p>Earn attention and get found — by Google and by AI.</p></div>
+      <div class="card"><div class="num">03</div><h4>Email &amp; Automation</h4><p>The channel you own — nurture leads into customers.</p></div>
+      <div class="card"><div class="num">04</div><h4>Influencer &amp; Partnerships</h4><p>Borrow trust and audiences you don't have yet.</p></div>
+      <div class="card"><div class="num">05</div><h4>Paid Advertising</h4><p>Facebook &amp; Google in the EAC — buy reach, carefully.</p></div>
+      <div class="card" style="border-left-color:var(--ink)"><div class="num" style="color:var(--ink)">→</div><h4>You leave with</h4><p>A two-channel plan, a content rhythm, and one KPI per channel.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 3 · DIVIDER 01 -->
+<section class="slide s-divider" data-surface="dark" data-title="01 · The channels" data-photo="assets/w3-01.jpg">
+  <div class="div-photo"></div><div class="div-overlay"></div>
+  <svg class="div-mark" viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.92"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.86" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.83" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.86" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#EFE7D8" opacity="0.8" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+  <div class="div-inner">
+    <div class="div-num anim">01</div>
+    <div class="div-eyebrow anim">The landscape</div>
+    <div class="div-title anim">Don't be on every<br>channel. Be on the<br>right ones.</div>
+    <div class="div-meta anim">Channel choice depends on your customer, budget, and goals — not on what's trendy.</div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 4 · THE LANDSCAPE -->
+<section class="slide s-paper" data-surface="paper" data-title="Channel landscape">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Marketing &amp; Branding · Week 3</span><span>The effective-channels menu</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">The menu</div>
+    <h1 class="title anim">Every channel does a different job.</h1>
+    <div class="grid g4 anim" style="margin-top:clamp(16px,2.4vw,32px)">
+      <div class="card"><h4>Social media</h4><p>Build community and stay top-of-mind, daily.</p></div>
+      <div class="card"><h4>Content &amp; SEO</h4><p>Earn trust and get discovered over time.</p></div>
+      <div class="card"><h4>Email</h4><p>Own the relationship; nurture to a sale.</p></div>
+      <div class="card"><h4>Influencer</h4><p>Borrow a trusted voice's audience.</p></div>
+      <div class="card"><h4>Partnerships</h4><p>Co-market with complementary businesses.</p></div>
+      <div class="card"><h4>Paid ads</h4><p>Buy reach fast — measure ROI hard.</p></div>
+      <div class="card"><h4>Events &amp; PR</h4><p>Credibility, launches, press relationships.</p></div>
+      <div class="card"><h4>WhatsApp</h4><p>The EAC's quiet powerhouse — direct &amp; personal.</p></div>
+    </div>
+    <p class="pick-hint anim">A startup can't run all of these well — the discipline is <strong>choosing two</strong> that match your customer and budget, and doing them properly.</p>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 5 · CHANNEL SELECTOR (interactive) -->
+<section class="slide s-paper" data-surface="paper" data-title="Channel selector">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Marketing &amp; Branding · Week 3</span><span>Channel selector · tap to compare</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Interactive · tap a channel</div>
+    <h1 class="title anim" style="font-size:clamp(26px,3.8vw,50px)">Cost, speed, and what each is best for.</h1>
+    <div class="pick-wrap" id="chWrap">
+      <div class="pick-chips" id="chChips">
+        <button class="pick-chip on" data-k="social">Social media</button>
+        <button class="pick-chip" data-k="content">Content &amp; SEO</button>
+        <button class="pick-chip" data-k="email">Email</button>
+        <button class="pick-chip" data-k="influencer">Influencer</button>
+        <button class="pick-chip" data-k="paid">Paid ads</button>
+        <button class="pick-chip" data-k="whatsapp">WhatsApp</button>
+        <button class="pick-chip" data-k="partner">Partnerships</button>
+      </div>
+      <div class="pick-detail" id="chDetail"></div>
+    </div>
+    <div class="pick-hint anim">Cost &amp; effort are per result. Speed = how fast you'll see traction. Pick channels where your customer already spends time.</div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 6 · DIVIDER 02 -->
+<section class="slide s-divider" data-surface="dark" data-title="02 · Social media" data-photo="assets/w3-02.jpg">
+  <div class="div-photo"></div><div class="div-overlay"></div>
+  <svg class="div-mark" viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.92"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.86" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.83" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.86" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#EFE7D8" opacity="0.8" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+  <div class="div-inner">
+    <div class="div-num anim">02</div>
+    <div class="div-eyebrow anim">L3-1.3.1</div>
+    <div class="div-title anim">Social: pick the<br>platform, then the post.</div>
+    <div class="div-meta anim">One platform done well beats five done badly.</div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 7 · SOCIAL STRATEGY -->
+<section class="slide s-paper" data-surface="paper" data-title="Social strategy">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Marketing &amp; Branding · Week 3</span><span>Platform selection &amp; content</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Strategy before posting</div>
+    <h1 class="title anim" style="font-size:clamp(26px,3.8vw,50px)">Three questions before you post anything.</h1>
+    <div class="grid g3 anim" style="margin-top:clamp(16px,2.4vw,32px)">
+      <div class="card"><h4>Where is my customer?</h4><p>Go to the one or two platforms they actually use — not all of them.</p></div>
+      <div class="card"><h4>What earns engagement there?</h4><p>Each platform rewards a format: Reels, threads, carousels, status updates.</p></div>
+      <div class="card"><h4>Can I sustain it?</h4><p>A rhythm you can keep beats a burst you abandon. Consistency compounds.</p></div>
+    </div>
+    <div class="box anim" style="margin-top:clamp(14px,2vw,26px)"><div class="bk">Content pillars keep you consistent</div><p class="body" style="color:var(--ink)">Rotate a few themes — founder insight, build-in-public, customer proof, programme info — so you always know what to post and your audience knows what to expect.</p></div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 8 · PLATFORM PICKER (interactive) -->
+<section class="slide s-paper" data-surface="paper" data-title="Platform picker">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Marketing &amp; Branding · Week 3</span><span>Platform picker · tap a platform</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Interactive · which platform, and why</div>
+    <h1 class="title anim" style="font-size:clamp(26px,3.8vw,50px)">Match the platform to the audience.</h1>
+    <div class="pick-wrap" id="pfWrap">
+      <div class="pick-chips" id="pfChips">
+        <button class="pick-chip on" data-k="whatsapp">WhatsApp</button>
+        <button class="pick-chip" data-k="instagram">Instagram</button>
+        <button class="pick-chip" data-k="facebook">Facebook</button>
+        <button class="pick-chip" data-k="linkedin">LinkedIn</button>
+        <button class="pick-chip" data-k="x">X / Twitter</button>
+        <button class="pick-chip" data-k="tiktok">TikTok</button>
+      </div>
+      <div class="pick-detail" id="pfDetail"></div>
+    </div>
+    <div class="pick-hint anim">In the EAC, WhatsApp and Facebook reach the widest audience; LinkedIn and X reach professionals and press.</div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 9 · CASE: build in public / FS launch -->
+<section class="slide s-dark" data-surface="dark" data-title="Case · build in public">
+  <div class="chip-bar anim"><span>Marketing &amp; Branding · Week 3</span><span>Case study · The Founder's Sprint launch</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim" style="color:var(--ochre)">🇺🇬 The Founder's Sprint · build-in-public</div>
+    <h1 class="title anim" style="color:var(--paper)">Turn building the thing into the marketing.</h1>
+    <p class="lede anim">Every week of the build becomes content — before the product even launches.</p>
+    <div class="grid g3 anim" style="margin-top:clamp(16px,2.4vw,32px)">
+      <div class="card"><h4>LinkedIn</h4><p>The professional anchor — thought leadership and institutional updates.</p></div>
+      <div class="card"><h4>Instagram Reels</h4><p>Talking-head advice and behind-the-scenes — the social-proof engine.</p></div>
+      <div class="card"><h4>X / Twitter</h4><p>Threads and hot takes where EA tech discourse still lives.</p></div>
+    </div>
+    <p class="pick-hint anim">Institutional voice plus founder voice, amplifying each other, with a waitlist capturing interest before day one — <strong>distribution is built, not bought</strong>.</p>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 10 · DIVIDER 03 -->
+<section class="slide s-divider" data-surface="dark" data-title="03 · Content & SEO" data-photo="assets/w3-03.jpg">
+  <div class="div-photo"></div><div class="div-overlay"></div>
+  <svg class="div-mark" viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.92"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.86" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.83" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.86" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#EFE7D8" opacity="0.8" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+  <div class="div-inner">
+    <div class="div-num anim">03</div>
+    <div class="div-eyebrow anim">L3-1.3.2</div>
+    <div class="div-title anim">Content &amp; SEO:<br>get found on purpose.</div>
+    <div class="div-meta anim">Content builds authority. SEO — and now AI — decides who gets discovered.</div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 11 · CONTENT & SEO -->
+<section class="slide s-paper" data-surface="paper" data-title="Content & SEO">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Marketing &amp; Branding · Week 3</span><span>Content marketing &amp; SEO for African markets</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Be the answer, not the ad</div>
+    <h1 class="title anim" style="font-size:clamp(26px,3.8vw,50px)">Earn attention by being useful.</h1>
+    <div class="grid g4 anim" style="margin-top:clamp(16px,2.4vw,32px)">
+      <div class="card"><h4>Solve real questions</h4><p>Answer what your customer actually searches — "how to register a company in Uganda."</p></div>
+      <div class="card"><h4>Build topical depth</h4><p>Own one subject cluster well rather than one post on many.</p></div>
+      <div class="card"><h4>Local &amp; language signals</h4><p>Name the market and use the words customers use. Relevance wins.</p></div>
+      <div class="card"><h4>Be AI-discoverable</h4><p>Structured, authoritative content is what ChatGPT &amp; Google AI cite.</p></div>
+    </div>
+    <p class="pick-hint anim">The slowest channel and the most durable — a great post keeps working, and AI recommends the brands that <strong>built authority on the topic</strong>.</p>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 12 · CASE Qwezi content/IG -->
+<section class="slide s-paper" data-surface="paper" data-title="Case · Qwezi content">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Marketing &amp; Branding · Week 3</span><span>Case study · content + commerce</span></div>
+  <div class="slide-body">
+    <div class="case anim">
+      <div class="case-badge">Case Study</div>
+      <div>
+        <span class="case-flag">🇺🇬 Qwezi Beauty · diaspora e-commerce</span>
+        <h1 class="title" style="margin-top:0;font-size:clamp(26px,3.8vw,52px)">Show the glow, then sell it.</h1>
+        <div class="grid g3" style="margin-top:1.1em">
+          <div class="card"><h4>Channel fit</h4><p>Instagram — visual, aspirational, exactly where the target customer is.</p></div>
+          <div class="card"><h4>Content</h4><p>Education + transformation + heritage story, not just product shots.</p></div>
+          <div class="card"><h4>Path to purchase</h4><p>Content builds desire → DM and link convert it to a sale.</p></div>
+        </div>
+        <p class="pick-hint anim">The channel matches the customer, the content matches the brand, and every post has a <strong>next step</strong> to buy.</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 13 · DIVIDER 04 -->
+<section class="slide s-divider" data-surface="dark" data-title="04 · Email, influencer, paid" data-photo="assets/w3-04.jpg">
+  <div class="div-photo"></div><div class="div-overlay"></div>
+  <svg class="div-mark" viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.92"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.86" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.83" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.86" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#EFE7D8" opacity="0.8" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+  <div class="div-inner">
+    <div class="div-num anim">04</div>
+    <div class="div-eyebrow anim">L3-1.3.3 · 1.3.4 · 1.3.5</div>
+    <div class="div-title anim">Email, influencers<br>&amp; paid ads.</div>
+    <div class="div-meta anim">Own a channel, borrow a channel, buy a channel.</div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 14 · EMAIL -->
+<section class="slide s-paper" data-surface="paper" data-title="Email & automation">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Marketing &amp; Branding · Week 3</span><span>Email marketing &amp; automation</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">The one channel you own</div>
+    <h1 class="title anim" style="font-size:clamp(26px,3.8vw,50px)">Social is rented. Email is owned.</h1>
+    <div class="grid g2 anim" style="margin-top:clamp(16px,2.2vw,30px);align-items:start">
+      <div class="body-col" style="margin-top:0">
+        <p class="body">Algorithms decide who sees your posts. Nobody stands between you and your email list. Build it from day one — a sign-up form, a lead magnet, a reason to subscribe.</p>
+        <p class="body" style="margin-top:1em">Then automate a <strong>welcome sequence</strong>: a few timed emails that introduce the problem, your method, and a clear call to act — working while you sleep.</p>
+      </div>
+      <div class="card" style="border-left-color:var(--terra)">
+        <h4>The Founder's Sprint waitlist flow</h4>
+        <ul class="list" style="margin-top:.3em">
+          <li>Welcome — what this is.</li>
+          <li>The problem — why it matters.</li>
+          <li>The team &amp; method — why us.</li>
+          <li>A free framework — give value first.</li>
+          <li>Launch — early access to act.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 15 · INFLUENCER & PARTNERSHIPS -->
+<section class="slide s-paper" data-surface="paper" data-title="Influencer & partnerships">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Marketing &amp; Branding · Week 3</span><span>Influencer &amp; partnership marketing</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Borrow trust you haven't built yet</div>
+    <h1 class="title anim" style="font-size:clamp(26px,3.8vw,50px)">Other people's audiences, earned honestly.</h1>
+    <div class="grid g3 anim" style="margin-top:clamp(16px,2.4vw,32px)">
+      <div class="card"><h4>Micro &gt; mega</h4><p>A trusted local voice with 5,000 engaged followers beats a celebrity with a million passive ones.</p></div>
+      <div class="card"><h4>Partnerships</h4><p>Co-market with a complementary business — shared audience, shared cost, double the trust.</p></div>
+      <div class="card"><h4>Fit over reach</h4><p>The right small audience converts; the wrong big one just inflates vanity metrics.</p></div>
+    </div>
+    <p class="pick-hint anim">For an early brand, one authentic endorsement your customer already trusts can outperform months of cold posting.</p>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 16 · PAID ADS -->
+<section class="slide s-dark" data-surface="dark" data-title="Paid advertising">
+  <div class="chip-bar anim"><span>Marketing &amp; Branding · Week 3</span><span>Paid advertising in the EAC</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Buy reach — but measure it hard</div>
+    <h1 class="title anim" style="color:var(--paper);font-size:clamp(26px,3.8vw,50px)">Paid ads amplify what already works.</h1>
+    <div class="grid g3 anim" style="margin-top:clamp(16px,2.4vw,32px)">
+      <div class="card"><h4>Don't pay to learn</h4><p>Find your message organically first. Then put money behind the post that already lands.</p></div>
+      <div class="card"><h4>Start tiny, target tight</h4><p>Facebook &amp; Google let you spend small and narrow — test before you scale.</p></div>
+      <div class="card"><h4>Track to the shilling</h4><p>If you can't trace ad → click → sale, you're donating, not advertising.</p></div>
+    </div>
+    <p class="pick-hint anim">Paid is a multiplier, not a foundation — multiply a working funnel and you grow; multiply a broken one and you just lose money faster.</p>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 17 · FUNNEL (interactive) -->
+<section class="slide s-paper" data-surface="paper" data-title="Channel × funnel">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Marketing &amp; Branding · Week 3</span><span>The funnel · tap a stage</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Interactive · channels by funnel stage</div>
+    <h1 class="title anim" style="font-size:clamp(26px,3.8vw,50px)">Different channels, different jobs.</h1>
+    <div class="funnel-wrap anim">
+      <div class="funnel" id="funnel">
+        <div class="fstage on" data-s="0"><span class="fn">Awareness</span><span class="fl">Get found</span></div>
+        <div class="fstage" data-s="1"><span class="fn">Consideration</span><span class="fl">Earn trust</span></div>
+        <div class="fstage" data-s="2"><span class="fn">Conversion</span><span class="fl">Make the sale</span></div>
+        <div class="fstage" data-s="3"><span class="fn">Loyalty</span><span class="fl">Keep &amp; refer</span></div>
+      </div>
+      <div class="funnel-detail" id="funnelDetail"></div>
+    </div>
+    <div class="pick-hint anim">A channel that's great for awareness may be useless for conversion. Map each channel to the job it does best.</div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 18 · CASE Chipper / SafeBoda -->
+<section class="slide s-paper" data-surface="paper" data-title="Case · viral growth">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Marketing &amp; Branding · Week 3</span><span>Case study · channels that compound</span></div>
+  <div class="slide-body">
+    <div class="case anim">
+      <div class="case-badge">Case Study</div>
+      <div>
+        <span class="case-flag">🇺🇬 Chipper Cash &amp; SafeBoda</span>
+        <h1 class="title" style="margin-top:0;font-size:clamp(26px,3.8vw,52px)">The best channel is your own customer.</h1>
+        <div class="grid g2" style="margin-top:1.1em">
+          <div class="card"><h4>Chipper Cash · referral loops</h4><p>Built growth into the product — users invite users. Free money for cross-border transfers turned every customer into a channel.</p></div>
+          <div class="card"><h4>SafeBoda · community &amp; mobile</h4><p>Mobile-first acquisition and word-of-mouth in Kampala — riders and passengers spread a brand they trusted.</p></div>
+        </div>
+        <p class="pick-hint anim">Paid channels stop when the budget stops. A <strong>referral loop</strong> compounds — the cheapest customer is one your existing customer brings.</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 19 · MEASURE -->
+<section class="slide s-dark" data-surface="dark" data-title="Measure & iterate">
+  <div class="chip-bar anim"><span>Marketing &amp; Branding · Week 3</span><span>Measure, then double down</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">One number per channel</div>
+    <h1 class="title anim" style="color:var(--paper);font-size:clamp(26px,3.8vw,50px)">Pick a KPI, watch it, move money toward what works.</h1>
+    <div class="grid g4 anim" style="margin-top:clamp(16px,2.4vw,32px)">
+      <div class="card"><h4>Social</h4><p>Engagement rate &amp; saves — are people reacting?</p></div>
+      <div class="card"><h4>Content / SEO</h4><p>Organic visits &amp; rankings — are you getting found?</p></div>
+      <div class="card"><h4>Email</h4><p>Open &amp; click-through — are they listening?</p></div>
+      <div class="card"><h4>Paid</h4><p>Cost per acquisition — is it cheaper than the sale?</p></div>
+    </div>
+    <p class="pick-hint anim">Test small, read the data, shift budget to the channel that earns. Marketing is a loop, not a launch — <strong>measure and adapt, every week</strong>.</p>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 20 · RECAP -->
+<section class="slide s-dark" data-surface="dark" data-title="Recap">
+  <div class="chip-bar anim"><span>Marketing &amp; Branding · Week 3</span><span>What we locked down</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">The through-line</div>
+    <h1 class="title anim" style="color:var(--paper)">Two channels, done well, beat eight done badly.</h1>
+    <div class="grid g3 anim" style="margin-top:clamp(16px,2.4vw,32px)">
+      <div class="card"><h4>Choose for fit</h4><p>Match channels to customer, budget, goal.</p></div>
+      <div class="card"><h4>Social &amp; content</h4><p>Be where they scroll; earn trust over time.</p></div>
+      <div class="card"><h4>Own your list</h4><p>Email is the channel no algorithm can take.</p></div>
+      <div class="card"><h4>Borrow &amp; buy</h4><p>Partners and paid amplify what already works.</p></div>
+      <div class="card"><h4>Measure</h4><p>One KPI per channel; move money to winners.</p></div>
+      <div class="card" style="border-left-color:var(--ochre)"><h4>Next Monday</h4><p>We turn channels into a <em>sales</em> &amp; GTM engine.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 21 · EXERCISE -->
+<section class="slide s-paper" data-surface="paper" data-title="In-session exercise">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Marketing &amp; Branding · Week 3</span><span>Self-guided worksheet · in session</span></div>
+  <div class="slide-body">
+    <div class="ex-head anim">
+      <div>
+        <div class="eyebrow">Self-guided worksheet · do it now</div>
+        <h1 class="title" style="margin-top:.15em">Build your channel plan in 4 moves.</h1>
+      </div>
+      <span style="margin-left:auto;margin-bottom:.2em;display:inline-block;font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--paper);background:var(--ink);padding:5px 12px">⏱ 25 min solo · 35 min group</span>
+    </div>
+    <div class="ex-grid anim">
+      <div class="ex-card"><span class="exn">1</span><div class="exk">Pick two channels</div><div class="ext">Where your customer is</div><div class="exp">Choose the two that fit your customer and budget.</div><div class="exeg"><b>Example</b>"WhatsApp + Instagram — my diaspora buyers live on both."</div><div class="write"><span></span></div></div>
+      <div class="ex-card"><span class="exn">2</span><div class="exk">Content pillars</div><div class="ext">Three themes</div><div class="exp">What will you post about, repeatedly and credibly?</div><div class="exeg"><b>Example</b>"Customer transformations · how-to tips · behind-the-scenes."</div><div class="write"><span></span></div></div>
+      <div class="ex-card"><span class="exn">3</span><div class="exk">A rhythm</div><div class="ext">How often</div><div class="exp">A cadence you can actually sustain for 3 months.</div><div class="exeg"><b>Example</b>"3 posts + 5 stories a week. Email every Friday."</div><div class="write"><span></span></div></div>
+      <div class="ex-card"><span class="exn">4</span><div class="exk">One KPI each</div><div class="ext">How you'll know</div><div class="exp">The single number that tells you it's working.</div><div class="exeg"><b>Example</b>"IG: saves per post. WhatsApp: replies → orders."</div><div class="write"><span></span></div></div>
+    </div>
+    <p class="pick-hint anim">How we'll review: each founder names their <b>two channels</b> and <b>one KPI each</b> — and the room checks whether the channels actually reach <b>this</b> customer, and whether the cadence is realistic for a solo founder.</p>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 22 · HOMEWORK -->
+<section class="slide s-dark" data-surface="dark" data-title="Homework">
+  <div class="chip-bar anim"><span>Marketing &amp; Branding · Week 3</span><span>Homework · due next Monday</span></div>
+  <div class="slide-body">
+    <div class="anim"><span class="due-tag"><span class="d"></span>Due next Monday · Week 4 · Sales &amp; GTM</span></div>
+    <h1 class="title anim" style="color:var(--paper);margin-top:.5em">Run your two channels for a week.</h1>
+    <div class="hw-grid anim">
+      <div>
+        <div class="hw-klbl">Four deliverables</div>
+        <ul class="hw-check">
+          <li><span class="cbx"></span><div><b>A one-page channel plan</b> — two channels, three content pillars, a weekly rhythm.</div></li>
+          <li><span class="cbx"></span><div><b>Publish 3 real posts</b> on your primary channel — and note what got engagement.</div></li>
+          <li><span class="cbx"></span><div><b>Set up email capture</b> — a sign-up form and a one-line lead magnet.</div></li>
+          <li><span class="cbx"></span><div><b>Define one KPI per channel</b> and record this week's baseline number.</div></li>
+        </ul>
+      </div>
+      <div>
+        <div class="hw-quote">
+          <span class="qm">&ldquo;</span>
+          <div class="qt">The choice of channels depends on your target market, industry, budget, and marketing objectives.</div>
+          <div class="qb">Marketing &amp; Branding · Week 3</div>
+        </div>
+        <p class="hw-bridge">Next Monday we turn these channels into a <strong>sales &amp; go-to-market engine</strong> — funnels, the sales process, and launch planning. Add your channel plan to your <strong>data room</strong>.</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 23 · CLOSER -->
+<section class="slide s-dark" id="s-close" data-surface="dark" data-title="Close">
+  <svg class="mark" viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.92"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.86" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.83" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.86" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#EFE7D8" opacity="0.8" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+  <div class="ct anim">Build with direction.</div>
+  <div class="cc anim">The Founder's Sprint · Marketing &amp; Branding · Week 3 of 5 · Kampala</div>
+</section>
+
+</div>
+
+<div class="progress" id="progress"></div>
+<div class="counter" id="counter">01 / 23</div>
+<div class="kbd-hint">← → navigate · O overview · F fullscreen</div>
+<div class="nav">
+  <button id="resetBtn" aria-label="Restart from first slide" title="Restart">⟲</button>
+  <button id="prevBtn" aria-label="Previous slide">‹</button>
+  <button id="nextBtn" aria-label="Next slide">›</button>
+</div>
+<div class="overview" id="overview"><div class="ov-title">Slide overview · click to jump · Esc to close</div><div class="ov-grid" id="ovGrid"></div></div>
+
+<script>
+(function(){
+  "use strict";
+  const slides=Array.from(document.querySelectorAll('.slide'));
+  let i=0;
+  const counter=document.getElementById('counter'), progress=document.getElementById('progress');
+  document.querySelectorAll('.s-divider').forEach(s=>{const p=s.getAttribute('data-photo');if(p){const el=s.querySelector('.div-photo');if(el)el.style.backgroundImage="url('"+p+"')";}});
+
+  function show(n){
+    n=Math.max(0,Math.min(slides.length-1,n));
+    slides[i].classList.remove('active'); i=n;
+    const cur=slides[i]; cur.classList.add('active');
+    cur.querySelectorAll('.anim').forEach(el=>{el.style.animation='none';void el.offsetWidth;el.style.animation='';});
+    counter.textContent=String(i+1).padStart(2,'0')+' / '+String(slides.length).padStart(2,'0');
+    progress.style.width=((i)/(slides.length-1)*100)+'%';
+    document.body.classList.toggle('on-paper',cur.getAttribute('data-surface')==='paper');
+  }
+  const next=()=>show(i+1), prev=()=>show(i-1);
+  document.getElementById('nextBtn').addEventListener('click',next);
+  document.getElementById('prevBtn').addEventListener('click',prev);
+  document.getElementById('resetBtn').addEventListener('click',()=>show(0));
+
+  const overview=document.getElementById('overview'), ovGrid=document.getElementById('ovGrid');
+  slides.forEach((s,idx)=>{const t=s.getAttribute('data-title')||('Slide '+(idx+1));const d=document.createElement('div');d.className='ov-item';d.innerHTML='<div class="oi-n">'+String(idx+1).padStart(2,'0')+'</div><div class="oi-t">'+t+'</div>';d.addEventListener('click',()=>{overview.classList.remove('show');show(idx);});ovGrid.appendChild(d);});
+  const toggleOverview=()=>overview.classList.toggle('show');
+
+  document.addEventListener('keydown',e=>{
+    if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' '){e.preventDefault();next();}
+    else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();prev();}
+    else if(e.key==='Home'){show(0);} else if(e.key==='End'){show(slides.length-1);}
+    else if(e.key==='o'||e.key==='O'){toggleOverview();}
+    else if(e.key==='Escape'){overview.classList.remove('show');}
+    else if(e.key==='f'||e.key==='F'){if(!document.fullscreenElement){document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();}else{document.exitFullscreen&&document.exitFullscreen();}}
+  });
+  let tx=0,ty=0;
+  document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;ty=e.touches[0].clientY;},{passive:true});
+  document.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-tx,dy=e.changedTouches[0].clientY-ty;if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)){dx<0?next():prev();}},{passive:true});
+
+  // helper to render cost/speed/effort meters (1-3)
+  function meter(label,n){let dots='';for(let k=0;k<3;k++)dots+='<i class="'+(k<n?'f':'')+'"></i>';return '<div class="meter"><div class="ml">'+label+'</div><div class="dots">'+dots+'</div></div>';}
+
+  // ── Channel selector ──
+  const channels={
+    social:{k:'Social media',cost:1,speed:2,effort:2,v:'Build community and stay top-of-mind. Great for brand and engagement; rented reach — the algorithm controls who sees you.',eg:'Best for: brand awareness, daily presence, visual products.'},
+    content:{k:'Content & SEO',cost:1,speed:1,effort:3,v:'Earn trust and get discovered over months. The slowest channel and the most durable — a great post keeps working for years.',eg:'Best for: authority, organic discovery, considered purchases.'},
+    email:{k:'Email',cost:1,speed:2,effort:2,v:'The one channel you own outright. Nurture leads into customers with automated sequences no algorithm can throttle.',eg:'Best for: nurture, launches, repeat sales, owning the relationship.'},
+    influencer:{k:'Influencer',cost:2,speed:3,effort:1,v:'Borrow a trusted voice and their audience. A relevant micro-influencer can move more product than a distant celebrity.',eg:'Best for: fast credibility, reaching a tight niche.'},
+    paid:{k:'Paid ads',cost:3,speed:3,effort:2,v:'Buy reach immediately on Facebook & Google. A multiplier for what already works — never a substitute for a working message.',eg:'Best for: scaling a proven post, time-bound pushes.'},
+    whatsapp:{k:'WhatsApp',cost:1,speed:3,effort:2,v:"The EAC's quiet powerhouse. Direct, personal, high-trust — broadcast lists, groups, and one-to-one selling where your customers already are.",eg:'Best for: direct selling, support, diaspora & local reach.'},
+    partner:{k:'Partnerships',cost:1,speed:2,effort:2,v:'Co-market with a complementary business — shared audience, shared cost, doubled trust. Underused and high-leverage for early brands.',eg:'Best for: reaching a new audience cheaply, credibility.'}
+  };
+  const chChips=document.getElementById('chChips'), chDetail=document.getElementById('chDetail');
+  function renderCh(key){const d=channels[key];chDetail.innerHTML='<div class="pk">'+d.k+'</div><div class="meters">'+meter('Cost',d.cost)+meter('Speed',d.speed)+meter('Effort',d.effort)+'</div><div class="pv">'+d.v+'</div><div class="peg">'+d.eg+'</div>';chChips.querySelectorAll('.pick-chip').forEach(c=>c.classList.toggle('on',c.getAttribute('data-k')===key));}
+  if(chChips){chChips.addEventListener('click',e=>{const b=e.target.closest('.pick-chip');if(b)renderCh(b.getAttribute('data-k'));});renderCh('social');}
+
+  // ── Platform picker ──
+  const platforms={
+    whatsapp:{k:'WhatsApp',v:'Near-universal in the EAC. Most personal and highest-trust — broadcast lists, groups, catalogues, and direct selling.',eg:'Audience: everyone. Content: updates, offers, 1:1 sales.'},
+    instagram:{k:'Instagram',v:'Visual and aspirational. Reels drive reach; great for products people want to see and lifestyle brands.',eg:'Audience: urban, younger. Content: Reels, carousels, stories.'},
+    facebook:{k:'Facebook',v:'Still the widest reach across the EAC, especially outside capitals. Strong for community groups and marketplace.',eg:'Audience: broad, all ages. Content: posts, groups, events.'},
+    linkedin:{k:'LinkedIn',v:'The professional anchor. Best for B2B, thought leadership, hiring, and reaching partners and institutions.',eg:'Audience: professionals, B2B. Content: insight, updates.'},
+    x:{k:'X / Twitter',v:'Real-time discourse and press. Threads build expertise; a live space for EA tech and founder conversation.',eg:'Audience: tech, media, founders. Content: threads, takes.'},
+    tiktok:{k:'TikTok',v:'Fastest-growing attention. Raw, authentic short video; powerful for reaching a young audience cheaply.',eg:'Audience: youth. Content: short, native, unpolished video.'}
+  };
+  const pfChips=document.getElementById('pfChips'), pfDetail=document.getElementById('pfDetail');
+  function renderPf(key){const d=platforms[key];pfDetail.innerHTML='<div class="pk">'+d.k+'</div><div class="pv">'+d.v+'</div><div class="peg">'+d.eg+'</div>';pfChips.querySelectorAll('.pick-chip').forEach(c=>c.classList.toggle('on',c.getAttribute('data-k')===key));}
+  if(pfChips){pfChips.addEventListener('click',e=>{const b=e.target.closest('.pick-chip');if(b)renderPf(b.getAttribute('data-k'));});renderPf('whatsapp');}
+
+  // ── Funnel ──
+  const funnelData=[
+    {k:'Awareness — get found',v:'Reach people who don\'t know you yet. Cast wide, be discoverable, make a first impression.',ch:['Social','Content / SEO','Paid ads','Influencer']},
+    {k:'Consideration — earn trust',v:'Help the curious decide. Show proof, answer questions, demonstrate value.',ch:['Content','Email','WhatsApp','Reviews']},
+    {k:'Conversion — make the sale',v:'Remove friction at the moment of decision. Clear offer, easy payment, a confident ask.',ch:['Email','WhatsApp','Paid retargeting','Landing page']},
+    {k:'Loyalty — keep & refer',v:'Turn buyers into repeat customers and advocates. Follow up, reward, give them something to share.',ch:['Email','WhatsApp','Referral loop','Community']}
+  ];
+  const funnel=document.getElementById('funnel'), funnelDetail=document.getElementById('funnelDetail');
+  function renderFunnel(n){const d=funnelData[n];funnelDetail.innerHTML='<div class="fk">'+d.k+'</div><div class="fv">'+d.v+'</div><div class="fc">'+d.ch.map(c=>'<span>'+c+'</span>').join('')+'</div>';funnel.querySelectorAll('.fstage').forEach((s,idx)=>s.classList.toggle('on',idx===n));}
+  if(funnel){funnel.addEventListener('click',e=>{const s=e.target.closest('.fstage');if(s)renderFunnel(+s.getAttribute('data-s'));});renderFunnel(0);}
+
+  show(0);
+})();
+</script>
+</body>
+</html>

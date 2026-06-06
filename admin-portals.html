@@ -523,7 +523,7 @@ function showInviteCoach(){
   el.dataset.open='1';
   const url=location.origin+'/beta/coach-onboarding.html';
   el.innerHTML='<div class="app-card"><div style="font-family:var(--display);font-size:18px;font-weight:600;margin-bottom:4px">Invite a coach</div>'
-    +'<div class="sub" style="margin-bottom:10px">Share this onboarding/application link with a prospective coach. Their submission lands in the pipeline above for lead → admin review. (Direct email send arrives when the API is connected.)</div>'
+    +'<div class="sub" style="margin-bottom:10px">Share this onboarding/application link with a prospective coach. Their submission lands in the pipeline above for lead → admin review.</div>'
     +'<div style="display:flex;gap:8px;align-items:center"><input id="invite-url" value="'+esc(url)+'" readonly><button class="btn-sm approve" onclick="copyInvite()">Copy link</button></div></div>';
 }
 function copyInvite(){ const i=document.getElementById('invite-url'); if(!i)return; i.select(); try{ navigator.clipboard.writeText(i.value); }catch(e){ try{document.execCommand('copy');}catch(_){} } showToast('Link copied','success'); }
@@ -664,7 +664,7 @@ function showInviteInvestor(){
   el.dataset.open='1';
   const url=location.origin+'/beta/investor-onboarding.html';
   el.innerHTML='<div class="app-card"><div style="font-family:var(--display);font-size:18px;font-weight:600;margin-bottom:4px">Invite an investor</div>'
-    +'<div class="sub" style="margin-bottom:10px">Share this onboarding link with a prospective investor. Their submission lands here for review and verification. (Direct email send arrives when the API is connected.)</div>'
+    +'<div class="sub" style="margin-bottom:10px">Share this onboarding link with a prospective investor. Their submission lands here for review and verification.</div>'
     +'<div style="display:flex;gap:8px;align-items:center"><input id="inv-invite-url" value="'+esc(url)+'" readonly><button class="btn-sm approve" onclick="copyInvInvite()">Copy link</button></div></div>';
 }
 function copyInvInvite(){ const i=document.getElementById('inv-invite-url'); if(!i)return; i.select(); try{ navigator.clipboard.writeText(i.value); }catch(e){ try{document.execCommand('copy');}catch(_){} } showToast('Link copied','success'); }

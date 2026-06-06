@@ -238,7 +238,7 @@ let _redir=false; function _toLogin(){ if(_redir||booted) return; _redir=true; l
   }catch(e){ _toLogin(); }
 })();
 
-let coach=null, application=null, sessions=[], founders=[], myDiscKeys=new Set(), authUser=null, isLead=false, leadApps=[];
+let coach=null, application=null, sessions=[], founders=[], myDiscKeys=new Set(), authUser=null, isLead=false, leadApps=[], myMaterials=[];
 async function _rpc(fn,args){ const t=await _token(); const r=await fetch(SUPABASE_URL+'/rest/v1/rpc/'+fn,{method:'POST',headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify(args||{})}); if(!r.ok) throw new Error('RPC '+r.status+': '+await r.text()); const x=await r.text(); return x?JSON.parse(x):null; }
 
 async function boot(user){
@@ -260,6 +260,7 @@ async function boot(user){
     try{ const a=await _q('coach_applications','select=*&order=created_at.desc&limit=1'); application=a[0]||null; }catch(e){ application=null; }
     try{ sessions=await _q('sessions','coach_id=eq.'+user.id+'&select=id,session_type,title,scheduled_at,duration_minutes,meet_link,status,cohort_id&order=scheduled_at'); }catch(e){ sessions=[]; }
     await loadRoster(); await loadAvailability();
+    try{ myMaterials=await _q('course_materials','coach_id=eq.'+user.id+'&select=id,title,discipline,module_type,format,week_number,source_url,file_path,status&order=sort_order'); }catch(e){ myMaterials=[]; }
     renderSessions(); renderProfile(); renderEarnings(); renderMaterials();
     if(isLead){ document.getElementById('tab-applications').style.display=''; loadLeadApps(); }
   }catch(e){ showToast('Load failed — '+e.message,'error'); }
@@ -479,13 +480,29 @@ async function leadDecide(id,decision){
 }
 
 // ── MATERIALS ──
+function matLink(m){
+  if(m.source_url) return '<a class="pill pill-terra" style="text-decoration:none" href="'+esc(m.source_url)+'" target="_blank">Open ↗</a>';
+  if(m.file_path) return '<a class="pill pill-terra" style="text-decoration:none" href="#" onclick="openMaterialFile(\''+esc(m.file_path)+'\');return false">Open</a>';
+  return '<span class="pill pill-grey">No file</span>';
+}
+async function openMaterialFile(path){
+  try{ const t=await _token();
+    const r=await fetch(SUPABASE_URL+'/storage/v1/object/sign/course-materials/'+encodeURI(path),{method:'POST',headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify({expiresIn:300})});
+    const j=await r.json(); if(j&&j.signedURL) window.open(SUPABASE_URL+'/storage/v1'+j.signedURL,'_blank'); else throw new Error('na');
+  }catch(e){ showToast('Could not open file','error'); }
+}
 function renderMaterials(){
-  const has=application&&(application.has_existing_materials===true||application.has_existing_materials==='yes');
-  document.getElementById('materials-body').innerHTML=
-    '<div class="card card-top"><div style="font-family:var(--display);font-size:20px;font-weight:600;margin-bottom:6px">Branded presentation modules</div>'
-    +'<div style="font-size:13px;color:var(--ink-mid);line-height:1.6;max-width:560px">In this phase, the founding team builds teaching materials with Teddy as the brand standard. The self-serve template builder — pick a branded layout, fill in your content, publish — ships next, with an AI brand check on every slide. '
-    +(has?'You indicated you already have existing materials; we’ll convert them into branded modules when the builder launches.':'You can upload existing decks for auto-conversion when the builder launches.')+'</div>'
-    +'<div style="margin-top:14px"><span class="pill pill-ochre">Coming next phase</span></div></div>';
+  const el=document.getElementById('materials-body');
+  if(!myMaterials.length){
+    el.innerHTML='<div class="card card-top"><div style="font-family:var(--display);font-size:20px;font-weight:600;margin-bottom:6px">No materials yet</div>'
+      +'<div style="font-size:13px;color:var(--ink-mid);line-height:1.6;max-width:560px">Your teaching decks appear here once they\'re added to the platform. The self-serve template builder (pick a branded layout, fill in content, publish — with an AI brand check) ships next phase.</div></div>';
+    return;
+  }
+  const rows=myMaterials.map(m=>'<div class="list-row"><div><div class="list-main">'+esc(m.title)+'</div>'
+    +'<div class="list-sub">'+esc(m.discipline||'')+(m.module_type?(' · '+esc(m.module_type)):'')+' · '+(m.status==='published'?'Published':esc(m.status||'Draft'))+'</div></div>'
+    +matLink(m)+'</div>').join('');
+  el.innerHTML='<div class="card card-top"><div class="section-title" style="margin-top:0">Your teaching materials</div>'+rows
+    +'<div style="font-size:11px;color:var(--muted);margin-top:12px">These are the decks founders see for your discipline. Self-serve editing + the branded template builder ship next phase.</div></div>';
 }
 
 // ── availability (unchanged) ──

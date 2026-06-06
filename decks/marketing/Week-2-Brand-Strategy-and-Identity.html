@@ -1,0 +1,769 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Week 2 · Brand Strategy &amp; Identity · The Founder's Sprint</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1A1A1A; --ink-soft:#2A2826; --ink-mid:#444; --ink-mute:#5A564F;
+  --paper:#EFE7D8; --paper-mid:#C0B8A8; --paper-dim:#A09888; --paper-deep:#E6DCC7;
+  --terra:#C8531F; --terra-deep:#9A3E16; --ochre:#C9923A; --sage:#8AAB5C; --moss:#3D4A2E; --stone:#777770;
+  --rule:rgba(26,26,26,0.18);
+  --sans:'Josefin Sans',Inter,system-ui,sans-serif;
+  --display:'Cormorant Garamond',Georgia,serif;
+  --body:'Inter',system-ui,sans-serif;
+  --accent:var(--terra);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--ink);color:var(--paper);font-family:var(--body);overflow:hidden;}
+
+.deck{position:fixed;inset:0;}
+.slide{position:absolute;inset:0;display:none;flex-direction:column;
+  padding:clamp(28px,4.4vw,76px) clamp(26px,5vw,96px) clamp(56px,5vw,82px);opacity:0;}
+.slide.active{display:flex;opacity:1;}
+.slide.active .anim{animation:riseIn .52s cubic-bezier(.25,1,.5,1) both;}
+.slide.active .anim:nth-child(1){animation-delay:.06s}
+.slide.active .anim:nth-child(2){animation-delay:.12s}
+.slide.active .anim:nth-child(3){animation-delay:.17s}
+.slide.active .anim:nth-child(4){animation-delay:.22s}
+.slide.active .anim:nth-child(5){animation-delay:.27s}
+.slide.active .anim:nth-child(6){animation-delay:.32s}
+.slide.active .anim:nth-child(7){animation-delay:.37s}
+.slide.active .anim:nth-child(8){animation-delay:.42s}
+@keyframes riseIn{from{opacity:0;transform:translateY(15px);}to{opacity:1;transform:none;}}
+
+.s-paper{background:var(--paper);color:var(--ink);}
+.s-dark{background:var(--ink);color:var(--paper);}
+.s-paper .chip-bar,.s-dark .chip-bar{display:flex;justify-content:space-between;align-items:center;
+  font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.18em;text-transform:uppercase;}
+.s-paper .chip-bar{color:rgba(26,26,26,0.5);}
+.s-dark .chip-bar{color:rgba(239,231,216,0.5);}
+.accent-top{position:absolute;top:0;left:0;right:0;height:5px;background:var(--accent);}
+.mark-corner{position:absolute;top:clamp(20px,3vw,40px);right:clamp(20px,4vw,64px);width:clamp(34px,3.4vw,52px);height:auto;opacity:.95;z-index:3;}
+
+.eyebrow{font-family:var(--sans);font-size:clamp(10px,1.05vw,13px);font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:var(--accent);}
+.s-dark .eyebrow{color:var(--ochre);}
+h1.title{font-family:var(--display);font-weight:300;letter-spacing:-0.012em;font-size:clamp(30px,4.6vw,62px);line-height:1.04;margin-top:.32em;}
+.lede{font-family:var(--display);font-style:italic;font-weight:400;font-size:clamp(17px,2.1vw,30px);line-height:1.32;color:var(--ink-mute);margin-top:.5em;max-width:24ch;}
+.s-dark .lede{color:var(--paper-mid);}
+.body-col{margin-top:clamp(14px,2vw,26px);max-width:62ch;}
+p.body{font-size:clamp(14px,1.45vw,20px);line-height:1.55;font-weight:400;color:var(--ink-mid);}
+.s-dark p.body{color:var(--paper-mid);}
+strong{color:var(--terra-deep);font-weight:500;}
+.s-dark strong{color:var(--ochre);font-weight:500;}
+
+.slide-body{flex:1;display:flex;flex-direction:column;justify-content:center;min-height:0;}
+.foot{position:absolute;bottom:clamp(16px,2.4vw,30px);left:clamp(26px,5vw,96px);right:clamp(26px,5vw,96px);
+  display:flex;justify-content:space-between;align-items:center;
+  font-family:var(--sans);font-size:clamp(8px,.85vw,11px);letter-spacing:0.22em;text-transform:uppercase;}
+.s-paper .foot{color:rgba(26,26,26,0.4);} .s-dark .foot{color:rgba(239,231,216,0.4);}
+.foot .tag{font-family:var(--display);font-style:italic;letter-spacing:0;text-transform:none;color:var(--terra);opacity:.55;}
+
+/* TITLE */
+#s-title{padding:0;background:var(--ink);}
+.title-bg{position:absolute;inset:0;overflow:hidden;}
+.title-photo{position:absolute;inset:0;background:#1A1A1A url('assets/title-brand.jpg') center 30%/cover no-repeat;filter:grayscale(1) contrast(1.08) brightness(0.5);}
+.title-tint{position:absolute;inset:0;background:
+   radial-gradient(95% 95% at 20% 16%, rgba(154,62,22,0.34) 0%, transparent 55%),
+   linear-gradient(180deg, rgba(26,26,26,0.42) 0%, rgba(26,26,26,0.30) 40%, rgba(26,26,26,0.86) 100%);}
+.title-grain{position:absolute;inset:0;opacity:.06;mix-blend-mode:overlay;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+.title-vignette{position:absolute;inset:0;background:radial-gradient(118% 118% at 50% 42%, transparent 50%, rgba(0,0,0,0.55) 100%);}
+#cv-title{position:absolute;inset:0;width:100%;height:100%;opacity:.9;z-index:2;}
+.title-inner{position:relative;z-index:4;height:100%;display:flex;flex-direction:column;padding:clamp(30px,4vw,64px) clamp(30px,5.5vw,104px);}
+.title-top{display:flex;align-items:center;gap:14px;}
+.title-top .mark{width:clamp(34px,3.2vw,46px);height:auto;animation:spin 64s linear infinite;}
+.title-top .wm{font-family:var(--sans);font-size:clamp(10px,1.05vw,13px);font-weight:700;letter-spacing:0.24em;text-transform:uppercase;color:var(--paper);}
+.title-mid{margin-top:auto;margin-bottom:auto;}
+.title-eyebrow{font-family:var(--sans);font-size:clamp(10px,1.1vw,14px);font-weight:700;letter-spacing:0.34em;text-transform:uppercase;color:var(--paper);opacity:.8;}
+.title-week{font-family:var(--sans);font-size:clamp(10px,1.05vw,13px);font-weight:600;letter-spacing:0.28em;text-transform:uppercase;color:var(--terra);margin-bottom:.7em;}
+.title-h{font-family:var(--display);font-weight:300;font-size:clamp(38px,6.6vw,98px);line-height:0.98;letter-spacing:-0.02em;color:var(--paper);}
+.title-h em{font-style:italic;color:var(--ochre);}
+.title-sub{font-family:var(--display);font-style:italic;font-size:clamp(16px,2.1vw,28px);color:var(--paper);opacity:.82;margin-top:.7em;max-width:30ch;}
+.title-foot{margin-top:clamp(20px,3vw,38px);display:flex;flex-wrap:wrap;gap:8px 26px;align-items:baseline;font-family:var(--sans);font-size:clamp(9px,1vw,12px);letter-spacing:0.2em;text-transform:uppercase;color:var(--paper);opacity:.72;}
+.title-foot .dot{color:var(--terra);}
+.title-cta{margin-top:18px;font-family:var(--sans);font-size:11px;letter-spacing:0.18em;text-transform:uppercase;color:var(--paper);opacity:.5;}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* DIVIDER */
+.s-divider{background:var(--ink);color:var(--paper);overflow:hidden;justify-content:center;}
+.s-divider .div-photo{position:absolute;inset:0;background-position:center 32%;background-size:cover;filter:sepia(.85) saturate(1.05) contrast(1.05) brightness(.5);opacity:.26;}
+.s-divider .div-overlay{position:absolute;inset:0;background:linear-gradient(110deg,rgba(26,26,26,0.82) 0%,rgba(26,26,26,0.58) 45%,rgba(26,26,26,0.88) 100%);}
+.s-divider .div-mark{position:absolute;top:clamp(26px,4vw,58px);right:clamp(26px,4.5vw,72px);width:clamp(50px,7vw,105px);height:auto;animation:spin 18s linear infinite;opacity:.85;z-index:2;}
+.div-inner{position:relative;z-index:3;display:flex;flex-direction:column;align-items:flex-start;}
+.div-num{font-family:var(--display);font-weight:300;font-size:clamp(40px,6vw,86px);line-height:1;color:rgba(239,231,216,0.22);letter-spacing:-0.02em;margin-bottom:.18em;}
+.div-eyebrow{font-family:var(--sans);font-size:clamp(10px,1.05vw,13px);font-weight:700;letter-spacing:0.34em;text-transform:uppercase;color:var(--paper);opacity:.4;margin-bottom:.35em;}
+.div-title{font-family:var(--display);font-style:italic;font-weight:300;font-size:clamp(30px,5.4vw,84px);line-height:1.04;color:var(--paper);letter-spacing:-0.01em;}
+.div-meta{margin-top:1em;font-family:var(--display);font-style:italic;font-size:clamp(14px,1.7vw,22px);line-height:1.4;color:var(--terra);opacity:.9;max-width:34ch;}
+
+/* CARDS / GRID */
+.grid{display:grid;gap:clamp(12px,1.6vw,22px);}
+.g2{grid-template-columns:repeat(2,1fr);} .g3{grid-template-columns:repeat(3,1fr);} .g4{grid-template-columns:repeat(4,1fr);}
+.card{background:var(--paper-deep);border-left:3px solid var(--accent);padding:clamp(14px,1.7vw,24px);}
+.s-dark .card{background:rgba(239,231,216,0.06);border-left-color:var(--ochre);}
+.card h4{font-family:var(--sans);font-size:clamp(11px,1.15vw,15px);font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink);margin-bottom:.45em;}
+.s-dark .card h4{color:var(--paper);}
+.card p{font-size:clamp(12px,1.25vw,16px);line-height:1.5;color:var(--ink-mute);}
+.s-dark .card p{color:var(--paper-mid);}
+.card .num{font-family:var(--display);font-weight:300;font-size:clamp(26px,3vw,46px);color:var(--accent);line-height:1;}
+
+ul.list{list-style:none;margin-top:.4em;}
+ul.list li{position:relative;padding-left:1.4em;margin-bottom:.62em;font-size:clamp(13px,1.4vw,19px);line-height:1.5;color:var(--ink-mid);}
+.s-dark ul.list li{color:var(--paper-mid);}
+ul.list li::before{content:"";position:absolute;left:0;top:.55em;width:9px;height:9px;background:var(--accent);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);}
+
+.pull{font-family:var(--display);font-style:italic;font-weight:300;font-size:clamp(24px,4vw,56px);line-height:1.16;color:var(--paper);letter-spacing:-0.01em;max-width:20ch;}
+.pull .by{display:block;margin-top:.7em;font-family:var(--sans);font-style:normal;font-size:clamp(10px,1.1vw,14px);font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--ochre);}
+
+.case{display:grid;grid-template-columns:auto 1fr;gap:clamp(14px,2vw,30px);align-items:start;}
+.case-badge{font-family:var(--sans);font-size:clamp(9px,.95vw,12px);font-weight:700;letter-spacing:0.18em;text-transform:uppercase;background:var(--accent);color:var(--paper);padding:6px 12px;white-space:nowrap;align-self:start;}
+.case-flag{display:inline-block;font-family:var(--sans);font-size:clamp(9px,.9vw,11px);font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--accent);border:1px solid var(--accent);padding:3px 9px;margin-bottom:.7em;}
+
+/* PICK-CHIP system (logo + personality) */
+.pick-wrap{display:grid;grid-template-columns:1fr 1fr;gap:clamp(16px,2.5vw,42px);align-items:center;margin-top:clamp(14px,2vw,28px);}
+.pick-chips{display:flex;flex-wrap:wrap;gap:9px;}
+.pick-chip{font-family:var(--sans);font-size:clamp(10px,1.15vw,14px);font-weight:600;letter-spacing:0.05em;border:1.5px solid var(--rule);background:var(--paper-deep);color:var(--ink);padding:10px 15px;cursor:pointer;transition:all .2s ease;}
+.s-dark .pick-chip{background:rgba(239,231,216,0.06);color:var(--paper);border-color:rgba(239,231,216,0.2);}
+.pick-chip:hover{border-color:var(--accent);}
+.pick-chip.on{background:var(--accent);color:var(--paper);border-color:var(--accent);}
+.s-dark .pick-chip.on{background:var(--ochre);color:var(--ink);border-color:var(--ochre);}
+.pick-detail{background:var(--paper-deep);border-top:4px solid var(--accent);padding:clamp(16px,2vw,28px);min-height:clamp(180px,22vw,260px);}
+.s-dark .pick-detail{background:rgba(239,231,216,0.05);border-top-color:var(--ochre);}
+.pick-detail .pk{font-family:var(--sans);font-size:clamp(11px,1.2vw,15px);font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--accent);margin-bottom:.5em;}
+.s-dark .pick-detail .pk{color:var(--ochre);}
+.pick-detail .pv{font-size:clamp(13px,1.4vw,18px);line-height:1.55;color:var(--ink-mid);}
+.s-dark .pick-detail .pv{color:var(--paper-mid);}
+.pick-detail .peg{margin-top:.9em;font-family:var(--display);font-style:italic;font-size:clamp(14px,1.6vw,21px);color:var(--terra-deep);}
+.s-dark .pick-detail .peg{color:var(--ochre);}
+.pick-hint{font-family:var(--sans);font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:var(--paper-dim);margin-top:1em;}
+
+/* LOGO explorer canvas — two original brand-logo examples, side by side on white */
+.logo-canvas{height:clamp(150px,23vw,256px);display:flex;align-items:stretch;justify-content:center;gap:0;background:#fff;margin-bottom:1.1em;padding:clamp(12px,2vw,26px) clamp(10px,1.6vw,22px);border:1px solid var(--rule);}
+.logo-canvas img{flex:1 1 0;min-width:0;max-width:50%;max-height:100%;object-fit:contain;padding:0 clamp(10px,2vw,28px);}
+
+/* PERCEPTUAL MAP */
+.pmap-wrap{display:grid;grid-template-columns:1.1fr .9fr;gap:clamp(20px,3vw,52px);align-items:center;margin-top:clamp(10px,1.6vw,22px);}
+.pmap{width:100%;max-width:560px;margin:auto;}
+.pmap svg{width:100%;height:auto;display:block;}
+.pmap .pdot{cursor:pointer;}
+.pmap .pdot circle{transition:r .2s ease;}
+.pmap .pdot.on circle{stroke:var(--paper);stroke-width:3;}
+.pmap-panel{background:var(--ink);color:var(--paper);border-left:4px solid var(--ochre);padding:clamp(16px,2vw,28px);min-height:clamp(150px,18vw,210px);}
+.pmap-panel .mk{font-family:var(--sans);font-size:clamp(11px,1.2vw,15px);font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--ochre);}
+.pmap-panel .mt{font-family:var(--display);font-style:italic;font-size:clamp(18px,2.2vw,28px);color:var(--paper);margin:.15em 0 .35em;}
+.pmap-panel .mv{font-size:clamp(13px,1.4vw,17px);line-height:1.55;color:var(--paper-mid);}
+.pmap-hint{font-family:var(--sans);font-size:11px;letter-spacing:0.16em;text-transform:uppercase;color:var(--paper-dim);margin-top:1em;}
+
+/* swatches / type */
+.swatches{display:flex;gap:0;margin-top:.6em;flex-wrap:wrap;}
+.sw{flex:1;min-width:90px;height:clamp(86px,10vw,128px);display:flex;flex-direction:column;justify-content:flex-end;padding:10px;color:var(--paper);}
+.sw .sn{font-family:var(--sans);font-size:clamp(9px,.95vw,12px);font-weight:700;letter-spacing:0.1em;text-transform:uppercase;}
+.sw .sh{font-family:var(--body);font-size:clamp(9px,.9vw,11px);opacity:.7;}
+.typecard{background:var(--paper-deep);border-left:3px solid var(--terra);padding:clamp(14px,1.7vw,22px);}
+.typecard .tn{font-family:var(--sans);font-size:clamp(10px,1.05vw,13px);font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--terra);}
+.typecard .ts{font-size:clamp(11px,1.2vw,15px);color:var(--ink-mute);margin-top:.2em;}
+.typecard .td{margin-top:.4em;line-height:1.1;}
+
+/* boxes */
+.box{border:1.5px solid var(--accent);padding:clamp(16px,2.2vw,32px);background:rgba(200,83,31,0.05);}
+.s-dark .box{border-color:var(--ochre);background:rgba(201,146,58,0.08);}
+.box .bk{font-family:var(--sans);font-size:clamp(10px,1.1vw,14px);font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent);margin-bottom:.6em;}
+.s-dark .box .bk{color:var(--ochre);}
+
+/* Exercise worksheet */
+.ex-head{display:flex;flex-wrap:wrap;align-items:flex-end;gap:14px 20px;}
+.ex-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(10px,1.3vw,18px);margin-top:clamp(14px,2vw,26px);}
+.ex-card{position:relative;background:var(--paper-deep);border-top:3px solid var(--terra);padding:clamp(15px,1.8vw,24px) clamp(14px,1.5vw,20px) clamp(16px,1.8vw,24px);overflow:hidden;display:flex;flex-direction:column;}
+.ex-card .exn{position:absolute;top:-0.12em;right:8px;font-family:var(--display);font-weight:300;font-size:clamp(60px,7vw,118px);line-height:1;color:rgba(200,83,31,0.12);pointer-events:none;}
+.ex-card .exk{position:relative;font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--terra);}
+.ex-card .ext{position:relative;font-family:var(--display);font-weight:500;font-size:clamp(17px,1.9vw,26px);color:var(--ink);margin:.14em 0 .3em;line-height:1.08;}
+.ex-card .exp{position:relative;font-size:clamp(11px,1.2vw,15px);line-height:1.45;color:var(--ink-mute);}
+.ex-card .exeg{position:relative;margin-top:.6em;padding-left:10px;border-left:2px solid var(--ochre);font-family:var(--display);font-style:italic;font-size:clamp(12px,1.3vw,17px);line-height:1.32;color:var(--terra-deep);}
+.ex-card .exeg b{font-style:normal;font-family:var(--sans);font-weight:700;font-size:.7em;letter-spacing:0.14em;text-transform:uppercase;color:var(--ochre);display:block;margin-bottom:.2em;}
+.ex-card .write{margin-top:auto;padding-top:1em;}
+.ex-card .write span{display:block;border-bottom:1.5px dashed var(--paper-dim);height:1.15em;}
+.ex-card .write span+span{margin-top:.5em;}
+.ex-review{margin-top:clamp(13px,1.8vw,22px);border-left:3px solid var(--moss);padding-left:15px;font-size:clamp(12px,1.3vw,17px);line-height:1.5;color:var(--ink-mute);max-width:84ch;}
+.ex-review b{color:var(--terra-deep);font-weight:600;}
+
+/* Homework */
+.due-tag{display:inline-flex;align-items:center;gap:8px;font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink);background:var(--ochre);padding:7px 15px;}
+.due-tag .d{width:9px;height:9px;background:var(--ink);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);}
+.hw-grid{display:grid;grid-template-columns:1.12fr .88fr;gap:clamp(20px,3.4vw,56px);align-items:start;margin-top:clamp(14px,2vw,26px);}
+.hw-klbl{font-family:var(--sans);font-size:clamp(10px,1.1vw,13px);font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--ochre);margin-bottom:.4em;}
+.hw-check{list-style:none;}
+.hw-check li{display:flex;gap:14px;align-items:flex-start;padding:clamp(10px,1.3vw,15px) 0;border-bottom:1px solid rgba(239,231,216,0.14);font-size:clamp(13px,1.4vw,18px);line-height:1.45;color:var(--paper-mid);}
+.hw-check li:last-child{border-bottom:none;}
+.hw-check .cbx{flex:none;width:clamp(21px,2vw,27px);height:clamp(21px,2vw,27px);border:1.5px solid var(--ochre);display:flex;align-items:center;justify-content:center;margin-top:1px;}
+.hw-check .cbx::after{content:"";width:46%;height:46%;background:var(--ochre);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);}
+.hw-check b{color:var(--paper);font-weight:600;}
+.hw-quote{background:rgba(201,146,58,0.09);border-left:3px solid var(--ochre);padding:clamp(18px,2.3vw,32px) clamp(18px,2.2vw,30px) clamp(20px,2.4vw,30px);}
+.hw-quote .qm{font-family:var(--display);font-size:clamp(52px,6vw,96px);line-height:.4;color:var(--ochre);display:block;height:.5em;}
+.hw-quote .qt{font-family:var(--display);font-style:italic;font-weight:300;font-size:clamp(19px,2.3vw,32px);line-height:1.26;color:var(--paper);}
+.hw-quote .qb{font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--ochre);margin-top:1em;}
+.hw-bridge{margin-top:clamp(13px,1.7vw,20px);font-size:clamp(13px,1.4vw,18px);line-height:1.55;color:var(--paper-mid);}
+
+/* closer */
+#s-close{align-items:center;justify-content:center;text-align:center;}
+#s-close .mark{width:clamp(90px,13vw,180px);height:auto;}
+#s-close .ct{font-family:var(--display);font-style:italic;font-weight:300;font-size:clamp(22px,3.2vw,44px);color:var(--paper);margin-top:.6em;}
+#s-close .cc{font-family:var(--sans);font-size:clamp(9px,1vw,12px);letter-spacing:0.24em;text-transform:uppercase;color:var(--paper-mid);margin-top:1.4em;}
+
+/* NAV / HUD */
+.progress{position:fixed;bottom:0;left:0;height:4px;background:var(--accent);width:0;z-index:41;transition:width .3s ease;}
+.nav{position:fixed;bottom:clamp(14px,2vw,26px);right:clamp(16px,2.5vw,34px);display:flex;gap:8px;z-index:42;}
+.nav button{width:clamp(38px,3.6vw,46px);height:clamp(38px,3.6vw,46px);border:1px solid rgba(239,231,216,0.3);background:rgba(26,26,26,0.55);color:var(--paper);font-size:18px;cursor:pointer;backdrop-filter:blur(4px);transition:all .2s;display:flex;align-items:center;justify-content:center;}
+body.on-paper .nav button{border-color:rgba(26,26,26,0.25);background:rgba(239,231,216,0.7);color:var(--ink);}
+.nav button:hover{border-color:var(--terra);color:var(--terra);}
+.counter{position:fixed;bottom:clamp(16px,2vw,28px);left:clamp(18px,2.5vw,34px);z-index:42;font-family:var(--sans);font-size:clamp(10px,1.1vw,13px);font-weight:600;letter-spacing:0.16em;color:var(--paper-mid);pointer-events:none;}
+body.on-paper .counter{color:var(--ink-mute);}
+.kbd-hint{position:fixed;bottom:clamp(16px,2vw,28px);left:50%;transform:translateX(-50%);z-index:42;font-family:var(--sans);font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--paper-dim);opacity:.7;pointer-events:none;}
+
+.overview{position:fixed;inset:0;background:rgba(16,12,8,0.96);z-index:60;display:none;padding:clamp(20px,3vw,48px);overflow-y:auto;}
+.overview.show{display:block;}
+.ov-title{font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--ochre);margin-bottom:18px;}
+.ov-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;}
+.ov-item{background:rgba(239,231,216,0.06);border:1px solid rgba(239,231,216,0.14);padding:14px;cursor:pointer;transition:all .2s;}
+.ov-item:hover{border-color:var(--terra);background:rgba(200,83,31,0.12);}
+.ov-item .oi-n{font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:0.16em;color:var(--terra);}
+.ov-item .oi-t{font-family:var(--display);font-size:18px;color:var(--paper);margin-top:4px;line-height:1.15;}
+
+/* Unified caption style for all text below infographics (surface-aware) */
+.j-hint,.calc-hint,.mx-hint,.pick-hint,.pmap-hint,.tss-hint{
+  font-family:var(--sans);font-size:clamp(10px,1.1vw,12px);font-weight:600;letter-spacing:0.16em;
+  text-transform:uppercase;line-height:1.5;margin-top:clamp(12px,1.6vw,20px);color:var(--paper-dim);}
+.s-paper .j-hint,.s-paper .calc-hint,.s-paper .mx-hint,.s-paper .pick-hint,.s-paper .pmap-hint,.s-paper .tss-hint{color:var(--ink-mute);}
+
+/* Typographic widow & orphan control — no lone words on the last line */
+.slide h1,.slide h4,.slide p,.slide li,.lede,.div-meta,.title-sub,.pick-detail .pv,.pmap-panel .mv{text-wrap:pretty;}
+h1.title,.title-h,.div-title,.lede,.pull,.card h4,.ex-card .ext,.hw-quote .qt,.title-sub{text-wrap:balance;}
+
+@media (max-width:880px){.ex-grid{grid-template-columns:repeat(2,1fr);}}
+@media (max-width:768px){
+  .grid.g3,.grid.g4{grid-template-columns:repeat(2,1fr);}
+  .pick-wrap,.pmap-wrap,.hw-grid,.case{grid-template-columns:1fr;}
+  .kbd-hint{display:none;}
+}
+@media (max-width:560px){.grid.g2,.grid.g3,.grid.g4{grid-template-columns:1fr;}.swatches .sw{min-width:33%;}}
+@media (max-width:520px){.ex-grid{grid-template-columns:1fr;}}
+@media (prefers-reduced-motion:reduce){.title-top .mark,.s-divider .div-mark{animation:none;}.slide.active .anim{animation:none;}}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<!-- 1 · TITLE -->
+<section class="slide" id="s-title" data-surface="dark" data-title="Title">
+  <div class="title-bg"><div class="title-photo"></div><canvas id="cv-title"></canvas><div class="title-tint"></div><div class="title-grain"></div><div class="title-vignette"></div></div>
+  <div class="title-inner">
+    <div class="title-top">
+      <svg class="mark" viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.92"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.86" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.83" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.86" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#EFE7D8" opacity="0.8" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+      <span class="wm">The Founder's Sprint</span>
+    </div>
+    <div class="title-mid">
+      <div class="title-eyebrow">Marketing &amp; Branding · with Teddy Ruge</div>
+      <div class="title-week">Week 2 of 5 · Monday Cohort Session</div>
+      <h1 class="title-h">Building your <em>brand</em>.</h1>
+      <div class="title-sub">Your brand isn't your logo. It's the promise people remember — and the reason they choose you over the cheaper option.</div>
+      <div class="title-foot">
+        <span><span class="dot">●</span> Positioning</span>
+        <span><span class="dot">●</span> Promise &amp; personality</span>
+        <span><span class="dot">●</span> Visual identity</span>
+        <span><span class="dot">●</span> Story</span>
+        <span><span class="dot">●</span> Voice</span>
+      </div>
+      <div class="title-cta">Press → or Space to begin · Press O for slide overview</div>
+    </div>
+  </div>
+</section>
+
+<!-- 2 · AGENDA -->
+<section class="slide s-paper" data-surface="paper" data-title="Today's map">
+  <div class="accent-top"></div>
+  <svg class="mark-corner" viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.92"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.86" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.83" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.86" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.8" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#1A1A1A"/><circle cx="50" cy="50" r="2" fill="#EFE7D8"/></svg>
+  <div class="chip-bar anim"><span>Marketing &amp; Branding · Week 2</span><span>Brand Strategy &amp; Identity</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Today's map · 60 min teaching + 60 min Q&amp;A</div>
+    <h1 class="title anim">From a market to a brand people choose.</h1>
+    <div class="grid g3 anim" style="margin-top:clamp(18px,2.5vw,34px)">
+      <div class="card"><div class="num">01</div><h4>Positioning</h4><p>Where you sit in the customer's mind, against everyone else.</p></div>
+      <div class="card"><div class="num">02</div><h4>Promise &amp; Personality</h4><p>What you commit to deliver — and the human traits you wear.</p></div>
+      <div class="card"><div class="num">03</div><h4>Visual Identity</h4><p>Logo types, colour, typography — the look people recognise.</p></div>
+      <div class="card"><div class="num">04</div><h4>Brand Story</h4><p>Why you exist, told as a narrative people repeat.</p></div>
+      <div class="card"><div class="num">05</div><h4>Voice &amp; Messaging</h4><p>Saying it the same way, everywhere, every time.</p></div>
+      <div class="card" style="border-left-color:var(--ink)"><div class="num" style="color:var(--ink)">→</div><h4>You leave with</h4><p>A positioning statement, a personality, and a brand-board direction.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 3 · DIVIDER 01 -->
+<section class="slide s-divider" data-surface="dark" data-title="01 · What a brand is" data-photo="assets/w2-01.jpg">
+  <div class="div-photo"></div><div class="div-overlay"></div>
+  <svg class="div-mark" viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.92"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.86" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.83" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.86" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#EFE7D8" opacity="0.8" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+  <div class="div-inner">
+    <div class="div-num anim">01</div>
+    <div class="div-eyebrow anim">The foundation</div>
+    <div class="div-title anim">A brand is a feeling,<br>not a logo file.</div>
+    <div class="div-meta anim">It's what people say about you when you're not in the room.</div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 4 · BRAND ≠ LOGO -->
+<section class="slide s-dark" data-surface="dark" data-title="Brand ≠ logo">
+  <div class="chip-bar anim"><span>Marketing &amp; Branding · Week 2</span><span>What branding really is</span></div>
+  <div class="slide-body">
+    <div class="grid g2 anim" style="align-items:center;gap:clamp(20px,4vw,64px)">
+      <div class="pull">Your brand is what other people say about you when you're not in the room.<span class="by">Jeff Bezos · Founder, Amazon</span></div>
+      <div class="body-col" style="margin-top:0">
+        <p class="body" style="color:var(--paper-mid)">A logo is a mark. A <strong>brand</strong> is the whole reputation that mark triggers — the promise, the feeling, the trust. You don't own your brand; your customers do. Your job is to shape what they believe.</p>
+        <p class="body" style="margin-top:1em;color:var(--paper-mid)">Last week you learned <em>who</em> the customer is. This week you decide <em>what they should believe</em> about you — and build the identity that earns it.</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 5 · SIX BUILDING BLOCKS -->
+<section class="slide s-paper" data-surface="paper" data-title="6 building blocks">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Marketing &amp; Branding · Week 2</span><span>Preparing to be talked about</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Branding 101</div>
+    <h1 class="title anim">Six pieces every brand needs.</h1>
+    <div class="grid g3 anim" style="margin-top:clamp(16px,2.4vw,32px)">
+      <div class="card"><h4>Brand identity</h4><p>What makes you recognisable — name, logo, colour, tone of voice.</p></div>
+      <div class="card"><h4>Brand promise</h4><p>What you commit to deliver, every time. It must differentiate.</p></div>
+      <div class="card"><h4>Brand positioning</h4><p>How you're perceived versus competitors in the customer's mind.</p></div>
+      <div class="card"><h4>Brand personality</h4><p>The human traits you embody — fun, expert, bold, reliable.</p></div>
+      <div class="card"><h4>Brand story</h4><p>The facts and feelings of why you exist. The narrative people repeat.</p></div>
+      <div class="card"><h4>Brand strategy</h4><p>The long-term plan that keeps all five consistent as you grow.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 6 · DIVIDER 02 -->
+<section class="slide s-divider" data-surface="dark" data-title="02 · Positioning" data-photo="assets/w2-02.jpg">
+  <div class="div-photo"></div><div class="div-overlay"></div>
+  <svg class="div-mark" viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.92"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.86" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.83" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.86" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#EFE7D8" opacity="0.8" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+  <div class="div-inner">
+    <div class="div-num anim">02</div>
+    <div class="div-eyebrow anim">L3-1.2.1</div>
+    <div class="div-title anim">Positioning: owning<br>a space in the mind.</div>
+    <div class="div-meta anim">You can't be everything. Own one word before you chase the next.</div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 7 · PERCEPTUAL MAP (interactive) -->
+<section class="slide s-paper" data-surface="paper" data-title="Positioning map">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Marketing &amp; Branding · Week 2</span><span>Perceptual map · tap a brand</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Interactive · find the open space</div>
+    <h1 class="title anim" style="font-size:clamp(26px,3.8vw,50px)">Where does everyone already sit?</h1>
+    <div class="pmap-wrap anim">
+      <div class="pmap">
+        <svg viewBox="0 0 600 470" id="pmap" aria-hidden="true">
+          <line x1="300" y1="30" x2="300" y2="410" stroke="rgba(26,26,26,0.18)" stroke-width="1.5"/>
+          <line x1="40" y1="220" x2="560" y2="220" stroke="rgba(26,26,26,0.18)" stroke-width="1.5"/>
+          <text x="300" y="20" text-anchor="middle" font-family="Josefin Sans" font-size="13" font-weight="700" letter-spacing="2" fill="#5A564F">PREMIUM</text>
+          <text x="300" y="430" text-anchor="middle" font-family="Josefin Sans" font-size="13" font-weight="700" letter-spacing="2" fill="#5A564F">AFFORDABLE</text>
+          <text x="44" y="216" text-anchor="start" font-family="Josefin Sans" font-size="13" font-weight="700" letter-spacing="2" fill="#5A564F">FUNCTIONAL</text>
+          <text x="556" y="216" text-anchor="end" font-family="Josefin Sans" font-size="13" font-weight="700" letter-spacing="2" fill="#5A564F">EMOTIONAL</text>
+          <g class="pdot" data-p="commodity"><circle cx="150" cy="330" r="15" fill="#777770"/><text x="150" y="362" text-anchor="middle" font-family="Inter" font-size="13" fill="#444">Generic boda</text></g>
+          <g class="pdot" data-p="safeboda"><circle cx="250" cy="170" r="15" fill="#C8531F"/><text x="250" y="150" text-anchor="middle" font-family="Inter" font-size="13" fill="#444">SafeBoda</text></g>
+          <g class="pdot" data-p="qwezi"><circle cx="430" cy="120" r="15" fill="#C9923A"/><text x="430" y="100" text-anchor="middle" font-family="Inter" font-size="13" fill="#444">Qwezi Beauty</text></g>
+          <g class="pdot" data-p="gap"><circle cx="440" cy="300" r="17" fill="none" stroke="#3D4A2E" stroke-width="2.5" stroke-dasharray="4 4"/><text x="440" y="338" text-anchor="middle" font-family="Inter" font-size="13" font-weight="600" fill="#3D4A2E">Open gap?</text></g>
+        </svg>
+      </div>
+      <div class="pmap-panel" id="pmapPanel"></div>
+    </div>
+    <div class="pmap-hint anim">Two axes that matter to your customer. Plot the competitors — then aim for the space no one owns.</div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 8 · PERSONALITY (interactive chips) -->
+<section class="slide s-paper" data-surface="paper" data-title="Brand personality">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Marketing &amp; Branding · Week 2</span><span>Promise &amp; personality · tap a trait</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Interactive · what's your brand like as a person?</div>
+    <h1 class="title anim" style="font-size:clamp(26px,3.8vw,50px)">Five personalities a brand can wear.</h1>
+    <div class="pick-wrap" id="persWrap">
+      <div>
+        <div class="pick-chips" id="persChips">
+          <button class="pick-chip on" data-k="sincere">Sincere</button>
+          <button class="pick-chip" data-k="exciting">Exciting</button>
+          <button class="pick-chip" data-k="competent">Competent</button>
+          <button class="pick-chip" data-k="sophisticated">Sophisticated</button>
+          <button class="pick-chip" data-k="rugged">Rugged</button>
+        </div>
+        <p class="body anim" style="margin-top:1.1em;font-size:clamp(13px,1.35vw,18px)">Personality is the human character your brand projects — it decides your tone, your colours, your photography. Pick the one that fits your customer, then be it <strong>consistently</strong>.</p>
+      </div>
+      <div class="pick-detail" id="persDetail"></div>
+    </div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 9 · CASE SafeBoda -->
+<section class="slide s-paper" data-surface="paper" data-title="Case · SafeBoda">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Marketing &amp; Branding · Week 2</span><span>Case study · positioning &amp; personality</span></div>
+  <div class="slide-body">
+    <div class="case anim">
+      <div class="case-badge">Case Study</div>
+      <div>
+        <span class="case-flag">🇺🇬 SafeBoda · Kampala</span>
+        <h1 class="title" style="margin-top:0;font-size:clamp(26px,3.8vw,52px)">One word: <em style="font-style:italic;color:var(--terra)">safety</em>.</h1>
+        <div class="grid g3" style="margin-top:1.1em">
+          <div class="card"><h4>Positioning</h4><p>In a commodity boda market, they claimed the space no one owned — trust &amp; safety.</p></div>
+          <div class="card"><h4>Personality</h4><p>Sincere &amp; competent: helmets, training, an unmistakable orange uniform.</p></div>
+          <div class="card"><h4>Result</h4><p>A recognised brand in a sea of identical bikes — and pricing power.</p></div>
+        </div>
+        <p class="pick-hint anim">Positioning isn't a slogan you write. It's the <strong>one association you defend</strong> until customers hand it to you.</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 10 · DIVIDER 03 -->
+<section class="slide s-divider" data-surface="dark" data-title="03 · Visual identity" data-photo="assets/w2-03.jpg">
+  <div class="div-photo"></div><div class="div-overlay"></div>
+  <svg class="div-mark" viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.92"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.86" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.83" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.86" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#EFE7D8" opacity="0.8" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+  <div class="div-inner">
+    <div class="div-num anim">03</div>
+    <div class="div-eyebrow anim">L3-1.2.2</div>
+    <div class="div-title anim">Visual identity: logo,<br>colour, type.</div>
+    <div class="div-meta anim">The look that makes you recognisable in half a second.</div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 11 · CHERMAYEFF QUOTE -->
+<section class="slide s-dark" data-surface="dark" data-title="On logos">
+  <div class="chip-bar anim"><span>Marketing &amp; Branding · Week 2</span><span>On logos</span></div>
+  <div class="slide-body" style="justify-content:center">
+    <div class="pull anim" style="max-width:24ch">A logo should be simple enough to draw in the sand — and memorable enough to remember once you've walked away.<span class="by">Ivan Chermayeff · Graphic designer</span></div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 12 · LOGO TYPES EXPLORER (interactive) -->
+<section class="slide s-paper" data-surface="paper" data-title="Logo types explorer">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Marketing &amp; Branding · Week 2</span><span>Seven types of logo · tap to explore</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Interactive · tap a logo type</div>
+    <h1 class="title anim" style="font-size:clamp(26px,3.8vw,50px)">Which mark fits your brand?</h1>
+    <div class="pick-wrap" id="logoWrap" style="grid-template-columns:0.82fr 1.18fr">
+      <div>
+        <div class="pick-chips" id="logoChips">
+          <button class="pick-chip on" data-k="wordmark">Wordmark</button>
+          <button class="pick-chip" data-k="lettermark">Lettermark</button>
+          <button class="pick-chip" data-k="pictorial">Pictorial</button>
+          <button class="pick-chip" data-k="abstract">Abstract</button>
+          <button class="pick-chip" data-k="mascot">Mascot</button>
+          <button class="pick-chip" data-k="combination">Combination</button>
+          <button class="pick-chip" data-k="emblem">Emblem</button>
+        </div>
+        <p class="pick-hint anim">Most startups should start with a wordmark or combination mark — abstract and pictorial marks only earn recognition after you're known.</p>
+      </div>
+      <div class="pick-detail" id="logoDetail"></div>
+    </div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 13 · COLOUR & TYPE -->
+<section class="slide s-paper" data-surface="paper" data-title="Colour & type">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Marketing &amp; Branding · Week 2</span><span>Colour &amp; typography</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Colour carries meaning · type carries voice</div>
+    <h1 class="title anim" style="font-size:clamp(24px,3.6vw,48px)">Pick a palette and two typefaces — then never drift.</h1>
+    <div class="swatches anim" style="margin-top:clamp(12px,1.8vw,24px)">
+      <div class="sw" style="background:#C8531F"><div class="sn">Terracotta</div><div class="sh">warm · grounded · bold</div></div>
+      <div class="sw" style="background:#C9923A"><div class="sn">Ochre</div><div class="sh">premium · confident</div></div>
+      <div class="sw" style="background:#3D4A2E"><div class="sn">Moss</div><div class="sh">rooted · serious</div></div>
+      <div class="sw" style="background:#1A1A1A"><div class="sn">Ink</div><div class="sh">authority · contrast</div></div>
+      <div class="sw" style="background:#EFE7D8;color:#1A1A1A"><div class="sn" style="color:#1A1A1A">Paper</div><div class="sh" style="color:#5A564F">calm · editorial</div></div>
+    </div>
+    <div class="grid g2 anim" style="margin-top:clamp(14px,2vw,24px)">
+      <div class="typecard"><div class="tn">Display voice</div><div class="ts">Cormorant Garamond — headlines, pull-quotes</div><div class="td" style="font-family:var(--display);font-style:italic;font-size:clamp(26px,3.4vw,46px);color:var(--ink)">Build with direction.</div></div>
+      <div class="typecard"><div class="tn">Working voice</div><div class="ts">Josefin Sans (labels) + Inter (body)</div><div class="td" style="font-family:var(--sans);font-weight:700;letter-spacing:0.12em;font-size:clamp(16px,2vw,26px);color:var(--ink);text-transform:uppercase">The Founder's Sprint</div></div>
+    </div>
+    <p class="pick-hint anim">Two typefaces. One accent colour per surface. Consistency is what makes a small brand feel <strong>established</strong>.</p>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 14 · CASE The Founder's Sprint identity -->
+<section class="slide s-dark" data-surface="dark" data-title="Case · FS identity">
+  <div class="chip-bar anim"><span>Marketing &amp; Branding · Week 2</span><span>Case study · a brand built on one idea</span></div>
+  <div class="slide-body">
+    <div class="grid g2 anim" style="align-items:center;gap:clamp(20px,4vw,60px)">
+      <div style="display:flex;flex-direction:column;align-items:center;gap:18px">
+        <svg viewBox="0 0 100 100" style="width:clamp(120px,16vw,210px);height:auto"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.92"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.86" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.83" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.86" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#EFE7D8" opacity="0.8" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+        <div style="font-family:var(--display);font-style:italic;font-size:clamp(15px,1.8vw,22px);color:var(--ochre)">Build with direction.</div>
+      </div>
+      <div class="body-col" style="margin-top:0">
+        <div class="eyebrow" style="color:var(--ochre)">How our own mark works</div>
+        <p class="body" style="color:var(--paper-mid);margin-top:.5em">Five petals, one per discipline, converge on a shared centre — a constellation founders navigate by. The idea is the identity: the mark, the colours, and the tagline all say the same thing without explaining it.</p>
+        <ul class="list" style="margin-top:.8em">
+          <li>A combination mark — symbol plus wordmark.</li>
+          <li>A disciplined palette — ink, paper, one accent per surface.</li>
+          <li>Three typefaces — display, label, body. No drift.</li>
+          <li>The tagline does the work — we never explain the metaphor.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 15 · DIVIDER 04 -->
+<section class="slide s-divider" data-surface="dark" data-title="04 · Story & voice" data-photo="assets/w2-04.jpg">
+  <div class="div-photo"></div><div class="div-overlay"></div>
+  <svg class="div-mark" viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.92"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.86" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.83" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.86" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#EFE7D8" opacity="0.8" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+  <div class="div-inner">
+    <div class="div-num anim">04</div>
+    <div class="div-eyebrow anim">L3-1.2.3 &amp; 1.2.4</div>
+    <div class="div-title anim">Story &amp; voice: why<br>you exist, said well.</div>
+    <div class="div-meta anim">Facts tell. Stories sell — and a consistent voice makes them stick.</div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 16 · STORYTELLING -->
+<section class="slide s-paper" data-surface="paper" data-title="Brand story">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Marketing &amp; Branding · Week 2</span><span>Brand storytelling</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Narrative architecture</div>
+    <h1 class="title anim">People don't buy what you do. They buy <em style="font-style:italic;color:var(--terra)">why</em>.</h1>
+    <div class="grid g4 anim" style="margin-top:clamp(16px,2.4vw,32px)">
+      <div class="card"><h4>Why you exist</h4><p>The conviction behind the company — the change you want to see.</p></div>
+      <div class="card"><h4>The villain</h4><p>The problem or status quo your customer is fighting.</p></div>
+      <div class="card"><h4>The customer is hero</h4><p>Not you. You're the guide who hands them the tool.</p></div>
+      <div class="card"><h4>The transformation</h4><p>Who they become after you. That's the story they repeat.</p></div>
+    </div>
+    <p class="pick-hint anim">Tell it consistently everywhere — site, social, packaging, the way you answer the phone. Told once it's a campaign; told everywhere, it becomes a <strong>brand</strong>.</p>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 17 · VOICE & MESSAGING -->
+<section class="slide s-paper" data-surface="paper" data-title="Brand voice">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Marketing &amp; Branding · Week 2</span><span>Voice &amp; messaging framework</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Say it the same way, everywhere</div>
+    <h1 class="title anim" style="font-size:clamp(26px,3.8vw,50px)">A voice is three or four words you obey.</h1>
+    <div class="grid g3 anim" style="margin-top:clamp(16px,2.4vw,32px)">
+      <div class="card"><h4>Pick voice traits</h4><p>e.g. <em>warm, rigorous, plain-spoken.</em> Three is enough. Write them down.</p></div>
+      <div class="card"><h4>Define do / don't</h4><p>"We say <em>founder</em>, never <em>user</em>." Concrete rules beat vague vibes.</p></div>
+      <div class="card"><h4>One message, repeated</h4><p>A single core line every channel echoes — until customers can finish it.</p></div>
+    </div>
+    <div class="box anim" style="margin-top:clamp(14px,2vw,26px)"><div class="bk">The consistency test</div><p class="body" style="color:var(--ink)">Cover the logo on your post, your email, and your packaging. Could a stranger tell all three came from the same brand? If not, the voice isn't set yet.</p></div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 18 · CASE Qwezi -->
+<section class="slide s-dark" data-surface="dark" data-title="Case · Qwezi Beauty">
+  <div class="chip-bar anim"><span>Marketing &amp; Branding · Week 2</span><span>Case study · story + identity in one line</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim" style="color:var(--ochre)">🇺🇬 Qwezi Beauty · Kampala</div>
+    <h1 class="title anim" style="color:var(--paper)">"Feed your glow."</h1>
+    <p class="lede anim">Three words that carry the promise, the personality, and the story all at once.</p>
+    <div class="grid g3 anim" style="margin-top:clamp(16px,2.4vw,32px)">
+      <div class="card"><h4>Promise</h4><p>Natural ingredients that nourish — not mask — your skin.</p></div>
+      <div class="card"><h4>Personality</h4><p>Warm, confident, rooted in heritage. Premium without being cold.</p></div>
+      <div class="card"><h4>Story</h4><p>Beauty as self-care for the professional African woman — by one of her own.</p></div>
+    </div>
+    <p class="pick-hint anim">A great tagline isn't decoration — it's your positioning, personality and story <strong>compressed into something repeatable</strong>.</p>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 19 · RECAP -->
+<section class="slide s-dark" data-surface="dark" data-title="Recap">
+  <div class="chip-bar anim"><span>Marketing &amp; Branding · Week 2</span><span>What we locked down</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">The through-line</div>
+    <h1 class="title anim" style="color:var(--paper)">Decide what they should believe — then build it consistently.</h1>
+    <div class="grid g3 anim" style="margin-top:clamp(16px,2.4vw,32px)">
+      <div class="card"><h4>Position</h4><p>Own one word in the open gap.</p></div>
+      <div class="card"><h4>Promise &amp; personality</h4><p>What you deliver, and the human you sound like.</p></div>
+      <div class="card"><h4>Visual identity</h4><p>One logo type, a palette, two typefaces.</p></div>
+      <div class="card"><h4>Story</h4><p>Customer is the hero; you're the guide.</p></div>
+      <div class="card"><h4>Voice</h4><p>Three words you obey, everywhere.</p></div>
+      <div class="card" style="border-left-color:var(--ochre)"><h4>Next Monday</h4><p>We take this brand to <em>channels</em>.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 20 · EXERCISE -->
+<section class="slide s-paper" data-surface="paper" data-title="In-session exercise">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Marketing &amp; Branding · Week 2</span><span>Self-guided worksheet · in session</span></div>
+  <div class="slide-body">
+    <div class="ex-head anim">
+      <div>
+        <div class="eyebrow">Self-guided worksheet · do it now</div>
+        <h1 class="title" style="margin-top:.15em">Draft your brand in 4 moves.</h1>
+      </div>
+      <span class="timebox" style="margin-left:auto;margin-bottom:.2em;display:inline-block;font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--paper);background:var(--ink);padding:5px 12px">⏱ 25 min solo · 35 min group</span>
+    </div>
+    <div class="ex-grid anim">
+      <div class="ex-card"><span class="exn">1</span><div class="exk">Positioning</div><div class="ext">Own one word</div><div class="exp">The single association you'll defend in the customer's mind.</div><div class="exeg"><b>Example</b>SafeBoda owns "safety." Yours might be "fastest," "most trusted," or "made for farmers."</div><div class="write"><span></span></div></div>
+      <div class="ex-card"><span class="exn">2</span><div class="exk">Personality</div><div class="ext">Three traits</div><div class="exp">Pick three human traits. They decide your tone and look.</div><div class="exeg"><b>Example</b>"Warm, rigorous, plain-spoken." Avoid vague words like "professional."</div><div class="write"><span></span></div></div>
+      <div class="ex-card"><span class="exn">3</span><div class="exk">Logo direction</div><div class="ext">Choose a type</div><div class="exp">Which of the seven types fits — and why?</div><div class="exeg"><b>Example</b>"A combination mark — an icon to be recognised by, the name to stay legible while we're new."</div><div class="write"><span></span></div></div>
+      <div class="ex-card"><span class="exn">4</span><div class="exk">Brand story</div><div class="ext">One line</div><div class="exp">"We exist so that ___ can ___." Your why, in a sentence.</div><div class="exeg"><b>Example</b>"We exist so smallholder farmers can buy seed they can actually trust."</div><div class="write"><span></span></div></div>
+    </div>
+    <p class="pick-hint anim">How we'll review: each founder reads their <b>positioning word</b> and <b>one-line story</b> aloud — and the room checks whether the personality, the logo direction and the story all point at the <b>same</b> feeling.</p>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 21 · HOMEWORK -->
+<section class="slide s-dark" data-surface="dark" data-title="Homework">
+  <div class="chip-bar anim"><span>Marketing &amp; Branding · Week 2</span><span>Homework · due next Monday</span></div>
+  <div class="slide-body">
+    <div class="anim"><span class="due-tag"><span class="d"></span>Due next Monday · Week 3 · Digital Channels</span></div>
+    <h1 class="title anim" style="color:var(--paper);margin-top:.5em">Build a one-page brand board.</h1>
+    <div class="hw-grid anim">
+      <div>
+        <div class="hw-klbl">Four deliverables</div>
+        <ul class="hw-check">
+          <li><span class="cbx"></span><div><b>Positioning statement</b> — "For [target] who [need], [brand] is the [category] that [benefit], unlike [competitor]."</div></li>
+          <li><span class="cbx"></span><div><b>Three personality traits</b> + one sentence on the voice they create.</div></li>
+          <li><span class="cbx"></span><div><b>Visual direction</b> — chosen logo type, a 3-colour palette, two typefaces.</div></li>
+          <li><span class="cbx"></span><div><b>Brand story</b> in one short paragraph — customer as hero, you as guide.</div></li>
+        </ul>
+      </div>
+      <div>
+        <div class="hw-quote">
+          <span class="qm">&ldquo;</span>
+          <div class="qt">A logo should be simple enough to draw in the sand — and memorable enough to remember once you've walked away.</div>
+          <div class="qb">Ivan Chermayeff · Graphic designer</div>
+        </div>
+        <p class="hw-bridge">Next Monday we put this brand to work across <strong>digital channels</strong> — social, content, email, partnerships, paid. Upload your brand board to your <strong>data room</strong> first.</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 22 · CLOSER -->
+<section class="slide s-dark" id="s-close" data-surface="dark" data-title="Close">
+  <svg class="mark" viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.92"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.86" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.83" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.86" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#EFE7D8" opacity="0.8" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+  <div class="ct anim">Build with direction.</div>
+  <div class="cc anim">The Founder's Sprint · Marketing &amp; Branding · Week 2 of 5 · Kampala</div>
+</section>
+
+</div>
+
+<div class="progress" id="progress"></div>
+<div class="counter" id="counter">01 / 22</div>
+<div class="kbd-hint">← → navigate · O overview · F fullscreen</div>
+<div class="nav">
+  <button id="resetBtn" aria-label="Restart from first slide" title="Restart">⟲</button>
+  <button id="prevBtn" aria-label="Previous slide">‹</button>
+  <button id="nextBtn" aria-label="Next slide">›</button>
+</div>
+<div class="overview" id="overview"><div class="ov-title">Slide overview · click to jump · Esc to close</div><div class="ov-grid" id="ovGrid"></div></div>
+
+<script>
+(function(){
+  "use strict";
+  const slides=Array.from(document.querySelectorAll('.slide'));
+  let i=0;
+  const counter=document.getElementById('counter'), progress=document.getElementById('progress');
+
+  document.querySelectorAll('.s-divider').forEach(s=>{const p=s.getAttribute('data-photo');if(p){const el=s.querySelector('.div-photo');if(el)el.style.backgroundImage="url('"+p+"')";}});
+
+  function show(n){
+    n=Math.max(0,Math.min(slides.length-1,n));
+    slides[i].classList.remove('active'); i=n;
+    const cur=slides[i]; cur.classList.add('active');
+    cur.querySelectorAll('.anim').forEach(el=>{el.style.animation='none';void el.offsetWidth;el.style.animation='';});
+    counter.textContent=String(i+1).padStart(2,'0')+' / '+String(slides.length).padStart(2,'0');
+    progress.style.width=((i)/(slides.length-1)*100)+'%';
+    document.body.classList.toggle('on-paper',cur.getAttribute('data-surface')==='paper');
+  }
+  const next=()=>show(i+1), prev=()=>show(i-1);
+  document.getElementById('nextBtn').addEventListener('click',next);
+  document.getElementById('prevBtn').addEventListener('click',prev);
+  document.getElementById('resetBtn').addEventListener('click',()=>show(0));
+
+  const overview=document.getElementById('overview'), ovGrid=document.getElementById('ovGrid');
+  slides.forEach((s,idx)=>{const t=s.getAttribute('data-title')||('Slide '+(idx+1));const d=document.createElement('div');d.className='ov-item';d.innerHTML='<div class="oi-n">'+String(idx+1).padStart(2,'0')+'</div><div class="oi-t">'+t+'</div>';d.addEventListener('click',()=>{overview.classList.remove('show');show(idx);});ovGrid.appendChild(d);});
+  const toggleOverview=()=>overview.classList.toggle('show');
+
+  document.addEventListener('keydown',e=>{
+    if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' '){e.preventDefault();next();}
+    else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();prev();}
+    else if(e.key==='Home'){show(0);} else if(e.key==='End'){show(slides.length-1);}
+    else if(e.key==='o'||e.key==='O'){toggleOverview();}
+    else if(e.key==='Escape'){overview.classList.remove('show');}
+    else if(e.key==='f'||e.key==='F'){if(!document.fullscreenElement){document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();}else{document.exitFullscreen&&document.exitFullscreen();}}
+  });
+  let tx=0,ty=0;
+  document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;ty=e.touches[0].clientY;},{passive:true});
+  document.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-tx,dy=e.changedTouches[0].clientY-ty;if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)){dx<0?next():prev();}},{passive:true});
+
+  // ── Brand personality (Aaker dimensions) ──
+  const pers={
+    sincere:{k:'Sincere',v:'Honest, wholesome, down-to-earth, warm. Builds trust through transparency and care. Best when customers need to feel safe.',eg:'SafeBoda · a co-op savings group'},
+    exciting:{k:'Exciting',v:'Daring, spirited, imaginative, young. Energy and novelty drive the appeal. Best for culture, entertainment, youth brands.',eg:'A music festival · a Gen-Z fashion label'},
+    competent:{k:'Competent',v:'Reliable, intelligent, capable. You promise it will simply work. Best for fintech, B2B, anything money or data touches.',eg:'Chipper Cash · a payments API'},
+    sophisticated:{k:'Sophisticated',v:'Premium, elegant, refined. Charges more and signals status. Best for beauty, hospitality, premium goods.',eg:'Qwezi Beauty · a boutique lodge'},
+    rugged:{k:'Rugged',v:'Tough, outdoorsy, durable. Built for hard use and real conditions. Best for agriculture, logistics, hardware.',eg:'An off-grid solar brand · farm equipment'}
+  };
+  const persChips=document.getElementById('persChips'), persDetail=document.getElementById('persDetail');
+  function renderPers(key){const d=pers[key];persDetail.innerHTML='<div class="pk">'+d.k+'</div><div class="pv">'+d.v+'</div><div class="peg">Fits: '+d.eg+'</div>';persChips.querySelectorAll('.pick-chip').forEach(c=>c.classList.toggle('on',c.getAttribute('data-k')===key));}
+  if(persChips){persChips.addEventListener('click',e=>{const b=e.target.closest('.pick-chip');if(b)renderPers(b.getAttribute('data-k'));});renderPers('sincere');}
+
+  // ── Logo types explorer (examples from the original YSAU presentation) ──
+  const LG='assets/logos/';
+  const logos={
+    wordmark:{k:'Wordmark (logotype)',v:'The brand name in distinctive type. No symbol — the typography does all the work. Ideal for new brands: it builds name recognition fastest.',eg:'Google · Coca-Cola',a:LG+'google.png',b:LG+'coca-cola.png'},
+    lettermark:{k:'Lettermark (monogram)',v:"The brand's initials. A good choice when the full name is long. Compact and scalable — but says nothing until people already know you.",eg:'HBO · IBM',a:LG+'logo-lettermark-a.jpg',b:LG+'ibm.png'},
+    pictorial:{k:'Pictorial mark (icon)',v:'A recognisable image that stands for the brand. Powerful once established — risky for unknowns, because the picture must earn its meaning.',eg:'Apple · Twitter',a:LG+'apple.png',b:LG+'twitter.png'},
+    abstract:{k:'Abstract mark',v:'A geometric form that captures an idea rather than a literal object. Distinctive and ownable — but needs marketing weight to become meaningful.',eg:'Pepsi · Nike',a:LG+'logo-abstract-a.jpg',b:LG+'nike.png'},
+    mascot:{k:'Mascot',v:'An illustrated character that represents the brand. Adds a fun, memorable element; great for family and community brands. Can date quickly.',eg:'Michelin Man · KFC',a:LG+'logo-mascot-a.jpg',b:LG+'logo-mascot-b.jpg'},
+    combination:{k:'Combination mark',v:'A symbol plus the name, locked together. The safest default for startups: the icon builds recognition while the words keep you legible.',eg:'Burger King · Lacoste',a:LG+'logo-combination-a.jpg',b:LG+'logo-combination-b.jpg'},
+    emblem:{k:'Emblem (badge / seal)',v:'The name enclosed within a shape — badges, seals, crests. Conveys heritage and authority. Beautiful, but hard to read at small sizes.',eg:'Starbucks · Harley-Davidson',a:LG+'logo-emblem-a.jpg',b:LG+'logo-emblem-b.jpg'}
+  };
+  const logoChips=document.getElementById('logoChips'), logoDetail=document.getElementById('logoDetail');
+  function renderLogo(key){const d=logos[key];logoDetail.innerHTML='<div class="logo-canvas"><img src="'+d.a+'" alt="'+d.k+' example"><img src="'+d.b+'" alt="'+d.k+' example"></div><div class="pk">'+d.k+'</div><div class="pv">'+d.v+'</div><div class="peg">e.g. '+d.eg+'</div>';logoChips.querySelectorAll('.pick-chip').forEach(c=>c.classList.toggle('on',c.getAttribute('data-k')===key));}
+  if(logoChips){logoChips.addEventListener('click',e=>{const b=e.target.closest('.pick-chip');if(b)renderLogo(b.getAttribute('data-k'));});renderLogo('wordmark');}
+
+  // ── Perceptual map ──
+  const pmapData={
+    commodity:{k:'Generic boda',t:'Functional · affordable',v:'Cheap and everywhere — but interchangeable. No brand, no loyalty, no pricing power. The trap most startups fall into.'},
+    safeboda:{k:'SafeBoda',t:'Functional → trusted',v:'Took a commodity and added one emotional promise — safety. Same bikes, but a brand people choose and pay a little more for.'},
+    qwezi:{k:'Qwezi Beauty',t:'Emotional · premium',v:'Sells identity and self-care, not just skincare. Emotional + premium lets it charge more and build real loyalty.'},
+    gap:{k:'The open gap',t:'Find your space',v:'The quadrant no competitor owns is your opening. Position here and you compete on meaning, not price. Where could YOUR brand sit?'}
+  };
+  const pmap=document.getElementById('pmap'), pmapPanel=document.getElementById('pmapPanel');
+  function renderPmap(key){const d=pmapData[key];pmapPanel.innerHTML='<div class="mk">'+d.k+'</div><div class="mt">'+d.t+'</div><div class="mv">'+d.v+'</div>';if(pmap)pmap.querySelectorAll('.pdot').forEach(g=>g.classList.toggle('on',g.getAttribute('data-p')===key));}
+  if(pmap){pmap.addEventListener('click',e=>{const g=e.target.closest('.pdot');if(g)renderPmap(g.getAttribute('data-p'));});renderPmap('gap');}
+
+  show(0);
+})();
+</script>
+</body>
+</html>
