@@ -198,7 +198,7 @@ let _redir=false; function _toLogin(){ if(_redir||booted) return; _redir=true; l
 
 // ── state ──
 let founders=[], companies=[], regs=[], coaches=[], topics=[], investors=[], roles=[];
-let applications=[], materials=[], presentations=[];
+let applications=[], materials=[], presentations=[], invFirms=[], invMembers=[];
 let active='founders', coachSub='roster';
 // ── scoped roles ──
 let myRoles=[];
@@ -260,7 +260,9 @@ async function boot(user){
       _q('user_roles','select=user_id,role,created_at&order=created_at'),
       _q('coach_applications','select=*&order=created_at.desc'),
       _q('course_materials','select=id,coach_id,title,discipline,module_type,format,status,is_active,file_path,source_url&order=sort_order'),
-      _q('coach_presentations','select=id,coach_id,title,taxonomy_l1,is_active,file_path&order=sort_order')
+      _q('coach_presentations','select=id,coach_id,title,taxonomy_l1,is_active,file_path&order=sort_order'),
+      _q('investor_firms','select=*&order=created_at.desc'),
+      _q('investor_members','select=*')
     ]);
     founders =r[0].status==='fulfilled'?(r[0].value||[]):[];
     companies=r[1].status==='fulfilled'?(r[1].value||[]):[];
@@ -272,6 +274,8 @@ async function boot(user){
     applications =r[7].status==='fulfilled'?(r[7].value||[]):[];
     materials    =r[8].status==='fulfilled'?(r[8].value||[]):[];
     presentations=r[9].status==='fulfilled'?(r[9].value||[]):[];
+    invFirms     =r[10].status==='fulfilled'?(r[10].value||[]):[];
+    invMembers   =r[11].status==='fulfilled'?(r[11].value||[]):[];
     const firstPortal=PORTALS.find(p=>canSeePortal(p.key));
     renderTabs(); switchPortal(firstPortal?firstPortal.key:'founders');
   }catch(e){ showToast('Could not load — '+e.message,'error'); }
@@ -549,18 +553,59 @@ async function openMaterial(path){
   }catch(e){ showToast('Could not open file','error'); }
 }
 
+function seatsOf(fid){ return invMembers.filter(m=>m.firm_id===fid); }
 function renderInvestors(q){
-  const appr=investors.filter(i=>i.approved).length;
-  const sharedCos=companies.filter(c=>c.data_room_shared).length;
-  stats([{v:investors.length,l:'Investors'},{v:appr,l:'Approved'},{v:investors.length-appr,l:'Pending'},{v:sharedCos,l:'Visible companies'}]);
-  const rows=investors.filter(i=>match(q,i.name,i.firm,i.email)).map(i=>{
-    const st=i.approved?'<span class="pill pill-green">Approved</span>':'<span class="pill pill-ochre">Pending</span>';
-    return '<tr class="row"><td><div class="nm">'+esc(i.name||'—')+'</div><div class="sub">'+esc(i.email||'')+'</div></td>'
-      +'<td>'+esc(i.firm||'—')+'</td>'
-      +'<td>'+st+'</td>'
-      +'<td class="sub">'+esc((i.created_at||'').slice(0,10))+'</td></tr>';
-  });
-  document.getElementById('roster').innerHTML=tbl(['Investor','Firm','Status','Joined'],rows);
+  const appr=invFirms.filter(f=>f.status==='approved').length;
+  const pub=invFirms.filter(f=>f.status==='approved'&&f.public).length;
+  stats([{v:invFirms.length,l:'Firms'},{v:appr,l:'Approved'},{v:invFirms.length-appr,l:'Pending'},{v:pub,l:'Public to founders'}]);
+  const list=invFirms.filter(f=>match(q,f.name,f.firm_type,f.contact_email,(f.focus_sectors||[]).join(' ')));
+  document.getElementById('roster').innerHTML = list.length
+    ? '<div class="sub" style="margin-bottom:12px">Investors are modelled as a <b>firm</b> (a solo angel = a firm of one) with member seats. Approve to publish their profile to founders who have unlocked investor visibility.</div>'+list.map(firmCard).join('')
+    : '<div class="tbl-wrap"><div class="empty">No investor firms yet. They arrive via the investor onboarding form.</div></div>';
+}
+const FIRM_PILL={pending:'<span class="pill pill-ochre">Pending</span>',approved:'<span class="pill pill-green">Approved</span>',rejected:'<span class="pill pill-red">Rejected</span>'};
+function ticket(f){ if(!f.ticket_min&&!f.ticket_max) return ''; const c=f.currency||'USD'; const n=x=>x>=1e6?(x/1e6)+'M':x>=1e3?(x/1e3)+'k':x; return c+' '+(f.ticket_min?n(f.ticket_min):'')+(f.ticket_max?('–'+n(f.ticket_max)):'+'); }
+function firmCard(f){
+  const seats=seatsOf(f.id);
+  const seatRows=seats.length?seats.map(m=>'<div class="mat-row"><span>'+esc(m.name||m.email||'—')+(m.is_primary?' <span class="tag">primary</span>':'')+'</span><span class="sub">'+esc(m.email||'')+(m.user_id?'':' · no login yet')+'</span></div>').join(''):'<div class="sub">No seats.</div>';
+  const meta=[f.firm_type, (f.stages||[]).join('/'), ticket(f), (f.geographies||[]).join(', ')].filter(Boolean).join(' · ');
+  let actions='';
+  if(f.status!=='approved') actions='<div class="app-actions"><button class="btn-sm approve" onclick="approveFirm(\''+f.id+'\')">Approve &amp; publish</button><button class="btn-sm reject" onclick="rejectFirm(\''+f.id+'\')">Reject</button></div>';
+  else actions='<div class="app-actions"><button class="btn-sm" style="background:var(--ochre);color:#15161A" onclick="toggleFirmPublic(\''+f.id+'\','+(!f.public)+')">'+(f.public?'Unpublish':'Publish')+'</button></div>';
+  return '<div class="app-card"><div class="app-head"><div><span class="nm">'+esc(f.name)+'</span> '+(f.firm_type?'<span class="tag">'+esc(f.firm_type)+'</span>':'')+(f.public?'<span class="pill pill-green" style="margin-left:4px">Public</span>':'')+'</div>'+(FIRM_PILL[f.status]||'')+'</div>'
+    +(f.one_liner?'<div class="sub" style="margin-top:2px">'+esc(f.one_liner)+'</div>':'')
+    +(meta?'<div class="sub" style="margin-top:6px">'+esc(meta)+'</div>':'')
+    +(f.thesis?'<div style="font-size:12.5px;line-height:1.5;margin-top:8px">'+esc(f.thesis)+'</div>':'')
+    +(f.focus_sectors&&f.focus_sectors.length?'<div style="margin-top:8px">'+f.focus_sectors.map(s=>'<span class="tag">'+esc(s)+'</span>').join('')+'</div>':'')
+    +'<div class="dd"><div class="k" style="margin-bottom:6px">Accreditation & contact</div><div class="kv">'
+      +'<div><div class="k">Contact</div><div class="v">'+esc(f.contact_email||'—')+'</div></div>'
+      +'<div><div class="k">Phone</div><div class="v">'+esc(f.contact_phone||'—')+'</div></div>'
+      +(f.website_url?'<div><div class="k">Website</div><div class="v"><a class="deliv-link" href="'+esc(f.website_url)+'" target="_blank" style="color:var(--ochre-deep)">'+esc(f.website_url)+'</a></div></div>':'')
+      +(f.accreditation_note?'<div><div class="k">Accreditation</div><div class="v">'+esc(f.accreditation_note)+'</div></div>':'')
+    +'</div></div>'
+    +'<div class="section-title" style="margin:14px 0 6px;font-size:10px">Member seats</div>'+seatRows
+    +(f.admin_notes?'<div class="sub" style="margin-top:8px;color:var(--terra)"><b>Note:</b> '+esc(f.admin_notes)+'</div>':'')
+    +actions+'</div>';
+}
+async function approveFirm(id){
+  if(!confirm('Approve this investor firm and publish their profile to unlocked founders?'))return;
+  try{ await _rpc('approve_investor_firm',{p_firm:id,p_public:true});
+    const f=invFirms.find(x=>x.id===id); if(f){f.status='approved';f.public=true;}
+    showToast('Firm approved & published','success'); renderInvestors(document.getElementById('search').value);
+  }catch(e){ showToast('Could not approve — '+(e.message||'').replace(/^RPC \d+: /,''),'error'); }
+}
+async function rejectFirm(id){
+  const note=prompt('Reason (optional):')||null;
+  try{ await _w('PATCH','investor_firms','id=eq.'+id,{status:'rejected',public:false,admin_notes:note,updated_at:new Date().toISOString()});
+    const f=invFirms.find(x=>x.id===id); if(f){f.status='rejected';f.public=false;f.admin_notes=note;}
+    showToast('Firm rejected','success'); renderInvestors(document.getElementById('search').value);
+  }catch(e){ showToast('Could not reject — '+e.message,'error'); }
+}
+async function toggleFirmPublic(id,next){
+  try{ await _w('PATCH','investor_firms','id=eq.'+id,{public:next,updated_at:new Date().toISOString()});
+    const f=invFirms.find(x=>x.id===id); if(f)f.public=next;
+    showToast(next?'Published to founders':'Unpublished','success'); renderInvestors(document.getElementById('search').value);
+  }catch(e){ showToast('Could not update — '+e.message,'error'); }
 }
 
 // Resolve a name/email for a privileged user_id from the other tables (best-effort).
