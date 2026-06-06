@@ -559,10 +559,23 @@ function renderInvestors(q){
   const pub=invFirms.filter(f=>f.status==='approved'&&f.public).length;
   stats([{v:invFirms.length,l:'Firms'},{v:appr,l:'Approved'},{v:invFirms.length-appr,l:'Pending'},{v:pub,l:'Public to founders'}]);
   const list=invFirms.filter(f=>match(q,f.name,f.firm_type,f.contact_email,(f.focus_sectors||[]).join(' ')));
-  document.getElementById('roster').innerHTML = list.length
-    ? '<div class="sub" style="margin-bottom:12px">Investors are modelled as a <b>firm</b> (a solo angel = a firm of one) with member seats. Approve to publish their profile to founders who have unlocked investor visibility.</div>'+list.map(firmCard).join('')
-    : '<div class="tbl-wrap"><div class="empty">No investor firms yet. They arrive via the investor onboarding form.</div></div>';
+  document.getElementById('roster').innerHTML =
+    '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">'
+    +'<div class="sub" style="max-width:560px">Investors are modelled as a <b>firm</b> (a solo angel = a firm of one) with member seats. Approve to publish their profile to founders who have unlocked investor visibility.</div>'
+    +(isSuper()||hasR('investor_support')||hasR('finance')?'<button class="btn-sm approve" onclick="showInviteInvestor()">+ Invite an investor</button>':'')+'</div>'
+    +'<div id="inv-invite-box"></div>'
+    +(list.length ? list.map(firmCard).join('') : '<div class="tbl-wrap"><div class="empty">No investor firms yet. They arrive via the investor onboarding form.</div></div>');
 }
+function showInviteInvestor(){
+  const el=document.getElementById('inv-invite-box'); if(!el) return;
+  if(el.dataset.open==='1'){ el.innerHTML=''; el.dataset.open=''; return; }
+  el.dataset.open='1';
+  const url=location.origin+'/beta/investor-onboarding.html';
+  el.innerHTML='<div class="app-card"><div style="font-family:var(--display);font-size:18px;font-weight:600;margin-bottom:4px">Invite an investor</div>'
+    +'<div class="sub" style="margin-bottom:10px">Share this onboarding link with a prospective investor. Their submission lands here for review and verification. (Direct email send arrives when the API is connected.)</div>'
+    +'<div style="display:flex;gap:8px;align-items:center"><input id="inv-invite-url" value="'+esc(url)+'" readonly><button class="btn-sm approve" onclick="copyInvInvite()">Copy link</button></div></div>';
+}
+function copyInvInvite(){ const i=document.getElementById('inv-invite-url'); if(!i)return; i.select(); try{ navigator.clipboard.writeText(i.value); }catch(e){ try{document.execCommand('copy');}catch(_){} } showToast('Link copied','success'); }
 const FIRM_PILL={pending:'<span class="pill pill-ochre">Pending</span>',approved:'<span class="pill pill-green">Approved</span>',rejected:'<span class="pill pill-red">Rejected</span>'};
 function ticket(f){ if(!f.ticket_min&&!f.ticket_max) return ''; const c=f.currency||'USD'; const n=x=>x>=1e6?(x/1e6)+'M':x>=1e3?(x/1e3)+'k':x; return c+' '+(f.ticket_min?n(f.ticket_min):'')+(f.ticket_max?('–'+n(f.ticket_max)):'+'); }
 function firmCard(f){

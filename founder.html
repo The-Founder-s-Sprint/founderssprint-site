@@ -296,6 +296,7 @@
     <button class="tab" onclick="switchTab('dataroom')">Data Room</button>
     <button class="tab" onclick="switchTab('sessions')">Sessions</button>
     <button class="tab" onclick="switchTab('payments')">Payments</button>
+    <button class="tab" onclick="switchTab('investors')">Investors</button>
     <button class="tab" onclick="switchTab('profile')">Profile</button>
   </div>
 
@@ -429,6 +430,14 @@
       </div>
       <div class="section-title">Enrollment</div>
       <div class="card" id="pay-list"></div>
+    </div>
+
+    <!-- ── INVESTORS (marketplace) ── -->
+    <div class="tab-panel" id="panel-investors">
+      <div class="page-eyebrow">Marketplace</div>
+      <div class="page-title">Investors</div>
+      <div class="page-sub">Verified investors active on the platform. They become visible to you once you switch on investor visibility in your Data Room — the same switch lets them discover you.</div>
+      <div id="inv-dir"></div>
     </div>
 
     <!-- ── PROFILE ── -->
@@ -1362,12 +1371,44 @@ async function saveProfile(e){
 
 // ── UI helpers ──
 function switchTab(name){
-  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));
-  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-  const idx = ['overview','dataroom','sessions','payments','profile'].indexOf(name);
-  if(idx>=0) document.querySelectorAll('.tab')[idx].classList.add('active');
-  document.getElementById('panel-'+name).classList.add('active');
+  document.querySelectorAll('.tab').forEach(b=>{ const m=(b.getAttribute('onclick')||'').match(/switchTab\('([^']+)'\)/); b.classList.toggle('active', !!m && m[1]===name); });
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active', p.id==='panel-'+name));
+  if(name==='investors') renderInvestorDir();
   window.scrollTo(0,0);
+}
+// ── Investor marketplace directory (gated to founders who've unlocked investor visibility) ──
+let investorFirms=null;
+function founderUnlocked(){ return !!(profile && profile.investor_visible) || (companies||[]).some(c=>c.investor_visible) || isShared(); }
+function invChip(s){ return '<span style="display:inline-block;font-family:var(--sans);font-size:9px;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border:1px solid var(--border);color:var(--ink-mid);margin:2px 4px 2px 0">'+esc(s)+'</span>'; }
+function firmTile(f){
+  const n=x=>x>=1e6?(x/1e6)+'M':x>=1e3?(x/1e3)+'k':x; const cur=f.currency||'USD';
+  const ticket=(f.ticket_min||f.ticket_max)?(cur+' '+(f.ticket_min?n(f.ticket_min):'')+(f.ticket_max?('–'+n(f.ticket_max)):'+')):'';
+  const meta=[f.firm_type,(f.stages||[]).join('/'),ticket,(f.geographies||[]).join(', ')].filter(Boolean).join(' · ');
+  return '<div class="card" style="margin:0">'
+    +'<div style="font-family:var(--display);font-size:20px;font-weight:600">'+esc(f.name)+'</div>'
+    +(f.one_liner?'<div style="font-size:12.5px;color:var(--ink-mid);margin-top:3px">'+esc(f.one_liner)+'</div>':'')
+    +(meta?'<div style="font-size:11px;color:var(--muted);margin-top:8px;font-family:var(--sans);letter-spacing:.04em">'+esc(meta)+'</div>':'')
+    +(f.thesis?'<div style="font-size:12.5px;line-height:1.55;margin-top:10px">'+esc(f.thesis)+'</div>':'')
+    +((f.focus_sectors&&f.focus_sectors.length)?'<div style="margin-top:10px">'+f.focus_sectors.map(invChip).join('')+'</div>':'')
+    +((f.website_url||f.linkedin_url)?'<div style="margin-top:12px">'
+       +(f.website_url?'<a href="'+esc(f.website_url)+'" target="_blank" style="color:var(--terra);font-size:11px;font-weight:600;text-decoration:none;margin-right:14px">Website ↗</a>':'')
+       +(f.linkedin_url?'<a href="'+esc(f.linkedin_url)+'" target="_blank" style="color:var(--terra);font-size:11px;font-weight:600;text-decoration:none">LinkedIn ↗</a>':'')+'</div>':'')
+    +'</div>';
+}
+async function renderInvestorDir(){
+  const el=document.getElementById('inv-dir'); if(!el) return;
+  if(!founderUnlocked()){
+    el.innerHTML='<div class="card"><div style="font-family:var(--display);font-size:22px;font-weight:600;margin-bottom:6px">Unlock investor visibility to see investors</div>'
+      +'<div style="font-size:13px;color:var(--ink-mid);line-height:1.6;max-width:520px">When your data room reaches '+INVESTOR_GATE+'% and you switch on investor access, verified investors can discover you — and you can browse them here. <a href="#" onclick="switchTab(\'dataroom\');return false" style="color:var(--terra);font-weight:600">Go to your Data Room →</a></div></div>';
+    return;
+  }
+  if(investorFirms===null){
+    el.innerHTML='<div class="card">Loading…</div>';
+    try{ investorFirms=await _pgQuery('investor_firms','status=eq.approved&public=eq.true&select=*&order=name'); }catch(e){ investorFirms=[]; }
+  }
+  el.innerHTML = investorFirms.length
+    ? '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px">'+investorFirms.map(firmTile).join('')+'</div>'
+    : emptyState('No investors listed yet','Verified investor firms appear here as they join the platform.');
 }
 function emptyState(title, sub){ return '<div class="empty"><div class="empty-mark">◇</div><div style="font-weight:600;color:var(--ink-mid)">'+esc(title)+'</div>'+(sub?'<div style="margin-top:4px">'+esc(sub)+'</div>':'')+'</div>'; }
 function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
