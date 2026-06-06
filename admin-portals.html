@@ -103,6 +103,8 @@
   .btn-sm.approve{background:var(--success);color:#fff;} .btn-sm.reject{background:none;color:#C0392B;border:1px solid var(--border-hi);}
   .mat-coach{margin:8px 0 12px;} .mat-coach-h{font-size:12px;font-weight:600;color:var(--ink-mid);margin:6px 0 2px;}
   .mat-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:7px 0;border-top:1px solid var(--border);font-size:12.5px;}
+  .app-card select,.app-card input{width:100%;background:var(--bg);border:1px solid var(--border);padding:8px 10px;font-size:13px;font-family:var(--font);color:var(--text);}
+  .app-card select:focus,.app-card input:focus{outline:none;border-color:var(--ochre);}
   @media(max-width:560px){.main{padding:22px 16px 70px;}.page-title{font-size:26px;}}
 </style>
 </head>
@@ -166,6 +168,10 @@ async function _token(){if(currentSession?.access_token){const e=currentSession.
   const s=_stored();if(s.access_token&&!_exp(s))return s.access_token;return _refresh();}
 async function _q(table,params){const t=await _token();const r=await fetch(SUPABASE_URL+'/rest/v1/'+table+'?'+params,{headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t}});
   if(!r.ok)throw new Error('Query failed '+r.status+': '+await r.text());return r.json();}
+async function _w(method,table,params,body,extra){const t=await _token();const r=await fetch(SUPABASE_URL+'/rest/v1/'+table+(params?('?'+params):''),{method,headers:Object.assign({apikey:SUPABASE_ANON,Authorization:'Bearer '+t,'Content-Type':'application/json',Prefer:'return=representation'},extra||{}),body:body?JSON.stringify(body):undefined});
+  if(!r.ok)throw new Error('Write failed '+r.status+': '+await r.text());const x=await r.text();return x?JSON.parse(x):null;}
+async function _rpc(fn,args){const t=await _token();const r=await fetch(SUPABASE_URL+'/rest/v1/rpc/'+fn,{method:'POST',headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify(args||{})});
+  if(!r.ok)throw new Error('RPC '+r.status+': '+await r.text());const x=await r.text();return x?JSON.parse(x):null;}
 
 async function signIn(){
   const email=document.getElementById('login-email').value.trim();
@@ -235,8 +241,8 @@ async function boot(user){
       _q('investors','select=*&order=created_at.desc'),
       _q('user_roles','select=user_id,role,created_at&order=created_at'),
       _q('coach_applications','select=*&order=created_at.desc'),
-      _q('course_materials','select=id,coach_id,title,discipline,module_type,format,status,is_active&order=sort_order'),
-      _q('coach_presentations','select=id,coach_id,title,taxonomy_l1,is_active&order=sort_order')
+      _q('course_materials','select=id,coach_id,title,discipline,module_type,format,status,is_active,file_path,source_url&order=sort_order'),
+      _q('coach_presentations','select=id,coach_id,title,taxonomy_l1,is_active,file_path&order=sort_order')
     ]);
     founders =r[0].status==='fulfilled'?(r[0].value||[]):[];
     companies=r[1].status==='fulfilled'?(r[1].value||[]):[];
@@ -381,10 +387,16 @@ function renderCoachApplications(q){
     : '<div class="tbl-wrap"><div class="empty">No applications.</div></div>';
 }
 async function adminApprove(id){
-  if(!confirm('Approve and list this coach? They become visible to founders.'))return;
-  try{ await _w('PATCH','coach_applications','id=eq.'+id,{review_stage:'listed',status:'approved',reviewed_at:new Date().toISOString()});
+  if(!confirm('Approve and list this coach? This creates their coach profile + discipline coverage and makes them visible to founders.'))return;
+  try{
+    await _rpc('provision_coach_from_application',{p_app:id});   // creates coaches row + coach_topics, lists the app
     const a=applications.find(x=>x.id===id); if(a){a.review_stage='listed';a.status='approved';}
-    showToast('Coach approved & listed','success'); renderCoaches(document.getElementById('search').value);
+    // refresh coach roster + topics so the new coach appears immediately
+    try{ coaches=await _q('coaches','select=*&order=created_at'); }catch(e){}
+    try{ topics=await _q('coach_topics','select=coach_id,discipline_key,is_lead'); }catch(e){}
+    renderTabs();
+    showToast('Coach provisioned & listed — set up their login account to finish','success');
+    renderCoaches(document.getElementById('search').value);
   }catch(e){ showToast('Could not approve — '+e.message,'error'); }
 }
 async function adminReject(id){
@@ -395,24 +407,87 @@ async function adminReject(id){
   }catch(e){ showToast('Could not reject — '+e.message,'error'); }
 }
 
+function coachByAny(cid){ return coaches.find(x=>String(x.user_id)===String(cid)||String(x.id)===String(cid)); }
+function matOpen(m){
+  if(m.source_url) return '<a href="'+esc(m.source_url)+'" target="_blank" style="color:var(--ochre-deep);font-size:10px;font-weight:700;text-decoration:none">Open ↗</a>';
+  if(m.file_path) return '<a href="#" onclick="openMaterial(\''+esc(m.file_path)+'\');return false" style="color:var(--ochre-deep);font-size:10px;font-weight:700;text-decoration:none">Open</a>';
+  return '';
+}
 function renderCoachMaterials(q){
   const all=[];
-  materials.forEach(m=>all.push({disc:normDisc(m.discipline),coach_id:m.coach_id,title:m.title,type:m.module_type||m.format||'Material'}));
-  presentations.forEach(p=>all.push({disc:normDisc(p.taxonomy_l1),coach_id:p.coach_id,title:p.title,type:'Presentation'}));
+  materials.forEach(m=>all.push({tbl:'course_materials',id:m.id,disc:normDisc(m.discipline),coach_id:m.coach_id,title:m.title,type:m.module_type||m.format||'Material',file_path:m.file_path,source_url:m.source_url,status:m.status}));
+  presentations.forEach(p=>all.push({tbl:'coach_presentations',id:p.id,disc:normDisc(p.taxonomy_l1),coach_id:p.coach_id,title:p.title,type:'Presentation',file_path:p.file_path}));
   const filt=all.filter(m=>match(q,m.title));
-  const html=DISC_ORDER.map(key=>{
+  const groups=DISC_ORDER.map(key=>{
     const items=filt.filter(m=>m.disc===key);
     if(!items.length) return '';
     const byCoach={}; items.forEach(m=>{(byCoach[m.coach_id]=byCoach[m.coach_id]||[]).push(m);});
     const blocks=Object.keys(byCoach).map(cid=>{
-      const c=coaches.find(x=>String(x.id)===String(cid));
-      const cn=c?((c.first_name||'')+' '+(c.last_name||'')):'Unassigned';
+      const c=coachByAny(cid); const cn=c?((c.first_name||'')+' '+(c.last_name||'')):'Unassigned';
       return '<div class="mat-coach"><div class="mat-coach-h">'+esc(cn)+'</div>'
-        +byCoach[cid].map(m=>'<div class="mat-row"><span>'+esc(m.title)+'</span><span class="tag">'+esc(m.type)+'</span></div>').join('')+'</div>';
+        +byCoach[cid].map(m=>'<div class="mat-row"><span>'+esc(m.title)+(m.status&&m.status!=='published'?' <span class="pill pill-grey">'+esc(m.status)+'</span>':'')+'</span>'
+          +'<span style="display:flex;gap:12px;align-items:center"><span class="tag">'+esc(m.type)+'</span>'+matOpen(m)
+          +'<a href="#" onclick="deleteMaterial(\''+m.tbl+'\',\''+m.id+'\');return false" style="color:#C0392B;font-size:10px;font-weight:700;text-decoration:none">Delete</a></span></div>').join('')+'</div>';
     }).join('');
     return '<div class="disc-group"><div class="disc-group-h"><span>'+esc(DISC_LABEL[key])+'</span><span class="sub">'+items.length+' item'+(items.length===1?'':'s')+'</span></div>'+blocks+'</div>';
   }).join('');
-  document.getElementById('coach-sub').innerHTML = html || '<div class="tbl-wrap"><div class="empty">No teaching materials uploaded yet.</div></div>';
+  document.getElementById('coach-sub').innerHTML =
+    '<div style="margin-bottom:14px"><button class="btn-sm approve" onclick="showAddMaterial()">+ Add material</button></div><div id="add-material"></div>'
+    + (groups || '<div class="tbl-wrap"><div class="empty">No teaching materials yet — add one above.</div></div>');
+}
+function showAddMaterial(){
+  const el=document.getElementById('add-material');
+  if(el.dataset.open==='1'){ el.innerHTML=''; el.dataset.open=''; return; }
+  el.dataset.open='1';
+  const coachOpts=coaches.filter(c=>c.user_id).map(c=>'<option value="'+c.user_id+'">'+esc((c.first_name||'')+' '+(c.last_name||''))+'</option>').join('');
+  const discOpts=DISC_ORDER.map(k=>'<option value="'+esc(DISC_LABEL[k])+'">'+esc(DISC_LABEL[k])+'</option>').join('');
+  el.innerHTML='<div class="app-card"><div class="kv">'
+    +'<div><div class="k">Coach</div><select id="m-coach">'+coachOpts+'</select></div>'
+    +'<div><div class="k">Discipline</div><select id="m-disc">'+discOpts+'</select></div>'
+    +'<div><div class="k">Type</div><select id="m-type"><option>Slides</option><option>Document</option><option>Video</option><option>Worksheet</option><option>Template</option><option>Other</option></select></div>'
+    +'<div><div class="k">Status</div><select id="m-status"><option value="published">Published</option><option value="draft">Draft</option></select></div>'
+    +'</div>'
+    +'<div style="margin-top:10px"><div class="k">Title</div><input id="m-title" type="text" placeholder="e.g. Brand Positioning — Session 1"></div>'
+    +'<div style="margin-top:10px"><div class="k">Source URL (Google Slides / Doc / Drive)</div><input id="m-url" type="url" placeholder="https://…"></div>'
+    +'<div style="margin-top:10px"><div class="k">…or upload a file</div><input id="m-file" type="file"></div>'
+    +'<div style="margin-top:14px;display:flex;gap:8px"><button class="btn-sm approve" id="m-save" onclick="saveMaterial()">Save material</button><button class="btn-sm reject" onclick="showAddMaterial()">Cancel</button></div></div>';
+}
+async function saveMaterial(){
+  const coach_id=document.getElementById('m-coach').value;
+  const discipline=document.getElementById('m-disc').value;
+  const title=document.getElementById('m-title').value.trim();
+  const type=document.getElementById('m-type').value;
+  const status=document.getElementById('m-status').value;
+  let source_url=document.getElementById('m-url').value.trim()||null;
+  const file=document.getElementById('m-file').files[0];
+  if(!coach_id){ showToast('Pick a coach with a login account','error'); return; }
+  if(!title){ showToast('Add a title','error'); return; }
+  const btn=document.getElementById('m-save'); btn.disabled=true; btn.textContent='Saving…';
+  try{
+    let file_path=null;
+    if(file){
+      const path=coach_id+'/'+Date.now()+'-'+file.name.replace(/[^a-zA-Z0-9._-]/g,'_');
+      const t=await _token();
+      const up=await fetch(SUPABASE_URL+'/storage/v1/object/course-materials/'+encodeURI(path),{method:'POST',headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t,'x-upsert':'true','Content-Type':file.type||'application/octet-stream'},body:file});
+      if(!up.ok) throw new Error('upload '+up.status); file_path=path;
+    }
+    const row=await _w('POST','course_materials','',{coach_id,title,discipline,module_type:type,format:type,source_url,file_path,status,is_active:true,created_at:new Date().toISOString(),updated_at:new Date().toISOString()});
+    if(row&&row[0]) materials.unshift(row[0]);
+    showToast('Material added','success'); renderCoaches(document.getElementById('search').value);
+  }catch(e){ showToast('Could not save — '+e.message,'error'); } finally{ btn.disabled=false; }
+}
+async function deleteMaterial(tbl,id){
+  if(!confirm('Delete this material?'))return;
+  try{ await _w('DELETE',tbl,'id=eq.'+id);
+    if(tbl==='course_materials') materials=materials.filter(m=>String(m.id)!==String(id)); else presentations=presentations.filter(p=>String(p.id)!==String(id));
+    showToast('Deleted','success'); renderCoaches(document.getElementById('search').value);
+  }catch(e){ showToast('Could not delete — '+e.message,'error'); }
+}
+async function openMaterial(path){
+  try{ const t=await _token();
+    const r=await fetch(SUPABASE_URL+'/storage/v1/object/sign/course-materials/'+encodeURI(path),{method:'POST',headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify({expiresIn:300})});
+    const j=await r.json(); if(j&&j.signedURL) window.open(SUPABASE_URL+'/storage/v1'+j.signedURL,'_blank'); else throw new Error('na');
+  }catch(e){ showToast('Could not open file','error'); }
 }
 
 function renderInvestors(q){
