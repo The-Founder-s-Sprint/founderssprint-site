@@ -157,12 +157,16 @@ async function signIn(){
 }
 function signOut(){localStorage.removeItem(_SB_KEY);try{sb.auth.signOut().catch(()=>{});}catch(e){}location.reload();}
 
-sb.auth.onAuthStateChange((ev,s)=>{currentSession=s;if((ev==='SIGNED_IN'||ev==='INITIAL_SESSION')&&s)boot(s.user);});
-(async()=>{try{const s=_stored();const u=s.user;if(!u||booted)return;if(_exp(s)){try{await _refresh();}catch(e){return;}}if(!booted)boot(u);}catch(e){}})();
-sb.auth.getSession().then(({data:{session}})=>{if(session&&!booted){currentSession=session;boot(session.user);}});
-// Unauthenticated visitors get the themed Admin portal, never a bare card.
-(function(){ const s=_stored(); if(!s||!s.refresh_token){ location.replace('/login-admin.html'); } })();
-setTimeout(()=>{ if(!booted){ const s=_stored(); if(!s||!s.access_token){ location.replace('/login-admin.html'); } } }, 1600);
+sb.auth.onAuthStateChange((ev,s)=>{ currentSession=s; if((ev==='SIGNED_IN'||ev==='TOKEN_REFRESHED'||ev==='INITIAL_SESSION') && s && !booted) boot(s.user); });
+let _redir=false; function _toLogin(){ if(_redir||booted) return; _redir=true; location.replace('/login-admin.html'); }
+// Authoritative session check: getSession() validates + refreshes, or returns null for a stale/absent token.
+(async()=>{
+  try{
+    const { data:{ session } } = await sb.auth.getSession();
+    if(session){ currentSession=session; if(!booted) boot(session.user); }
+    else { _toLogin(); }
+  }catch(e){ _toLogin(); }
+})();
 
 // ── state ──
 let founders=[], companies=[], regs=[], coaches=[], topics=[], investors=[], roles=[];

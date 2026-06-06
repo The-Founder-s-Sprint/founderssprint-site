@@ -681,22 +681,17 @@ async function changePassword(){
 sb.auth.onAuthStateChange((event, session) => {
   currentSession = session;
   if(event==='PASSWORD_RECOVERY' && session){ bootApp(session.user).then(()=>{ showChangePassword(); showToast('Set your new password below','info'); }); return; }
-  if((event==='SIGNED_IN'||event==='INITIAL_SESSION') && session){ bootApp(session.user); }
+  if((event==='SIGNED_IN'||event==='TOKEN_REFRESHED'||event==='INITIAL_SESSION') && session && !booted){ bootApp(session.user); }
 });
-// Fast-path (Safari): boot from localStorage immediately
-(async () => {
-  try {
-    const stored = _getStoredSession();
-    const user = stored.user || (stored.currentSession && stored.currentSession.user);
-    if(!user || booted) return;
-    if(_isTokenExpired(stored)){ try { await _refreshToken(); } catch(e){ return; } }
-    if(!booted) bootApp(user);
-  } catch(e){}
+let _redir=false; function _toLogin(){ if(_redir||booted) return; _redir=true; location.replace('/login-founder.html'); }
+// Authoritative session check: getSession() validates + refreshes, or returns null for a stale/absent token.
+(async()=>{
+  try{
+    const { data:{ session } } = await sb.auth.getSession();
+    if(session){ currentSession=session; if(!booted) bootApp(session.user); }
+    else { _toLogin(); }
+  }catch(e){ _toLogin(); }
 })();
-sb.auth.getSession().then(({ data:{ session } }) => { if(session && !booted){ currentSession = session; bootApp(session.user); } });
-// Unauthenticated visitors get the themed portal (login-founder.html), never the bare card.
-(function(){ const s=_getStoredSession(); if(!s || !s.refresh_token){ location.replace('/login-founder.html'); } })();
-setTimeout(()=>{ if(!booted){ const s=_getStoredSession(); if(!s || !s.access_token){ location.replace('/login-founder.html'); } } }, 1600);
 
 // ════ BOOT ════
 async function bootApp(user){

@@ -176,8 +176,11 @@ function setMsg(id,text,kind){const e=document.getElementById(id);e.textContent=
 sb.auth.onAuthStateChange((event,session)=>{
   if(event==='PASSWORD_RECOVERY'){ recovering=true; showView('newpass'); return; }
   if(recovering) return;
-  if((event==='SIGNED_IN'||event==='INITIAL_SESSION') && session){ go(); }
+  if(event==='SIGNED_IN' && session){ go(); }
 });
+// Skip the login form only if a VALID session already exists. getSession() validates/refreshes;
+// a stale token that can't refresh returns null, so the user stays here and can sign in.
+(async()=>{ try{ if(recovering) return; const { data:{ session } } = await sb.auth.getSession(); if(session && !recovering) go(); }catch(e){} })();
 
 async function doSignIn(e){
   e.preventDefault();
