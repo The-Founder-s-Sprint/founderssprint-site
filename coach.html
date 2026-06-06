@@ -10,7 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
-  :root{--bg:#EFE7D8;--surface:#E6DCC7;--card:#EFE7D8;--ink:#1A1A1A;--ink-mid:#444;--muted:#5A564F;
+  :root{--bg:#EFE7D8;--surface:#E6DCC7;--card:#EFE7D8;--ink:#1A1A1A;--ink-mid:#444;--muted:#5A564F;--text:#1A1A1A;
     --border:rgba(26,26,26,0.18);--border-hi:rgba(26,26,26,0.35);
     --terra:#C8531F;--terra-deep:#9A3E16;--ochre:#C9923A;--sage:#8AAB5C;--moss:#3D4A2E;--stone:#A59B8C;
     --success:#0A8F64;--warning:#C47F08;--paper-mid:#C0B8A8;
@@ -36,22 +36,23 @@
   .topbar-sub{font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--terra);}
   .topbar-right{display:flex;align-items:center;gap:14px;}.topbar-user{font-size:12px;color:var(--muted);}
   .btn-ghost{background:none;color:var(--terra);border:1px solid var(--border-hi);padding:8px 14px;font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;}
-  .tabs-wrap{display:flex;padding:0 28px;border-bottom:1px solid var(--border);background:var(--card);}
-  .tab{background:none;border:none;border-bottom:2px solid transparent;padding:14px 18px;font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);cursor:pointer;}
+  .tabs-wrap{display:flex;padding:0 28px;border-bottom:1px solid var(--border);background:var(--card);overflow-x:auto;}
+  .tab{background:none;border:none;border-bottom:2px solid transparent;padding:14px 16px;font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);cursor:pointer;white-space:nowrap;}
   .tab.active{color:var(--terra);border-bottom-color:var(--terra);}
   .main{max-width:1000px;margin:0 auto;padding:32px 28px 80px;}
   .tab-panel{display:none;}.tab-panel.active{display:block;}
   .page-eyebrow{font-family:var(--sans);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--terra);margin-bottom:6px;}
   .page-title{font-family:var(--display);font-size:30px;font-weight:600;line-height:1.05;margin-bottom:6px;}
-  .page-sub{font-size:14px;color:var(--muted);margin-bottom:24px;max-width:640px;line-height:1.5;}
+  .page-sub{font-size:14px;color:var(--muted);margin-bottom:24px;max-width:680px;line-height:1.5;}
   .section-title{font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-mid);margin:24px 0 12px;}
   .card{background:var(--card);border:1px solid var(--border);padding:18px 20px;margin-bottom:14px;}
   .card-top{border-top:2px solid var(--terra);}
-  .list-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 0;border-top:1px solid var(--border);cursor:pointer;}
-  .list-row:first-child{border-top:none;}.list-row:hover{opacity:.75;}
+  .list-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 0;border-top:1px solid var(--border);}
+  .list-row:first-child{border-top:none;}
+  .list-row.click{cursor:pointer;}.list-row.click:hover{opacity:.75;}
   .list-main{font-size:14px;font-weight:500;}.list-sub{font-size:11.5px;color:var(--muted);margin-top:3px;}
   .pill{font-family:var(--sans);font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 9px;border-radius:2px;}
-  .pill-green{background:rgba(10,143,100,.14);color:var(--success);}.pill-grey{background:rgba(26,26,26,.07);color:var(--muted);}.pill-terra{background:rgba(200,83,31,.1);color:var(--terra);}
+  .pill-green{background:rgba(10,143,100,.14);color:var(--success);}.pill-grey{background:rgba(26,26,26,.07);color:var(--muted);}.pill-terra{background:rgba(200,83,31,.1);color:var(--terra);}.pill-ochre{background:rgba(201,146,58,.16);color:#A6741F;}
   .back{font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--terra);cursor:pointer;display:inline-block;margin-bottom:16px;}
   .disc-block{margin-bottom:18px;border-left:3px solid var(--stone);padding-left:14px;}
   .disc-block.mine{border-left-color:var(--terra);}
@@ -64,14 +65,29 @@
   .chk.on::after{content:'';width:5px;height:9px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg) translateY(-1px);}
   .chk.busy{opacity:.4;pointer-events:none;}
   .l3-name{flex:1;font-size:13px;}.l3-l2{font-size:10px;color:var(--muted);font-family:var(--sans);letter-spacing:.08em;text-transform:uppercase;}
-  /* availability */
   .av-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--border);}
   .av-row:first-of-type{border-top:none;}
-  select,input[type=time]{background:var(--bg);border:1px solid var(--border);padding:8px 10px;font-family:var(--font);font-size:13px;}
+  select,input[type=time],input[type=text],input[type=number],input[type=url],textarea{background:var(--bg);border:1px solid var(--border);padding:8px 10px;font-family:var(--font);font-size:13px;color:var(--text);}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--terra);}
   .btn{background:var(--terra);color:#fff;border:none;padding:9px 16px;font-family:var(--sans);font-weight:700;font-size:10px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;}
   .btn:disabled{opacity:.5;}
   .btn-del{background:none;color:#DC3545;border:1px solid var(--border);padding:6px 10px;font-size:10px;cursor:pointer;font-family:var(--sans);letter-spacing:.1em;text-transform:uppercase;}
   .empty{text-align:center;padding:40px;color:var(--muted);}.empty-mark{font-family:var(--display);font-size:40px;color:var(--border-hi);}
+  /* profile form */
+  .pf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;}
+  .pf-f{display:flex;flex-direction:column;gap:5px;}
+  .pf-f.full{grid-column:1/-1;}
+  .pf-f label{font-family:var(--sans);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-mid);}
+  .pf-f input,.pf-f textarea{width:100%;}
+  .kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;}
+  .kv .k{font-family:var(--sans);font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
+  .kv .v{font-size:14px;font-weight:500;}
+  .avatar{width:72px;height:72px;border-radius:50%;border:2px solid var(--border-hi);background:var(--surface);overflow:hidden;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:26px;color:var(--muted);flex-shrink:0;}
+  .avatar img{width:100%;height:100%;object-fit:cover;}
+  .stat-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px;}
+  .stat{background:var(--card);border:1px solid var(--border);border-top:2px solid var(--terra);padding:12px 18px;min-width:130px;}
+  .stat .v{font-family:var(--display);font-size:26px;font-weight:700;line-height:1;}
+  .stat .l{font-family:var(--sans);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:5px;}
   #toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:#fff;padding:13px 22px;font-size:13px;opacity:0;transition:all .3s;z-index:2000;}
   #toast.show{transform:translateX(-50%) translateY(0);opacity:1;}#toast.success{background:var(--success);}#toast.error{background:#DC3545;}
   @media(max-width:560px){.main{padding:24px 18px;}}
@@ -98,11 +114,16 @@
     </div>
     <div class="topbar-right"><span class="topbar-user" id="user-email"></span><button class="btn-ghost" onclick="signOut()">Sign Out</button></div>
   </div>
-  <div class="tabs-wrap">
-    <button class="tab active" onclick="switchTab('founders')">My Founders</button>
-    <button class="tab" onclick="switchTab('availability')">1:1 Availability</button>
+  <div class="tabs-wrap" id="tabs">
+    <button class="tab active" data-tab="founders" onclick="switchTab('founders')">My Founders</button>
+    <button class="tab" data-tab="sessions" onclick="switchTab('sessions')">Sessions</button>
+    <button class="tab" data-tab="availability" onclick="switchTab('availability')">1:1 Availability</button>
+    <button class="tab" data-tab="profile" onclick="switchTab('profile')">Profile</button>
+    <button class="tab" data-tab="earnings" onclick="switchTab('earnings')">Earnings &amp; Payout</button>
+    <button class="tab" data-tab="materials" onclick="switchTab('materials')">Materials</button>
   </div>
   <div class="main">
+    <!-- FOUNDERS -->
     <div class="tab-panel active" id="panel-founders">
       <div id="view-roster">
         <div class="page-eyebrow">Coaching</div>
@@ -112,13 +133,24 @@
       </div>
       <div id="view-founder" style="display:none"></div>
     </div>
+    <!-- SESSIONS -->
+    <div class="tab-panel" id="panel-sessions">
+      <div class="page-eyebrow">Schedule</div>
+      <div class="page-title">Sessions</div>
+      <div class="page-sub">Your standing group cohort session runs every week on your discipline's day, 10:00–12:00 EAT. One-to-one intensives appear here once founders book them inside your availability windows.</div>
+      <div class="section-title" style="margin-top:0">Group cohort sessions</div>
+      <div class="card" id="cohort-sessions"></div>
+      <div class="section-title">One-to-one sessions</div>
+      <div class="card" id="oneonone-sessions"></div>
+    </div>
+    <!-- AVAILABILITY -->
     <div class="tab-panel" id="panel-availability">
       <div class="page-eyebrow">Bookings</div>
       <div class="page-title">1:1 Availability</div>
       <div class="page-sub">Set the windows you're available for 1:1 coaching. Founders can only book 1:1s inside these windows — the platform enforces it. Your group cohort sessions (your fixed weekday, 10:00–12:00 EAT) are separate and always scheduled.</div>
       <div class="card card-top">
         <div class="section-title" style="margin-top:0">Add a window</div>
-        <div class="av-row" style="border:none;padding-top:0">
+        <div class="av-row" style="border:none;padding-top:0;flex-wrap:wrap">
           <select id="av-day"><option value="1">Monday</option><option value="2">Tuesday</option><option value="3">Wednesday</option><option value="4">Thursday</option><option value="5">Friday</option><option value="6">Saturday</option><option value="0">Sunday</option></select>
           <input type="time" id="av-start" value="14:00">
           <span style="color:var(--muted)">to</span>
@@ -129,6 +161,27 @@
       <div class="section-title">Your windows</div>
       <div class="card" id="av-list"></div>
     </div>
+    <!-- PROFILE -->
+    <div class="tab-panel" id="panel-profile">
+      <div class="page-eyebrow">Your public coach profile</div>
+      <div class="page-title">Profile</div>
+      <div class="page-sub">This is what founders see when they choose a coach. Keep it sharp — your headline, credentials and rate signal your authority. You control the substance; the platform keeps it on-brand.</div>
+      <div id="profile-body"></div>
+    </div>
+    <!-- EARNINGS -->
+    <div class="tab-panel" id="panel-earnings">
+      <div class="page-eyebrow">Financials</div>
+      <div class="page-title">Earnings &amp; Payout</div>
+      <div class="page-sub">A running summary of your coaching income and the payout details you provided at onboarding. Live settlement begins once the platform's mobile-money payouts are connected.</div>
+      <div id="earnings-body"></div>
+    </div>
+    <!-- MATERIALS -->
+    <div class="tab-panel" id="panel-materials">
+      <div class="page-eyebrow">Teaching content</div>
+      <div class="page-title">Materials</div>
+      <div class="page-sub">Your branded presentation modules will live here. Today, the founding team builds materials with Teddy as the brand standard; the self-serve template builder ships in the next phase.</div>
+      <div id="materials-body"></div>
+    </div>
   </div>
 </div>
 <div id="toast"></div>
@@ -138,7 +191,6 @@ const SUPABASE_URL='https://ivedeivyotwevjxvcuoe.supabase.co';
 const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss';
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON,{auth:{detectSessionInUrl:true,autoRefreshToken:true,persistSession:true}});
 
-// TAXONOMY — l1_index matches explore.js / seeded course-progress (marketing0, financial1, investment2, strategy3, product4)
 const TAXONOMY=[
  {key:'marketing',idx:0,label:'Marketing & Branding',coach:'Teddy',color:'#C8531F',l2:[{name:'Brand Strategy',l3:['Brand Positioning','Messaging Architecture','Visual Identity']},{name:'Go-to-Market',l3:['Market Entry','Channel Mix','Launch Sequencing']},{name:'Growth & Discovery',l3:['Content Strategy','SEO & Discoverability','Customer Research']}]},
  {key:'financial',idx:1,label:'Financial Modelling',coach:'Barry',color:'#C9923A',l2:[{name:'Unit Economics',l3:['CAC & LTV','Payback Period','Contribution Margin']},{name:'Financial Planning',l3:['Revenue Forecasting','Burn Rate & Runway','Cash Flow Management']},{name:'Capital Architecture',l3:['Valuation Methods','Cap Table Design','Term Sheet Analysis']}]},
@@ -147,6 +199,8 @@ const TAXONOMY=[
  {key:'product',idx:4,label:'Product Development & Pricing',coach:'Patrick',color:'#A59B8C',l2:[{name:'Product-Market Fit',l3:['Problem Validation','Solution Testing','PMF Signals']},{name:'Product Development',l3:['MVP Design','Roadmapping','Iteration Cycles']},{name:'Pricing Strategy',l3:['Value-Based Pricing','Competitive Pricing','Price Testing']}]}
 ];
 const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+// Locked cohort weekday map (CLAUDE.md): discipline → weekday + lead coach
+const DISC_DAY={marketing:{day:1,coach:'Teddy Ruge'},financial:{day:2,coach:'Barry Wojega'},investment:{day:3,coach:'Joseph Kalema'},strategy:{day:4,coach:'Moses Engwau Okudu'},product:{day:5,coach:'Patrick Ngolobe'}};
 
 // auth layer
 const _SB_KEY='sb-'+SUPABASE_URL.split('//')[1].split('.')[0]+'-auth-token';
@@ -172,37 +226,40 @@ sb.auth.getSession().then(({data:{session}})=>{if(session&&!booted){currentSessi
 (function(){ const s=_stored(); if(!s||!s.refresh_token){ location.replace('/login-coach.html'); } })();
 setTimeout(()=>{ if(!booted){ const s=_stored(); if(!s||!s.access_token){ location.replace('/login-coach.html'); } } }, 1600);
 
-let coach=null, founders=[], myDiscKeys=new Set();
+let coach=null, application=null, sessions=[], founders=[], myDiscKeys=new Set(), authUser=null;
 
 async function boot(user){
-  if(booted||!user)return;booted=true;
+  if(booted||!user)return;booted=true; authUser=user;
   document.getElementById('login-screen').style.display='none';
   document.getElementById('app').style.display='block';
   document.getElementById('user-email').textContent=user.email;
   try{
-    const c=await _q('coaches','or=(user_id.eq.'+user.id+',email.eq.'+encodeURIComponent(user.email)+',founderssprint_email.eq.'+encodeURIComponent(user.email)+')&select=id,first_name,last_name,sector_l1,user_id&limit=1');
+    const c=await _q('coaches','or=(user_id.eq.'+user.id+',email.eq.'+encodeURIComponent(user.email)+',founderssprint_email.eq.'+encodeURIComponent(user.email)+')&select=*&limit=1');
     if(!c.length){ document.querySelector('.main').innerHTML='<div class="empty"><div class="empty-mark">◇</div><div style="font-weight:600;color:var(--ink-mid)">This isn’t a coach account.</div></div>'; return; }
     coach=c[0];
-    // data-driven coverage (scales to many coaches / multiple disciplines per coach)
     let topics=[];
     try{ topics=await _q('coach_topics','coach_id=eq.'+coach.id+'&select=discipline_key,is_lead'); }catch(e){}
     myDiscKeys=new Set(topics.map(t=>t.discipline_key));
     const isLead=topics.some(t=>t.is_lead);
     const labels=TAXONOMY.filter(t=>myDiscKeys.has(t.key)).map(t=>t.label);
     document.getElementById('coach-disc').textContent = (labels.length?labels.join(' · '):'Coach') + (isLead?' · Discipline Lead':'');
+    // own application (RLS-scoped to this coach's email); own sessions
+    try{ const a=await _q('coach_applications','select=*&order=created_at.desc&limit=1'); application=a[0]||null; }catch(e){ application=null; }
+    try{ sessions=await _q('sessions','coach_id=eq.'+user.id+'&select=id,session_type,title,scheduled_at,duration_minutes,meet_link,status,cohort_id&order=scheduled_at'); }catch(e){ sessions=[]; }
     await loadRoster(); await loadAvailability();
+    renderSessions(); renderProfile(); renderEarnings(); renderMaterials();
   }catch(e){ showToast('Load failed — '+e.message,'error'); }
 }
 
+// ── FOUNDERS ──
 async function loadRoster(){
   founders=await _q('founder_profiles','select=id,first_name,last_name,company_name,sector,stage,enrolled_disciplines&order=company_name');
   const el=document.getElementById('roster');
   if(!founders.length){ el.innerHTML='<div class="empty">No founders enrolled yet.</div>'; return; }
-  el.innerHTML=founders.map(f=>'<div class="list-row" onclick="openFounder(\''+f.id+'\')"><div><div class="list-main">'+esc(f.company_name||((f.first_name||'')+' '+(f.last_name||'')))+'</div>'
+  el.innerHTML=founders.map(f=>'<div class="list-row click" onclick="openFounder(\''+f.id+'\')"><div><div class="list-main">'+esc(f.company_name||((f.first_name||'')+' '+(f.last_name||'')))+'</div>'
     +'<div class="list-sub">'+esc((f.first_name||'')+' '+(f.last_name||''))+' · '+esc(f.sector||'—')+'</div></div>'
     +'<span class="pill pill-terra">Open</span></div>').join('');
 }
-
 async function openFounder(fid){
   const f=founders.find(x=>x.id===fid);if(!f)return;
   let prog=[];
@@ -218,7 +275,7 @@ async function openFounder(fid){
     d.l2.forEach((l2,li)=>l2.l3.forEach((l3,l3i)=>{
       const key=d.idx+'-'+li+'-'+l3i;
       const on=done.has(key);
-      const editable=mine; // a coach flags off their own discipline's courses
+      const editable=mine;
       rows.push('<div class="l3"><span class="chk'+(on?' on':'')+(editable?'':' busy')+'" '
         +(editable?'onclick="toggleCourse(this,\''+fid+'\','+d.idx+','+li+','+l3i+',\''+esc(l3).replace(/'/g,"\\'")+'\')"':'title="Only the lead coach for this discipline can mark it"')+'></span>'
         +'<span class="l3-name">'+esc(l3)+'</span><span class="l3-l2">'+esc(l2.name)+'</span></div>');
@@ -234,7 +291,6 @@ async function openFounder(fid){
   window.scrollTo(0,0);
 }
 function closeFounder(){document.getElementById('view-founder').style.display='none';document.getElementById('view-roster').style.display='block';loadRoster();window.scrollTo(0,0);}
-
 async function toggleCourse(elm,fid,l1,l2,l3,label){
   const turningOn=!elm.classList.contains('on');
   elm.classList.add('busy');
@@ -250,7 +306,141 @@ async function toggleCourse(elm,fid,l1,l2,l3,label){
   finally{ elm.classList.remove('busy'); }
 }
 
-// ── availability ──
+// ── SESSIONS ──
+function fmtDateTime(s){ if(!s)return '—'; const d=new Date(s); return d.toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}); }
+function renderSessions(){
+  // group cohort sessions: derived from the coach's discipline(s) weekday map
+  const co=document.getElementById('cohort-sessions');
+  const mine=[...myDiscKeys].filter(k=>DISC_DAY[k]);
+  if(!mine.length){ co.innerHTML='<div class="empty">No discipline assigned yet.</div>'; }
+  else co.innerHTML=mine.map(k=>{ const d=DISC_DAY[k]; const t=TAXONOMY.find(x=>x.key===k);
+    return '<div class="list-row"><div><div class="list-main">'+esc(t?t.label:k)+' — '+DAYS[d.day]+'s</div>'
+      +'<div class="list-sub">Every '+DAYS[d.day]+', 10:00–12:00 EAT · group cohort session · lead: '+esc(d.coach)+'</div></div>'
+      +'<span class="pill pill-terra">Weekly</span></div>'; }).join('');
+  // 1:1 sessions from the sessions table
+  const oo=document.getElementById('oneonone-sessions');
+  const ones=sessions.filter(s=>s.session_type!=='group');
+  if(!ones.length){ oo.innerHTML='<div class="empty">No 1:1 sessions booked yet. Founders book these inside your availability windows.</div>'; return; }
+  oo.innerHTML=ones.map(s=>{
+    const upcoming=s.scheduled_at && new Date(s.scheduled_at)>=new Date();
+    const link=s.meet_link?'<a class="pill pill-terra" href="'+esc(s.meet_link)+'" target="_blank" style="text-decoration:none">Join</a>':'<span class="pill pill-grey">'+esc(s.status||'—')+'</span>';
+    return '<div class="list-row"><div><div class="list-main">'+esc(s.title||'1:1 Intensive')+'</div>'
+      +'<div class="list-sub">'+fmtDateTime(s.scheduled_at)+' · '+(s.duration_minutes||60)+' min</div></div>'+(upcoming?link:'<span class="pill pill-grey">'+esc(s.status||'Done')+'</span>')+'</div>';
+  }).join('');
+}
+
+// ── PROFILE ──
+function renderProfile(){
+  const c=coach, a=application||{};
+  const av=c.avatar_url?'<img src="'+esc(c.avatar_url)+'">':esc(((c.first_name||'?')[0]||'?').toUpperCase());
+  const appBits=[];
+  const addBit=(k,v)=>{ if(v) appBits.push('<div><div class="k">'+k+'</div><div class="v">'+esc(v)+'</div></div>'); };
+  addBit('Current role', a.current_role); addBit('Experience', a.experience);
+  addBit('Languages', Array.isArray(a.languages)?a.languages.join(', '):a.languages);
+  addBit('Geographies', Array.isArray(a.geographies)?a.geographies.join(', '):a.geographies);
+  addBit('Notable clients', a.notable_clients); addBit('Location', a.location);
+  const appCard = appBits.length
+    ? '<div class="section-title">From your application</div><div class="card"><div class="kv">'+appBits.join('')+'</div>'
+      + (a.coaching_philosophy?'<div style="margin-top:14px"><div class="k" style="font-family:var(--sans);font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:4px">Coaching philosophy</div><div style="font-size:13.5px;line-height:1.55">'+esc(a.coaching_philosophy)+'</div></div>':'')
+      + '<div style="font-size:11px;color:var(--muted);margin-top:12px">These came from your onboarding form. To change them, contact the platform admin.</div></div>'
+    : '<div class="section-title">From your application</div><div class="card"><div style="font-size:13px;color:var(--ink-mid)">No onboarding application is linked to this account yet. Your editable profile above is live; application details (experience, philosophy, documents) appear here once your onboarding form is on file.</div></div>';
+  // documents on file
+  const docRow=(label,present,note)=>'<div class="list-row"><div><div class="list-main">'+label+'</div><div class="list-sub">'+(note||'')+'</div></div>'+(present?'<span class="pill pill-green">On file</span>':'<span class="pill pill-grey">Not provided</span>')+'</div>';
+  const docsCard='<div class="section-title">Documents on file</div><div class="card">'
+    + docRow('Profile photo', !!(c.avatar_url||a.profile_photo_path),'Shown on your public profile')
+    + docRow('CV / résumé', !!a.cv_path,'Securely stored')
+    + docRow('ID document', !!a.id_document_path, a.id_type?('Type: '+esc(a.id_type)):'Securely stored')
+    + '<div style="font-size:11px;color:var(--muted);margin-top:10px">Sensitive documents are stored in a private vault and retrieved by the platform admin when needed — they are not downloadable here.</div></div>';
+
+  document.getElementById('profile-body').innerHTML =
+    '<div class="card card-top"><div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap">'
+      +'<div class="avatar" id="pf-avatar">'+av+'</div>'
+      +'<div style="flex:1;min-width:200px"><div style="font-family:var(--display);font-size:24px;font-weight:600">'+esc((c.first_name||'')+' '+(c.last_name||''))+'</div>'
+        +'<div style="font-size:12.5px;color:var(--ink-mid);margin-top:2px">'+esc(c.headline||'Add a headline below')+'</div></div>'
+      +'<label class="btn" style="cursor:pointer">Change photo<input type="file" accept="image/*" style="display:none" onchange="uploadCoachPhoto(this)"></label>'
+    +'</div></div>'
+    +'<div class="card"><div class="pf-grid">'
+      +pfField('headline','Headline','text',c.headline)
+      +pfField('session_fee','1:1 session fee (UGX)','number',c.session_fee||500000)
+      +pfField('credentials','Credentials','text',c.credentials)
+      +pfField('linkedin_url','LinkedIn URL','url',c.linkedin_url)
+      +pfField('website_url','Website URL','url',c.website_url)
+      +pfField('phone','Phone','text',c.phone)
+      +'<div class="pf-f full"><label>Bio</label><textarea id="pf-bio" rows="4">'+esc(c.bio||'')+'</textarea></div>'
+    +'</div><div style="margin-top:14px"><button class="btn" id="pf-save" onclick="saveProfile()">Save profile</button></div></div>'
+    +appCard+docsCard;
+}
+function pfField(id,label,type,val){ return '<div class="pf-f"><label>'+label+'</label><input id="pf-'+id+'" type="'+type+'" value="'+esc(val==null?'':val)+'"></div>'; }
+async function saveProfile(){
+  const g=id=>document.getElementById('pf-'+id).value.trim();
+  const fee=parseInt(g('session_fee'),10);
+  const body={ headline:g('headline')||null, credentials:g('credentials')||null, bio:document.getElementById('pf-bio').value.trim()||null,
+    linkedin_url:g('linkedin_url')||null, website_url:g('website_url')||null, phone:g('phone')||null,
+    session_fee: isNaN(fee)?null:fee, updated_at:new Date().toISOString() };
+  const btn=document.getElementById('pf-save');
+  try{ btn.disabled=true; btn.textContent='Saving…';
+    await _w('PATCH','coaches','id=eq.'+coach.id,body);
+    Object.assign(coach,body); renderProfile();
+    showToast('Profile saved','success');
+  }catch(e){ showToast('Could not save — '+e.message,'error'); }
+  finally{ btn.disabled=false; }
+}
+async function uploadCoachPhoto(input){
+  const file=input.files&&input.files[0]; if(!file)return;
+  if(file.size>5*1024*1024){ showToast('Photo must be under 5MB','error'); return; }
+  try{
+    const ext=(file.name.split('.').pop()||'jpg').toLowerCase();
+    const path=coach.id+'/photo.'+ext;
+    const t=await _token();
+    const up=await fetch(SUPABASE_URL+'/storage/v1/object/coach-profiles/'+path,{method:'POST',headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t,'x-upsert':'true','Content-Type':file.type||'image/jpeg'},body:file});
+    if(!up.ok) throw new Error('upload '+up.status);
+    const url=SUPABASE_URL+'/storage/v1/object/public/coach-profiles/'+path+'?v='+Date.now();
+    await _w('PATCH','coaches','id=eq.'+coach.id,{avatar_url:url,updated_at:new Date().toISOString()});
+    coach.avatar_url=url; renderProfile(); showToast('Photo updated','success');
+  }catch(e){ showToast('Could not upload photo — '+e.message,'error'); }
+}
+
+// ── EARNINGS ──
+function ugx(n){ n=Number(n)||0; return 'UGX '+n.toLocaleString('en-US'); }
+function mask(s){ s=String(s||''); return s.length>4?('•••• '+s.slice(-4)):s; }
+function renderEarnings(){
+  const a=application||{}, fee=coach.session_fee||500000;
+  const done=sessions.filter(s=>s.status==='completed'||s.status==='complete').length;
+  const upcoming=sessions.filter(s=>s.scheduled_at&&new Date(s.scheduled_at)>=new Date()).length;
+  const indicative=done*fee;
+  let payout='<div style="font-size:13px;color:var(--ink-mid)">No payout details on file yet. These are collected on the coach onboarding form.</div>';
+  if(a.mobile_money_provider||a.mobile_money_number){
+    payout='<div class="kv"><div><div class="k">Method</div><div class="v">Mobile money</div></div>'
+      +'<div><div class="k">Provider</div><div class="v">'+esc(a.mobile_money_provider||'—')+'</div></div>'
+      +'<div><div class="k">Number</div><div class="v">'+esc(mask(a.mobile_money_number))+'</div></div></div>';
+  } else if(a.bank_name||a.account_number){
+    payout='<div class="kv"><div><div class="k">Method</div><div class="v">Bank transfer</div></div>'
+      +'<div><div class="k">Bank</div><div class="v">'+esc(a.bank_name||'—')+'</div></div>'
+      +'<div><div class="k">Account</div><div class="v">'+esc(mask(a.account_number))+'</div></div>'
+      +(a.account_name?'<div><div class="k">Account name</div><div class="v">'+esc(a.account_name)+'</div></div>':'')+'</div>';
+  }
+  document.getElementById('earnings-body').innerHTML=
+    '<div class="stat-row">'
+      +'<div class="stat"><div class="v">'+ugx(fee)+'</div><div class="l">Your 1:1 rate</div></div>'
+      +'<div class="stat"><div class="v">'+done+'</div><div class="l">Sessions delivered</div></div>'
+      +'<div class="stat"><div class="v">'+upcoming+'</div><div class="l">Upcoming</div></div>'
+      +'<div class="stat"><div class="v">'+ugx(indicative)+'</div><div class="l">Indicative earned</div></div>'
+    +'</div>'
+    +'<div class="card card-top"><div class="section-title" style="margin-top:0">Payout details</div>'+payout
+      +'<div style="font-size:11px;color:var(--muted);margin-top:12px">Indicative earnings = delivered 1:1 sessions × your rate. Actual settlement begins once mobile-money payouts go live; group-cohort revenue share is handled separately by the platform.</div></div>';
+}
+
+// ── MATERIALS ──
+function renderMaterials(){
+  const has=application&&(application.has_existing_materials===true||application.has_existing_materials==='yes');
+  document.getElementById('materials-body').innerHTML=
+    '<div class="card card-top"><div style="font-family:var(--display);font-size:20px;font-weight:600;margin-bottom:6px">Branded presentation modules</div>'
+    +'<div style="font-size:13px;color:var(--ink-mid);line-height:1.6;max-width:560px">In this phase, the founding team builds teaching materials with Teddy as the brand standard. The self-serve template builder — pick a branded layout, fill in your content, publish — ships next, with an AI brand check on every slide. '
+    +(has?'You indicated you already have existing materials; we’ll convert them into branded modules when the builder launches.':'You can upload existing decks for auto-conversion when the builder launches.')+'</div>'
+    +'<div style="margin-top:14px"><span class="pill pill-ochre">Coming next phase</span></div></div>';
+}
+
+// ── availability (unchanged) ──
 let myWindows=[];
 async function loadAvailability(){
   try{ myWindows=await _q('coach_availability','coach_id=eq.'+coach.id+'&select=id,day_of_week,start_time,end_time,is_active&order=day_of_week,start_time'); }catch(e){ myWindows=[]; }
@@ -275,8 +465,11 @@ async function delAvailability(id){
   catch(e){ showToast('Could not remove — '+e.message,'error'); }
 }
 
-function switchTab(name){document.querySelectorAll('.tab').forEach(b=>b.classList.remove('active'));document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));
-  const i=['founders','availability'].indexOf(name);document.querySelectorAll('.tab')[i].classList.add('active');document.getElementById('panel-'+name).classList.add('active');}
+function switchTab(name){
+  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active', b.dataset.tab===name));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active', p.id==='panel-'+name));
+  window.scrollTo(0,0);
+}
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 function showToast(m,t){const e=document.getElementById('toast');e.textContent=m;e.className=t||'';e.classList.add('show');setTimeout(()=>e.classList.remove('show'),3000);}
 </script>

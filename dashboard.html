@@ -2017,6 +2017,22 @@ sb.auth.getSession().then(({ data: { session } }) => {
 async function bootApp(user) {
   if (booted) return;
   if (!user) return;
+  // Admin-only gate (standalone only — embedded in the Next.js shell, auth/role is handled server-side).
+  if (window.self === window.top) {
+    try {
+      const adminRows = await _pgQuery('user_roles', 'select=role&user_id=eq.' + user.id + '&role=eq.admin&limit=1');
+      if (!adminRows || !adminRows.length) {
+        // Not an admin — route to the right home instead of the ops console.
+        let dest = '/login-admin.html';
+        try {
+          const coachRows = await _pgQuery('coaches', 'select=id&or=(user_id.eq.' + user.id + ',founderssprint_email.eq.' + encodeURIComponent(user.email) + ',email.eq.' + encodeURIComponent(user.email) + ')&limit=1');
+          if (coachRows && coachRows.length) dest = '/coach.html';
+        } catch (e) {}
+        location.replace(dest);
+        return;
+      }
+    } catch (e) { /* if the role check fails, fall through; RLS still protects data */ }
+  }
   booted = true;
   try {
     document.getElementById('login-screen').style.display = 'none';
