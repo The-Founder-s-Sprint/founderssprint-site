@@ -200,6 +200,23 @@ let _redir=false; function _toLogin(){ if(_redir||booted) return; _redir=true; l
 let founders=[], companies=[], regs=[], coaches=[], topics=[], investors=[], roles=[];
 let applications=[], materials=[], presentations=[];
 let active='founders', coachSub='roster';
+// ── scoped roles ──
+let myRoles=[];
+const STAFF_ROLES=['admin','coach_support','investor_support','founder_support','finance','hub_partner'];
+const ROLE_LABEL={admin:'Super admin',coach_support:'Coach support',investor_support:'Investor support',founder_support:'Founder support',finance:'Finance',hub_partner:'Hub partner'};
+function hasR(r){ return myRoles.includes(r); }
+function isSuper(){ return hasR('admin'); }
+function canDD(){ return isSuper()||hasR('finance'); }                 // see ID/CV/payout + final approve
+function canCoachMgmt(){ return isSuper()||hasR('coach_support')||hasR('finance'); }
+// which portals a role may open
+function canSeePortal(k){
+  if(isSuper()) return true;
+  if(k==='founders')  return hasR('founder_support')||hasR('finance');
+  if(k==='coaches')   return hasR('coach_support')||hasR('finance');
+  if(k==='investors') return hasR('investor_support')||hasR('finance');
+  if(k==='admins')    return false; // super-admin only
+  return false;
+}
 const DISC_ORDER=['marketing','financial','investment','strategy','product'];
 const DISC_LEAD={marketing:'Teddy Ruge',financial:'Barry Wojega',investment:'Joseph Kalema',strategy:'Moses Engwau Okudu',product:'Patrick Ngolobe'};
 function normDisc(x){ x=String(x||'').toLowerCase(); if(x.includes('market'))return'marketing'; if(x.includes('financ'))return'financial'; if(x.includes('invest'))return'investment'; if(x.includes('strateg')||x.includes('team'))return'strategy'; if(x.includes('product'))return'product'; return null; }
@@ -222,14 +239,15 @@ async function boot(user){
   document.getElementById('app').style.display='block';
   document.getElementById('user-email').textContent=user.email;
   try{
-    const me=await _q('user_roles','user_id=eq.'+user.id+'&role=eq.admin&limit=1');
-    if(!me.length){
+    const me=await _q('user_roles','user_id=eq.'+user.id+'&select=role');
+    myRoles=(me||[]).map(r=>r.role);
+    if(!STAFF_ROLES.some(r=>myRoles.includes(r))){
       document.querySelector('.tabs').style.display='none';
       document.getElementById('stat-row').style.display='none';
       document.getElementById('search').style.display='none';
       document.getElementById('portal-title').textContent='Access restricted';
       document.getElementById('portal-sub').textContent='';
-      document.getElementById('roster').innerHTML='<div class="deny"><div class="m">◇</div><div style="font-weight:600;color:var(--ink-mid)">This account isn’t a platform admin</div><div style="margin-top:6px">The Command Centre is limited to super-admin accounts.</div></div>';
+      document.getElementById('roster').innerHTML='<div class="deny"><div class="m">◇</div><div style="font-weight:600;color:var(--ink-mid)">This account has no Command Centre access</div><div style="margin-top:6px">Ask a super-admin to grant you a staff role.</div></div>';
       return;
     }
     const r=await Promise.allSettled([
@@ -254,7 +272,8 @@ async function boot(user){
     applications =r[7].status==='fulfilled'?(r[7].value||[]):[];
     materials    =r[8].status==='fulfilled'?(r[8].value||[]):[];
     presentations=r[9].status==='fulfilled'?(r[9].value||[]):[];
-    renderTabs(); switchPortal('founders');
+    const firstPortal=PORTALS.find(p=>canSeePortal(p.key));
+    renderTabs(); switchPortal(firstPortal?firstPortal.key:'founders');
   }catch(e){ showToast('Could not load — '+e.message,'error'); }
 }
 
@@ -264,7 +283,7 @@ function counts(){
 }
 function renderTabs(){
   const c=counts();
-  document.getElementById('tabs').innerHTML=PORTALS.map(p=>
+  document.getElementById('tabs').innerHTML=PORTALS.filter(p=>canSeePortal(p.key)).map(p=>
     '<div class="tab'+(p.key===active?' active':'')+'" onclick="switchPortal(\''+p.key+'\')">'+p.label+'<span class="cnt">'+(c[p.key]||0)+'</span></div>').join('');
 }
 function switchPortal(k){ active=k; document.getElementById('search').value=''; renderTabs();
@@ -376,14 +395,18 @@ function appCard(a){
     +'</div></div>';
   const noteBlk = a.admin_notes ? '<div class="sub" style="margin-top:8px;color:var(--terra)"><b>Admin note:</b> '+esc(a.admin_notes)+'</div>' : '';
   let actions='';
-  if(a.review_stage==='admin_review'||a.review_stage==='changes_requested'){
+  const inReview = a.review_stage==='admin_review'||a.review_stage==='changes_requested';
+  if(inReview && canDD()){
     actions='<div class="app-actions"><button class="btn-sm approve" onclick="adminApprove(\''+a.id+'\')">Approve &amp; list</button>'
       +'<button class="btn-sm" style="background:var(--ochre);color:#15161A" onclick="adminRequestChanges(\''+a.id+'\')">Request changes</button>'
       +'<button class="btn-sm reject" onclick="adminReject(\''+a.id+'\')">Reject</button></div>';
+  } else if(inReview && canCoachMgmt()){
+    actions='<div class="app-actions"><button class="btn-sm" style="background:var(--ochre);color:#15161A" onclick="adminRequestChanges(\''+a.id+'\')">Request changes</button></div>'
+      +'<div class="sub" style="margin-top:8px">Final approval requires due-diligence verification — handled by admin or finance.</div>';
   } else if(a.review_stage==='lead_review'){
-    actions='<div class="sub" style="margin-top:10px">The discipline lead ('+esc(DISC_LEAD[disc]||'—')+') vets suitability first. You can still <a href="#" onclick="adminReject(\''+a.id+'\');return false" style="color:#C0392B">reject</a> on DD grounds.</div>';
+    actions='<div class="sub" style="margin-top:10px">The discipline lead ('+esc(DISC_LEAD[disc]||'—')+') vets suitability first.'+(canDD()?' You can still <a href="#" onclick="adminReject(\''+a.id+'\');return false" style="color:#C0392B">reject</a> on DD grounds.':'')+'</div>';
   }
-  const showDD = a.review_stage==='admin_review'||a.review_stage==='listed'||a.review_stage==='changes_requested';
+  const showDD = canDD() && (a.review_stage==='admin_review'||a.review_stage==='listed'||a.review_stage==='changes_requested');
   return '<div class="app-card"><div class="app-head"><div><span class="nm">'+esc(nm)+'</span> <span class="tag">'+esc(DISC_LABEL[disc]||a.taxonomy_l1||'—')+'</span></div>'+(STAGE_PILL[a.review_stage]||STAGE_PILL.lead_review)+'</div>'
     +(a.headline?'<div class="sub">'+esc(a.headline)+'</div>':'')
     +'<div class="sub" style="margin-top:6px">'+lead+'</div>'+suit+noteBlk
@@ -547,18 +570,36 @@ function whoIs(uid){
   const i=investors.find(x=>x.user_id===uid); if(i)return{name:i.name,email:i.email,src:'Investor'};
   return{name:'—',email:uid,src:''};
 }
+let staffDir=null;
+async function loadStaffDir(){ try{ staffDir=await _rpc('staff_directory')||[]; }catch(e){ staffDir=[]; } renderAdmins(document.getElementById('search').value); }
 function renderAdmins(q){
-  const list=roles.filter(r=>r.role==='admin'||r.role==='hub_partner');
-  stats([{v:list.filter(r=>r.role==='admin').length,l:'Admins'},{v:list.filter(r=>r.role==='hub_partner').length,l:'Hub partners'}]);
-  const rows=list.map(r=>({r,who:whoIs(r.user_id)})).filter(o=>match(q,o.who.name,o.who.email,o.r.role)).map(o=>{
-    const roleP=o.r.role==='admin'?'<span class="pill pill-terra">Admin</span>':'<span class="pill pill-ochre">Hub partner</span>';
-    return '<tr class="row"><td><div class="nm">'+esc(o.who.name||'—')+'</div><div class="sub">'+esc(o.who.email||'')+'</div></td>'
-      +'<td>'+roleP+'</td>'
-      +'<td>'+(o.who.src?'<span class="tag">'+esc(o.who.src)+'</span>':'<span class="sub">—</span>')+'</td>'
-      +'<td class="sub">'+esc((o.r.created_at||'').slice(0,10))+'</td></tr>';
+  if(staffDir===null){ document.getElementById('roster').innerHTML='<div class="empty">Loading…</div>'; loadStaffDir(); return; }
+  const all=staffDir;
+  const cnt=role=>all.filter(s=>(s.roles||[]).includes(role)).length;
+  stats([{v:cnt('admin'),l:'Super admins'},{v:cnt('finance'),l:'Finance'},{v:cnt('coach_support')+cnt('investor_support')+cnt('founder_support'),l:'Support staff'},{v:cnt('hub_partner'),l:'Hub partners'}]);
+  const grant = isSuper() ? '<div class="app-card"><div style="font-family:var(--display);font-size:18px;font-weight:600;margin-bottom:6px">Grant a staff role</div>'
+    +'<div class="sub" style="margin-bottom:10px">The account must already exist (the person signs in once at their portal). Roles scope what they can see and do; granting/revoking is super-admin only.</div>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><input id="gr-email" type="email" placeholder="email@…" style="flex:1;min-width:200px">'
+    +'<select id="gr-role" style="width:auto">'+STAFF_ROLES.map(r=>'<option value="'+r+'">'+ROLE_LABEL[r]+'</option>').join('')+'</select>'
+    +'<button class="btn-sm approve" onclick="grantRole()">Grant</button></div></div>' : '';
+  const rows=all.filter(s=>match(q,s.email,(s.roles||[]).join(' '))).map(s=>{
+    const chips=(s.roles||[]).map(r=>'<span class="tag'+(r==='admin'?' lead':'')+'">'+esc(ROLE_LABEL[r]||r)
+      +(isSuper()?' <a href="#" title="Revoke" onclick="revokeRole(\''+s.user_id+'\',\''+r+'\');return false" style="color:#C0392B;text-decoration:none;font-weight:700">×</a>':'')+'</span>').join('');
+    return '<tr class="row"><td><div class="nm">'+esc(s.email||'—')+'</div></td><td>'+chips+'</td></tr>';
   });
-  document.getElementById('roster').innerHTML=tbl(['Member','Role','Also a','Since'],rows)
-    + '<div class="page-sub" style="margin-top:18px;font-size:12.5px">Super-admins (role <b>admin</b>) see every portal above. Add or remove privileged roles in the <code>user_roles</code> table; finer-grained scoped-ops roles are planned for the SOM tier.</div>';
+  document.getElementById('roster').innerHTML = grant + tbl(['Account','Roles'],rows)
+    + '<div class="page-sub" style="margin-top:16px;font-size:12.5px"><b>What each role can do:</b> <b>Super admin</b> — everything, incl. role management. <b>Finance</b> — payments/pricing, sees payout/bank, final coach approval. <b>Coach support</b> — coaches, applications (suitability only), materials. <b>Investor support</b> — investors. <b>Founder support</b> — founder accounts. <b>Hub partner</b> — partner cohorts.</div>';
+}
+async function grantRole(){
+  const email=document.getElementById('gr-email').value.trim(); const role=document.getElementById('gr-role').value;
+  if(!email){ showToast('Enter an email','error'); return; }
+  try{ await _rpc('admin_grant_role',{p_email:email,p_role:role}); showToast('Role granted','success'); staffDir=null; renderAdmins(''); }
+  catch(e){ showToast('Could not grant — '+(e.message||'').replace(/^RPC \d+: /,''),'error'); }
+}
+async function revokeRole(uid,role){
+  if(!confirm('Revoke '+(ROLE_LABEL[role]||role)+'?'))return;
+  try{ await _rpc('admin_revoke_role',{p_user:uid,p_role:role}); showToast('Role revoked','success'); staffDir=null; renderAdmins(''); }
+  catch(e){ showToast('Could not revoke — '+(e.message||'').replace(/^RPC \d+: /,''),'error'); }
 }
 
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
