@@ -1490,10 +1490,10 @@
 
         <div class="section-head" style="margin:30px 0 12px"><span class="section-title">Data-room storage hosting</span></div>
         <div style="font-size:12px;color:var(--muted);margin-bottom:10px">Founders get 12 months free (up to 5GB) with any paid course; these tiers apply after the free year or on overage.</div>
-        <div class="table-wrap"><table><thead><tr><th>Tier</th><th>Price</th><th>Quota</th><th>Notes</th></tr></thead><tbody id="pricing-storage-body"><tr><td colspan="4" class="loading">Loading…</td></tr></tbody></table></div>
+        <div class="table-wrap"><table><thead><tr><th>Tier</th><th>Price</th><th>Quota</th><th>Notes</th><th>Actions</th></tr></thead><tbody id="pricing-storage-body"><tr><td colspan="5" class="loading">Loading…</td></tr></tbody></table></div>
 
         <div class="section-head" style="margin:30px 0 12px"><span class="section-title">Service-provider directory tiers</span></div>
-        <div class="table-wrap"><table><thead><tr><th>Tier</th><th>Price</th><th>Notes</th></tr></thead><tbody id="pricing-directory-body"><tr><td colspan="3" class="loading">Loading…</td></tr></tbody></table></div>
+        <div class="table-wrap"><table><thead><tr><th>Tier</th><th>Price</th><th>Notes</th><th>Actions</th></tr></thead><tbody id="pricing-directory-body"><tr><td colspan="4" class="loading">Loading…</td></tr></tbody></table></div>
 
         <div style="margin-top:14px;font-size:11px;color:var(--muted)">Storage and directory prices are stored in <code>pricing_items</code> and read live by the founder dashboard, marketplace and billing — never hardcoded.</div>
       </div>
@@ -3053,21 +3053,48 @@ async function loadPricing() {
   }
   loadPricingItems();
 }
+let pricingItems = [];
+let editingItemId = null;
 async function loadPricingItems() {
-  let items = [];
-  try { items = await _pgQuery('pricing_items', 'select=*&order=category,sort_order'); } catch (e) { console.warn('[PricingItems]', e.message); }
-  const money = (p, cur) => Number(p) > 0 ? (cur || 'UGX') + ' ' + Number(p).toLocaleString('en-US') : 'Free';
-  const per = x => x.period ? ('<span style="font-size:10px;color:var(--muted)">/' + esc(x.period) + '</span>') : '';
-  const st = items.filter(i => i.category === 'storage');
-  const dr = items.filter(i => i.category === 'directory');
+  try { pricingItems = await _pgQuery('pricing_items', 'select=*&order=category,sort_order'); }
+  catch (e) { console.warn('[PricingItems]', e.message); pricingItems = []; }
+  renderPricingItems();
+}
+function piMoney(p, cur) { return Number(p) > 0 ? (cur || 'UGX') + ' ' + Number(p).toLocaleString('en-US') : 'Free'; }
+function piPer(x) { return x.period ? ('<span style="font-size:10px;color:var(--muted)">/' + esc(x.period) + '</span>') : ''; }
+function piInput(id, val, ph, w) { return `<input id="${id}" value="${esc(val == null ? '' : val)}" placeholder="${ph || ''}" style="width:${w || '100%'};padding:5px 7px;border:1px solid var(--border);font-size:12px;font-family:var(--font);background:var(--surface)">`; }
+function editPricingItem(id) { editingItemId = id; renderPricingItems(); }
+async function savePricingItem(id, isStorage) {
+  const body = {
+    label: document.getElementById('pi-label-' + id).value.trim(),
+    price: Number(document.getElementById('pi-price-' + id).value) || 0,
+    notes: document.getElementById('pi-notes-' + id).value.trim() || null,
+    updated_at: new Date().toISOString()
+  };
+  if (isStorage) body.unit = document.getElementById('pi-unit-' + id).value.trim() || null;
+  try {
+    const { error } = await sb.from('pricing_items').update(body).eq('id', id);
+    if (error) throw new Error(error.message);
+    const it = pricingItems.find(x => x.id === id); if (it) Object.assign(it, body);
+    editingItemId = null; renderPricingItems();
+    showToast('Price updated', 'success');
+  } catch (e) { showToast('Could not save: ' + e.message, 'error'); }
+}
+function renderPricingItems() {
+  const st = pricingItems.filter(i => i.category === 'storage');
+  const dr = pricingItems.filter(i => i.category === 'directory');
+  const actions = i => `<button class="action-btn" onclick="editPricingItem(${i.id})">Edit</button>`;
+  const saveCancel = (i, s) => `<button class="action-btn" onclick="savePricingItem(${i.id},${s})">Save</button> <button class="action-btn" onclick="editPricingItem(null)">Cancel</button>`;
   const sb = document.getElementById('pricing-storage-body');
-  if (sb) sb.innerHTML = st.length ? st.map(i =>
-    `<tr><td><strong>${esc(i.label)}</strong></td><td style="font-family:var(--mono);font-weight:600">${money(i.price,i.currency)} ${per(i)}</td><td>${esc(i.unit||'—')}</td><td style="font-size:11px;color:var(--muted)">${esc(i.notes||'')}</td></tr>`
-  ).join('') : '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:20px">No storage tiers</td></tr>';
+  if (sb) sb.innerHTML = st.length ? st.map(i => i.id === editingItemId
+    ? `<tr><td>${piInput('pi-label-'+i.id,i.label,'Label')}</td><td>${piInput('pi-price-'+i.id,i.price,'Price','110px')}</td><td>${piInput('pi-unit-'+i.id,i.unit,'Quota','80px')}</td><td>${piInput('pi-notes-'+i.id,i.notes,'Notes')}</td><td style="white-space:nowrap">${saveCancel(i,true)}</td></tr>`
+    : `<tr><td><strong>${esc(i.label)}</strong></td><td style="font-family:var(--mono);font-weight:600">${piMoney(i.price,i.currency)} ${piPer(i)}</td><td>${esc(i.unit||'—')}</td><td style="font-size:11px;color:var(--muted)">${esc(i.notes||'')}</td><td>${actions(i)}</td></tr>`
+  ).join('') : '<tr><td colspan="5" style="text-align:center;color:var(--muted);padding:20px">No storage tiers</td></tr>';
   const db = document.getElementById('pricing-directory-body');
-  if (db) db.innerHTML = dr.length ? dr.map(i =>
-    `<tr><td><strong>${esc(i.label)}</strong></td><td style="font-family:var(--mono);font-weight:600">${money(i.price,i.currency)} ${per(i)}</td><td style="font-size:11px;color:var(--muted)">${esc(i.notes||'')}</td></tr>`
-  ).join('') : '<tr><td colspan="3" style="text-align:center;color:var(--muted);padding:20px">No directory tiers</td></tr>';
+  if (db) db.innerHTML = dr.length ? dr.map(i => i.id === editingItemId
+    ? `<tr><td>${piInput('pi-label-'+i.id,i.label,'Label')}</td><td>${piInput('pi-price-'+i.id,i.price,'Price','110px')}</td><td>${piInput('pi-notes-'+i.id,i.notes,'Notes')}</td><td style="white-space:nowrap">${saveCancel(i,false)}</td></tr>`
+    : `<tr><td><strong>${esc(i.label)}</strong></td><td style="font-family:var(--mono);font-weight:600">${piMoney(i.price,i.currency)} ${piPer(i)}</td><td style="font-size:11px;color:var(--muted)">${esc(i.notes||'')}</td><td>${actions(i)}</td></tr>`
+  ).join('') : '<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:20px">No directory tiers</td></tr>';
 }
 
 function renderPricing() {
