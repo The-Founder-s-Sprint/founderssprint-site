@@ -207,7 +207,10 @@ const ROLE_LABEL={admin:'Super admin',coach_support:'Coach support',investor_sup
 function hasR(r){ return myRoles.includes(r); }
 function isSuper(){ return hasR('admin'); }
 function canDD(){ return isSuper()||hasR('finance'); }                 // see ID/CV/payout + final approve
+function canFinance(){ return isSuper()||hasR('finance'); }            // money: payment overrides
 function canCoachMgmt(){ return isSuper()||hasR('coach_support')||hasR('finance'); }
+function canFounderMgmt(){ return isSuper()||hasR('founder_support')||hasR('finance'); }
+function canInvestorMgmt(){ return isSuper()||hasR('investor_support')||hasR('finance'); }
 // which portals a role may open
 function canSeePortal(k){
   if(isSuper()) return true;
@@ -327,7 +330,7 @@ function renderFounders(q){
       else if(r.deposit_paid)pay='<span class="pill pill-terra">Balance due</span>';
       else pay='<span class="pill pill-grey">Unpaid</span>'; }
     const archived = f.status==='archived';
-    const actCell = isSuper()?'<button class="btn-sm" style="background:none;border:1px solid var(--border-hi);color:var(--ink-mid);padding:5px 10px" onclick="editFounder(\''+f.id+'\')">Manage</button>':'';
+    const actCell = canFounderMgmt()?'<button class="btn-sm" style="background:none;border:1px solid var(--border-hi);color:var(--ink-mid);padding:5px 10px" onclick="editFounder(\''+f.id+'\')">Manage</button>':'';
     return '<tr class="row"'+(archived?' style="opacity:.55"':'')+'><td><div class="nm">'+esc((f.first_name||'')+' '+(f.last_name||''))+(archived?' <span class="pill pill-grey">archived</span>':'')+'</div><div class="sub">'+esc(f.email||'')+'</div></td>'
       +'<td>'+coNames+'</td>'
       +'<td>'+esc(f.sector||(cos[0]&&cos[0].sector)||'—')+'</td>'
@@ -343,12 +346,16 @@ function editFounder(fid){
   const cos=companiesOf(fid);
   const vis = !!f.investor_visible || cos.some(c=>c.investor_visible);
   const fregs=regsForFounder(f);
+  const fin=canFinance();
   const payRows = fregs.length ? fregs.map(r=>{
     const pd=TRACK_LABEL[r.track]||r.track||'Enrollment';
-    return '<div class="mat-row"><span>'+esc(pd)+'</span><span style="display:flex;gap:8px">'
-      +'<button class="btn-sm" style="background:'+(r.deposit_paid?'var(--success)':'none')+';color:'+(r.deposit_paid?'#fff':'var(--ink-mid)')+';border:1px solid var(--border-hi)" onclick="setPay(\''+r.id+'\',\'deposit_paid\','+(!r.deposit_paid)+')">Deposit '+(r.deposit_paid?'✓':'—')+'</button>'
-      +'<button class="btn-sm" style="background:'+(r.balance_paid?'var(--success)':'none')+';color:'+(r.balance_paid?'#fff':'var(--ink-mid)')+';border:1px solid var(--border-hi)" onclick="setPay(\''+r.id+'\',\'balance_paid\','+(!r.balance_paid)+')">Balance '+(r.balance_paid?'✓':'—')+'</button>'
-      +'</span></div>';
+    const dep = fin
+      ? '<button class="btn-sm" style="background:'+(r.deposit_paid?'var(--success)':'none')+';color:'+(r.deposit_paid?'#fff':'var(--ink-mid)')+';border:1px solid var(--border-hi)" onclick="setPay(\''+r.id+'\',\'deposit_paid\','+(!r.deposit_paid)+')">Deposit '+(r.deposit_paid?'✓':'—')+'</button>'
+      : '<span class="pill '+(r.deposit_paid?'pill-green':'pill-grey')+'">Deposit '+(r.deposit_paid?'paid':'—')+'</span>';
+    const bal = fin
+      ? '<button class="btn-sm" style="background:'+(r.balance_paid?'var(--success)':'none')+';color:'+(r.balance_paid?'#fff':'var(--ink-mid)')+';border:1px solid var(--border-hi)" onclick="setPay(\''+r.id+'\',\'balance_paid\','+(!r.balance_paid)+')">Balance '+(r.balance_paid?'✓':'—')+'</button>'
+      : '<span class="pill '+(r.balance_paid?'pill-green':'pill-grey')+'">Balance '+(r.balance_paid?'paid':'—')+'</span>';
+    return '<div class="mat-row"><span>'+esc(pd)+'</span><span style="display:flex;gap:8px;align-items:center">'+dep+bal+'</span></div>';
   }).join('') : '<div class="sub">No bookings on file.</div>';
   document.getElementById('roster').innerHTML='<span class="back" onclick="renderFounders(\'\')" style="font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ochre-deep);cursor:pointer;display:inline-block;margin-bottom:14px">← All founders</span>'
     +'<div class="app-card"><div class="app-head"><div><span class="nm">'+esc((f.first_name||'')+' '+(f.last_name||''))+'</span> <span class="sub">'+esc(f.email||'')+'</span></div></div>'
@@ -407,7 +414,7 @@ function coachRow(c,key,lead){
   const fee=c.session_fee?'UGX '+Number(c.session_fee).toLocaleString('en-US'):'—';
   const st=c.status==='active'?'<span class="pill pill-green">Active</span>':'<span class="pill pill-grey">'+esc(c.status||'—')+'</span>';
   const av=c.avatar_url?'<img src="'+esc(c.avatar_url)+'">':esc(((c.first_name||'?')[0]||'?').toUpperCase());
-  const edit=isSuper()?'<button class="btn-sm" style="background:none;border:1px solid var(--border-hi);color:var(--ink-mid);padding:5px 10px" onclick="editCoach('+c.id+',\''+key+'\')">Edit</button>':'';
+  const edit=canCoachMgmt()?'<button class="btn-sm" style="background:none;border:1px solid var(--border-hi);color:var(--ink-mid);padding:5px 10px" onclick="editCoach('+c.id+',\''+key+'\')">Edit</button>':'';
   return '<div class="coach-row" id="coach-row-'+c.id+'"><div class="avatar-sm">'+av+'</div>'
     +'<div style="flex:1;min-width:0"><div class="nm">'+esc((c.first_name||'')+' '+(c.last_name||''))+(lead?' <span class="tag lead">Discipline Lead</span>':'')+'</div>'
     +'<div class="sub">'+esc(c.headline||c.email||c.founderssprint_email||'')+'</div></div>'
@@ -668,7 +675,7 @@ function firmCard(f){
   const seatRows=seats.length?seats.map(m=>'<div class="mat-row"><span>'+esc(m.name||m.email||'—')+(m.is_primary?' <span class="tag">primary</span>':'')+'</span><span class="sub">'+esc(m.email||'')+(m.user_id?'':' · no login yet')+'</span></div>').join(''):'<div class="sub">No seats.</div>';
   const meta=[f.firm_type, (f.stages||[]).join('/'), ticket(f), (f.geographies||[]).join(', ')].filter(Boolean).join(' · ');
   let actions='';
-  if(isSuper()){
+  if(canInvestorMgmt()){
     if(f.status!=='approved') actions='<div class="app-actions"><button class="btn-sm approve" onclick="approveFirm(\''+f.id+'\')">Approve &amp; publish</button><button class="btn-sm reject" onclick="rejectFirm(\''+f.id+'\')">Reject</button></div>';
     else actions='<div class="app-actions"><button class="btn-sm" style="background:var(--ochre);color:#15161A" onclick="toggleFirmPublic(\''+f.id+'\','+(!f.public)+')">'+(f.public?'Unpublish':'Publish')+'</button></div>';
   }
