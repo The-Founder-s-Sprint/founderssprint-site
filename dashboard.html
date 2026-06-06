@@ -2997,9 +2997,11 @@ document.addEventListener('click', function(e) {
 });
 
 function switchTab(name) {
-  document.querySelectorAll('.tab').forEach((t, i) => {
-    const panels = ['overview','registrations','revenue','documents','directory','coaches','sessions','cohorts','pricing','profiles','materials'];
-    t.classList.toggle('active', panels[i] === name);
+  // Match each tab to its own switchTab('…') target so highlighting never depends on tab order
+  // (the "Coaches ↗" link has no onclick → never highlighted; it navigates to the Coaches Portal).
+  document.querySelectorAll('.tab').forEach(t => {
+    const m = (t.getAttribute('onclick') || '').match(/switchTab\('([^']+)'\)/);
+    t.classList.toggle('active', !!m && m[1] === name);
   });
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.getElementById(`panel-${name}`).classList.add('active');
