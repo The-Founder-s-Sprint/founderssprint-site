@@ -75,7 +75,8 @@
       <div class="f"><label>Email *</label><input id="contact_email" type="email" placeholder="you@firm.com"></div>
       <div class="f"><label>Phone</label><input id="contact_phone" placeholder="+256…"></div>
       <div class="f"><label>Website</label><input id="website_url" type="url" placeholder="https://…"></div>
-      <div class="f full"><label>LinkedIn</label><input id="linkedin_url" type="url" placeholder="https://linkedin.com/…"></div>
+      <div class="f"><label>LinkedIn</label><input id="linkedin_url" type="url" placeholder="https://linkedin.com/…"></div>
+      <div class="f"><label>Logo URL</label><input id="logo_url" type="url" placeholder="https://…/logo.png"></div>
       <div class="f full"><label>Accreditation / track record (optional)</label><textarea id="accreditation_note" placeholder="Fund size, notable investments, regulatory status — anything that helps us verify you."></textarea></div>
     </div>
 
@@ -111,7 +112,7 @@ async function submitForm(){
   const p={ name, firm_type:val('firm_type'), one_liner:val('one_liner'), thesis:val('thesis'),
     focus_sectors:listFrom('focus_sectors'), stages, ticket_min:val('ticket_min'), ticket_max:val('ticket_max'),
     currency:val('currency'), geographies:listFrom('geographies'), website_url:val('website_url'),
-    linkedin_url:val('linkedin_url'), contact_name, contact_email, contact_phone:val('contact_phone'),
+    linkedin_url:val('linkedin_url'), logo_url:val('logo_url'), contact_name, contact_email, contact_phone:val('contact_phone'),
     accreditation_note:val('accreditation_note') };
   const btn=document.getElementById('submit'); btn.disabled=true; btn.textContent='Submitting…';
   try{

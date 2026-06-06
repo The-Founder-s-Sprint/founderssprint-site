@@ -1384,9 +1384,10 @@ function firmTile(f){
   const n=x=>x>=1e6?(x/1e6)+'M':x>=1e3?(x/1e3)+'k':x; const cur=f.currency||'USD';
   const ticket=(f.ticket_min||f.ticket_max)?(cur+' '+(f.ticket_min?n(f.ticket_min):'')+(f.ticket_max?('–'+n(f.ticket_max)):'+')):'';
   const meta=[f.firm_type,(f.stages||[]).join('/'),ticket,(f.geographies||[]).join(', ')].filter(Boolean).join(' · ');
+  const logo=f.logo_url?'<img src="'+esc(f.logo_url)+'" alt="" style="width:40px;height:40px;object-fit:contain;border:1px solid var(--border);background:#fff">':'';
   return '<div class="card" style="margin:0">'
-    +'<div style="font-family:var(--display);font-size:20px;font-weight:600">'+esc(f.name)+'</div>'
-    +(f.one_liner?'<div style="font-size:12.5px;color:var(--ink-mid);margin-top:3px">'+esc(f.one_liner)+'</div>':'')
+    +'<div style="display:flex;align-items:center;gap:10px">'+logo+'<div style="font-family:var(--display);font-size:20px;font-weight:600">'+esc(f.name)+'</div></div>'
+    +(f.one_liner?'<div style="font-size:12.5px;color:var(--ink-mid);margin-top:6px">'+esc(f.one_liner)+'</div>':'')
     +(meta?'<div style="font-size:11px;color:var(--muted);margin-top:8px;font-family:var(--sans);letter-spacing:.04em">'+esc(meta)+'</div>':'')
     +(f.thesis?'<div style="font-size:12.5px;line-height:1.55;margin-top:10px">'+esc(f.thesis)+'</div>':'')
     +((f.focus_sectors&&f.focus_sectors.length)?'<div style="margin-top:10px">'+f.focus_sectors.map(invChip).join('')+'</div>':'')

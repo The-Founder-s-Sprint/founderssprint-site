@@ -668,8 +668,10 @@ function firmCard(f){
   const seatRows=seats.length?seats.map(m=>'<div class="mat-row"><span>'+esc(m.name||m.email||'—')+(m.is_primary?' <span class="tag">primary</span>':'')+'</span><span class="sub">'+esc(m.email||'')+(m.user_id?'':' · no login yet')+'</span></div>').join(''):'<div class="sub">No seats.</div>';
   const meta=[f.firm_type, (f.stages||[]).join('/'), ticket(f), (f.geographies||[]).join(', ')].filter(Boolean).join(' · ');
   let actions='';
-  if(f.status!=='approved') actions='<div class="app-actions"><button class="btn-sm approve" onclick="approveFirm(\''+f.id+'\')">Approve &amp; publish</button><button class="btn-sm reject" onclick="rejectFirm(\''+f.id+'\')">Reject</button></div>';
-  else actions='<div class="app-actions"><button class="btn-sm" style="background:var(--ochre);color:#15161A" onclick="toggleFirmPublic(\''+f.id+'\','+(!f.public)+')">'+(f.public?'Unpublish':'Publish')+'</button></div>';
+  if(isSuper()){
+    if(f.status!=='approved') actions='<div class="app-actions"><button class="btn-sm approve" onclick="approveFirm(\''+f.id+'\')">Approve &amp; publish</button><button class="btn-sm reject" onclick="rejectFirm(\''+f.id+'\')">Reject</button></div>';
+    else actions='<div class="app-actions"><button class="btn-sm" style="background:var(--ochre);color:#15161A" onclick="toggleFirmPublic(\''+f.id+'\','+(!f.public)+')">'+(f.public?'Unpublish':'Publish')+'</button></div>';
+  }
   const logo=f.logo_url?'<img src="'+esc(f.logo_url)+'" alt="" style="width:34px;height:34px;object-fit:contain;border:1px solid var(--border);background:#fff;margin-right:10px;vertical-align:middle">':'';
   return '<div class="app-card"><div class="app-head"><div style="display:flex;align-items:center">'+logo+'<div><span class="nm">'+esc(f.name)+'</span> '+(f.firm_type?'<span class="tag">'+esc(f.firm_type)+'</span>':'')+(f.public?'<span class="pill pill-green" style="margin-left:4px">Public</span>':'')+'</div></div>'+(FIRM_PILL[f.status]||'')+'</div>'
     +(f.one_liner?'<div class="sub" style="margin-top:2px">'+esc(f.one_liner)+'</div>':'')
