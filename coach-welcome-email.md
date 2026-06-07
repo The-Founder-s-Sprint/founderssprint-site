@@ -37,7 +37,7 @@ Calendar invite is attached. Join via Google Meet: [PASTE MEET LINK HERE]
 
 Agenda:
 1. Platform walkthrough — dashboard, profiles, directory, sponsor system
-2. Launch timing — July 1st event scope, Cohort 1 start date discussion
+2. Launch timing — September 1st event scope, Cohort 1 start date discussion
 3. Coach profiles — what's complete, what's needed from each of you
 4. Marketing plan + founder contributions
 5. Next steps and assignments

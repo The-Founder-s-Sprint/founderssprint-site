@@ -37,7 +37,7 @@ founderssprint-site/
     │
     │── Registration & Events
     │   register.html           Cohort registration + deposit payment
-    │   launch-event-rsvp.html  1 July soft launch RSVP
+    │   launch-event-rsvp.html  1 September launch event RSVP
     │   coach-onboarding.html   Coach onboarding (detailed, post-approval)
     │
     │── Discovery
@@ -138,7 +138,7 @@ All links relative within /beta/. Explore page uses `../` prefix.
 
 5. **Test all links and forms on live site** — After upload, walk through every page and form submission.
 
-### Pre-Cohort 1 (by 6 July)
+### Pre-Cohort 1 (by 1 September)
 
 6. **Waitlist drip email sequence** — 5 emails built (`waitlist-welcome-email.html` through `waitlist-email-5-framework.html`). Need to be loaded into Mailchimp/Mandrill as automated sequences.
 

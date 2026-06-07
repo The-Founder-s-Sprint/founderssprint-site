@@ -713,10 +713,35 @@ async function bootApp(user){
     document.getElementById('avatar-email').textContent = user.email;
     document.getElementById('avatar-btn').textContent = (user.email||'?')[0].toUpperCase();
     document.addEventListener('click', (e)=>{ const w=document.getElementById('avatar-wrap'); if(w && !w.contains(e.target)) w.classList.remove('open'); });
-    await ensureProfile(user);
+    await resolveProfile(user);
     await loadAll(user);
     sb.auth.refreshSession().catch(()=>{});
   } catch(err){ console.error('[Boot] crash:', err); showToast('Could not load your dashboard — '+err.message,'error'); }
+}
+
+// Resolve which profile to show: the user's own, OR (for a super-admin with no founder
+// record) a read-only preview of a demo founder — never auto-creating a row for an admin.
+let PREVIEW = false;
+async function resolveProfile(user){
+  const own = await _pgQuery('founder_profiles', 'user_id=eq.'+user.id+'&limit=1');
+  if(own && own.length){ profile = own[0]; return; }
+  let isAdmin = false;
+  try { const a = await _pgQuery('user_roles', 'select=role&user_id=eq.'+user.id+'&role=eq.admin&limit=1'); isAdmin = !!(a && a.length); } catch(e){}
+  if(isAdmin){
+    const demo = await _pgQuery('founder_profiles', 'order=created_at&limit=1');   // admin RLS allows reading any
+    if(demo && demo.length){ profile = demo[0]; PREVIEW = true; showPreviewBanner(); return; }
+    showToast('No founder records to preview yet','error');
+  }
+  // Genuine founder with no profile yet → self-heal (create their row)
+  await ensureProfile(user);
+}
+function showPreviewBanner(){
+  if(document.getElementById('admin-preview-bar')) return;
+  const bar = document.createElement('div');
+  bar.id = 'admin-preview-bar';
+  bar.style.cssText = 'background:#15161A;color:#EFE7DA;font-family:var(--sans),sans-serif;font-size:12px;letter-spacing:.04em;text-align:center;padding:7px 14px;border-bottom:2px solid #C9923A;position:sticky;top:0;z-index:1500';
+  bar.innerHTML = '◇ Admin preview — viewing the founder experience as a demo record (read-only). Your edits are for testing only.';
+  document.body.insertBefore(bar, document.body.firstChild);
 }
 
 // Self-heal: ensure a founder_profiles row exists for this user, hydrate from registration if present
@@ -1419,6 +1444,40 @@ function fmtDate(d){ if(!d) return '—'; return new Date(d).toLocaleDateString(
 function fmtDateLong(d){ if(!d) return '—'; return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}); }
 function fmtDateTime(d){ if(!d) return 'Date TBC'; return new Date(d).toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}); }
 function showToast(msg, type){ const t=document.getElementById('toast'); t.textContent=msg; t.className=type||'info'; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3200); }
+</script>
+<script>
+/* Super-admin portal switcher — self-contained, mounts only for platform admins. */
+(function(){
+  var PAGES=[['dashboard.html','Ops Dashboard'],['admin-portals.html','Command Centre'],['coach.html','Coach'],['founder.html','Founder'],['investor.html','Investor']];
+  var curr=(location.pathname.split('/').pop()||''), wrap, menu, shown=false;
+  function build(){
+    wrap=document.createElement('div'); wrap.id='psw'; wrap.style.cssText='position:relative;display:inline-block;margin-right:12px;vertical-align:middle';
+    var btn=document.createElement('button'); btn.textContent='⇄ Portals';
+    btn.style.cssText='background:#C9923A;color:#15161A;border:none;padding:8px 13px;font-family:inherit;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;border-radius:2px';
+    menu=document.createElement('div'); menu.style.cssText='display:none;position:absolute;top:40px;right:0;background:#1A1C22;border:1px solid #2A2C33;min-width:180px;z-index:1000;padding:6px 0;box-shadow:0 10px 30px rgba(0,0,0,.35)';
+    menu.innerHTML=PAGES.filter(function(p){return p[0]!==curr;}).map(function(p){return '<a href="/'+p[0]+'" style="display:block;padding:9px 16px;color:#EDE7DA;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;font-family:sans-serif">'+p[1]+'</a>';}).join('');
+    btn.onclick=function(e){ e.stopPropagation(); menu.style.display=menu.style.display==='none'?'block':'none'; };
+    wrap.appendChild(btn); wrap.appendChild(menu);
+    document.addEventListener('click',function(e){ if(wrap && !wrap.contains(e.target)) menu.style.display='none'; });
+  }
+  function mount(){
+    if(shown) return; if(!wrap) build();
+    var host=document.querySelector('.topbar-right')||document.querySelector('.topbar-right, .topbar')||null;
+    if(host){ host.insertBefore(wrap, host.firstChild); }
+    else { wrap.style.cssText='position:fixed;top:12px;right:130px;z-index:2000'; document.body.appendChild(wrap); }
+    shown=true;
+  }
+  function init(){
+    if(!window.sb || !sb.auth){ return setTimeout(init,400); }
+    sb.auth.getUser().then(function(r){
+      var u=r&&r.data&&r.data.user; if(!u) return;
+      sb.from('user_roles').select('role').eq('user_id',u.id).eq('role','admin').limit(1).then(function(res){
+        if(res && res.data && res.data.length) mount();
+      });
+    }).catch(function(){});
+  }
+  setTimeout(init,700);
+})();
 </script>
 </body>
 </html>

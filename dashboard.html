@@ -5193,5 +5193,39 @@ function previewMaterial(id) {
   window.open(viewerUrl, '_blank');
 }
 </script>
+<script>
+/* Super-admin portal switcher — self-contained, mounts only for platform admins. */
+(function(){
+  var PAGES=[['dashboard.html','Ops Dashboard'],['admin-portals.html','Command Centre'],['coach.html','Coach'],['founder.html','Founder'],['investor.html','Investor']];
+  var curr=(location.pathname.split('/').pop()||''), wrap, menu, shown=false;
+  function build(){
+    wrap=document.createElement('div'); wrap.id='psw'; wrap.style.cssText='position:relative;display:inline-block;margin-right:12px;vertical-align:middle';
+    var btn=document.createElement('button'); btn.textContent='⇄ Portals';
+    btn.style.cssText='background:#C9923A;color:#15161A;border:none;padding:8px 13px;font-family:inherit;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;border-radius:2px';
+    menu=document.createElement('div'); menu.style.cssText='display:none;position:absolute;top:40px;right:0;background:#1A1C22;border:1px solid #2A2C33;min-width:180px;z-index:1000;padding:6px 0;box-shadow:0 10px 30px rgba(0,0,0,.35)';
+    menu.innerHTML=PAGES.filter(function(p){return p[0]!==curr;}).map(function(p){return '<a href="/'+p[0]+'" style="display:block;padding:9px 16px;color:#EDE7DA;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;font-family:sans-serif">'+p[1]+'</a>';}).join('');
+    btn.onclick=function(e){ e.stopPropagation(); menu.style.display=menu.style.display==='none'?'block':'none'; };
+    wrap.appendChild(btn); wrap.appendChild(menu);
+    document.addEventListener('click',function(e){ if(wrap && !wrap.contains(e.target)) menu.style.display='none'; });
+  }
+  function mount(){
+    if(shown) return; if(!wrap) build();
+    var host=document.querySelector('.topbar-right')||document.querySelector('.topbar-right, .topbar')||null;
+    if(host){ host.insertBefore(wrap, host.firstChild); }
+    else { wrap.style.cssText='position:fixed;top:12px;right:130px;z-index:2000'; document.body.appendChild(wrap); }
+    shown=true;
+  }
+  function init(){
+    if(!window.sb || !sb.auth){ return setTimeout(init,400); }
+    sb.auth.getUser().then(function(r){
+      var u=r&&r.data&&r.data.user; if(!u) return;
+      sb.from('user_roles').select('role').eq('user_id',u.id).eq('role','admin').limit(1).then(function(res){
+        if(res && res.data && res.data.length) mount();
+      });
+    }).catch(function(){});
+  }
+  setTimeout(init,700);
+})();
+</script>
 </body>
 </html>

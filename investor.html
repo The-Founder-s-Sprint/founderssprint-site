@@ -193,6 +193,13 @@ let companies=[], filesByCompany={}, delivByCompany={}, progByCompany={}, taxono
 const VETTED=['complete','completed','vetted','final','published','approved'];
 function isVetted(s){ return VETTED.includes(String(s||'').toLowerCase()); }
 
+function showPreviewBanner(){
+  if(document.getElementById('admin-preview-bar')) return;
+  const bar=document.createElement('div'); bar.id='admin-preview-bar';
+  bar.style.cssText='background:#15161A;color:#EFE7DA;font-family:sans-serif;font-size:12px;letter-spacing:.04em;text-align:center;padding:7px 14px;border-bottom:2px solid #C9923A;position:sticky;top:0;z-index:1500';
+  bar.innerHTML='◇ Admin preview — viewing the investor deal flow (read-only).';
+  document.body.insertBefore(bar, document.body.firstChild);
+}
 async function boot(user){
   if(booted||!user)return; booted=true;
   document.getElementById('login-screen').style.display='none';
@@ -201,8 +208,13 @@ async function boot(user){
   try{
     const me=await _q('investors','user_id=eq.'+user.id+'&select=id,approved&limit=1');
     if(!me.length || !me[0].approved){
-      document.getElementById('view-list').innerHTML='<div class="empty"><div class="empty-mark">◇</div><div style="font-weight:600;color:var(--ink-mid)">This isn’t an approved investor account</div><div style="margin-top:6px">Contact The Founder’s Sprint team to request investor access.</div></div>';
-      return;
+      let isAdmin=false;
+      try{ const a=await _q('user_roles','select=role&user_id=eq.'+user.id+'&role=eq.admin&limit=1'); isAdmin=!!(a&&a.length); }catch(e){}
+      if(!isAdmin){
+        document.getElementById('view-list').innerHTML='<div class="empty"><div class="empty-mark">◇</div><div style="font-weight:600;color:var(--ink-mid)">This isn’t an approved investor account</div><div style="margin-top:6px">Contact The Founder’s Sprint team to request investor access.</div></div>';
+        return;
+      }
+      showPreviewBanner();   // super-admin: read-only preview of the investor deal flow
     }
     const res=await Promise.allSettled([
       _q('companies','data_room_shared=eq.true&select=*,founder_profiles(first_name,last_name)&order=name'),
@@ -324,6 +336,40 @@ function closeCompany(){document.getElementById('view-detail').style.display='no
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 function simil(a,b){a=String(a||'').toLowerCase().trim();b=String(b||'').toLowerCase().trim();return !!a&&!!b&&(a===b||a.includes(b)||b.includes(a));}
 function showToast(m,t){const e=document.getElementById('toast');e.textContent=m;e.className=t||'';e.classList.add('show');setTimeout(()=>e.classList.remove('show'),3200);}
+</script>
+<script>
+/* Super-admin portal switcher — self-contained, mounts only for platform admins. */
+(function(){
+  var PAGES=[['dashboard.html','Ops Dashboard'],['admin-portals.html','Command Centre'],['coach.html','Coach'],['founder.html','Founder'],['investor.html','Investor']];
+  var curr=(location.pathname.split('/').pop()||''), wrap, menu, shown=false;
+  function build(){
+    wrap=document.createElement('div'); wrap.id='psw'; wrap.style.cssText='position:relative;display:inline-block;margin-right:12px;vertical-align:middle';
+    var btn=document.createElement('button'); btn.textContent='⇄ Portals';
+    btn.style.cssText='background:#C9923A;color:#15161A;border:none;padding:8px 13px;font-family:inherit;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;border-radius:2px';
+    menu=document.createElement('div'); menu.style.cssText='display:none;position:absolute;top:40px;right:0;background:#1A1C22;border:1px solid #2A2C33;min-width:180px;z-index:1000;padding:6px 0;box-shadow:0 10px 30px rgba(0,0,0,.35)';
+    menu.innerHTML=PAGES.filter(function(p){return p[0]!==curr;}).map(function(p){return '<a href="/'+p[0]+'" style="display:block;padding:9px 16px;color:#EDE7DA;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;font-family:sans-serif">'+p[1]+'</a>';}).join('');
+    btn.onclick=function(e){ e.stopPropagation(); menu.style.display=menu.style.display==='none'?'block':'none'; };
+    wrap.appendChild(btn); wrap.appendChild(menu);
+    document.addEventListener('click',function(e){ if(wrap && !wrap.contains(e.target)) menu.style.display='none'; });
+  }
+  function mount(){
+    if(shown) return; if(!wrap) build();
+    var host=document.querySelector('.topbar-right')||document.querySelector('.topbar-right, .topbar')||null;
+    if(host){ host.insertBefore(wrap, host.firstChild); }
+    else { wrap.style.cssText='position:fixed;top:12px;right:130px;z-index:2000'; document.body.appendChild(wrap); }
+    shown=true;
+  }
+  function init(){
+    if(!window.sb || !sb.auth){ return setTimeout(init,400); }
+    sb.auth.getUser().then(function(r){
+      var u=r&&r.data&&r.data.user; if(!u) return;
+      sb.from('user_roles').select('role').eq('user_id',u.id).eq('role','admin').limit(1).then(function(res){
+        if(res && res.data && res.data.length) mount();
+      });
+    }).catch(function(){});
+  }
+  setTimeout(init,700);
+})();
 </script>
 </body>
 </html>
