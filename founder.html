@@ -527,7 +527,10 @@ let coaches = [];
 let coachTopics = [];
 let pricing = {};
 let cohortsById = {};
-let companies = [], company = null, taxonomy = [], drFiles = [];
+let companies = [], company = null, taxonomy = [], drFiles = [], myAssessments = [];
+const FA_DISC={marketing:['Marketing & Branding','#C8531F'],financial:['Financial Modelling','#C9923A'],investment:['Investment Readiness','#8AAB5C'],strategy:['Strategy & Team','#3D4A2E'],product:['Product Dev & Pricing','#777770']};
+const FA_RUBRIC={marketing:[['brand_clarity','Brand clarity'],['gtm','GTM readiness'],['market','Market understanding']],financial:[['model_rigour','Model rigour'],['unit_economics','Unit economics'],['discipline','Financial discipline']],investment:[['narrative','Narrative & pitch'],['fundraising','Fundraising strategy'],['materials','Materials readiness']],strategy:[['team','Team strength'],['clarity','Strategic clarity'],['execution','Execution']],product:[['product_instinct','Product instinct'],['pricing','Pricing strategy'],['pmf','PMF evidence']]};
+const FA_TRACK={single:'1:1 Session',oneOnOne:'1:1 Session',pick3:'Pick 3 Bundle',vip1on1:'VIP 1:1',vip:'VIP',cohort:'Full Cohort',group:'Full Cohort'};
 
 // ── DISCIPLINE MODEL (CLAUDE.md §4) ──
 // Full taxonomy mirrors beta/explore/explore.js. idx = explore L1 index (used for course-progress).
@@ -801,6 +804,8 @@ async function loadAll(user){
   // per-company data room files
   drFiles = [];
   if(company){ try { drFiles = await _pgQuery('data_room_files', 'company_id=eq.'+company.id+'&order=created_at.desc'); } catch(e){} }
+  myAssessments = [];
+  if(company){ try { myAssessments = await _pgQuery('founder_coach_assessment', 'company_id=eq.'+company.id+'&status=eq.published&select=*'); } catch(e){} }
 
   // cohorts for the founder's registrations (for the balance-due deadline)
   const cids = [...new Set(myRegs.map(r => r.cohort_id).filter(Boolean))];
@@ -984,6 +989,29 @@ function renderDataRoomLocked(){
   document.getElementById('gate-note').textContent = 'Locked · activates after your first paid booking.';
 }
 
+function faBar(lab,n,col){ n=Number(n)||0; return '<div style="display:flex;align-items:center;gap:10px;margin:3px 0"><span style="font-size:11px;color:var(--muted);width:130px">'+esc(lab)+'</span><span style="flex:1;height:6px;background:rgba(26,26,26,.08);position:relative"><span style="position:absolute;left:0;top:0;height:100%;width:'+(n*20)+'%;background:'+col+'"></span></span><span style="font-size:11px;color:var(--muted);width:26px;text-align:right">'+n+'/5</span></div>'; }
+function myAssessmentsHTML(){
+  if(!myAssessments.length) return '';
+  const order=Object.keys(FA_DISC);
+  const list=myAssessments.slice().sort((a,b)=>order.indexOf(a.discipline_key)-order.indexOf(b.discipline_key));
+  const cards=list.map(a=>{
+    const d=FA_DISC[a.discipline_key]||[a.discipline_key,'#777770'], col=d[1];
+    const dims=(FA_RUBRIC[a.discipline_key]||[]).concat([['coachability','Coachability']]);
+    const r=a.ratings||{}; const bars=dims.map(x=>faBar(x[1], r[x[0]], col)).join('');
+    const cn=(coaches.find(c=>c.id===a.coach_id)||{}); const who=((cn.first_name||'')+' '+(cn.last_name||'')).trim()||'Your coach';
+    const b=a.basis||{}; const tk=FA_TRACK[b.track];
+    const basis = tk?('<div style="margin:-2px 0 8px"><span style="font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted);border:1px solid var(--border-hi);padding:3px 8px">Basis · '+esc(tk)+(b.courses?(' · '+b.courses+' course'+(b.courses===1?'':'s')):'')+'</span></div>'):'';
+    return '<div class="card" style="border-left:3px solid '+col+';margin-bottom:10px">'
+      +'<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px"><span style="font-family:var(--display);font-size:18px;font-weight:600;color:'+col+'">'+esc(d[0])+'</span><span style="font-size:11px;color:var(--muted)">'+esc(who)+'</span></div>'
+      +basis+bars
+      +(a.strengths?'<div style="font-size:12.5px;line-height:1.5;margin-top:8px"><span style="font-weight:600">Strength · </span>'+esc(a.strengths)+'</div>':'')
+      +(a.growth?'<div style="font-size:12.5px;line-height:1.5;margin-top:4px"><span style="font-weight:600">Where to grow · </span>'+esc(a.growth)+'</div>':'')
+      +'</div>';
+  }).join('');
+  return '<div style="margin-bottom:24px"><div class="section-title">How your coaches see you</div>'
+    +'<div style="font-size:12.5px;color:var(--muted);margin:-8px 0 12px;line-height:1.5">These are the assessments your coaches share with investors who can see your data room — shown to you in full. Honest strengths and growth areas, by discipline.</div>'
+    +cards+'</div>';
+}
 function renderDataRoom(){
   const vault = document.getElementById('dr-vault');
   if(!hasPaid()){ renderDataRoomLocked(); return; }
@@ -1012,7 +1040,7 @@ function renderDataRoom(){
   renderHighlights();
 
   // vault by DD category (cohort upsell banner first, when applicable)
-  vault.innerHTML = upsellBanner() + drCategories().map(cat => {
+  vault.innerHTML = upsellBanner() + myAssessmentsHTML() + drCategories().map(cat => {
     const rows = cat.items.map(it => {
       const s = itemState(it);
       const dot = s.st==='vetted' ? 'done' : (s.st==='uploaded'||s.st==='draft') ? 'prog' : '';
@@ -1056,6 +1084,7 @@ async function switchCompany(id){
   const c = companies.find(x=>x.id===id); if(!c) return;
   company = c;
   try { drFiles = await _pgQuery('data_room_files','company_id=eq.'+company.id+'&order=created_at.desc'); } catch(e){ drFiles=[]; }
+  try { myAssessments = await _pgQuery('founder_coach_assessment','company_id=eq.'+company.id+'&status=eq.published&select=*'); } catch(e){ myAssessments=[]; }
   renderTimeline(); renderOverview(); renderDataRoom();
 }
 
