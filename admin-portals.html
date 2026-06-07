@@ -43,6 +43,14 @@
   .topbar-user{font-size:12px;color:#A8A498;}
   .btn-ghost{background:none;color:var(--ochre);border:1px solid #3A3C44;padding:8px 14px;font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;}
   .btn-ghost:hover{background:rgba(201,146,58,.12);}
+  .cc-avatar{width:34px;height:34px;border-radius:50%;border:2px solid #3A3C44;background:#22242B;color:#EDE7DA;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-size:13px;font-weight:700;}
+  .cc-avatar:hover{border-color:var(--ochre);}
+  .cc-menu{display:none;position:absolute;top:46px;right:0;background:#1A1C22;border:1px solid #2A2C33;min-width:210px;z-index:999;padding:6px 0;box-shadow:0 10px 30px rgba(0,0,0,.35);}
+  #cc-avatar-wrap.open .cc-menu{display:block;}
+  .cc-menu .cc-email{padding:9px 16px 10px;font-size:11px;color:#A8A498;border-bottom:1px solid #2A2C33;margin-bottom:4px;word-break:break-all;}
+  .cc-menu a{display:block;padding:10px 16px;font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#EDE7DA;text-decoration:none;cursor:pointer;}
+  .cc-menu a:hover{background:rgba(201,146,58,.12);}
+  .cc-menu a.danger{color:#E06A4E;}
   /* tabs */
   .tabs{display:flex;gap:0;background:#1B1C21;padding:0 28px;overflow-x:auto;}
   .tab{font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#9A968C;padding:14px 18px;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;display:flex;align-items:center;gap:8px;}
@@ -130,9 +138,14 @@
       <div class="topbar-sep"></div><span class="topbar-sub">Command Centre</span>
     </div>
     <div class="topbar-right">
-      <a class="btn-ghost" href="/dashboard.html" title="Operations dashboard — cohorts, registrations, revenue" style="text-decoration:none">↩ Ops dashboard</a>
-      <span class="topbar-user" id="user-email"></span>
-      <button class="btn-ghost" onclick="signOut()">Sign Out</button>
+      <div style="position:relative" id="cc-avatar-wrap">
+        <button class="cc-avatar" id="cc-avatar-btn" onclick="document.getElementById('cc-avatar-wrap').classList.toggle('open')" title="Account">?</button>
+        <div class="cc-menu">
+          <div class="cc-email" id="user-email"></div>
+          <a href="/dashboard.html" id="cc-ops-link" style="display:none" title="Operations dashboard — cohorts, registrations, revenue">↩ Ops dashboard</a>
+          <a class="danger" href="javascript:void(0)" onmousedown="event.stopPropagation();signOut()">Sign out</a>
+        </div>
+      </div>
     </div>
   </div>
   <div class="tabs" id="tabs"></div>
@@ -187,6 +200,7 @@ async function signIn(){
   }catch(e){err.textContent=e.message;}finally{btn.disabled=false;btn.textContent='Enter';}
 }
 function signOut(){localStorage.removeItem(_SB_KEY);try{sb.auth.signOut().catch(()=>{});}catch(e){}location.reload();}
+document.addEventListener('click',function(e){ var w=document.getElementById('cc-avatar-wrap'); if(w&&!w.contains(e.target)) w.classList.remove('open'); });
 
 sb.auth.onAuthStateChange((ev,s)=>{ currentSession=s; if((ev==='SIGNED_IN'||ev==='TOKEN_REFRESHED'||ev==='INITIAL_SESSION') && s && !booted) boot(s.user); });
 let _redir=false; function _toLogin(){ if(_redir||booted) return; _redir=true; location.replace('/login-admin.html'); }
@@ -285,9 +299,11 @@ async function boot(user){
   document.getElementById('login-screen').style.display='none';
   document.getElementById('app').style.display='block';
   document.getElementById('user-email').textContent=user.email;
+  const _av=document.getElementById('cc-avatar-btn'); if(_av) _av.textContent=(user.email||'?')[0].toUpperCase();
   try{
     const me=await _q('user_roles','user_id=eq.'+user.id+'&select=role');
     myRoles=(me||[]).map(r=>r.role);
+    const _ops=document.getElementById('cc-ops-link'); if(_ops) _ops.style.display=isSuper()?'block':'none';
     if(!STAFF_ROLES.some(r=>myRoles.includes(r))){
       document.querySelector('.tabs').style.display='none';
       document.getElementById('stat-row').style.display='none';
