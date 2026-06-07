@@ -338,11 +338,16 @@ async function openFounder(fid){
     return '<div class="disc-block'+(mine?' mine':'')+'"><div class="disc-h">'+esc(d.label)+(mine?' — yours':'')+'</div>'
       +'<div class="disc-sub">'+d.coach+(isEnr?'':' · founder not enrolled')+'</div>'+rows.join('')+'</div>';
   }).join('');
+  // investor assessment (per primary company, in this coach's discipline)
+  let _comp=null, _adisc=[...myDiscKeys][0]||null, _ex=null;
+  try{ const cs=await _q('companies','founder_id=eq.'+fid+'&select=id,name,is_primary&order=is_primary.desc&limit=1'); _comp=(cs&&cs[0])||null; }catch(e){}
+  if(_comp&&_adisc){ try{ const r=await _q('founder_coach_assessment','company_id=eq.'+_comp.id+'&coach_id=eq.'+coach.id+'&discipline_key=eq.'+encodeURIComponent(_adisc)+'&select=*&limit=1'); _ex=(r&&r[0])||null; }catch(e){} }
   dv.innerHTML='<span class="back" onclick="closeFounder()">← All founders</span>'
     +'<div class="page-eyebrow">Mark progress</div>'
     +'<div class="page-title">'+esc(f.company_name||((f.first_name||'')+' '+(f.last_name||'')))+'</div>'
     +'<div class="page-sub">Tick a course once the founder has completed it. You can mark courses in <strong>your</strong> discipline'+(TAXONOMY.filter(t=>myDiscKeys.has(t.key)).length?' ('+TAXONOMY.filter(t=>myDiscKeys.has(t.key)).map(t=>t.label).join(', ')+')':'')+'; other disciplines are read-only here.</div>'
-    +blocks;
+    +blocks
+    +(_comp&&_adisc?assessmentPanel(_comp,_adisc,_ex):'');
   window.scrollTo(0,0);
 }
 function closeFounder(){document.getElementById('view-founder').style.display='none';document.getElementById('view-roster').style.display='block';loadRoster();window.scrollTo(0,0);}
@@ -359,6 +364,47 @@ async function toggleCourse(elm,fid,l1,l2,l3,label){
     showToast(turningOn?'Marked complete':'Marked incomplete','success');
   }catch(e){ showToast('Update failed — '+e.message,'error'); }
   finally{ elm.classList.remove('busy'); }
+}
+
+// ── INVESTOR ASSESSMENT (coach writes; investor + founder read) ──
+const RUBRIC={
+  marketing:[['brand_clarity','Brand clarity'],['gtm','Go-to-market readiness'],['market','Market understanding']],
+  financial:[['model_rigour','Model rigour'],['unit_economics','Unit economics'],['discipline','Financial discipline']],
+  investment:[['narrative','Narrative & pitch'],['fundraising','Fundraising strategy'],['materials','Materials readiness']],
+  strategy:[['team','Team strength'],['clarity','Strategic clarity'],['execution','Execution & follow-through']],
+  product:[['product_instinct','Product instinct'],['pricing','Pricing strategy'],['pmf','Product-market-fit evidence']]
+};
+let _ar={};
+function arDots(key){ let h=''; for(let i=1;i<=5;i++){ const on=(_ar[key]||0)>=i; h+='<span onclick="setAR(\''+key+'\','+i+')" title="'+i+' of 5" style="cursor:pointer;display:inline-block;width:16px;height:16px;border-radius:50%;margin-left:5px;background:'+(on?'#C8531F':'transparent')+';border:1px solid '+(on?'#C8531F':'rgba(26,26,26,.3)')+'"></span>'; } return h; }
+function setAR(key,n){ _ar[key]=n; const el=document.getElementById('ard-'+key); if(el) el.innerHTML=arDots(key); }
+function assessmentPanel(company, disc, ex){
+  _ar = (ex && ex.ratings && typeof ex.ratings==='object') ? Object.assign({}, ex.ratings) : {};
+  const dims=(RUBRIC[disc]||[]).concat([['coachability','Coachability']]);
+  const rows=dims.map(d=>'<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(26,26,26,.08)"><span style="font-size:13px">'+esc(d[1])+(d[0]==='coachability'?' <span style="color:var(--muted);font-size:11px">· follow-through &amp; openness</span>':'')+'</span><span id="ard-'+d[0]+'">'+arDots(d[0])+'</span></div>').join('');
+  const dlabel=(TAXONOMY.find(t=>t.key===disc)||{}).label||disc;
+  const ta='width:100%;background:rgba(0,0,0,.03);border:1px solid var(--border);padding:9px;font-family:var(--font);font-size:13px;resize:vertical';
+  const lab='font-family:var(--sans);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:4px';
+  return '<div class="card card-top" style="margin-top:22px">'
+    +'<div class="section-title" style="margin-top:0">Investor assessment · '+esc(dlabel)+'</div>'
+    +'<div style="font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:12px">Visible to investors '+esc(company.name||'this company')+' has unlocked — and the founder can read it too. Strengths and development areas are both required to publish. The value to investors is candour.</div>'
+    +rows
+    +'<div style="margin-top:12px"><div style="'+lab+'">Strengths</div><textarea id="as-strengths" rows="2" style="'+ta+'">'+esc((ex&&ex.strengths)||'')+'</textarea></div>'
+    +'<div style="margin-top:8px"><div style="'+lab+'">Development areas</div><textarea id="as-growth" rows="2" style="'+ta+'">'+esc((ex&&ex.growth)||'')+'</textarea></div>'
+    +'<div style="display:flex;gap:8px;align-items:center;margin-top:12px;flex-wrap:wrap"><button style="background:none;border:1px solid var(--border-hi);color:var(--ink-mid);padding:8px 14px;font-family:var(--sans);font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer" onclick="saveAssessment(\''+company.id+'\',\''+disc+'\',\'draft\')">Save draft</button>'
+    +'<button class="btn" onclick="saveAssessment(\''+company.id+'\',\''+disc+'\',\'published\')">Publish to investors</button>'
+    +(ex?'<span style="font-size:11px;color:var(--muted)">'+(ex.status==='published'?'Published':'Draft')+(ex.updated_at?(' · '+new Date(ex.updated_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'})):'')+'</span>':'<span style="font-size:11px;color:var(--muted)">Not started</span>')
+    +'</div></div>';
+}
+async function saveAssessment(companyId, disc, status){
+  const strengths=(document.getElementById('as-strengths').value||'').trim();
+  const growth=(document.getElementById('as-growth').value||'').trim();
+  if(status==='published' && (!strengths||!growth)){ showToast('Strengths and development areas are both required to publish','error'); return; }
+  try{
+    await _w('POST','founder_coach_assessment','on_conflict=company_id,coach_id,discipline_key',
+      { company_id:companyId, coach_id:coach.id, discipline_key:disc, ratings:_ar, strengths:strengths||null, growth:growth||null, status, updated_at:new Date().toISOString() },
+      { Prefer:'resolution=merge-duplicates,return=representation' });
+    showToast(status==='published'?'Published to investors':'Draft saved','success');
+  }catch(e){ showToast('Could not save — '+e.message,'error'); }
 }
 
 // ── SESSIONS ──

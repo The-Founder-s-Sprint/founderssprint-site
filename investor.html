@@ -204,7 +204,15 @@ let _redir=false; function _toLogin(){ if(_redir||booted) return; _redir=true; l
   }catch(e){ _toLogin(); }
 })();
 
-let companies=[], filesByCompany={}, delivByCompany={}, progByCompany={}, taxonomy=[];
+let companies=[], filesByCompany={}, delivByCompany={}, progByCompany={}, taxonomy=[], assessByCompany={}, coachById={};
+const A_DISC={marketing:['Marketing & Branding','#C8531F'],financial:['Financial Modelling','#C9923A'],investment:['Investment Readiness','#8AAB5C'],strategy:['Strategy & Team','#3D4A2E'],product:['Product Dev & Pricing','#777770']};
+const A_RUBRIC={
+  marketing:[['brand_clarity','Brand clarity'],['gtm','GTM readiness'],['market','Market understanding']],
+  financial:[['model_rigour','Model rigour'],['unit_economics','Unit economics'],['discipline','Financial discipline']],
+  investment:[['narrative','Narrative & pitch'],['fundraising','Fundraising strategy'],['materials','Materials readiness']],
+  strategy:[['team','Team strength'],['clarity','Strategic clarity'],['execution','Execution']],
+  product:[['product_instinct','Product instinct'],['pricing','Pricing strategy'],['pmf','PMF evidence']]
+};
 const VETTED=['complete','completed','vetted','final','published','approved'];
 function isVetted(s){ return VETTED.includes(String(s||'').toLowerCase()); }
 
@@ -237,13 +245,17 @@ async function boot(user){
       _q('data_room_files','select=company_id,category_key,item_key,title,storage_path,file_url,status,source'),
       _q('founder_deliverables','select=company_id,discipline,title,file_url,status'),
       _q('founder_course_progress','select=company_id,course_label,status'),
-      _q('dr_taxonomy','select=*&order=sort_order,item_label')
+      _q('dr_taxonomy','select=*&order=sort_order,item_label'),
+      _q('founder_coach_assessment','select=*&status=eq.published'),
+      _q('coaches','select=id,first_name,last_name')
     ]);
     companies=res[0].status==='fulfilled'?(res[0].value||[]):[];
     (res[1].status==='fulfilled'?res[1].value:[]).forEach(f=>{(filesByCompany[f.company_id]=filesByCompany[f.company_id]||[]).push(f);});
     (res[2].status==='fulfilled'?res[2].value:[]).forEach(d=>{(delivByCompany[d.company_id]=delivByCompany[d.company_id]||[]).push(d);});
     (res[3].status==='fulfilled'?res[3].value:[]).forEach(p=>{(progByCompany[p.company_id]=progByCompany[p.company_id]||[]).push(p);});
     taxonomy=res[4].status==='fulfilled'?(res[4].value||[]):[];
+    (res[5]&&res[5].status==='fulfilled'?res[5].value:[]).forEach(a=>{(assessByCompany[a.company_id]=assessByCompany[a.company_id]||[]).push(a);});
+    (res[6]&&res[6].status==='fulfilled'?res[6].value:[]).forEach(c=>{ coachById[c.id]=((c.first_name||'')+' '+(c.last_name||'')).trim(); });
     renderList();
   }catch(e){ showToast('Could not load deal flow — '+e.message,'error'); }
 }
@@ -306,6 +318,29 @@ async function openDoc(path){
   }catch(e){ showToast('Could not open file','error'); }
 }
 
+function assessBar(lab,n,col){ n=Number(n)||0; return '<div style="display:flex;align-items:center;gap:10px;margin:3px 0"><span style="font-size:11px;color:var(--ink-mid);width:130px">'+esc(lab)+'</span><span style="flex:1;height:6px;background:rgba(26,26,26,.08);position:relative"><span style="position:absolute;left:0;top:0;height:100%;width:'+(n*20)+'%;background:'+col+'"></span></span><span style="font-size:11px;color:var(--muted);width:26px;text-align:right">'+n+'/5</span></div>'; }
+function renderAssessments(cid){
+  const order=Object.keys(A_DISC);
+  const list=(assessByCompany[cid]||[]).slice().sort((a,b)=>order.indexOf(a.discipline_key)-order.indexOf(b.discipline_key));
+  if(!list.length) return '';
+  const cards=list.map(a=>{
+    const d=A_DISC[a.discipline_key]||[a.discipline_key,'#777770'], col=d[1];
+    const dims=(A_RUBRIC[a.discipline_key]||[]).concat([['coachability','Coachability']]);
+    const r=a.ratings||{};
+    const bars=dims.map(x=>assessBar(x[1], r[x[0]], col)).join('');
+    const who=coachById[a.coach_id]||'Coach';
+    const when=a.updated_at?new Date(a.updated_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'}):'';
+    return '<div class="card" style="border-left:3px solid '+col+';margin-bottom:10px">'
+      +'<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px"><span style="font-family:var(--display);font-size:18px;font-weight:600;color:'+col+'">'+esc(d[0])+'</span><span style="font-size:11px;color:var(--muted)">'+esc(who)+(when?' · '+when:'')+'</span></div>'
+      +bars
+      +(a.strengths?'<div style="font-size:12.5px;line-height:1.5;margin-top:8px"><span style="font-weight:600">Strength · </span>'+esc(a.strengths)+'</div>':'')
+      +(a.growth?'<div style="font-size:12.5px;line-height:1.5;margin-top:4px"><span style="font-weight:600">Develop · </span>'+esc(a.growth)+'</div>':'')
+      +'</div>';
+  }).join('');
+  return '<div class="section-title">Coach assessments</div>'
+    +'<div style="font-size:12px;color:var(--muted);margin:-8px 0 12px;line-height:1.5">Third-party reads from the coaches who worked directly with this founder — attributed, by discipline.</div>'
+    +cards;
+}
 function openCompany(cid){
   const c=companies.find(x=>x.id===cid); if(!c)return;
   const pct=readinessPct(cid);
@@ -340,6 +375,7 @@ function openCompany(cid){
       +'<div><div class="k">Courses completed</div><div class="v">'+courses+'</div></div>'
       +'<div><div class="k">Vetted documents</div><div class="v">'+vettedCount(cid)+'</div></div>'
     +'</div></div>'
+    +renderAssessments(cid)
     +'<div class="section-title">Due-diligence vault</div>'
     +'<div class="disc-grid">'+cats+'</div>'
     +(c.linkedin_url||c.website_url?'<div class="section-title">Links</div><div class="card">'
