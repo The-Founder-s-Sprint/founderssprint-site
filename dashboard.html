@@ -903,24 +903,24 @@
     <!-- ── REGISTRATIONS ─────────────────────────────────────────────── -->
     <div class="tab-panel" id="panel-registrations">
       <div class="filter-row">
-        <select class="filter-select" id="filter-cohort" onchange="renderRegistrations()">
+        <select class="filter-select" id="filter-cohort" onchange="regFilterChanged()">
           <option value="">All Cohorts</option>
         </select>
-        <select class="filter-select" id="filter-track" onchange="renderRegistrations()">
+        <select class="filter-select" id="filter-track" onchange="regFilterChanged()">
           <option value="">All Tracks</option>
           <option value="single">1-on-1 Session</option>
           <option value="pick3">Pick 3 Bundle</option>
           <option value="cohort">Full Cohort</option>
           <option value="vip1on1">VIP 1-on-1</option>
         </select>
-        <select class="filter-select" id="filter-payment" onchange="renderRegistrations()">
+        <select class="filter-select" id="filter-payment" onchange="regFilterChanged()">
           <option value="">All Statuses</option>
           <option value="fully_paid">Fully Paid</option>
           <option value="deposit_only">Deposit Only</option>
           <option value="unpaid">No Payment</option>
           <option value="forfeited">Forfeited</option>
         </select>
-        <input class="filter-input" type="text" id="filter-search" placeholder="Search name or email…" oninput="renderRegistrations()">
+        <input class="filter-input" type="text" id="filter-search" placeholder="Search name or email…" oninput="regSearchChanged()">
       </div>
       <div class="table-wrap">
         <table>
@@ -936,6 +936,7 @@
           </tbody>
         </table>
       </div>
+      <div id="reg-pager"></div>
     </div>
 
     <!-- ── REVENUE ────────────────────────────────────────────────────── -->
@@ -1864,12 +1865,15 @@ window.requestIdleCallback = window.requestIdleCallback || function(cb, opts) {
 };
 
 // ── STATE ─────────────────────────────────────────────────────────────────────
-let allRegs    = [];
+let analytics  = null;   // server-side aggregates (admin_registration_analytics)
+let regRows    = [];     // current page of registrations only (NOT the whole table)
 let allCohorts = [];
 let allDocs    = [];
-let allPayReqs = [];
+let allPayReqs = [];      // success payment_requests for the current reg page only
 let pendingPayment = null;
 let pendingFile    = null;
+const REG_PAGE = 25;
+let regState   = { page: 0, total: 0, loading: false };
 
 // ── AUTH ─────────────────────────────────────────────────────────────────────
 async function signIn() {
@@ -2182,30 +2186,91 @@ async function _pgQuery(table, params) {
   return res.json();
 }
 
+// Paged PostgREST fetch — returns { rows, total } using an exact count header.
+async function _pgPaged(table, params, from, to) {
+  const token = await _getValidToken();
+  const url = SUPABASE_URL + '/rest/v1/' + table + '?' + params;
+  const doFetch = (t) => fetch(url, {
+    headers: {
+      'apikey': SUPABASE_ANON,
+      'Authorization': 'Bearer ' + t,
+      'Accept': 'application/json',
+      'Range-Unit': 'items',
+      'Range': from + '-' + to,
+      'Prefer': 'count=exact',
+    }
+  });
+  let res = await doFetch(token);
+  if (res.status === 401) res = await doFetch(await _refreshToken());
+  // 416 = requested range past the end (e.g. stale offset after the set shrank)
+  if (res.status === 416) {
+    const cr0 = res.headers.get('content-range') || '';
+    const t0 = cr0.includes('/') ? parseInt(cr0.split('/')[1], 10) : 0;
+    return { rows: [], total: isNaN(t0) ? 0 : t0 };
+  }
+  if (!res.ok && res.status !== 206) { const e = await res.json().catch(() => ({})); throw new Error(e.message || res.status); }
+  const rows = await res.json();
+  const cr = res.headers.get('content-range') || '';        // e.g. "0-24/137"
+  const total = cr.includes('/') ? parseInt(cr.split('/')[1], 10) : rows.length;
+  return { rows, total: isNaN(total) ? rows.length : total };
+}
+
+// SECURITY DEFINER RPC call (POST /rpc/<fn>)
+async function _pgRpc(fn, body) {
+  const token = await _getValidToken();
+  const url = SUPABASE_URL + '/rest/v1/rpc/' + fn;
+  const opts = (t) => ({
+    method: 'POST',
+    headers: {
+      'apikey': SUPABASE_ANON,
+      'Authorization': 'Bearer ' + t,
+      'Content-Type': 'application/json',
+      'Accept': 'application/json',
+    },
+    body: JSON.stringify(body || {}),
+  });
+  let res = await fetch(url, opts(token));
+  if (res.status === 401) res = await fetch(url, opts(await _refreshToken()));
+  if (!res.ok) { const e = await res.json().catch(() => ({})); throw new Error(e.message || res.status); }
+  return res.json();
+}
+
+// Build a safe PostgREST or=(col.ilike.*q*,…) group. Strips PostgREST-significant
+// chars and lone surrogates so a search term can never break out of the filter.
+function regIlikeOr(cols, q) {
+  let clean = String(q || '').replace(/[(),.*%"'!~\\ -]/g, ' ')
+    .replace(/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:^|[^\uD800-\uDBFF])[\uDC00-\uDFFF]/g, ' ')
+    .trim();
+  if (!clean) return '';
+  let e; try { e = encodeURIComponent('*' + clean + '*'); } catch (_) { return ''; }
+  return 'or=(' + cols.map(c => c + '.ilike.' + e).join(',') + ')';
+}
+
 async function loadAllData() {
-  // Fire all boot queries in parallel — each handles its own errors so one failure doesn't block others
+  // Boot queries in parallel. Registrations are NO LONGER bulk-loaded — overview/
+  // revenue read a server-side aggregate (admin_registration_analytics) and the
+  // registrations table is fetched one page at a time. This keeps payload O(1) as
+  // the table grows from ITM (~120) to TAM (~50k+ founders/yr).
   const results = await Promise.allSettled([
-    _pgQuery('registrations', 'select=*&order=created_at.desc'),
+    _pgRpc('admin_registration_analytics'),
     _pgQuery('cohorts', 'select=*&order=id'),
     _pgQuery('documents', 'select=*&order=created_at.desc'),
-    _pgQuery('payment_requests', 'select=*&status=eq.success'),
     _pgQuery('coaches', 'select=id,first_name,last_name,email,sector_l1,founderssprint_email,user_id,avatar_url&role=eq.coach&status=eq.active&order=id'),
   ]);
 
-  allRegs       = results[0].status === 'fulfilled' ? (results[0].value || []) : [];
+  analytics     = results[0].status === 'fulfilled' ? (results[0].value || null) : null;
   allCohorts    = results[1].status === 'fulfilled' ? (results[1].value || []) : [];
   allDocs       = results[2].status === 'fulfilled' ? (results[2].value || []) : [];
-  allPayReqs    = results[3].status === 'fulfilled' ? (results[3].value || []) : [];
-  inviteCoaches = results[4].status === 'fulfilled' ? (results[4].value || []) : [];
+  inviteCoaches = results[3].status === 'fulfilled' ? (results[3].value || []) : [];
 
   // Log any failures
   results.forEach((r, i) => { if (r.status === 'rejected') console.error('[Data] Query ' + i + ' failed:', r.reason?.message || r.reason); });
-  console.info('[Data] Loaded:', allRegs.length, 'regs,', allCohorts.length, 'cohorts,', inviteCoaches.length, 'coaches');
+  console.info('[Data] Loaded analytics:', !!analytics, '| cohorts', allCohorts.length, '| coaches', inviteCoaches.length);
 
   // Render each section independently — one crash must not block the others
   try { populateCohortFilters(); } catch(e) { console.error('[Render] cohortFilters:', e); }
   try { renderOverview(); }        catch(e) { console.error('[Render] overview:', e); }
-  try { renderRegistrations(); }   catch(e) { console.error('[Render] registrations:', e); }
+  try { regState.page = 0; renderRegistrations(); } catch(e) { console.error('[Render] registrations:', e); }
   try { renderRevenue(); }         catch(e) { console.error('[Render] revenue:', e); }
   try { renderDocuments(); }       catch(e) { console.error('[Render] documents:', e); }
 
@@ -2232,7 +2297,7 @@ function iotecPayment(regId, paymentType) {
 }
 
 async function sendIotecRequest(regId, paymentType) {
-  const r = allRegs.find(r => r.id === regId);
+  const r = regRows.find(r => r.id === regId);
   if (!r || !r.phone) { showToast('No phone number on file for this registration.', 'error'); return; }
   const phone = prompt(`Send ${paymentType} request to phone:\n(pre-filled from registration)`, r.phone);
   if (!phone) return;
@@ -2264,29 +2329,26 @@ function fmtDate(ts) {
 
 // ── OVERVIEW ─────────────────────────────────────────────────────────────────
 function renderOverview() {
-  const active     = allRegs.filter(r => !r.forfeited);
-  const fullyPaid  = active.filter(r => r.deposit_paid && r.balance_paid);
-  const depositOnly= active.filter(r => r.deposit_paid && !r.balance_paid);
-  const collected  = active.reduce((s, r) => s + (r.deposit_paid ? r.deposit_amount : 0) + (r.balance_paid ? r.balance_amount : 0), 0);
-  const pending    = depositOnly.reduce((s, r) => s + r.balance_amount, 0);
-  const openCohorts= allCohorts.filter(c => c.status !== 'full').length;
+  const a = analytics || {};
+  const ov = a.overview || { active: 0, collected: 0, pending: 0, fully_paid: 0, deposit_only: 0 };
+  const openCohorts = allCohorts.filter(c => c.status !== 'full').length;
 
-  document.getElementById('stat-total').textContent       = active.length;
-  document.getElementById('stat-collected').textContent   = fmtUGX(collected);
+  document.getElementById('stat-total').textContent         = ov.active;
+  document.getElementById('stat-collected').textContent     = fmtUGX(ov.collected);
   document.getElementById('stat-collected-sub').textContent = 'deposits + balances received';
-  document.getElementById('stat-pending').textContent     = fmtUGX(pending);
-  document.getElementById('stat-pending-sub').textContent = `${depositOnly.length} founder${depositOnly.length !== 1 ? 's' : ''} awaiting balance`;
-  document.getElementById('stat-cohorts').textContent     = openCohorts;
-  document.getElementById('stat-fullypaid').textContent   = fullyPaid.length;
-  document.getElementById('stat-depositonly').textContent = depositOnly.length;
+  document.getElementById('stat-pending').textContent       = fmtUGX(ov.pending);
+  document.getElementById('stat-pending-sub').textContent   = `${ov.deposit_only} founder${ov.deposit_only !== 1 ? 's' : ''} awaiting balance`;
+  document.getElementById('stat-cohorts').textContent       = openCohorts;
+  document.getElementById('stat-fullypaid').textContent     = ov.fully_paid;
+  document.getElementById('stat-depositonly').textContent   = ov.deposit_only;
 
-  try { renderTrackChart(active); }       catch(e) { console.error('[Render] trackChart:', e); }
-  try { renderSectorChart(active); }      catch(e) { console.error('[Render] sectorChart:', e); }
-  try { renderRevenueChart(); }           catch(e) { console.error('[Render] revenueChart:', e); }
-  try { renderTimelineChart(active); }    catch(e) { console.error('[Render] timelineChart:', e); }
-  try { renderPaymentFunnel(allRegs); }   catch(e) { console.error('[Render] paymentFunnel:', e); }
-  try { renderCoachRoster(); }            catch(e) { console.error('[Render] coachRoster:', e); }
-  try { renderDemographics(allRegs); }    catch(e) { console.error('[Render] demographics:', e); }
+  try { renderTrackChart(a.by_track || []); }     catch(e) { console.error('[Render] trackChart:', e); }
+  try { renderSectorChart(a.by_sector || []); }   catch(e) { console.error('[Render] sectorChart:', e); }
+  try { renderRevenueChart(a.by_cohort || []); }  catch(e) { console.error('[Render] revenueChart:', e); }
+  try { renderTimelineChart(a.by_week || []); }   catch(e) { console.error('[Render] timelineChart:', e); }
+  try { renderPaymentFunnel(a.funnel || null); }  catch(e) { console.error('[Render] paymentFunnel:', e); }
+  try { renderCoachRoster(); }                    catch(e) { console.error('[Render] coachRoster:', e); }
+  try { renderDemographics(a); }                  catch(e) { console.error('[Render] demographics:', e); }
 }
 
 // ── FS discipline palette ────────────────────────────────────────────────────
@@ -2328,15 +2390,17 @@ const CHART_DEFAULTS = {
   }
 };
 
-function renderTrackChart(regs) {
-  const single  = regs.filter(r => r.track === 'single').length;
-  const pick3   = regs.filter(r => r.track === 'pick3').length;
-  const cohort  = regs.filter(r => r.track === 'cohort').length;
-  const vip1on1 = regs.filter(r => r.track === 'vip1on1').length;
+function renderTrackChart(byTrack) {
+  const cnt = {};
+  (byTrack || []).forEach(t => { cnt[t.track] = (cnt[t.track] || 0) + (t.count || 0); });
+  const single  = cnt['single']  || 0;
+  const pick3   = cnt['pick3']   || 0;
+  const cohort  = cnt['cohort']  || 0;
+  const vip1on1 = cnt['vip1on1'] || 0;
   // Count legacy tracks too
-  const legacyGroup = regs.filter(r => r.track === 'group').length;
-  const legacyOto   = regs.filter(r => r.track === 'oneOnOne').length;
-  const legacyVip   = regs.filter(r => r.track === 'vip').length;
+  const legacyGroup = cnt['group']    || 0;
+  const legacyOto   = cnt['oneOnOne'] || 0;
+  const legacyVip   = cnt['vip']      || 0;
 
   if (chartTrack) chartTrack.destroy();
   chartTrack = new Chart(document.getElementById('chart-track'), {
@@ -2358,13 +2422,9 @@ function renderTrackChart(regs) {
   });
 }
 
-function renderSectorChart(regs) {
-  const counts = {};
-  regs.forEach(r => {
-    const s = r.sector || 'Not specified';
-    counts[s] = (counts[s] || 0) + 1;
-  });
-  const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, 8);
+function renderSectorChart(bySector) {
+  const sorted = (bySector || []).map(s => [s.sector || 'Not specified', s.count || 0])
+    .sort((a, b) => b[1] - a[1]).slice(0, 8);
 
   if (chartSector) chartSector.destroy();
   chartSector = new Chart(document.getElementById('chart-sector'), {
@@ -2387,13 +2447,13 @@ function renderSectorChart(regs) {
   });
 }
 
-function renderRevenueChart() {
+function renderRevenueChart(byCohort) {
   const byC = {};
   allCohorts.forEach(c => { byC[c.id] = { name: c.name, collected: 0 }; });
-  allRegs.filter(r => !r.forfeited).forEach(r => {
-    if (!byC[r.cohort_id]) byC[r.cohort_id] = { name: cohortName(r.cohort_id), collected: 0 };
-    if (r.deposit_paid) byC[r.cohort_id].collected += r.deposit_amount;
-    if (r.balance_paid) byC[r.cohort_id].collected += r.balance_amount;
+  (byCohort || []).forEach(row => {
+    const id = row.cohort_id;
+    if (!byC[id]) byC[id] = { name: cohortName(id), collected: 0 };
+    byC[id].collected += (row.collected || 0);
   });
 
   const labels = Object.values(byC).map(c => c.name);
@@ -2444,26 +2504,18 @@ function renderRevenueChart() {
 }
 
 // ── REGISTRATION TIMELINE ────────────────────────────────────────────────────
-function renderTimelineChart(regs) {
-  if (!regs.length) {
+function renderTimelineChart(byWeek) {
+  byWeek = byWeek || [];
+  if (!byWeek.length) {
     const el = document.getElementById('chart-timeline');
     if (el && el.parentElement) el.parentElement.innerHTML = '<div class="empty">No registration data yet</div>';
     return;
   }
 
-  // Group by week (ISO week start = Monday)
-  const byWeek = {};
-  regs.forEach(r => {
-    const d = new Date(r.created_at);
-    const mon = new Date(d); mon.setDate(d.getDate() - ((d.getDay() + 6) % 7));
-    const key = mon.toISOString().split('T')[0];
-    byWeek[key] = (byWeek[key] || 0) + 1;
-  });
-
-  const weeks = Object.keys(byWeek).sort();
-  // Build cumulative
+  // Server already grouped active regs by ISO week (Monday) and sorted ascending.
+  const weeks = byWeek.map(w => w.week);
   let cumulative = 0;
-  const cumData = weeks.map(w => { cumulative += byWeek[w]; return cumulative; });
+  const cumData = byWeek.map(w => { cumulative += (w.count || 0); return cumulative; });
   const weekLabels = weeks.map(w => {
     const d = new Date(w);
     return d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short' });
@@ -2517,15 +2569,15 @@ function renderTimelineChart(regs) {
 }
 
 // ── PAYMENT FUNNEL ───────────────────────────────────────────────────────────
-function renderPaymentFunnel(regs) {
+function renderPaymentFunnel(funnel) {
   const container = document.getElementById('funnel-container');
   if (!container) return;
 
-  const active     = regs.filter(r => !r.forfeited);
-  const total      = active.length;
-  const deposited  = active.filter(r => r.deposit_paid).length;
-  const fullyPaid  = active.filter(r => r.deposit_paid && r.balance_paid).length;
-  const forfeited  = regs.filter(r => r.forfeited).length;
+  funnel = funnel || { total: 0, deposited: 0, fully_paid: 0, forfeited: 0 };
+  const total      = funnel.total || 0;
+  const deposited  = funnel.deposited || 0;
+  const fullyPaid  = funnel.fully_paid || 0;
+  const forfeited  = funnel.forfeited || 0;
 
   if (total === 0) {
     container.innerHTML = '<div class="empty">No registrations yet</div>';
@@ -2594,35 +2646,35 @@ function renderCoachRoster() {
 }
 
 // ── FOUNDER DEMOGRAPHICS ─────────────────────────────────────────────────────
-function renderDemographics(regs) {
+function renderDemographics(a) {
   const grid = document.getElementById('demographics-grid');
   if (!grid) return;
 
-  const active = regs.filter(r => !r.forfeited);
+  a = a || {};
+  const activeCount = (a.overview && a.overview.active) || 0;
 
-  if (!active.length) {
+  if (!activeCount) {
     grid.innerHTML = '<div class="empty" style="grid-column:1/-1">No founder data yet — demographics populate as registrations come in</div>';
     return;
   }
 
-  // ── Sector Distribution (top 6) ──
-  const sectors = {};
-  active.forEach(r => { const s = r.sector || 'Not specified'; sectors[s] = (sectors[s] || 0) + 1; });
-  const topSectors = Object.entries(sectors).sort((a, b) => b[1] - a[1]).slice(0, 6);
+  // ── Sector Distribution (top 6) — server already sorted desc ──
+  const topSectors = (a.by_sector || []).map(s => [s.sector || 'Not specified', s.count || 0]).slice(0, 6);
 
   // ── Track Distribution ──
   const TRACK_LABEL = { single: '1-on-1 Session', pick3: 'Pick 3 Bundle', cohort: 'Full Cohort', vip1on1: 'VIP 1-on-1' };
-  const tracks = {};
-  active.forEach(r => { const t = TRACK_LABEL[r.track] || r.track || 'Unknown'; tracks[t] = (tracks[t] || 0) + 1; });
-  const topTracks = Object.entries(tracks).sort((a, b) => b[1] - a[1]);
+  const trackAgg = {};
+  (a.by_track || []).forEach(t => {
+    const label = TRACK_LABEL[t.track] || t.track || 'Unknown';
+    trackAgg[label] = (trackAgg[label] || 0) + (t.count || 0);
+  });
+  const topTracks = Object.entries(trackAgg).sort((x, y) => y[1] - x[1]);
 
-  // ── Registration Recency ──
-  const now = new Date();
-  const last7  = active.filter(r => (now - new Date(r.created_at)) < 7  * 86400000).length;
-  const last30 = active.filter(r => (now - new Date(r.created_at)) < 30 * 86400000).length;
-
-  // ── Average Deal Size ──
-  const avgFee = active.length ? Math.round(active.reduce((s, r) => s + (r.full_fee || 0), 0) / active.length) : 0;
+  // ── Registration Recency + Avg Deal Size (server-computed) ──
+  const last7  = (a.recency && a.recency.last7)  || 0;
+  const last30 = (a.recency && a.recency.last30) || 0;
+  const avgFee = a.avg_fee || 0;
+  const sectorsRepresented = a.sectors_count || topSectors.length;
 
   function miniBar(items, colors) {
     const max = Math.max(...items.map(([,v]) => v), 1);
@@ -2669,7 +2721,7 @@ function renderDemographics(regs) {
           <div style="font-size:10px;color:var(--muted)">Avg. deal size</div>
         </div>
         <div>
-          <div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--ink)">${Object.keys(sectors).length}</div>
+          <div style="font-family:var(--mono);font-size:18px;font-weight:700;color:var(--ink)">${sectorsRepresented}</div>
           <div style="font-size:10px;color:var(--muted)">Sectors represented</div>
         </div>
       </div>
@@ -2718,33 +2770,81 @@ function trackBadge(t) {
   return t;
 }
 
-function renderRegistrations() {
+// Build the PostgREST query string from the current filter controls.
+function regQueryParams() {
   const cohortF = document.getElementById('filter-cohort').value;
   const trackF  = document.getElementById('filter-track').value;
   const payF    = document.getElementById('filter-payment').value;
-  const searchF = document.getElementById('filter-search').value.toLowerCase();
+  const searchF = document.getElementById('filter-search').value;
 
-  let rows = allRegs.filter(r => {
-    if (cohortF && String(r.cohort_id) !== cohortF) return false;
-    if (trackF  && r.track !== trackF)              return false;
-    if (payF === 'fully_paid'   && !(r.deposit_paid && r.balance_paid)) return false;
-    if (payF === 'deposit_only' && !(r.deposit_paid && !r.balance_paid)) return false;
-    if (payF === 'unpaid'       && (r.deposit_paid || r.forfeited))      return false;
-    if (payF === 'forfeited'    && !r.forfeited)                          return false;
-    if (searchF) {
-      const name = `${r.first_name} ${r.last_name}`.toLowerCase();
-      if (!name.includes(searchF) && !r.email.toLowerCase().includes(searchF)) return false;
-    }
-    return true;
-  });
+  const cols = 'id,first_name,last_name,email,company,cohort_id,track,sector,' +
+    'deposit_amount,balance_amount,full_fee,deposit_paid,balance_paid,forfeited,created_at,admin_note,phone';
+  const parts = ['select=' + cols, 'order=created_at.desc'];
 
+  if (cohortF) parts.push('cohort_id=eq.' + encodeURIComponent(cohortF));
+  if (trackF)  parts.push('track=eq.' + encodeURIComponent(trackF));
+  if (payF === 'fully_paid')   { parts.push('deposit_paid=eq.true');  parts.push('balance_paid=eq.true'); }
+  if (payF === 'deposit_only') { parts.push('deposit_paid=eq.true');  parts.push('balance_paid=eq.false'); }
+  if (payF === 'unpaid')       { parts.push('deposit_paid=eq.false'); parts.push('forfeited=eq.false'); }
+  if (payF === 'forfeited')    { parts.push('forfeited=eq.true'); }
+  const or = regIlikeOr(['first_name', 'last_name', 'email'], searchF);
+  if (or) parts.push(or);
+  return parts.join('&');
+}
+
+let _regSearchTimer = null;
+function regFilterChanged() {                 // selects: reset to page 1 + reload
+  regState.page = 0;
+  renderRegistrations();
+}
+function regSearchChanged() {                  // search box: debounce 280ms
+  clearTimeout(_regSearchTimer);
+  _regSearchTimer = setTimeout(() => { regState.page = 0; renderRegistrations(); }, 280);
+}
+function regGoPage(delta) {
+  const maxPage = Math.max(0, Math.ceil(regState.total / REG_PAGE) - 1);
+  regState.page = Math.min(maxPage, Math.max(0, regState.page + delta));
+  renderRegistrations();
+}
+
+async function renderRegistrations() {
+  if (regState.loading) return;
+  regState.loading = true;
   const tbody = document.getElementById('reg-tbody');
-  if (rows.length === 0) {
+  const from = regState.page * REG_PAGE;
+  const to   = from + REG_PAGE - 1;
+
+  let result;
+  try {
+    result = await _pgPaged('registrations', regQueryParams(), from, to);
+  } catch (e) {
+    console.error('[Render] registrations:', e);
+    tbody.innerHTML = '<tr><td colspan="12" class="empty">Could not load registrations — ' + (e.message || 'error') + '</td></tr>';
+    regState.loading = false;
+    return;
+  }
+  regRows = result.rows || [];
+  regState.total = result.total || 0;
+
+  // Fetch iotec payment markers only for the rows on this page (bounded, not the whole table).
+  allPayReqs = [];
+  const ids = regRows.map(r => r.id);
+  if (ids.length) {
+    try {
+      allPayReqs = await _pgQuery('payment_requests',
+        'select=registration_id,payment_type&status=eq.success&registration_id=in.(' + ids.join(',') + ')');
+    } catch (e) { console.warn('[Render] payment markers:', e.message); }
+  }
+
+  renderRegPager();
+
+  if (regRows.length === 0) {
     tbody.innerHTML = '<tr><td colspan="12" class="empty">No registrations match this filter.</td></tr>';
+    regState.loading = false;
     return;
   }
 
-  tbody.innerHTML = rows.map(r => {
+  tbody.innerHTML = regRows.map(r => {
     const { label, cls } = paymentStatus(r);
     const depositDone = r.deposit_paid;
     const balanceDone = r.balance_paid;
@@ -2775,12 +2875,32 @@ function renderRegistrations() {
       </td>
     </tr>`;
   }).join('');
+  regState.loading = false;
+}
+
+// Pager controls under the registrations table.
+function renderRegPager() {
+  let el = document.getElementById('reg-pager');
+  if (!el) return;
+  const total = regState.total;
+  if (!total) { el.innerHTML = ''; return; }
+  const from = regState.page * REG_PAGE + 1;
+  const to   = Math.min(total, (regState.page + 1) * REG_PAGE);
+  const maxPage = Math.ceil(total / REG_PAGE) - 1;
+  el.innerHTML =
+    '<div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 4px;font-size:12px;color:var(--muted)">' +
+      '<span>Showing <strong style="color:var(--ink)">' + from + '–' + to + '</strong> of <strong style="color:var(--ink)">' + total + '</strong></span>' +
+      '<span style="display:flex;gap:8px">' +
+        '<button class="action-btn" ' + (regState.page <= 0 ? 'disabled style="opacity:.4"' : '') + ' onclick="regGoPage(-1)">‹ Prev</button>' +
+        '<button class="action-btn" ' + (regState.page >= maxPage ? 'disabled style="opacity:.4"' : '') + ' onclick="regGoPage(1)">Next ›</button>' +
+      '</span>' +
+    '</div>';
 }
 
 // ── PAYMENT MODAL ─────────────────────────────────────────────────────────────
 function openPaymentModal(registrationId, paymentType) {
   pendingPayment = { registrationId, paymentType };
-  const r = allRegs.find(r => r.id === registrationId);
+  const r = regRows.find(r => r.id === registrationId);
   const amount = paymentType === 'deposit' ? r.deposit_amount : r.balance_amount;
   document.getElementById('modal-title').textContent =
     `Confirm ${paymentType === 'deposit' ? 'Deposit' : 'Balance'} — ${fmtUGX(amount)} for ${r.first_name} ${r.last_name}`;
@@ -2819,14 +2939,19 @@ async function submitPayment() {
 
 // ── REVENUE ───────────────────────────────────────────────────────────────────
 function renderRevenue() {
-  const active = allRegs.filter(r => !r.forfeited);
-  const totalFees   = active.reduce((s, r) => s + r.full_fee, 0);
-  const collected   = active.reduce((s, r) => s + (r.deposit_paid ? r.deposit_amount : 0) + (r.balance_paid ? r.balance_amount : 0), 0);
-  const outstanding = active.filter(r => r.deposit_paid && !r.balance_paid).reduce((s, r) => s + r.balance_amount, 0);
+  const a = analytics || {};
+  const rev = a.revenue || { total_fees: 0, collected: 0, outstanding: 0 };
+  const activeCount = (a.overview && a.overview.active) || 0;
 
-  document.getElementById('rev-total').textContent       = fmtUGX(totalFees);
-  document.getElementById('rev-collected').textContent   = fmtUGX(collected);
-  document.getElementById('rev-outstanding').textContent = fmtUGX(outstanding);
+  document.getElementById('rev-total').textContent       = fmtUGX(rev.total_fees);
+  document.getElementById('rev-collected').textContent   = fmtUGX(rev.collected);
+  document.getElementById('rev-outstanding').textContent = fmtUGX(rev.outstanding);
+
+  // Index server aggregates by track / cohort
+  const trackMap = {};
+  (a.by_track || []).forEach(t => { trackMap[t.track] = t; });
+  const cohortMap = {};
+  (a.by_cohort || []).forEach(c => { cohortMap[c.cohort_id] = c; });
 
   const tracks = [
     { key: 'single',  label: '1-on-1' },
@@ -2835,24 +2960,18 @@ function renderRevenue() {
     { key: 'vip1on1', label: 'VIP' },
   ];
   const tbodyTrack = document.querySelector('#rev-by-track tbody');
-  let totalTrackCollected = 0, totalTrackOutstanding = 0;
   tbodyTrack.innerHTML = tracks.map(({ key, label }) => {
-    const regs = active.filter(r => r.track === key);
-    const col  = regs.reduce((s, r) => s + (r.deposit_paid ? r.deposit_amount : 0) + (r.balance_paid ? r.balance_amount : 0), 0);
-    const out  = regs.filter(r => r.deposit_paid && !r.balance_paid).reduce((s, r) => s + r.balance_amount, 0);
-    totalTrackCollected += col; totalTrackOutstanding += out;
-    return `<tr><td>${label}</td><td>${regs.length}</td><td class="text-gold" style="font-family:var(--mono)">${fmtUGX(col)}</td><td class="${out > 0 ? 'text-red' : ''}" style="font-family:var(--mono)">${fmtUGX(out)}</td></tr>`;
-  }).join('') + `<tr><td>Total</td><td>${active.length}</td><td style="font-family:var(--mono)">${fmtUGX(totalTrackCollected)}</td><td style="font-family:var(--mono)">${fmtUGX(totalTrackOutstanding)}</td></tr>`;
+    const t = trackMap[key] || { count: 0, collected: 0, outstanding: 0 };
+    return `<tr><td>${label}</td><td>${t.count}</td><td class="text-gold" style="font-family:var(--mono)">${fmtUGX(t.collected)}</td><td class="${t.outstanding > 0 ? 'text-red' : ''}" style="font-family:var(--mono)">${fmtUGX(t.outstanding)}</td></tr>`;
+  }).join('') + `<tr><td>Total</td><td>${activeCount}</td><td style="font-family:var(--mono)">${fmtUGX(rev.collected)}</td><td style="font-family:var(--mono)">${fmtUGX(rev.outstanding)}</td></tr>`;
 
   const tbodyCohort = document.querySelector('#rev-by-cohort tbody');
-  let totalCCol = 0, totalCOut = 0;
+  let totalCCount = 0;
   tbodyCohort.innerHTML = allCohorts.map(c => {
-    const regs = active.filter(r => r.cohort_id === c.id);
-    const col  = regs.reduce((s, r) => s + (r.deposit_paid ? r.deposit_amount : 0) + (r.balance_paid ? r.balance_amount : 0), 0);
-    const out  = regs.filter(r => r.deposit_paid && !r.balance_paid).reduce((s, r) => s + r.balance_amount, 0);
-    totalCCol += col; totalCOut += out;
-    return `<tr><td>${c.name}</td><td>${regs.length}</td><td class="text-gold" style="font-family:var(--mono)">${fmtUGX(col)}</td><td class="${out > 0 ? 'text-red' : ''}" style="font-family:var(--mono)">${fmtUGX(out)}</td></tr>`;
-  }).join('') + `<tr><td>Total</td><td>${active.length}</td><td style="font-family:var(--mono)">${fmtUGX(totalCCol)}</td><td style="font-family:var(--mono)">${fmtUGX(totalCOut)}</td></tr>`;
+    const row = cohortMap[c.id] || { count: 0, collected: 0, outstanding: 0 };
+    totalCCount += row.count;
+    return `<tr><td>${c.name}</td><td>${row.count}</td><td class="text-gold" style="font-family:var(--mono)">${fmtUGX(row.collected)}</td><td class="${row.outstanding > 0 ? 'text-red' : ''}" style="font-family:var(--mono)">${fmtUGX(row.outstanding)}</td></tr>`;
+  }).join('') + `<tr><td>Total</td><td>${totalCCount}</td><td style="font-family:var(--mono)">${fmtUGX(rev.collected)}</td><td style="font-family:var(--mono)">${fmtUGX(rev.outstanding)}</td></tr>`;
 }
 
 // ── DOCUMENTS ─────────────────────────────────────────────────────────────────
