@@ -267,13 +267,32 @@ async function boot(user){
 }
 
 // ── FOUNDERS ──
+const TRACK_LBL={single:'1:1 Session',pick3:'Pick 3 Bundle',cohort:'Full Cohort',vip1on1:'VIP 1:1',group:'Full Cohort',oneOnOne:'1:1 Session',vip:'VIP'};
 async function loadRoster(){
   founders=await _q('founder_profiles','select=id,first_name,last_name,company_name,sector,stage,enrolled_disciplines&order=company_name');
+  let meta={};
+  try{ (await _rpc('coach_founder_meta')||[]).forEach(x=>{ meta[x.founder_id]=x; }); }catch(e){}
   const el=document.getElementById('roster');
   if(!founders.length){ el.innerHTML='<div class="empty">No founders enrolled yet.</div>'; return; }
-  el.innerHTML=founders.map(f=>'<div class="list-row click" onclick="openFounder(\''+f.id+'\')"><div><div class="list-main">'+esc(f.company_name||((f.first_name||'')+' '+(f.last_name||'')))+'</div>'
-    +'<div class="list-sub">'+esc((f.first_name||'')+' '+(f.last_name||''))+' · '+esc(f.sector||'—')+'</div></div>'
-    +'<span class="pill pill-terra">Open</span></div>').join('');
+  const card=f=>{
+    const mt=meta[f.id];
+    const trk=mt&&mt.track?(' · '+esc(TRACK_LBL[mt.track]||mt.track)):'';
+    const att=mt
+      ? (mt.attendee==='current'
+          ? '<span class="pill" style="background:rgba(10,143,100,.14);color:#0A8F64">Current</span>'
+          : '<span class="pill pill-grey">Previous</span>')
+      : '<span class="pill pill-grey">Not booked</span>';
+    return '<div class="list-row click" onclick="openFounder(\''+f.id+'\')"><div><div class="list-main">'+esc(f.company_name||((f.first_name||'')+' '+(f.last_name||'')))+'</div>'
+      +'<div class="list-sub">'+esc((f.first_name||'')+' '+(f.last_name||''))+' · '+esc(f.sector||'—')+trk+'</div></div>'
+      +'<div style="display:flex;gap:8px;align-items:center">'+att+'<span class="pill pill-terra">Open</span></div></div>';
+  };
+  const cur=founders.filter(f=>meta[f.id]&&meta[f.id].attendee==='current');
+  const oth=founders.filter(f=>!(meta[f.id]&&meta[f.id].attendee==='current'));
+  const hdr=t=>'<div style="font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:14px 2px 6px">'+t+'</div>';
+  let html='';
+  if(cur.length) html+=hdr('Current cohort ('+cur.length+')')+cur.map(card).join('');
+  if(oth.length) html+=hdr('Previous &amp; unbooked ('+oth.length+')')+oth.map(card).join('');
+  el.innerHTML=html;
 }
 async function openFounder(fid){
   const f=founders.find(x=>x.id===fid);if(!f)return;
@@ -328,20 +347,33 @@ function renderSessions(){
   const co=document.getElementById('cohort-sessions');
   const mine=[...myDiscKeys].filter(k=>DISC_DAY[k]);
   if(!mine.length){ co.innerHTML='<div class="empty">No discipline assigned yet.</div>'; }
-  else co.innerHTML=mine.map(k=>{ const d=DISC_DAY[k]; const t=TAXONOMY.find(x=>x.key===k);
+  else { const gm=coach.group_meet_link;
+    const gbtn = gm
+      ? '<a class="pill" style="background:rgba(10,143,100,.14);color:#0A8F64;text-decoration:none" href="'+esc(gm)+'" target="_blank">Start session ↗</a> <a href="#" onclick="setGroupMeet();return false" style="font-size:10px;color:var(--muted);text-decoration:none">edit link</a>'
+      : '<a href="#" onclick="setGroupMeet();return false" style="font-size:11px;color:var(--terra);text-decoration:none;font-weight:600">+ Add Meet link</a>';
+    co.innerHTML=mine.map(k=>{ const d=DISC_DAY[k]; const t=TAXONOMY.find(x=>x.key===k);
     return '<div class="list-row"><div><div class="list-main">'+esc(t?t.label:k)+' — '+DAYS[d.day]+'s</div>'
       +'<div class="list-sub">Every '+DAYS[d.day]+', 10:00–12:00 EAT · group cohort session · lead: '+esc(d.coach)+'</div></div>'
-      +'<span class="pill pill-terra">Weekly</span></div>'; }).join('');
+      +'<div style="display:flex;gap:10px;align-items:center">'+gbtn+'<span class="pill pill-grey">Weekly</span></div></div>'; }).join('');
+  }
   // 1:1 sessions from the sessions table
   const oo=document.getElementById('oneonone-sessions');
   const ones=sessions.filter(s=>s.session_type!=='group');
   if(!ones.length){ oo.innerHTML='<div class="empty">No 1:1 sessions booked yet. Founders book these inside your availability windows.</div>'; return; }
   oo.innerHTML=ones.map(s=>{
     const upcoming=s.scheduled_at && new Date(s.scheduled_at)>=new Date();
-    const link=s.meet_link?'<a class="pill pill-terra" href="'+esc(s.meet_link)+'" target="_blank" style="text-decoration:none">Join</a>':'<span class="pill pill-grey">'+esc(s.status||'—')+'</span>';
+    const link=s.meet_link?'<a class="pill" style="background:rgba(10,143,100,.14);color:#0A8F64;text-decoration:none" href="'+esc(s.meet_link)+'" target="_blank">Start session ↗</a>':'<span class="pill pill-grey">Awaiting Meet link</span>';
     return '<div class="list-row"><div><div class="list-main">'+esc(s.title||'1:1 Intensive')+'</div>'
       +'<div class="list-sub">'+fmtDateTime(s.scheduled_at)+' · '+(s.duration_minutes||60)+' min</div></div>'+(upcoming?link:'<span class="pill pill-grey">'+esc(s.status||'Done')+'</span>')+'</div>';
   }).join('');
+}
+
+async function setGroupMeet(){
+  const v=prompt('Paste the Google Meet link for your weekly group cohort session:', coach.group_meet_link||'https://meet.google.com/');
+  if(v===null) return;
+  const link=v.trim()==='https://meet.google.com/'?'':v.trim();
+  try{ await _w('PATCH','coaches','id=eq.'+coach.id,{group_meet_link:link||null}); coach.group_meet_link=link||null; renderSessions(); showToast('Group session link saved','success'); }
+  catch(e){ showToast('Could not save — '+e.message,'error'); }
 }
 
 // ── PROFILE ──
@@ -465,7 +497,8 @@ function renderLeadApps(){
       + (bits.length?'<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-top:12px">'+bits.join('')+'</div>':'')
       + (a.coaching_philosophy?'<div style="font-size:13px;line-height:1.55;margin-top:10px"><b>Philosophy:</b> '+esc(a.coaching_philosophy)+'</div>':'')
       + (a.bio?'<div style="font-size:12.5px;color:var(--muted);line-height:1.5;margin-top:8px">'+esc(a.bio)+'</div>':'')
-      + '<div style="display:flex;gap:8px;margin-top:14px"><button class="btn" onclick="leadDecide(\''+a.id+'\',\'approved\')">Approve — fit to coach</button>'
+      + '<div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;align-items:center"><button class="btn" onclick="leadDecide(\''+a.id+'\',\'approved\')">Approve — fit to coach</button>'
+      + (a.email?'<a class="pill pill-terra" style="text-decoration:none" href="mailto:'+esc(a.email)+'?subject='+encodeURIComponent("The Founder's Sprint — your coach application")+'">Contact</a>':'')
       + '<button class="btn-del" onclick="leadDecide(\''+a.id+'\',\'rejected\')">Decline</button></div></div>';
   }).join('');
 }
@@ -507,13 +540,43 @@ function renderMaterials(){
 
 // ── availability (unchanged) ──
 let myWindows=[];
+const _avGhost='background:none;border:1px solid var(--border-hi);color:var(--ink-mid);padding:6px 12px;font-family:var(--sans);font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer';
 async function loadAvailability(){
   try{ myWindows=await _q('coach_availability','coach_id=eq.'+coach.id+'&select=id,day_of_week,start_time,end_time,is_active&order=day_of_week,start_time'); }catch(e){ myWindows=[]; }
+  renderAvailability();
+}
+function avDur(s,e){ const a=s.split(':').map(Number),b=e.split(':').map(Number); let m=(b[0]*60+b[1])-(a[0]*60+a[1]); if(m<0)m+=1440; const h=Math.floor(m/60),mm=m%60; return ((h?h+'h':'')+(mm?(h?' ':'')+mm+'m':''))||'0m'; }
+function renderAvailability(){
   const el=document.getElementById('av-list');
   if(!myWindows.length){ el.innerHTML='<div class="empty">No 1:1 windows yet. Add one above.</div>'; return; }
-  el.innerHTML=myWindows.map(w=>'<div class="av-row"><div style="flex:1"><span class="list-main">'+DAYS[w.day_of_week]+'</span> '
-    +'<span class="list-sub">'+w.start_time.slice(0,5)+' – '+w.end_time.slice(0,5)+' EAT</span></div>'
-    +'<button class="btn-del" onclick="delAvailability('+w.id+')">Remove</button></div>').join('');
+  const byDay={}; myWindows.forEach(w=>{(byDay[w.day_of_week]=byDay[w.day_of_week]||[]).push(w);});
+  el.innerHTML=Object.keys(byDay).sort((a,b)=>a-b).map(day=>
+    '<div style="margin-bottom:14px"><div style="font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--terra);margin:0 2px 6px">'+DAYS[day]+'</div>'
+    + byDay[day].map(avRow).join('') + '</div>').join('');
+}
+function avRow(w){
+  return '<div class="av-row" id="avrow-'+w.id+'">'
+    +'<div style="flex:1;display:flex;align-items:baseline;gap:10px"><span class="list-main" style="font-variant-numeric:tabular-nums">'+w.start_time.slice(0,5)+' – '+w.end_time.slice(0,5)+'</span>'
+    +'<span class="list-sub">'+avDur(w.start_time.slice(0,5),w.end_time.slice(0,5))+' · EAT</span></div>'
+    +'<div style="display:flex;gap:6px"><button style="'+_avGhost+'" onclick="editAvailability('+w.id+')">Edit</button>'
+    +'<button class="btn-del" onclick="delAvailability('+w.id+')">Remove</button></div></div>';
+}
+function editAvailability(id){
+  const w=myWindows.find(x=>x.id===id); if(!w) return;
+  const row=document.getElementById('avrow-'+id); if(!row) return;
+  const inp='background:rgba(0,0,0,.03);border:1px solid var(--border);padding:7px 9px;font-family:var(--font);font-size:13px';
+  row.innerHTML='<div style="flex:1;display:flex;align-items:center;gap:8px"><span class="list-sub" style="min-width:54px">'+DAYS[w.day_of_week]+'</span>'
+    +'<input type="time" id="ave-s-'+id+'" value="'+w.start_time.slice(0,5)+'" style="'+inp+'">'
+    +'<span style="color:var(--muted);font-size:12px">to</span>'
+    +'<input type="time" id="ave-e-'+id+'" value="'+w.end_time.slice(0,5)+'" style="'+inp+'"></div>'
+    +'<div style="display:flex;gap:6px"><button class="btn" onclick="saveAvailability('+id+')">Save</button>'
+    +'<button style="'+_avGhost+'" onclick="renderAvailability()">Cancel</button></div>';
+}
+async function saveAvailability(id){
+  const s=document.getElementById('ave-s-'+id).value, e=document.getElementById('ave-e-'+id).value;
+  if(!s||!e||s>=e){ showToast('End time must be after start time','error'); return; }
+  try{ await _w('PATCH','coach_availability','id=eq.'+id,{start_time:s,end_time:e}); await loadAvailability(); showToast('Window updated','success'); }
+  catch(err){ showToast('Could not update — '+err.message,'error'); }
 }
 async function addAvailability(){
   const day=parseInt(document.getElementById('av-day').value,10);
