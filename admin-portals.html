@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Command Centre Â· Portals Â· The Founder's Sprint</title>
+<title>Command Centre · Portals · The Founder's Sprint</title>
 <link rel="icon" href="favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://ivedeivyotwevjxvcuoe.supabase.co" crossorigin>
@@ -130,18 +130,18 @@
       <div class="topbar-sep"></div><span class="topbar-sub">Command Centre</span>
     </div>
     <div class="topbar-right">
-      <a class="btn-ghost" href="/dashboard.html" title="Operations dashboard â cohorts, registrations, revenue" style="text-decoration:none">â© Ops dashboard</a>
+      <a class="btn-ghost" href="/dashboard.html" title="Operations dashboard — cohorts, registrations, revenue" style="text-decoration:none">↩ Ops dashboard</a>
       <span class="topbar-user" id="user-email"></span>
       <button class="btn-ghost" onclick="signOut()">Sign Out</button>
     </div>
   </div>
   <div class="tabs" id="tabs"></div>
   <div class="main">
-    <div class="page-eyebrow">Super-admin Â· all portals</div>
+    <div class="page-eyebrow">Super-admin · all portals</div>
     <div class="page-title" id="portal-title">Portals</div>
     <div class="page-sub" id="portal-sub"></div>
     <div class="stat-row" id="stat-row"></div>
-    <input class="search" id="search" placeholder="Searchâ¦" oninput="onSearchInput()">
+    <input class="search" id="search" placeholder="Search…" oninput="onSearchInput()">
     <div id="roster"></div>
   </div>
 </div>
@@ -155,7 +155,7 @@ const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON,{auth:{detectSessionIn
 const DISC_LABEL={marketing:'Marketing & Branding',financial:'Financial Modelling',investment:'Investment Readiness',strategy:'Strategy & Team',product:'Product Dev & Pricing'};
 const TRACK_LABEL={single:'1:1 Session',pick3:'Pick 3 Bundle',cohort:'Full Cohort',group:'Full Cohort',vip1on1:'VIP 1:1',vip:'VIP Track'};
 
-// ââ auth layer (Safari-safe) ââ
+// ── auth layer (Safari-safe) ──
 const _SB_KEY='sb-'+SUPABASE_URL.split('//')[1].split('.')[0]+'-auth-token';
 let _rp=null,currentSession=null,booted=false;
 function _stored(){try{return JSON.parse(localStorage.getItem(_SB_KEY)||'{}');}catch{return{};}}
@@ -178,7 +178,7 @@ async function signIn(){
   const pw=document.getElementById('login-password').value;
   const err=document.getElementById('login-error');const btn=document.querySelector('.btn-login');err.textContent='';
   if(!email||!pw){err.textContent='Enter email and password';return;}
-  try{btn.disabled=true;btn.textContent='Signing inâ¦';
+  try{btn.disabled=true;btn.textContent='Signing in…';
     const{error}=await sb.auth.signInWithPassword({email,password:pw});
     if(error){err.textContent=error.message;}
   }catch(e){err.textContent=e.message;}finally{btn.disabled=false;btn.textContent='Enter';}
@@ -196,11 +196,11 @@ let _redir=false; function _toLogin(){ if(_redir||booted) return; _redir=true; l
   }catch(e){ _toLogin(); }
 })();
 
-// ââ state ââ
+// ── state ──
 let founders=[], pageCompanies=[], pageRegs=[], coaches=[], topics=[], roles=[];
 let applications=[], materials=[], presentations=[], invFirms=[], invMembers=[];
 let active='founders', coachSub='roster';
-// ââ server-side pagination (unbounded-growth tables: founders, firms) ââ
+// ── server-side pagination (unbounded-growth tables: founders, firms) ──
 const PAGE=25;
 let fState={page:0,total:0}, fStatCounts=null;          // founders
 let iState={page:0,total:0}, iStatCounts=null;          // investor firms
@@ -225,22 +225,22 @@ function pager(state, fn){
   const pages=Math.max(1,Math.ceil(state.total/PAGE)), cur=state.page+1;
   if(state.total<=PAGE) return '<div class="sub" style="margin-top:12px">'+state.total+' total</div>';
   return '<div style="display:flex;align-items:center;gap:12px;margin-top:16px">'
-    +'<button class="btn-sm" style="background:none;border:1px solid var(--border-hi);color:var(--ink-mid)" '+(state.page<=0?'disabled':'')+' onclick="'+fn+'(-1)">â¹ Prev</button>'
-    +'<span class="sub">Page '+cur+' of '+pages+' Â· '+state.total+' total</span>'
-    +'<button class="btn-sm" style="background:none;border:1px solid var(--border-hi);color:var(--ink-mid)" '+(cur>=pages?'disabled':'')+' onclick="'+fn+'(1)">Next âº</button></div>';
+    +'<button class="btn-sm" style="background:none;border:1px solid var(--border-hi);color:var(--ink-mid)" '+(state.page<=0?'disabled':'')+' onclick="'+fn+'(-1)">‹ Prev</button>'
+    +'<span class="sub">Page '+cur+' of '+pages+' · '+state.total+' total</span>'
+    +'<button class="btn-sm" style="background:none;border:1px solid var(--border-hi);color:var(--ink-mid)" '+(cur>=pages?'disabled':'')+' onclick="'+fn+'(1)">Next ›</button></div>';
 }
 function foundersPage(d){ fState.page=Math.max(0,fState.page+d); loadFounders(); }
 function investorsPage(d){ iState.page=Math.max(0,iState.page+d); loadInvestors(); }
 function searchVal(){ return (document.getElementById('search').value||'').trim(); }
 // Build a safe PostgREST ilike-OR filter. encodeURIComponent leaves ()*!' unencoded, and PostgREST
-// treats , ( ) . as filter syntax + % * as wildcards â so strip those from user input before building the filter.
+// treats , ( ) . as filter syntax + % * as wildcards — so strip those from user input before building the filter.
 function ilikeOr(cols,q){
   let clean=String(q||'').replace(/[(),.*%"'!~\\ -]/g,' ').replace(/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:^|[^\uD800-\uDBFF])[\uDC00-\uDFFF]/g,' ').trim();
   if(!clean) return '';
   let e; try{ e=encodeURIComponent('*'+clean+'*'); } catch(_){ return ''; }
   return 'or=('+cols.map(c=>c+'.ilike.'+e).join(',')+')';
 }
-// ââ scoped roles ââ
+// ── scoped roles ──
 let myRoles=[];
 const STAFF_ROLES=['admin','coach_support','investor_support','founder_support','finance','hub_partner'];
 const ROLE_LABEL={admin:'Super admin',coach_support:'Coach support',investor_support:'Investor support',founder_support:'Founder support',finance:'Finance',hub_partner:'Partner'};
@@ -271,10 +271,10 @@ const PORTALS=[
   {key:'admins',    label:'Admin & Ops'}
 ];
 const PORTAL_SUB={
-  founders:'Everyone with a founder account â their venture(s), enrolment, payment state and data-room sharing.',
-  coaches:'The single home for coach management â roster by discipline, the application pipeline (lead vets suitability â admin vets due-diligence), and all teaching materials.',
+  founders:'Everyone with a founder account — their venture(s), enrolment, payment state and data-room sharing.',
+  coaches:'The single home for coach management — roster by discipline, the application pipeline (lead vets suitability → admin vets due-diligence), and all teaching materials.',
   investors:'Approved and pending investor accounts with read access to opted-in data rooms.',
-  admins:'Privileged roles â platform admins and hub partners. This is who can see across every portal.'
+  admins:'Privileged roles — platform admins and hub partners. This is who can see across every portal.'
 };
 
 async function boot(user){
@@ -291,11 +291,11 @@ async function boot(user){
       document.getElementById('search').style.display='none';
       document.getElementById('portal-title').textContent='Access restricted';
       document.getElementById('portal-sub').textContent='';
-      document.getElementById('roster').innerHTML='<div class="deny"><div class="m">â</div><div style="font-weight:600;color:var(--ink-mid)">This account has no Command Centre access</div><div style="margin-top:6px">Ask a super-admin to grant you a staff role.</div></div>';
+      document.getElementById('roster').innerHTML='<div class="deny"><div class="m">◇</div><div style="font-weight:600;color:var(--ink-mid)">This account has no Command Centre access</div><div style="margin-top:6px">Ask a super-admin to grant you a staff role.</div></div>';
       return;
     }
-    // Bounded reference data loaded once (coaches â¤ ~1k, applications pipeline, per-coach materials/seats).
-    // Founders + investor firms are UNBOUNDED â loaded per-page server-side, never in bulk.
+    // Bounded reference data loaded once (coaches ≤ ~1k, applications pipeline, per-coach materials/seats).
+    // Founders + investor firms are UNBOUNDED → loaded per-page server-side, never in bulk.
     const r=await Promise.allSettled([
       _q('coaches','select=*&order=created_at&limit=2000'),
       _q('coach_topics','select=coach_id,discipline_key,is_lead&limit=5000'),
@@ -317,7 +317,7 @@ async function boot(user){
     portalCounts.admins    = await countOnly('user_roles',"role=in.(admin,hub_partner)");
     const firstPortal=PORTALS.find(p=>canSeePortal(p.key));
     renderTabs(); switchPortal(firstPortal?firstPortal.key:'founders');
-  }catch(e){ showToast('Could not load â '+e.message,'error'); }
+  }catch(e){ showToast('Could not load — '+e.message,'error'); }
 }
 
 function counts(){ return portalCounts; }
@@ -349,12 +349,12 @@ function companiesOf(fid){ return pageCompanies.filter(c=>c.founder_id===fid); }
 function regOf(f){ return pageRegs.find(r=>r.founder_id===f.id || (f.user_id && r.user_id===f.user_id) || (r.email&&f.email&&r.email.toLowerCase()===f.email.toLowerCase())); }
 function regsForFounder(f){ return pageRegs.filter(r=>r.founder_id===f.id || (f.user_id&&r.user_id===f.user_id) || (r.email&&f.email&&r.email.toLowerCase()===f.email.toLowerCase())); }
 
-// ââ Founders: server-side paginated (unbounded table) ââ
+// ── Founders: server-side paginated (unbounded table) ──
 async function loadFounders(){
   const q=searchVal();
   let params='select=*&order=created_at.desc&limit='+PAGE+'&offset='+(fState.page*PAGE);
   const sf=ilikeOr(['first_name','last_name','email','company_name'],q); if(sf) params+='&'+sf;
-  document.getElementById('roster').innerHTML='<div class="empty">Loadingâ¦</div>';
+  document.getElementById('roster').innerHTML='<div class="empty">Loading…</div>';
   try{
     const {rows,total}=await pagedFetch('founder_profiles',params);
     founders=rows; fState.total=total;
@@ -369,13 +369,13 @@ async function loadFounders(){
       visible:   await countOnly('founder_profiles','investor_visible=eq.true') }; }
     stats([{v:fState.total,l:'Founders'},{v:fStatCounts.companies,l:'Companies'},{v:fStatCounts.visible,l:'Investor-visible'}]);
     renderFoundersTable();
-  }catch(e){ document.getElementById('roster').innerHTML=tbl(['Founder'],[]); showToast('Could not load founders â '+e.message,'error'); }
+  }catch(e){ document.getElementById('roster').innerHTML=tbl(['Founder'],[]); showToast('Could not load founders — '+e.message,'error'); }
 }
 function renderFoundersTable(){
   const rows=founders.map(f=>{
     const cos=companiesOf(f.id), r=regOf(f);
-    const coNames=cos.length?cos.map(c=>esc(c.name)+(c.data_room_shared?' <span class="pill pill-ochre">shared</span>':'')).join('<br>'):(f.company_name?esc(f.company_name):'<span class="sub">â</span>');
-    const track=r&&r.track?TRACK_LABEL[r.track]||r.track:'â';
+    const coNames=cos.length?cos.map(c=>esc(c.name)+(c.data_room_shared?' <span class="pill pill-ochre">shared</span>':'')).join('<br>'):(f.company_name?esc(f.company_name):'<span class="sub">—</span>');
+    const track=r&&r.track?TRACK_LABEL[r.track]||r.track:'—';
     let pay='<span class="pill pill-grey">No booking</span>';
     if(r){ if(r.forfeited)pay='<span class="pill pill-red">Forfeited</span>';
       else if(r.deposit_paid&&r.balance_paid)pay='<span class="pill pill-green">Fully paid</span>';
@@ -384,7 +384,7 @@ function renderFoundersTable(){
     const archived=f.status==='archived';
     const actCell=canFounderMgmt()?'<button class="btn-sm" style="background:none;border:1px solid var(--border-hi);color:var(--ink-mid);padding:5px 10px" onclick="editFounder(\''+f.id+'\')">Manage</button>':'';
     return '<tr class="row"'+(archived?' style="opacity:.55"':'')+'><td><div class="nm">'+esc((f.first_name||'')+' '+(f.last_name||''))+(archived?' <span class="pill pill-grey">archived</span>':'')+'</div><div class="sub">'+esc(f.email||'')+'</div></td>'
-      +'<td>'+coNames+'</td><td>'+esc(f.sector||(cos[0]&&cos[0].sector)||'â')+'</td><td>'+esc(track)+'</td><td>'+pay+'</td><td>'+actCell+'</td></tr>';
+      +'<td>'+coNames+'</td><td>'+esc(f.sector||(cos[0]&&cos[0].sector)||'—')+'</td><td>'+esc(track)+'</td><td>'+pay+'</td><td>'+actCell+'</td></tr>';
   });
   document.getElementById('roster').innerHTML=tbl(['Founder','Company','Sector','Track','Payment','Manage'],rows)+pager(fState,'foundersPage');
 }
@@ -397,16 +397,16 @@ function editFounder(fid){
   const payRows = fregs.length ? fregs.map(r=>{
     const pd=TRACK_LABEL[r.track]||r.track||'Enrollment';
     const dep = fin
-      ? '<button class="btn-sm" style="background:'+(r.deposit_paid?'var(--success)':'none')+';color:'+(r.deposit_paid?'#fff':'var(--ink-mid)')+';border:1px solid var(--border-hi)" onclick="setPay(\''+r.id+'\',\'deposit_paid\','+(!r.deposit_paid)+')">Deposit '+(r.deposit_paid?'â':'â')+'</button>'
-      : '<span class="pill '+(r.deposit_paid?'pill-green':'pill-grey')+'">Deposit '+(r.deposit_paid?'paid':'â')+'</span>';
+      ? '<button class="btn-sm" style="background:'+(r.deposit_paid?'var(--success)':'none')+';color:'+(r.deposit_paid?'#fff':'var(--ink-mid)')+';border:1px solid var(--border-hi)" onclick="setPay(\''+r.id+'\',\'deposit_paid\','+(!r.deposit_paid)+')">Deposit '+(r.deposit_paid?'✓':'—')+'</button>'
+      : '<span class="pill '+(r.deposit_paid?'pill-green':'pill-grey')+'">Deposit '+(r.deposit_paid?'paid':'—')+'</span>';
     const bal = fin
-      ? '<button class="btn-sm" style="background:'+(r.balance_paid?'var(--success)':'none')+';color:'+(r.balance_paid?'#fff':'var(--ink-mid)')+';border:1px solid var(--border-hi)" onclick="setPay(\''+r.id+'\',\'balance_paid\','+(!r.balance_paid)+')">Balance '+(r.balance_paid?'â':'â')+'</button>'
-      : '<span class="pill '+(r.balance_paid?'pill-green':'pill-grey')+'">Balance '+(r.balance_paid?'paid':'â')+'</span>';
+      ? '<button class="btn-sm" style="background:'+(r.balance_paid?'var(--success)':'none')+';color:'+(r.balance_paid?'#fff':'var(--ink-mid)')+';border:1px solid var(--border-hi)" onclick="setPay(\''+r.id+'\',\'balance_paid\','+(!r.balance_paid)+')">Balance '+(r.balance_paid?'✓':'—')+'</button>'
+      : '<span class="pill '+(r.balance_paid?'pill-green':'pill-grey')+'">Balance '+(r.balance_paid?'paid':'—')+'</span>';
     return '<div class="mat-row"><span>'+esc(pd)+'</span><span style="display:flex;gap:8px;align-items:center">'+dep+bal+'</span></div>';
   }).join('') : '<div class="sub">No bookings on file.</div>';
-  document.getElementById('roster').innerHTML='<span class="back" onclick="loadFounders()" style="font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ochre-deep);cursor:pointer;display:inline-block;margin-bottom:14px">â All founders</span>'
+  document.getElementById('roster').innerHTML='<span class="back" onclick="loadFounders()" style="font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ochre-deep);cursor:pointer;display:inline-block;margin-bottom:14px">← All founders</span>'
     +'<div class="app-card"><div class="app-head"><div><span class="nm">'+esc((f.first_name||'')+' '+(f.last_name||''))+'</span> <span class="sub">'+esc(f.email||'')+'</span></div></div>'
-    +'<div class="sub" style="margin:6px 0 14px">Administrative controls â you manage account state and payments; you don\'t rewrite the founder\'s own data-room content.</div>'
+    +'<div class="sub" style="margin:6px 0 14px">Administrative controls — you manage account state and payments; you don\'t rewrite the founder\'s own data-room content.</div>'
     +'<div class="kv">'
       +'<div><div class="k">Account status</div><select id="ef-status"><option value="active"'+(f.status!=='archived'?' selected':'')+'>Active</option><option value="archived"'+(f.status==='archived'?' selected':'')+'>Archived</option></select></div>'
       +'<div><div class="k">Investor visibility (moderation)</div><select id="ef-vis"><option value="on"'+(vis?' selected':'')+'>Visible to investors</option><option value="off"'+(!vis?' selected':'')+'>Hidden</option></select></div>'
@@ -426,7 +426,7 @@ async function saveFounder(fid){
     await _w('PATCH','founder_profiles','id=eq.'+fid,{status,investor_visible:vis,data_room_shared:vis,admin_notes:note,updated_at:new Date().toISOString()});
     f.status=status; f.investor_visible=vis; f.admin_notes=note;
     showToast('Founder account updated','success'); loadFounders();
-  }catch(e){ showToast('Could not save â '+e.message,'error'); }
+  }catch(e){ showToast('Could not save — '+e.message,'error'); }
 }
 async function setPay(regId,field,val){
   try{ const body={}; body[field]=val; body.updated_at=new Date().toISOString();
@@ -435,7 +435,7 @@ async function setPay(regId,field,val){
     showToast('Payment updated','success');
     // re-open the founder editor to reflect
     const f=founders.find(x=>regsForFounder(x).some(rr=>rr.id===regId)); if(f) editFounder(f.id);
-  }catch(e){ showToast('Could not update â '+e.message,'error'); }
+  }catch(e){ showToast('Could not update — '+e.message,'error'); }
 }
 
 function discsOf(cid){ return topics.filter(t=>t.coach_id===cid); }
@@ -443,7 +443,7 @@ function coachesInDiscipline(key){ const ids=topics.filter(t=>t.discipline_key==
 function isLeadOf(c,key){ return topics.some(t=>t.coach_id===c.id&&t.discipline_key===key&&t.is_lead); }
 function appsPending(){ return applications.filter(a=>a.review_stage==='lead_review'||a.review_stage==='admin_review').length; }
 
-// ââ Coaches Portal: the single coach-management hub (roster Â· applications Â· materials) ââ
+// ── Coaches Portal: the single coach-management hub (roster · applications · materials) ──
 function renderCoaches(q){
   const active_=coaches.filter(c=>c.status==='active').length;
   const leads=topics.filter(t=>t.is_lead).length;
@@ -458,8 +458,8 @@ function setCoachSub(k){ coachSub=k; renderCoaches(document.getElementById('sear
 function renderCoachSub(q){ if(coachSub==='applications') renderCoachApplications(q); else if(coachSub==='materials') renderCoachMaterials(q); else renderCoachRoster(q); }
 
 function coachRow(c,key,lead){
-  const fee=c.session_fee?'UGX '+Number(c.session_fee).toLocaleString('en-US'):'â';
-  const st=c.status==='active'?'<span class="pill pill-green">Active</span>':'<span class="pill pill-grey">'+esc(c.status||'â')+'</span>';
+  const fee=c.session_fee?'UGX '+Number(c.session_fee).toLocaleString('en-US'):'—';
+  const st=c.status==='active'?'<span class="pill pill-green">Active</span>':'<span class="pill pill-grey">'+esc(c.status||'—')+'</span>';
   const av=c.avatar_url?'<img src="'+esc(c.avatar_url)+'">':esc(((c.first_name||'?')[0]||'?').toUpperCase());
   const edit=canCoachMgmt()?'<button class="btn-sm" style="background:none;border:1px solid var(--border-hi);color:var(--ink-mid);padding:5px 10px" onclick="editCoach('+c.id+',\''+key+'\')">Edit</button>':'';
   return '<div class="coach-row" id="coach-row-'+c.id+'"><div class="avatar-sm">'+av+'</div>'
@@ -473,7 +473,7 @@ function renderCoachRoster(q){
     const list=coachesInDiscipline(key).filter(c=>match(q,c.first_name,c.last_name,c.email,c.headline));
     const ordered=[...list.filter(c=>isLeadOf(c,key)), ...list.filter(c=>!isLeadOf(c,key))];
     const body=ordered.length?ordered.map(c=>coachRow(c,key,isLeadOf(c,key))).join('')
-      :'<div class="sub" style="padding:14px 4px">Lead: '+esc(DISC_LEAD[key])+' Â· no specialty coaches admitted yet.</div>';
+      :'<div class="sub" style="padding:14px 4px">Lead: '+esc(DISC_LEAD[key])+' · no specialty coaches admitted yet.</div>';
     return '<div class="disc-group" style="border-left:3px solid '+col+';padding-left:14px"><div class="disc-group-h" style="border-bottom-color:'+col+'"><span style="color:'+col+'">'+esc(DISC_LABEL[key])+'</span>'
       +'<span class="sub">'+ordered.length+' coach'+(ordered.length===1?'':'es')+'</span></div>'+body+'</div>';
   }).join('');
@@ -483,7 +483,7 @@ function editCoach(cid,key){
   const c=coaches.find(x=>x.id===cid); if(!c) return;
   const row=document.getElementById('coach-row-'+cid); if(!row) return;
   const lead=isLeadOf(c,key);
-  row.innerHTML='<div style="flex:1"><div class="nm" style="margin-bottom:8px">'+esc((c.first_name||'')+' '+(c.last_name||''))+' â '+esc(DISC_LABEL[key]||key)+'</div>'
+  row.innerHTML='<div style="flex:1"><div class="nm" style="margin-bottom:8px">'+esc((c.first_name||'')+' '+(c.last_name||''))+' — '+esc(DISC_LABEL[key]||key)+'</div>'
     +'<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">'
     +'<label class="sub">Status <select id="ec-status-'+cid+'"><option value="active"'+(c.status==='active'?' selected':'')+'>Active</option><option value="inactive"'+(c.status!=='active'?' selected':'')+'>Inactive</option></select></label>'
     +'<label class="sub">1:1 fee (UGX) <input id="ec-fee-'+cid+'" type="number" value="'+(c.session_fee||500000)+'" style="width:120px"></label>'
@@ -504,37 +504,37 @@ async function saveCoach(cid,key){
     const t=topics.find(x=>x.coach_id===cid&&x.discipline_key===key);
     if(t && t.is_lead!==lead){ await _w('PATCH','coach_topics','coach_id=eq.'+cid+'&discipline_key=eq.'+key,{is_lead:lead}); t.is_lead=lead; }
     showToast('Coach updated','success'); renderCoaches(document.getElementById('search').value);
-  }catch(e){ showToast('Could not save â '+e.message,'error'); }
+  }catch(e){ showToast('Could not save — '+e.message,'error'); }
 }
 async function removeCoachFromDiscipline(cid,key){
   if(!confirm('Remove this coach from '+(DISC_LABEL[key]||key)+'? Their coverage of this discipline is removed (the coach account stays).'))return;
   try{ await _w('DELETE','coach_topics','coach_id=eq.'+cid+'&discipline_key=eq.'+key);
     topics=topics.filter(t=>!(t.coach_id===cid&&t.discipline_key===key));
     showToast('Removed from discipline','success'); renderCoaches(document.getElementById('search').value);
-  }catch(e){ showToast('Could not remove â '+e.message,'error'); }
+  }catch(e){ showToast('Could not remove — '+e.message,'error'); }
 }
 
-function mask(s){ s=String(s||''); return s.length>4?('â¢â¢â¢â¢ '+s.slice(-4)):(s||'â'); }
+function mask(s){ s=String(s||''); return s.length>4?('•••• '+s.slice(-4)):(s||'—'); }
 const STAGE_PILL={lead_review:'<span class="pill pill-ochre">Lead review</span>',admin_review:'<span class="pill pill-terra">Admin DD review</span>',changes_requested:'<span class="pill pill-ochre">Changes requested</span>',listed:'<span class="pill pill-green">Listed</span>',rejected:'<span class="pill pill-red">Rejected</span>'};
 function docLink(label,path){ return path ? '<a href="#" onclick="openCoachDoc(\''+esc(path)+'\');return false" style="color:var(--ochre-deep);font-size:10px;font-weight:700;text-decoration:none">Open '+label+'</a>' : '<span class="pill pill-grey">no '+label+'</span>'; }
 function appCard(a){
   const disc=normDisc(a.taxonomy_l1);
   const nm=a.display_name||((a.first_name||'')+' '+(a.last_name||''));
-  const lead=a.lead_decision?('Lead: '+esc(a.lead_decision)+(a.lead_notes?(' â '+esc(a.lead_notes)):'')):'Awaiting discipline lead';
+  const lead=a.lead_decision?('Lead: '+esc(a.lead_decision)+(a.lead_notes?(' — '+esc(a.lead_notes)):'')):'Awaiting discipline lead';
   const suit='<div class="kv" style="margin-top:10px">'
     +(a.current_role?'<div><div class="k">Current role</div><div class="v">'+esc(a.current_role)+'</div></div>':'')
     +(a.experience?'<div><div class="k">Experience</div><div class="v">'+esc(a.experience)+'</div></div>':'')
     +(a.notable_clients?'<div><div class="k">Notable clients</div><div class="v">'+esc(a.notable_clients)+'</div></div>':'')
     +(a.credentials?'<div><div class="k">Qualifications</div><div class="v">'+esc(a.credentials)+'</div></div>':'')
     +'</div>'+(a.coaching_philosophy?'<div class="sub" style="margin-top:8px"><b>Philosophy:</b> '+esc(a.coaching_philosophy)+'</div>':'');
-  // due-diligence (admin only) â documents openable from the private vault
-  const dd='<div class="dd"><div class="k" style="margin-bottom:6px">Due diligence (admin only) â verify before listing</div><div class="kv">'
-    +'<div><div class="k">Email</div><div class="v">'+esc(a.email||'â')+'</div></div>'
+  // due-diligence (admin only) — documents openable from the private vault
+  const dd='<div class="dd"><div class="k" style="margin-bottom:6px">Due diligence (admin only) — verify before listing</div><div class="kv">'
+    +'<div><div class="k">Email</div><div class="v">'+esc(a.email||'—')+'</div></div>'
     +'<div><div class="k">Phone</div><div class="v">'+esc((a.country_code||'')+' '+(a.phone||''))+'</div></div>'
-    +'<div><div class="k">ID ('+esc(a.id_type||'â')+')</div><div class="v">'+docLink('ID',a.id_document_path)+'</div></div>'
+    +'<div><div class="k">ID ('+esc(a.id_type||'—')+')</div><div class="v">'+docLink('ID',a.id_document_path)+'</div></div>'
     +'<div><div class="k">CV / qualifications</div><div class="v">'+docLink('CV',a.cv_path)+'</div></div>'
-    +'<div><div class="k">TIN</div><div class="v">'+esc(a.tin||a.tin_number||'â')+'</div></div>'
-    +'<div><div class="k">Payout</div><div class="v">'+(a.mobile_money_number?('MoMo '+mask(a.mobile_money_number)):(a.account_number?(esc(a.bank_name||'Bank')+' '+mask(a.account_number)):'â'))+'</div></div>'
+    +'<div><div class="k">TIN</div><div class="v">'+esc(a.tin||a.tin_number||'—')+'</div></div>'
+    +'<div><div class="k">Payout</div><div class="v">'+(a.mobile_money_number?('MoMo '+mask(a.mobile_money_number)):(a.account_number?(esc(a.bank_name||'Bank')+' '+mask(a.account_number)):'—'))+'</div></div>'
     +'</div></div>';
   const noteBlk = a.admin_notes ? '<div class="sub" style="margin-top:8px;color:var(--terra)"><b>Admin note:</b> '+esc(a.admin_notes)+'</div>' : '';
   let actions='';
@@ -545,12 +545,12 @@ function appCard(a){
       +'<button class="btn-sm reject" onclick="adminReject(\''+a.id+'\')">Reject</button></div>';
   } else if(inReview && canCoachMgmt()){
     actions='<div class="app-actions"><button class="btn-sm" style="background:var(--ochre);color:#15161A" onclick="adminRequestChanges(\''+a.id+'\')">Request changes</button></div>'
-      +'<div class="sub" style="margin-top:8px">Final approval requires due-diligence verification â handled by admin or finance.</div>';
+      +'<div class="sub" style="margin-top:8px">Final approval requires due-diligence verification — handled by admin or finance.</div>';
   } else if(a.review_stage==='lead_review'){
-    actions='<div class="sub" style="margin-top:10px">The discipline lead ('+esc(DISC_LEAD[disc]||'â')+') vets suitability first.'+(canDD()?' You can still <a href="#" onclick="adminReject(\''+a.id+'\');return false" style="color:#C0392B">reject</a> on DD grounds.':'')+'</div>';
+    actions='<div class="sub" style="margin-top:10px">The discipline lead ('+esc(DISC_LEAD[disc]||'—')+') vets suitability first.'+(canDD()?' You can still <a href="#" onclick="adminReject(\''+a.id+'\');return false" style="color:#C0392B">reject</a> on DD grounds.':'')+'</div>';
   }
   const showDD = canDD() && (a.review_stage==='admin_review'||a.review_stage==='listed'||a.review_stage==='changes_requested');
-  return '<div class="app-card"><div class="app-head"><div><span class="nm">'+esc(nm)+'</span> <span class="tag">'+esc(DISC_LABEL[disc]||a.taxonomy_l1||'â')+'</span></div>'+(STAGE_PILL[a.review_stage]||STAGE_PILL.lead_review)+'</div>'
+  return '<div class="app-card"><div class="app-head"><div><span class="nm">'+esc(nm)+'</span> <span class="tag">'+esc(DISC_LABEL[disc]||a.taxonomy_l1||'—')+'</span></div>'+(STAGE_PILL[a.review_stage]||STAGE_PILL.lead_review)+'</div>'
     +(a.headline?'<div class="sub">'+esc(a.headline)+'</div>':'')
     +'<div class="sub" style="margin-top:6px">'+lead+'</div>'+suit+noteBlk
     +(showDD?dd:'')+actions+'</div>';
@@ -570,7 +570,7 @@ function showInviteCoach(){
   el.dataset.open='1';
   const url=location.origin+'/beta/coach-onboarding.html';
   el.innerHTML='<div class="app-card"><div style="font-family:var(--display);font-size:18px;font-weight:600;margin-bottom:4px">Invite a coach</div>'
-    +'<div class="sub" style="margin-bottom:10px">Share this onboarding/application link with a prospective coach. Their submission lands in the pipeline above for lead â admin review.</div>'
+    +'<div class="sub" style="margin-bottom:10px">Share this onboarding/application link with a prospective coach. Their submission lands in the pipeline above for lead → admin review.</div>'
     +'<div style="display:flex;gap:8px;align-items:center"><input id="invite-url" value="'+esc(url)+'" readonly><button class="btn-sm approve" onclick="copyInvite()">Copy link</button></div></div>';
 }
 function copyInvite(){ const i=document.getElementById('invite-url'); if(!i)return; i.select(); try{ navigator.clipboard.writeText(i.value); }catch(e){ try{document.execCommand('copy');}catch(_){} } showToast('Link copied','success'); }
@@ -585,8 +585,8 @@ async function adminRequestChanges(id){
   if(note==null) return;
   try{ await _w('PATCH','coach_applications','id=eq.'+id,{review_stage:'changes_requested',admin_notes:note,reviewed_at:new Date().toISOString()});
     const a=applications.find(x=>x.id===id); if(a){a.review_stage='changes_requested';a.admin_notes=note;}
-    showToast('Changes requested â recorded on the application','success'); renderCoaches(document.getElementById('search').value);
-  }catch(e){ showToast('Could not update â '+e.message,'error'); }
+    showToast('Changes requested — recorded on the application','success'); renderCoaches(document.getElementById('search').value);
+  }catch(e){ showToast('Could not update — '+e.message,'error'); }
 }
 async function adminApprove(id){
   if(!confirm('Approve and list this coach? This creates their coach profile + discipline coverage and makes them visible to founders.'))return;
@@ -597,21 +597,21 @@ async function adminApprove(id){
     try{ coaches=await _q('coaches','select=*&order=created_at'); }catch(e){}
     try{ topics=await _q('coach_topics','select=coach_id,discipline_key,is_lead'); }catch(e){}
     renderTabs();
-    showToast('Coach provisioned & listed â set up their login account to finish','success');
+    showToast('Coach provisioned & listed — set up their login account to finish','success');
     renderCoaches(document.getElementById('search').value);
-  }catch(e){ showToast('Could not approve â '+e.message,'error'); }
+  }catch(e){ showToast('Could not approve — '+e.message,'error'); }
 }
 async function adminReject(id){
   const reason=prompt('Reason for rejection (optional):')||null;
   try{ await _w('PATCH','coach_applications','id=eq.'+id,{review_stage:'rejected',status:'rejected',rejection_reason:reason,reviewed_at:new Date().toISOString()});
     const a=applications.find(x=>x.id===id); if(a){a.review_stage='rejected';a.status='rejected';}
     showToast('Application rejected','success'); renderCoaches(document.getElementById('search').value);
-  }catch(e){ showToast('Could not reject â '+e.message,'error'); }
+  }catch(e){ showToast('Could not reject — '+e.message,'error'); }
 }
 
 function coachByAny(cid){ return coaches.find(x=>String(x.user_id)===String(cid)||String(x.id)===String(cid)); }
 function matOpen(m){
-  if(m.source_url) return '<a href="'+esc(m.source_url)+'" target="_blank" style="color:var(--ochre-deep);font-size:10px;font-weight:700;text-decoration:none">Open â</a>';
+  if(m.source_url) return '<a href="'+esc(m.source_url)+'" target="_blank" style="color:var(--ochre-deep);font-size:10px;font-weight:700;text-decoration:none">Open ↗</a>';
   if(m.file_path) return '<a href="#" onclick="openMaterial(\''+esc(m.file_path)+'\');return false" style="color:var(--ochre-deep);font-size:10px;font-weight:700;text-decoration:none">Open</a>';
   return '';
 }
@@ -635,7 +635,7 @@ function renderCoachMaterials(q){
   }).join('');
   document.getElementById('coach-sub').innerHTML =
     '<div style="margin-bottom:14px"><button class="btn-sm approve" onclick="showAddMaterial()">+ Add material</button></div><div id="add-material"></div>'
-    + (groups || '<div class="tbl-wrap"><div class="empty">No teaching materials yet â add one above.</div></div>');
+    + (groups || '<div class="tbl-wrap"><div class="empty">No teaching materials yet — add one above.</div></div>');
 }
 function showAddMaterial(){
   const el=document.getElementById('add-material');
@@ -649,9 +649,9 @@ function showAddMaterial(){
     +'<div><div class="k">Type</div><select id="m-type"><option>Slides</option><option>Document</option><option>Video</option><option>Worksheet</option><option>Template</option><option>Other</option></select></div>'
     +'<div><div class="k">Status</div><select id="m-status"><option value="published">Published</option><option value="draft">Draft</option></select></div>'
     +'</div>'
-    +'<div style="margin-top:10px"><div class="k">Title</div><input id="m-title" type="text" placeholder="e.g. Brand Positioning â Session 1"></div>'
-    +'<div style="margin-top:10px"><div class="k">Source URL (Google Slides / Doc / Drive)</div><input id="m-url" type="url" placeholder="https://â¦"></div>'
-    +'<div style="margin-top:10px"><div class="k">â¦or upload a file</div><input id="m-file" type="file"></div>'
+    +'<div style="margin-top:10px"><div class="k">Title</div><input id="m-title" type="text" placeholder="e.g. Brand Positioning — Session 1"></div>'
+    +'<div style="margin-top:10px"><div class="k">Source URL (Google Slides / Doc / Drive)</div><input id="m-url" type="url" placeholder="https://…"></div>'
+    +'<div style="margin-top:10px"><div class="k">…or upload a file</div><input id="m-file" type="file"></div>'
     +'<div style="margin-top:14px;display:flex;gap:8px"><button class="btn-sm approve" id="m-save" onclick="saveMaterial()">Save material</button><button class="btn-sm reject" onclick="showAddMaterial()">Cancel</button></div></div>';
 }
 async function saveMaterial(){
@@ -664,7 +664,7 @@ async function saveMaterial(){
   const file=document.getElementById('m-file').files[0];
   if(!coach_id){ showToast('Pick a coach with a login account','error'); return; }
   if(!title){ showToast('Add a title','error'); return; }
-  const btn=document.getElementById('m-save'); btn.disabled=true; btn.textContent='Savingâ¦';
+  const btn=document.getElementById('m-save'); btn.disabled=true; btn.textContent='Saving…';
   try{
     let file_path=null;
     if(file){
@@ -676,14 +676,14 @@ async function saveMaterial(){
     const row=await _w('POST','course_materials','',{coach_id,title,discipline,module_type:type,format:type,source_url,file_path,status,is_active:true,created_at:new Date().toISOString(),updated_at:new Date().toISOString()});
     if(row&&row[0]) materials.unshift(row[0]);
     showToast('Material added','success'); renderCoaches(document.getElementById('search').value);
-  }catch(e){ showToast('Could not save â '+e.message,'error'); } finally{ btn.disabled=false; }
+  }catch(e){ showToast('Could not save — '+e.message,'error'); } finally{ btn.disabled=false; }
 }
 async function deleteMaterial(tbl,id){
   if(!confirm('Delete this material?'))return;
   try{ await _w('DELETE',tbl,'id=eq.'+id);
     if(tbl==='course_materials') materials=materials.filter(m=>String(m.id)!==String(id)); else presentations=presentations.filter(p=>String(p.id)!==String(id));
     showToast('Deleted','success'); renderCoaches(document.getElementById('search').value);
-  }catch(e){ showToast('Could not delete â '+e.message,'error'); }
+  }catch(e){ showToast('Could not delete — '+e.message,'error'); }
 }
 async function openMaterial(path){
   try{ const t=await _token();
@@ -693,12 +693,12 @@ async function openMaterial(path){
 }
 
 function seatsOf(fid){ return invMembers.filter(m=>m.firm_id===fid); }
-// ââ Investors: server-side paginated (unbounded table) ââ
+// ── Investors: server-side paginated (unbounded table) ──
 async function loadInvestors(){
   const q=searchVal();
   let params='select=*&order=created_at.desc&limit='+PAGE+'&offset='+(iState.page*PAGE);
   const sf=ilikeOr(['name','firm_type','contact_email'],q); if(sf) params+='&'+sf;
-  document.getElementById('roster').innerHTML='<div class="empty">Loadingâ¦</div>';
+  document.getElementById('roster').innerHTML='<div class="empty">Loading…</div>';
   try{
     const {rows,total}=await pagedFetch('investor_firms',params);
     invFirms=rows; iState.total=total;
@@ -708,7 +708,7 @@ async function loadInvestors(){
       pub:      await countOnly('investor_firms','and=(status.eq.approved,public.eq.true)') }; }
     stats([{v:iState.total,l:'Firms'},{v:iStatCounts.approved,l:'Approved'},{v:iStatCounts.pending,l:'Pending'},{v:iStatCounts.pub,l:'Public to founders'}]);
     renderInvestorsList();
-  }catch(e){ document.getElementById('roster').innerHTML=tbl(['Firm'],[]); showToast('Could not load investors â '+e.message,'error'); }
+  }catch(e){ document.getElementById('roster').innerHTML=tbl(['Firm'],[]); showToast('Could not load investors — '+e.message,'error'); }
 }
 function renderInvestorsList(){
   const canInvite=isSuper()||hasR('investor_support')||hasR('finance');
@@ -730,11 +730,11 @@ function showInviteInvestor(){
 }
 function copyInvInvite(){ const i=document.getElementById('inv-invite-url'); if(!i)return; i.select(); try{ navigator.clipboard.writeText(i.value); }catch(e){ try{document.execCommand('copy');}catch(_){} } showToast('Link copied','success'); }
 const FIRM_PILL={pending:'<span class="pill pill-ochre">Pending</span>',approved:'<span class="pill pill-green">Approved</span>',rejected:'<span class="pill pill-red">Rejected</span>'};
-function ticket(f){ if(!f.ticket_min&&!f.ticket_max) return ''; const c=f.currency||'USD'; const n=x=>x>=1e6?(x/1e6)+'M':x>=1e3?(x/1e3)+'k':x; return c+' '+(f.ticket_min?n(f.ticket_min):'')+(f.ticket_max?('â'+n(f.ticket_max)):'+'); }
+function ticket(f){ if(!f.ticket_min&&!f.ticket_max) return ''; const c=f.currency||'USD'; const n=x=>x>=1e6?(x/1e6)+'M':x>=1e3?(x/1e3)+'k':x; return c+' '+(f.ticket_min?n(f.ticket_min):'')+(f.ticket_max?('–'+n(f.ticket_max)):'+'); }
 function firmCard(f){
   const seats=seatsOf(f.id);
-  const seatRows=seats.length?seats.map(m=>'<div class="mat-row"><span>'+esc(m.name||m.email||'â')+(m.is_primary?' <span class="tag">primary</span>':'')+'</span><span class="sub">'+esc(m.email||'')+(m.user_id?'':' Â· no login yet')+'</span></div>').join(''):'<div class="sub">No seats.</div>';
-  const meta=[f.firm_type, (f.stages||[]).join('/'), ticket(f), (f.geographies||[]).join(', ')].filter(Boolean).join(' Â· ');
+  const seatRows=seats.length?seats.map(m=>'<div class="mat-row"><span>'+esc(m.name||m.email||'—')+(m.is_primary?' <span class="tag">primary</span>':'')+'</span><span class="sub">'+esc(m.email||'')+(m.user_id?'':' · no login yet')+'</span></div>').join(''):'<div class="sub">No seats.</div>';
+  const meta=[f.firm_type, (f.stages||[]).join('/'), ticket(f), (f.geographies||[]).join(', ')].filter(Boolean).join(' · ');
   let actions='';
   if(canInvestorMgmt()){
     if(f.status!=='approved') actions='<div class="app-actions"><button class="btn-sm approve" onclick="approveFirm(\''+f.id+'\')">Approve &amp; publish</button><button class="btn-sm reject" onclick="rejectFirm(\''+f.id+'\')">Reject</button></div>';
@@ -747,8 +747,8 @@ function firmCard(f){
     +(f.thesis?'<div style="font-size:12.5px;line-height:1.5;margin-top:8px">'+esc(f.thesis)+'</div>':'')
     +(f.focus_sectors&&f.focus_sectors.length?'<div style="margin-top:8px">'+f.focus_sectors.map(s=>'<span class="tag">'+esc(s)+'</span>').join('')+'</div>':'')
     +'<div class="dd"><div class="k" style="margin-bottom:6px">Accreditation & contact</div><div class="kv">'
-      +'<div><div class="k">Contact</div><div class="v">'+esc(f.contact_email||'â')+'</div></div>'
-      +'<div><div class="k">Phone</div><div class="v">'+esc(f.contact_phone||'â')+'</div></div>'
+      +'<div><div class="k">Contact</div><div class="v">'+esc(f.contact_email||'—')+'</div></div>'
+      +'<div><div class="k">Phone</div><div class="v">'+esc(f.contact_phone||'—')+'</div></div>'
       +(f.website_url?'<div><div class="k">Website</div><div class="v"><a class="deliv-link" href="'+esc(f.website_url)+'" target="_blank" style="color:var(--ochre-deep)">'+esc(f.website_url)+'</a></div></div>':'')
       +(f.accreditation_note?'<div><div class="k">Accreditation</div><div class="v">'+esc(f.accreditation_note)+'</div></div>':'')
     +'</div></div>'
@@ -760,49 +760,49 @@ async function approveFirm(id){
   if(!confirm('Approve this investor firm and publish their profile to unlocked founders?'))return;
   try{ await _rpc('approve_investor_firm',{p_firm:id,p_public:true});
     iStatCounts=null; showToast('Firm approved & published','success'); loadInvestors();
-  }catch(e){ showToast('Could not approve â '+(e.message||'').replace(/^RPC \d+: /,''),'error'); }
+  }catch(e){ showToast('Could not approve — '+(e.message||'').replace(/^RPC \d+: /,''),'error'); }
 }
 async function rejectFirm(id){
   const note=prompt('Reason (optional):')||null;
   try{ await _w('PATCH','investor_firms','id=eq.'+id,{status:'rejected',public:false,admin_notes:note,updated_at:new Date().toISOString()});
     iStatCounts=null; showToast('Firm rejected','success'); loadInvestors();
-  }catch(e){ showToast('Could not reject â '+e.message,'error'); }
+  }catch(e){ showToast('Could not reject — '+e.message,'error'); }
 }
 async function toggleFirmPublic(id,next){
   try{ await _w('PATCH','investor_firms','id=eq.'+id,{public:next,updated_at:new Date().toISOString()});
     iStatCounts=null; showToast(next?'Published to founders':'Unpublished','success'); loadInvestors();
-  }catch(e){ showToast('Could not update â '+e.message,'error'); }
+  }catch(e){ showToast('Could not update — '+e.message,'error'); }
 }
 let staffDir=null;
 async function loadStaffDir(){ try{ staffDir=await _rpc('staff_directory')||[]; }catch(e){ staffDir=[]; } renderAdmins(document.getElementById('search').value); }
 function renderAdmins(q){
-  if(staffDir===null){ document.getElementById('roster').innerHTML='<div class="empty">Loadingâ¦</div>'; loadStaffDir(); return; }
+  if(staffDir===null){ document.getElementById('roster').innerHTML='<div class="empty">Loading…</div>'; loadStaffDir(); return; }
   const all=staffDir;
   const cnt=role=>all.filter(s=>(s.roles||[]).includes(role)).length;
   stats([{v:cnt('admin'),l:'Super admins'},{v:cnt('finance'),l:'Finance'},{v:cnt('coach_support')+cnt('investor_support')+cnt('founder_support'),l:'Support staff'},{v:cnt('hub_partner'),l:'Hub partners'}]);
   const grant = isSuper() ? '<div class="app-card"><div style="font-family:var(--display);font-size:18px;font-weight:600;margin-bottom:6px">Grant a staff role</div>'
     +'<div class="sub" style="margin-bottom:10px">The account must already exist (the person signs in once at their portal). Roles scope what they can see and do; granting/revoking is super-admin only.</div>'
-    +'<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><input id="gr-email" type="email" placeholder="email@â¦" style="flex:1;min-width:200px">'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><input id="gr-email" type="email" placeholder="email@…" style="flex:1;min-width:200px">'
     +'<select id="gr-role" style="width:auto">'+STAFF_ROLES.map(r=>'<option value="'+r+'">'+ROLE_LABEL[r]+'</option>').join('')+'</select>'
     +'<button class="btn-sm approve" onclick="grantRole()">Grant</button></div></div>' : '';
   const rows=all.filter(s=>match(q,s.email,(s.roles||[]).join(' '))).map(s=>{
     const chips=(s.roles||[]).map(r=>'<span class="tag'+(r==='admin'?' lead':'')+'">'+esc(ROLE_LABEL[r]||r)
-      +(isSuper()?' <a href="#" title="Revoke" onclick="revokeRole(\''+s.user_id+'\',\''+r+'\');return false" style="color:#C0392B;text-decoration:none;font-weight:700">Ã</a>':'')+'</span>').join('');
-    return '<tr class="row"><td><div class="nm">'+esc(s.email||'â')+'</div></td><td>'+chips+'</td></tr>';
+      +(isSuper()?' <a href="#" title="Revoke" onclick="revokeRole(\''+s.user_id+'\',\''+r+'\');return false" style="color:#C0392B;text-decoration:none;font-weight:700">×</a>':'')+'</span>').join('');
+    return '<tr class="row"><td><div class="nm">'+esc(s.email||'—')+'</div></td><td>'+chips+'</td></tr>';
   });
   document.getElementById('roster').innerHTML = grant + tbl(['Account','Roles'],rows)
-    + '<div class="page-sub" style="margin-top:16px;font-size:12.5px"><b>What each role can do:</b> <b>Super admin</b> â everything, incl. role management. <b>Finance</b> â payments/pricing, sees payout/bank, final coach approval. <b>Coach support</b> â coaches, applications (suitability only), materials. <b>Investor support</b> â investors. <b>Founder support</b> â founder accounts. <b>Hub partner</b> â partner cohorts.</div>';
+    + '<div class="page-sub" style="margin-top:16px;font-size:12.5px"><b>What each role can do:</b> <b>Super admin</b> — everything, incl. role management. <b>Finance</b> — payments/pricing, sees payout/bank, final coach approval. <b>Coach support</b> — coaches, applications (suitability only), materials. <b>Investor support</b> — investors. <b>Founder support</b> — founder accounts. <b>Hub partner</b> — partner cohorts.</div>';
 }
 async function grantRole(){
   const email=document.getElementById('gr-email').value.trim(); const role=document.getElementById('gr-role').value;
   if(!email){ showToast('Enter an email','error'); return; }
   try{ await _rpc('admin_grant_role',{p_email:email,p_role:role}); showToast('Role granted','success'); staffDir=null; renderAdmins(''); }
-  catch(e){ showToast('Could not grant â '+(e.message||'').replace(/^RPC \d+: /,''),'error'); }
+  catch(e){ showToast('Could not grant — '+(e.message||'').replace(/^RPC \d+: /,''),'error'); }
 }
 async function revokeRole(uid,role){
   if(!confirm('Revoke '+(ROLE_LABEL[role]||role)+'?'))return;
   try{ await _rpc('admin_revoke_role',{p_user:uid,p_role:role}); showToast('Role revoked','success'); staffDir=null; renderAdmins(''); }
-  catch(e){ showToast('Could not revoke â '+(e.message||'').replace(/^RPC \d+: /,''),'error'); }
+  catch(e){ showToast('Could not revoke — '+(e.message||'').replace(/^RPC \d+: /,''),'error'); }
 }
 
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
