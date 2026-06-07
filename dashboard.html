@@ -2065,6 +2065,7 @@ async function bootApp(user) {
     await loadAllData();
     // Background: refresh the auth token now that data is loaded
     sb.auth.refreshSession().catch(() => {});
+    startHeartbeat();   // staff presence (no-ops server-side for non-staff)
   } catch (err) {
     console.error('[Boot] CRASH:', err);
     booted = false;
@@ -2244,6 +2245,17 @@ function regIlikeOr(cols, q) {
   if (!clean) return '';
   let e; try { e = encodeURIComponent('*' + clean + '*'); } catch (_) { return ''; }
   return 'or=(' + cols.map(c => c + '.ilike.' + e).join(',') + ')';
+}
+
+// Staff presence heartbeat — pings every 30s while the tab is visible.
+// presence_ping() enforces is_staff() server-side, so this is a no-op for non-staff.
+let _hbStarted = false;
+function startHeartbeat() {
+  if (_hbStarted) return; _hbStarted = true;
+  const ping = () => { if (document.visibilityState === 'visible') _pgRpc('presence_ping', { p_page: 'Ops dashboard' }).catch(() => {}); };
+  ping();
+  setInterval(ping, 30000);
+  document.addEventListener('visibilitychange', () => { if (document.visibilityState === 'visible') ping(); });
 }
 
 async function loadAllData() {

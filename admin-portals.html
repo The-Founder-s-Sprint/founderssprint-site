@@ -151,6 +151,9 @@
 const SUPABASE_URL='https://ivedeivyotwevjxvcuoe.supabase.co';
 const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss';
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON,{auth:{detectSessionInUrl:true,autoRefreshToken:true,persistSession:true}});
+const API_BASE='https://founders-sprint-api.vercel.app';
+function ago(ts){ if(!ts) return ''; const s=Math.max(0,(Date.now()-new Date(ts).getTime())/1000);
+  if(s<60) return 'just now'; if(s<3600) return Math.floor(s/60)+'m ago'; if(s<86400) return Math.floor(s/3600)+'h ago'; return Math.floor(s/86400)+'d ago'; }
 
 const DISC_LABEL={marketing:'Marketing & Branding',financial:'Financial Modelling',investment:'Investment Readiness',strategy:'Strategy & Team',product:'Product Dev & Pricing'};
 const TRACK_LABEL={single:'1:1 Session',pick3:'Pick 3 Bundle',cohort:'Full Cohort',group:'Full Cohort',vip1on1:'VIP 1:1',vip:'VIP Track'};
@@ -317,6 +320,7 @@ async function boot(user){
     portalCounts.admins    = await countOnly('user_roles',"role=in.(admin,hub_partner)");
     const firstPortal=PORTALS.find(p=>canSeePortal(p.key));
     renderTabs(); switchPortal(firstPortal?firstPortal.key:'founders');
+    startPresence();   // heartbeat + who's-online polling (staff only)
   }catch(e){ showToast('Could not load — '+e.message,'error'); }
 }
 
@@ -780,24 +784,76 @@ function renderAdmins(q){
   const all=staffDir;
   const cnt=role=>all.filter(s=>(s.roles||[]).includes(role)).length;
   stats([{v:cnt('admin'),l:'Super admins'},{v:cnt('finance'),l:'Finance'},{v:cnt('coach_support')+cnt('investor_support')+cnt('founder_support'),l:'Support staff'},{v:cnt('hub_partner'),l:'Hub partners'}]);
-  const grant = isSuper() ? '<div class="app-card"><div style="font-family:var(--display);font-size:18px;font-weight:600;margin-bottom:6px">Grant a staff role</div>'
-    +'<div class="sub" style="margin-bottom:10px">The account must already exist (the person signs in once at their portal). Roles scope what they can see and do; granting/revoking is super-admin only.</div>'
-    +'<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><input id="gr-email" type="email" placeholder="email@…" style="flex:1;min-width:200px">'
+  const grant = isSuper() ? '<div class="app-card"><div style="font-family:var(--display);font-size:18px;font-weight:600;margin-bottom:6px">Invite &amp; grant a staff member</div>'
+    +'<div class="sub" style="margin-bottom:10px">Enter their <b>@founderssprint.co</b> email and role. We create the account if needed and email a secure set-password link. Granting/revoking is super-admin only.</div>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><input id="gr-email" type="email" placeholder="name@founderssprint.co" style="flex:1;min-width:200px">'
     +'<select id="gr-role" style="width:auto">'+STAFF_ROLES.map(r=>'<option value="'+r+'">'+ROLE_LABEL[r]+'</option>').join('')+'</select>'
-    +'<button class="btn-sm approve" onclick="grantRole()">Grant</button></div></div>' : '';
+    +'<button class="btn-sm approve" id="gr-btn" onclick="inviteStaff()">Invite &amp; grant</button></div></div>' : '';
   const rows=all.filter(s=>match(q,s.email,(s.roles||[]).join(' '))).map(s=>{
     const chips=(s.roles||[]).map(r=>'<span class="tag'+(r==='admin'?' lead':'')+'">'+esc(ROLE_LABEL[r]||r)
       +(isSuper()?' <a href="#" title="Revoke" onclick="revokeRole(\''+s.user_id+'\',\''+r+'\');return false" style="color:#C0392B;text-decoration:none;font-weight:700">×</a>':'')+'</span>').join('');
-    return '<tr class="row"><td><div class="nm">'+esc(s.email||'—')+'</div></td><td>'+chips+'</td></tr>';
+    const off=isSuper()?'<a href="#" title="Disable account" onclick="disableStaff(\''+s.user_id+'\',\''+esc(s.email||'')+'\');return false" style="color:#C0392B;font-size:11px;text-decoration:none">Disable</a>':'';
+    return '<tr class="row"><td><div class="nm">'+esc(s.email||'—')+'</div></td><td>'+chips+'</td><td style="text-align:right">'+off+'</td></tr>';
   });
-  document.getElementById('roster').innerHTML = grant + tbl(['Account','Roles'],rows)
-    + '<div class="page-sub" style="margin-top:16px;font-size:12.5px"><b>What each role can do:</b> <b>Super admin</b> — everything, incl. role management. <b>Finance</b> — payments/pricing, sees payout/bank, final coach approval. <b>Coach support</b> — coaches, applications (suitability only), materials. <b>Investor support</b> — investors. <b>Founder support</b> — founder accounts. <b>Hub partner</b> — partner cohorts.</div>';
+  document.getElementById('roster').innerHTML = grant
+    + '<div id="presence-panel" style="margin:6px 0 18px"></div>'
+    + tbl(['Account','Roles',''],rows)
+    + '<div class="page-sub" style="margin-top:16px;font-size:12.5px"><b>What each role can do:</b> <b>Super admin</b> — everything, incl. role management. <b>Finance</b> — payments/pricing, sees payout/bank, final coach approval. <b>Coach support</b> — coaches, applications (suitability only), materials. <b>Investor support</b> — investors. <b>Founder support</b> — founder accounts. <b>Partner</b> — partner cohorts.</div>'
+    + '<div id="audit-feed" style="margin-top:22px"></div>';
+  paintPresence(); loadAudit();
 }
-async function grantRole(){
+async function inviteStaff(){
   const email=document.getElementById('gr-email').value.trim(); const role=document.getElementById('gr-role').value;
-  if(!email){ showToast('Enter an email','error'); return; }
-  try{ await _rpc('admin_grant_role',{p_email:email,p_role:role}); showToast('Role granted','success'); staffDir=null; renderAdmins(''); }
-  catch(e){ showToast('Could not grant — '+(e.message||'').replace(/^RPC \d+: /,''),'error'); }
+  if(!email){ showToast('Enter a company email','error'); return; }
+  const btn=document.getElementById('gr-btn'); if(btn){ btn.disabled=true; btn.textContent='Sending…'; }
+  try{
+    const t=await _token();
+    const r=await fetch(API_BASE+'/api/staff/invite',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+t},body:JSON.stringify({email,roles:[role]})});
+    const j=await r.json().catch(()=>({})); if(!r.ok) throw new Error(j.error||('HTTP '+r.status));
+    showToast(j.created?'Invite sent — account created':'Access updated — email sent','success');
+    staffDir=null; renderAdmins('');
+  }catch(e){ showToast('Could not invite — '+e.message,'error'); }
+  finally{ const b=document.getElementById('gr-btn'); if(b){ b.disabled=false; b.textContent='Invite & grant'; } }
+}
+async function disableStaff(uid,email){
+  if(!confirm('Disable '+(email||'this account')+'?\nThis revokes all roles and bans the login. Reversible by re-inviting.'))return;
+  try{
+    const t=await _token();
+    const r=await fetch(API_BASE+'/api/staff/disable',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+t},body:JSON.stringify({user_id:uid})});
+    const j=await r.json().catch(()=>({})); if(!r.ok) throw new Error(j.error||('HTTP '+r.status));
+    showToast('Account disabled','success'); staffDir=null; renderAdmins('');
+  }catch(e){ showToast('Could not disable — '+e.message,'error'); }
+}
+let presenceRoster=[], _presTimer=null;
+async function pollPresence(){ try{ presenceRoster=await _rpc('staff_presence_roster')||[]; }catch(_){ } paintPresence(); }
+function paintPresence(){
+  const el=document.getElementById('presence-panel'); if(!el) return;
+  const on=presenceRoster.filter(p=>p.online), off=presenceRoster.filter(p=>!p.online).slice(0,8);
+  const dot=c=>'<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+c+';margin-right:7px;vertical-align:middle"></span>';
+  const chip=p=>'<span style="display:inline-flex;align-items:center;padding:6px 11px;border:1px solid var(--border);font-size:12.5px;margin:0 6px 6px 0">'
+    +dot(p.online?'#5BBE8B':'#9a948a')+'<b style="font-weight:600">'+esc((p.email||'').split('@')[0])+'</b>'
+    +'<span style="color:var(--muted);margin-left:7px">'+esc((p.roles||[]).map(r=>ROLE_LABEL[r]||r).join(', '))+'</span>'
+    +'<span style="color:var(--muted);margin-left:7px">· '+(p.online?'online':esc(ago(p.last_seen_at)))+'</span></span>';
+  el.innerHTML='<div class="app-card" style="padding:14px 16px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:'+((on.length||off.length)?'10px':'0')+'">'
+    +'<div style="font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-mid)">Who&rsquo;s online'+(on.length?' · '+on.length:'')+'</div>'
+    +'<div style="font-size:11px;color:var(--muted)">live · 25s refresh</div></div>'
+    +((on.length||off.length)?('<div>'+on.map(chip).join('')+off.map(chip).join('')+'</div>'):'<div class="sub">No staff active right now.</div>')+'</div>';
+}
+async function loadAudit(){
+  const el=document.getElementById('audit-feed'); if(!el||!isSuper()) return;
+  let rows=[]; try{ rows=await _q('audit_log','select=actor_email,action,target_email,role,created_at&order=created_at.desc&limit=25')||[]; }catch(_){ return; }
+  const verb={'role.grant':'granted','role.revoke':'revoked','staff.invite':'invited','staff.disable':'disabled'};
+  const body=rows.length?rows.map(a=>'<tr class="row"><td style="white-space:nowrap;color:var(--muted);font-size:12px">'+esc(ago(a.created_at))+'</td>'
+    +'<td style="font-size:12.5px"><b>'+esc((a.actor_email||'').split('@')[0])+'</b> '+(verb[a.action]||esc(a.action))
+    +(a.role?' <span class="tag">'+esc(ROLE_LABEL[a.role]||a.role)+'</span>':'')
+    +(a.target_email?' → '+esc(a.target_email):'')+'</td></tr>').join(''):'<tr><td colspan="2" class="sub" style="padding:8px">No activity logged yet.</td></tr>';
+  el.innerHTML='<div style="font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-mid);margin-bottom:8px">Recent admin activity</div>'+tbl(['When','Action'],[body]);
+}
+function startPresence(){
+  const ping=()=>{ if(document.visibilityState==='visible') _rpc('presence_ping',{p_page:'Command Centre'}).catch(()=>{}); };
+  ping(); setInterval(ping,30000);
+  document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible') ping(); });
+  pollPresence(); if(_presTimer) clearInterval(_presTimer); _presTimer=setInterval(pollPresence,25000);
 }
 async function revokeRole(uid,role){
   if(!confirm('Revoke '+(ROLE_LABEL[role]||role)+'?'))return;
