@@ -561,7 +561,7 @@ function showToast(m,t){const e=document.getElementById('toast');e.textContent=m
     shown=true;
   }
   function init(){
-    if(!window.sb || !sb.auth){ return setTimeout(init,400); }
+    if(typeof sb==='undefined' || !sb || !sb.auth){ return setTimeout(init,400); }
     sb.auth.getUser().then(function(r){
       var u=r&&r.data&&r.data.user; if(!u) return;
       sb.from('user_roles').select('role').eq('user_id',u.id).eq('role','admin').limit(1).then(function(res){
