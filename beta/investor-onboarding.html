@@ -60,7 +60,7 @@
     </div>
 
     <div class="sec">Focus</div>
-    <div class="f full" style="margin-bottom:14px"><label>Sectors of interest</label><input id="focus_sectors" placeholder="Comma-separated, e.g. Fintech, Agritech, Health"><span class="hint">Separate with commas.</span></div>
+    <div class="f full" style="margin-bottom:14px"><label>Sectors of interest</label><div class="chips" id="sectors"></div><span class="hint">Pick the sectors you back — founders are matched to you by these.</span></div>
     <div class="f full" style="margin-bottom:14px"><label>Stages</label><div class="chips" id="stages"></div></div>
     <div class="grid">
       <div class="f"><label>Ticket — min</label><input id="ticket_min" type="number" min="0" placeholder="25000"></div>
@@ -99,7 +99,9 @@ const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON,{auth:{persistSession:false}});
 
 const STAGES=['Pre-seed','Seed','Series A','Series B','Growth'];
+const SECTORS=['Agriculture & Agribusiness','Education & EdTech','Fashion & Retail','Finance & FinTech','Food & Beverage','Health & Wellness','Logistics & Supply Chain','Media & Creative Arts','Professional Services','Real Estate & Construction','Tech & Software','Tourism & Hospitality','Other'];
 document.getElementById('stages').innerHTML=STAGES.map(s=>'<span class="chip" data-s="'+s+'" onclick="this.classList.toggle(\'on\')">'+s+'</span>').join('');
+document.getElementById('sectors').innerHTML=SECTORS.map(s=>'<span class="chip" data-s="'+s+'" onclick="this.classList.toggle(\'on\')">'+s+'</span>').join('');
 
 function listFrom(id){ return (document.getElementById(id).value||'').split(',').map(x=>x.trim()).filter(Boolean); }
 function val(id){ return (document.getElementById(id).value||'').trim(); }
@@ -109,8 +111,9 @@ async function submitForm(){
   const name=val('name'), contact_name=val('contact_name'), contact_email=val('contact_email');
   if(!name||!contact_name||!contact_email){ msg.textContent='Please fill firm name, your name, and email.'; msg.className='msg err'; return; }
   const stages=[...document.querySelectorAll('#stages .chip.on')].map(c=>c.dataset.s);
+  const sectors=[...document.querySelectorAll('#sectors .chip.on')].map(c=>c.dataset.s);
   const p={ name, firm_type:val('firm_type'), one_liner:val('one_liner'), thesis:val('thesis'),
-    focus_sectors:listFrom('focus_sectors'), stages, ticket_min:val('ticket_min'), ticket_max:val('ticket_max'),
+    focus_sectors:sectors, stages, ticket_min:val('ticket_min'), ticket_max:val('ticket_max'),
     currency:val('currency'), geographies:listFrom('geographies'), website_url:val('website_url'),
     linkedin_url:val('linkedin_url'), logo_url:val('logo_url'), contact_name, contact_email, contact_phone:val('contact_phone'),
     accreditation_note:val('accreditation_note') };

@@ -1434,13 +1434,20 @@ function switchTab(name){
 let investorFirms=null;
 function founderUnlocked(){ return !!(profile && profile.investor_visible) || (companies||[]).some(c=>c.investor_visible) || isShared(); }
 function invChip(s){ return '<span style="display:inline-block;font-family:var(--sans);font-size:9px;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border:1px solid var(--border);color:var(--ink-mid);margin:2px 4px 2px 0">'+esc(s)+'</span>'; }
-function firmTile(f){
+function _secNorm(s){ return String(s||'').toLowerCase().replace(/[&,/]+/g,' ').replace(/\s+/g,' ').trim(); }
+function sectorMatch(founderSector, firmSectors){
+  if(!founderSector||!Array.isArray(firmSectors)||!firmSectors.length) return false;
+  const fs=_secNorm(founderSector); if(!fs) return false;
+  return firmSectors.some(s=>{ const x=_secNorm(s); if(!x) return false; return x===fs || x.indexOf(fs)>=0 || fs.indexOf(x)>=0 || x.split(' ').some(w=>w.length>=4 && fs.indexOf(w)>=0); });
+}
+function firmTile(f, founderSector){
   const n=x=>x>=1e6?(x/1e6)+'M':x>=1e3?(x/1e3)+'k':x; const cur=f.currency||'USD';
   const ticket=(f.ticket_min||f.ticket_max)?(cur+' '+(f.ticket_min?n(f.ticket_min):'')+(f.ticket_max?('–'+n(f.ticket_max)):'+')):'';
   const meta=[f.firm_type,(f.stages||[]).join('/'),ticket,(f.geographies||[]).join(', ')].filter(Boolean).join(' · ');
   const logo=f.logo_url?'<img src="'+esc(f.logo_url)+'" alt="" style="width:40px;height:40px;object-fit:contain;border:1px solid var(--border);background:#fff">':'';
+  const badge=(founderSector&&sectorMatch(founderSector,f.focus_sectors))?'<span style="font-family:var(--sans);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#0A8F64;background:rgba(10,143,100,.14);padding:3px 8px;white-space:nowrap">Matches you</span>':'';
   return '<div class="card" style="margin:0">'
-    +'<div style="display:flex;align-items:center;gap:10px">'+logo+'<div style="font-family:var(--display);font-size:20px;font-weight:600">'+esc(f.name)+'</div></div>'
+    +'<div style="display:flex;align-items:center;gap:10px">'+logo+'<div style="font-family:var(--display);font-size:20px;font-weight:600;flex:1">'+esc(f.name)+'</div>'+badge+'</div>'
     +(f.one_liner?'<div style="font-size:12.5px;color:var(--ink-mid);margin-top:6px">'+esc(f.one_liner)+'</div>':'')
     +(meta?'<div style="font-size:11px;color:var(--muted);margin-top:8px;font-family:var(--sans);letter-spacing:.04em">'+esc(meta)+'</div>':'')
     +(f.thesis?'<div style="font-size:12.5px;line-height:1.55;margin-top:10px">'+esc(f.thesis)+'</div>':'')
@@ -1461,9 +1468,18 @@ async function renderInvestorDir(){
     el.innerHTML='<div class="card">Loading…</div>';
     try{ investorFirms=await _pgQuery('investor_firms','status=eq.approved&public=eq.true&select=*&order=name'); }catch(e){ investorFirms=[]; }
   }
-  el.innerHTML = investorFirms.length
-    ? '<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px">'+investorFirms.map(firmTile).join('')+'</div>'
-    : emptyState('No investors listed yet','Verified investor firms appear here as they join the platform.');
+  if(!investorFirms.length){ el.innerHTML=emptyState('No investors listed yet','Verified investor firms appear here as they join the platform.'); return; }
+  const sector=(company&&company.sector)||'';
+  const grid=arr=>'<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px">'+arr.map(f=>firmTile(f,sector)).join('')+'</div>';
+  const note='<div style="font-size:12px;color:var(--ink-mid);line-height:1.55;margin-bottom:16px;border-left:2px solid var(--terra);padding-left:11px">Investors here are matched to your sector and can reach out to you — but visibility is an opportunity, not a guarantee of funding. Keep your data room sharp and show up well; the best-prepared founders get the conversations.</div>';
+  if(!sector){ el.innerHTML=note+grid(investorFirms); return; }
+  const matched=investorFirms.filter(f=>sectorMatch(sector,f.focus_sectors));
+  const other=investorFirms.filter(f=>!sectorMatch(sector,f.focus_sectors));
+  let html=note;
+  if(matched.length){ html+='<div class="section-title" style="margin-top:0">Matched to your sector <span style="color:var(--muted);font-weight:400;text-transform:none;letter-spacing:0;font-size:12px">· '+esc(sector)+'</span></div>'+grid(matched); }
+  else { html+='<div class="card" style="margin-bottom:16px"><div style="font-size:13px;color:var(--ink-mid);line-height:1.5">No investors are focused on <strong>'+esc(sector)+'</strong> just yet — more join regularly, and you can still browse everyone below.</div></div>'; }
+  if(other.length){ html+='<div class="section-title">'+(matched.length?'Other investors':'All investors')+'</div>'+(matched.length?'<div style="font-size:12px;color:var(--muted);margin:-8px 0 12px">Outside your sector focus — browse if you’re exploring adjacent fields.</div>':'')+grid(other); }
+  el.innerHTML=html;
 }
 function emptyState(title, sub){ return '<div class="empty"><div class="empty-mark">◇</div><div style="font-weight:600;color:var(--ink-mid)">'+esc(title)+'</div>'+(sub?'<div style="margin-top:4px">'+esc(sub)+'</div>':'')+'</div>'; }
 function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
