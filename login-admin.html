@@ -212,7 +212,23 @@ async function doNewPass(e){
   finally{ btn.disabled=false; btn.textContent='Update & continue'; }
   return false;
 }
-function go(){ window.location.href='/'+DASHBOARD; }
+// Route by role: super-admin → ops dashboard; any scoped staff role → Command Centre.
+// (dashboard.html is admin-only, so sending non-admins there causes a redirect loop.)
+const STAFF_ROLES=['finance','coach_support','investor_support','founder_support','hub_partner'];
+async function go(){
+  try{
+    const { data:{ user } } = await sb.auth.getUser();
+    if(user){
+      const { data: roles } = await sb.from('user_roles').select('role').eq('user_id', user.id);
+      const r=(roles||[]).map(x=>x.role);
+      if(r.includes('admin')){ window.location.replace('/dashboard.html'); return; }
+      if(r.some(x=>STAFF_ROLES.includes(x))){ window.location.replace('/admin-portals.html'); return; }
+      // No staff role at all → show the Command Centre's access-restricted screen (no loop).
+      window.location.replace('/admin-portals.html'); return;
+    }
+  }catch(_){}
+  window.location.replace('/'+DASHBOARD);
+}
 
 // ── Constellation animation over the photo (lightweight; reduced-motion + visibility aware) ──
 (function(){
