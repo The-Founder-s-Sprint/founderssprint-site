@@ -897,8 +897,29 @@ function renderAdmins(q){
     + '<div id="presence-panel" style="margin:6px 0 18px"></div>'
     + tbl(['Account','Roles',''],rows)
     + '<div class="page-sub" style="margin-top:16px;font-size:12.5px"><b>What each role can do:</b> <b>Super admin</b> — everything, incl. role management. <b>Finance</b> — payments/pricing, sees payout/bank, final coach approval. <b>Coach support</b> — coaches, applications (suitability only), materials. <b>Investor support</b> — investors. <b>Founder support</b> — founder accounts. <b>Partner</b> — partner cohorts.</div>'
+    + '<div id="search-gaps" style="margin-top:24px"></div>'
     + '<div id="audit-feed" style="margin-top:22px"></div>';
-  paintPresence(); loadAudit();
+  paintPresence(); loadAudit(); loadSearchGaps();
+}
+async function loadSearchGaps(){
+  const el=document.getElementById('search-gaps'); if(!el||!isSuper()) return;
+  let rows=[]; try{ rows=await _rpc('search_gaps',{p_days:30,p_limit:60,p_threshold:5})||[]; }catch(_){ el.innerHTML=''; return; }
+  const head='<div style="display:flex;justify-content:space-between;align-items:baseline;gap:14px;margin-bottom:8px;flex-wrap:wrap">'
+    +'<div style="font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-mid)">Search gaps · last 30 days</div>'
+    +'<div style="font-size:11.5px;color:var(--muted);max-width:540px">What founders searched on the discovery page that returned nothing or only a weak match — the keyword / taxonomy to-do list.</div></div>';
+  if(!rows.length){ el.innerHTML=head+'<div class="tbl-wrap"><div class="empty">No search gaps logged yet.</div></div>'; return; }
+  const body=rows.map(r=>{
+    const when=r.last_seen?new Date(r.last_seen).toLocaleDateString():'';
+    const signal=(r.no_result_hits>0)
+      ? '<span class="tst-tag grp">no result</span>'
+      : '<span class="tst-tag">weak'+(r.avg_top_score!=null?(' · '+r.avg_top_score):'')+'</span>';
+    return '<tr class="row"><td><div class="nm">'+esc(r.query)+'</div></td>'
+      +'<td style="text-align:center">'+r.hits+'</td>'
+      +'<td>'+signal+'</td>'
+      +'<td style="color:var(--muted)">'+(r.sample_top_node?esc(r.sample_top_node):'—')+'</td>'
+      +'<td style="text-align:right;color:var(--muted);white-space:nowrap">'+when+'</td></tr>';
+  });
+  el.innerHTML=head+tbl(['Query','Searches','Signal','Closest match','Last seen'],body);
 }
 async function inviteStaff(){
   const email=document.getElementById('gr-email').value.trim(); const role=document.getElementById('gr-role').value;

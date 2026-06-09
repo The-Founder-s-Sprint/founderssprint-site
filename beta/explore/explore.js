@@ -1157,6 +1157,7 @@
   searchInpt.addEventListener('input', () => {
     state.searchQuery = searchInpt.value.trim().toLowerCase();
     renderSearchResults();
+    scheduleSearchLog();
     bumpIdle();
   });
   searchInpt.addEventListener('keydown', (e) => {
@@ -1234,8 +1235,32 @@
     const scored = [];
     NODES.forEach(n => { const sc = scoreNode(n, qTokens, rawQ); if (sc > 0) scored.push({ n, sc }); });
     scored.sort((a, b) => b.sc - a.sc || (b.n.level - a.n.level) || a.n.name.localeCompare(b.n.name));
+    lastSearchMeta = { count: scored.length, topScore: scored.length ? scored[0].sc : 0, topNode: scored.length ? scored[0].n.name : null };
     return scored.slice(0, 8).map(x => x.n);
   }
+
+  // ---- Search-gap logging: capture what founders type so real misses feed the next keyword/node pass ----
+  let lastSearchMeta = { count: 0, topScore: 0, topNode: null };
+  const SEARCH_LOG = { url: 'https://ivedeivyotwevjxvcuoe.supabase.co', anon: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss' };
+  const loggedQueries = new Set();
+  let searchLogTimer = null;
+  function looksSensitive(q) { return /[@]|\d{6,}|\+\d{6,}/.test(q); }   // skip emails / long digit runs (PII hygiene)
+  function logSearchSettled() {
+    const q = (state.searchQuery || '').trim();
+    if (q.length < 3 || q.length > 140) return;          // ignore stray single letters / pasted essays
+    if (looksSensitive(q)) return;
+    if (loggedQueries.has(q)) return;                    // one log per distinct settled query per visit
+    loggedQueries.add(q);
+    const m = lastSearchMeta;
+    try {
+      fetch(SEARCH_LOG.url + '/rest/v1/search_log', {
+        method: 'POST', keepalive: true,
+        headers: { apikey: SEARCH_LOG.anon, Authorization: 'Bearer ' + SEARCH_LOG.anon, 'Content-Type': 'application/json', Prefer: 'return=minimal' },
+        body: JSON.stringify({ query: q.slice(0, 140), result_count: m.count, top_score: m.topScore || null, top_node: m.topNode, source: 'explore' })
+      }).catch(() => {});
+    } catch (e) { /* logging must never break search */ }
+  }
+  function scheduleSearchLog() { clearTimeout(searchLogTimer); searchLogTimer = setTimeout(logSearchSettled, 1300); }
 
   function resolveBestL3(clicked, query) {
     if (clicked.level === 3) return clicked;
