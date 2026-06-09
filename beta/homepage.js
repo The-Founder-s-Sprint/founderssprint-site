@@ -564,87 +564,39 @@
   });
 
   // ============================================================
-  // 7. SOCIAL PROOF — Tabbed testimonials (reads from testimonials.js)
+  // 7. SOCIAL PROOF — Testimonial wall (APPROVED submissions from the DB)
+  //    Floating quote bubbles drift left→centre; a randomiser highlights one.
   // ============================================================
-
-  // Tab-to-data mapping: each tab index maps to a filter config
-  const PROOF_TAB_MAP = [
-    { coach: 'teddy-ruge',     color: 'c-terra', discipline: 'marketing'   },
-    { coach: 'barry-wojega',   color: 'c-ochre', discipline: 'finance'     },
-    { coach: 'joseph-kalema',  color: 'c-sage',  discipline: 'investment'  },
-    { coach: null,             color: 'c-moss',  discipline: 'programme'   },
-    { coach: 'patrick-ngolobe',color: 'c-stone', discipline: 'product'     },
-  ];
-
-  // Generate panels from shared testimonials data
-  const proofContainer = document.getElementById('proof-panels');
-  if (proofContainer && window.FS_TESTIMONIALS) {
-    PROOF_TAB_MAP.forEach((cfg, idx) => {
-      // Pick a random homepage quote for this tab (refreshes each page load)
-      const pool = window.FS_TESTIMONIALS.filter(q =>
-        q.surfaces.includes('homepage') &&
-        (cfg.coach ? q.coach_id === cfg.coach : q.discipline === cfg.discipline)
-      );
-      if (!pool.length) return;
-      const quote = pool[Math.floor(Math.random() * pool.length)];
-
-      // Build the blockquote text with optional <mark> highlight
-      let bodyHtml = quote.text;
-      if (quote.highlight) {
-        bodyHtml = bodyHtml.replace(quote.highlight, `<mark>${quote.highlight}</mark>`);
-      }
-
-      // Build avatar: photo or initials
-      let avatarHtml;
-      if (quote.photo) {
-        avatarHtml = `<img class="proof-avatar-img" src="${quote.photo}" alt="${quote.name}" loading="lazy">`;
-      } else {
-        avatarHtml = `<div class="proof-avatar ${cfg.color}">${quote.initials}</div>`;
-      }
-
-      // Build role string: "Role, Company · Sector" or "Role, Company"
-      const roleStr = quote.role + (quote.company ? ', ' + quote.company : '');
-
-      const article = document.createElement('article');
-      article.className = 'proof-panel' + (idx === 0 ? ' active' : '');
-      article.dataset.panel = idx;
-      article.innerHTML = `
-        <blockquote><p>${bodyHtml}</p></blockquote>
-        <div class="proof-attrib">
-          ${avatarHtml}
-          <div>
-            <div class="proof-name">${quote.name}</div>
-            <div class="proof-role">${roleStr}</div>
-          </div>
-        </div>
-      `;
-      proofContainer.appendChild(article);
-    });
-  }
-
-  // Tab click handlers
-  const proofTabs   = document.querySelectorAll('.proof-tab');
-  const proofPanels = document.querySelectorAll('.proof-panel');
-  if (proofTabs.length && proofPanels.length) {
-    proofTabs.forEach(tab => {
-      tab.addEventListener('click', () => {
-        const idx = tab.dataset.tab;
-        proofTabs.forEach(t => t.classList.remove('active'));
-        proofPanels.forEach(p => {
-          p.classList.remove('active');
-          p.style.animation = 'none';
-        });
-        tab.classList.add('active');
-        const panel = document.querySelector(`.proof-panel[data-panel="${idx}"]`);
-        if (panel) {
-          // Force re-trigger animation
-          void panel.offsetWidth;
-          panel.style.animation = '';
-          panel.classList.add('active');
-        }
+  (function(){
+    var SB_URL='https://ivedeivyotwevjxvcuoe.supabase.co';
+    var SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss';
+    var PHOTO_BASE=SB_URL+'/storage/v1/object/public/testimonial-photos/';
+    var reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    var field=document.getElementById('tw-field');
+    if(!field) return; // §5 not present on this page
+    function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+    function photo(p){ if(!p) return null; return /^https?:\/\//.test(p)?p:PHOTO_BASE+encodeURIComponent(p); }
+    function initials(n){ var a=String(n||'?').trim().split(/\s+/); return ((a[0]||'?')[0]+(a.length>1?a[a.length-1][0]:'')).toUpperCase(); }
+    function excerpt(t,n){ t=String(t||'').replace(/\s+/g,' ').trim(); return t.length>n? t.slice(0,n-1).replace(/[\s,;:]+\S*$/,'')+'…':t; }
+    function avatarHTML(q){ var p=photo(q.photo_path); return p?'<img class="tw-av" src="'+esc(p)+'" alt="" loading="lazy">':'<div class="tw-ini">'+esc(initials(q.name))+'</div>'; }
+    function meta(q){ return [q.role_title,q.company].filter(Boolean).map(esc).join(' · '); }
+    var Q=[], qi=0;
+    function nextQ(){ var q=Q[qi%Q.length]; qi++; return q; }
+    fetch(SB_URL+'/rest/v1/testimonial_submissions?status=eq.approved&select=name,role_title,company,for_target,testimonial,photo_path&order=created_at.desc&limit=60',{headers:{apikey:SB_ANON,Authorization:'Bearer '+SB_ANON}})
+      .then(function(r){ return r.ok?r.json():[]; }).catch(function(){ return []; })
+      .then(function(rows){
+        Q=rows||[];
+        for(var i=Q.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=Q[i]; Q[i]=Q[j]; Q[j]=t; }
+        if(!Q.length){ renderEmpty(); return; }
+        buildField(); buildMobile(); startHighlight();
       });
-    });
-  }
+    function renderEmpty(){ var s=document.getElementById('tw-stage'); if(s) s.innerHTML='<div class="tw-empty">Founders’ stories are coming soon. <a href="/share-testimonial.html">Share yours →</a></div>'; }
+    function fillBubble(el){ var q=nextQ(); el.querySelector('.tw-inner').innerHTML='<div class="tw-row">'+avatarHTML(q)+'<div><div class="tw-nm">'+esc(q.name)+'</div>'+(meta(q)?'<div class="tw-ro">'+meta(q)+'</div>':'')+'</div></div><div class="tw-qt">“'+esc(excerpt(q.testimonial,150))+'”</div>'; }
+    function buildField(){ field.innerHTML=''; var count=Math.min(6,Math.max(3,Q.length)); for(var i=0;i<count;i++){ var el=document.createElement('div'); el.className='tw-bubble'; el.innerHTML='<div class="tw-inner"></div>'; el.style.top=(6+i*(80/count)+Math.random()*6)+'%'; fillBubble(el); if(reduce){ el.style.animation='none'; el.style.left=(4+(i%2)*40+Math.random()*8)+'%'; el.style.opacity='1'; if(i>3) el.style.display='none'; } else { var dur=17+Math.random()*9; el.style.animationDuration=dur+'s'; el.style.animationDelay=(-Math.random()*dur)+'s'; el.querySelector('.tw-inner').style.animationDelay=(-Math.random()*6)+'s'; el.addEventListener('animationiteration',(function(b){return function(){ b.style.top=(5+Math.random()*82)+'%'; fillBubble(b); };})(el)); } field.appendChild(el); } }
+    function buildMobile(){ var host=document.getElementById('tw-mlist'); if(!host) return; host.innerHTML=Q.slice(0,4).map(function(q){ return '<div class="tw-mcard"><div class="tw-row">'+avatarHTML(q)+'<div><div class="tw-nm">'+esc(q.name)+'</div>'+(meta(q)?'<div class="tw-ro">'+meta(q)+'</div>':'')+'</div></div><div class="tw-qt">“'+esc(excerpt(q.testimonial,220))+'”</div></div>'; }).join(''); }
+    function highlightHTML(q){ return '<div class="tw-quote">“'+esc(excerpt(q.testimonial,240))+'”</div><div class="tw-attrib">'+avatarHTML(q)+'<div><div class="tw-nm">'+esc(q.name)+'</div>'+(meta(q)?'<div class="tw-ro">'+meta(q)+'</div>':'')+'</div></div>'; }
+    function startHighlight(){ var el=document.getElementById('tw-hl'), dotsEl=document.getElementById('tw-dots'); var N=Math.min(Q.length,6); dotsEl.innerHTML=Array.apply(null,{length:N}).map(function(){return '<i></i>';}).join(''); var dots=[].slice.call(dotsEl.children); var hi=Math.floor(Math.random()*Q.length); function paint(){ var q=Q[hi%Q.length]; el.style.opacity='0'; setTimeout(function(){ el.innerHTML=highlightHTML(q); el.style.opacity='1'; }, reduce?0:420); dots.forEach(function(d,i){ d.classList.toggle('on', i===(hi%N)); }); } paint(); if(!reduce && Q.length>1){ setInterval(function(){ hi++; paint(); }, 6500); } }
+  })();
 
   // ============================================================
   // 8. PRICING VARIANT — show matrix by default

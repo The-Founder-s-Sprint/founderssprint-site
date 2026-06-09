@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="Five coaches. Five disciplines. Expert coaching for East African founders — walk away with an investor-ready data room.">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Josefin+Sans:wght@300;400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="homepage.css?v=10">
+<link rel="stylesheet" href="homepage.css?v=11">
 
 </head>
 <body>
@@ -272,36 +272,18 @@
     <span class="eyebrow section-eb ochre">§5 Social Proof</span>
     <h2 class="h-section">What founders say about our coaches.</h2>
 
-    <!-- Coach tabs — like Cloudflare company logos -->
-    <div class="proof-tabs" id="proof-tabs">
-      <button class="proof-tab active" data-tab="0" type="button">
-        <span class="tab-ini c-terra">TR</span>
-        <span class="tab-name">Marketing</span>
-      </button>
-      <button class="proof-tab" data-tab="1" type="button">
-        <span class="tab-ini c-ochre">BW</span>
-        <span class="tab-name">Finance</span>
-      </button>
-      <button class="proof-tab" data-tab="2" type="button">
-        <span class="tab-ini c-sage">JK</span>
-        <span class="tab-name">Investment</span>
-      </button>
-      <button class="proof-tab" data-tab="3" type="button">
-        <span class="tab-ini c-moss">SN</span>
-        <span class="tab-name">Programme</span>
-      </button>
-      <button class="proof-tab" data-tab="4" type="button">
-        <span class="tab-ini c-stone">PN</span>
-        <span class="tab-name">Product</span>
-      </button>
+    <!-- Testimonial wall — floating bubbles + randomised highlight. Reads APPROVED submissions from the DB. -->
+    <div class="tw-stage" id="tw-stage">
+      <div class="tw-field" id="tw-field" aria-hidden="true"></div>
+      <div class="tw-highlight">
+        <div class="tw-hl-eyebrow">In their words</div>
+        <div id="tw-hl"></div>
+        <div class="tw-pill">◇ Build with direction.</div>
+        <div class="tw-dots" id="tw-dots"></div>
+      </div>
+      <div class="tw-mlist" id="tw-mlist"></div>
     </div>
-
-    <!-- Testimonial panels — generated from testimonials.js -->
-    <div class="proof-panels" id="proof-panels">
-      <!-- JS populates from FS_TESTIMONIALS -->
-    </div>
-
-    <!-- proof-roster: add back when press coverage is secured -->
+    <div class="tw-foot"><a href="/share-testimonial.html">Coached by us? Share your story →</a></div>
   </div>
 </section>
 
@@ -731,7 +713,7 @@
 
 
 <script src="testimonials.js?v=2"></script>
-<script src="homepage.js?v=7"></script>
+<script src="homepage.js?v=8"></script>
 <script src="sponsors.js?v=2"></script>
 <script src="auth-nav.js?v=1"></script>
 </body>

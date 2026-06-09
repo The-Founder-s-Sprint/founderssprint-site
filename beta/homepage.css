@@ -1821,3 +1821,50 @@ footer .bottom {
   footer .row { grid-template-columns: 1fr; }
   footer .bottom { flex-direction: column; gap: 10px; }
 }
+
+/* ============================================================
+   §5 Social Proof — Testimonial wall (floating bubbles + highlight)
+   ============================================================ */
+.proof .tw-stage{display:grid;grid-template-columns:1.18fr 1fr;gap:26px;align-items:stretch;min-height:520px;margin-top:34px;}
+.proof .tw-field{position:relative;overflow:hidden;border:1px solid rgba(239,231,216,.07);background:radial-gradient(120% 90% at 0% 50%,rgba(200,83,31,.07),transparent 60%);min-height:520px;}
+.proof .tw-bubble{position:absolute;left:-360px;width:300px;will-change:left,opacity;animation-name:tw-drift;animation-timing-function:linear;animation-iteration-count:infinite;}
+@keyframes tw-drift{0%{left:-360px;opacity:0}9%{opacity:1}66%{opacity:.96}100%{left:76%;opacity:0}}
+.proof .tw-inner{background:rgba(35,37,45,.82);border:1px solid rgba(239,231,216,.10);backdrop-filter:blur(3px);-webkit-backdrop-filter:blur(3px);padding:15px 17px;animation:tw-bob 6.5s ease-in-out infinite alternate;}
+@keyframes tw-bob{from{transform:translateY(-7px)}to{transform:translateY(9px)}}
+.proof .tw-row{display:flex;align-items:center;gap:10px;margin-bottom:9px;}
+.proof .tw-av,.proof .tw-ini{width:34px;height:34px;border-radius:50%;flex-shrink:0;object-fit:cover;}
+.proof .tw-ini{background:#33363f;display:flex;align-items:center;justify-content:center;font-family:'Cormorant Garamond',serif;font-size:15px;color:#A09888;}
+.proof .tw-nm{font-family:'Josefin Sans',sans-serif;font-weight:600;font-size:11px;letter-spacing:.04em;color:#EFE7D8;}
+.proof .tw-ro{font-size:10.5px;color:rgba(239,231,216,.5);margin-top:1px;}
+.proof .tw-qt{font-size:12.5px;line-height:1.5;color:rgba(239,231,216,.82);}
+.proof .tw-highlight{position:relative;background:#C8531F;color:#EFE7D8;padding:40px 38px;display:flex;flex-direction:column;justify-content:center;overflow:hidden;}
+.proof .tw-highlight::after{content:"";position:absolute;right:-60px;bottom:-60px;width:240px;height:240px;border:1px solid rgba(239,231,216,.16);border-radius:50%;}
+.proof .tw-hl-eyebrow{font-family:'Josefin Sans',sans-serif;font-size:10px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:rgba(239,231,216,.7);margin-bottom:18px;}
+.proof #tw-hl{transition:opacity .42s ease;}
+.proof #tw-hl .tw-quote{font-family:'Cormorant Garamond',serif;font-weight:500;font-size:28px;line-height:1.3;letter-spacing:-.005em;}
+.proof #tw-hl .tw-attrib{display:flex;align-items:center;gap:13px;margin-top:24px;}
+.proof #tw-hl .tw-av,.proof #tw-hl .tw-ini{width:48px;height:48px;border:2px solid rgba(239,231,216,.55);}
+.proof #tw-hl .tw-ini{background:#9A3E16;font-size:20px;color:#EFE7D8;}
+.proof #tw-hl .tw-nm{font-size:13px;font-weight:700;}
+.proof #tw-hl .tw-ro{color:rgba(239,231,216,.78);font-size:12.5px;}
+.proof .tw-pill{position:relative;z-index:1;align-self:flex-start;margin-top:26px;display:inline-flex;align-items:center;gap:8px;background:rgba(239,231,216,.14);border:1px solid rgba(239,231,216,.22);padding:9px 15px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;}
+.proof .tw-dots{position:absolute;left:38px;bottom:24px;display:flex;gap:6px;z-index:1;}
+.proof .tw-dots i{width:6px;height:6px;border-radius:50%;background:rgba(239,231,216,.35);transition:background .3s,width .3s;}
+.proof .tw-dots i.on{background:#EFE7D8;width:18px;border-radius:3px;}
+.proof .tw-mlist{display:none;flex-direction:column;gap:12px;}
+.proof .tw-mcard{background:rgba(35,37,45,.82);border:1px solid rgba(239,231,216,.10);padding:16px 17px;}
+.proof .tw-foot{margin-top:22px;font-size:13px;}
+.proof .tw-foot a{color:#C9923A;text-decoration:none;}
+.proof .tw-foot a:hover{color:#C8531F;}
+.proof .tw-empty{grid-column:1/-1;text-align:center;padding:60px 20px;color:rgba(239,231,216,.6);}
+.proof .tw-empty a{color:#C8531F;}
+@media(max-width:860px){
+  .proof .tw-stage{display:block;min-height:0;}
+  .proof .tw-field{display:none;}
+  .proof .tw-highlight{padding:28px 22px;}
+  .proof #tw-hl .tw-quote{font-size:22px;}
+  .proof .tw-mlist{display:flex;margin-top:14px;}
+}
+@media(prefers-reduced-motion:reduce){
+  .proof .tw-bubble,.proof .tw-inner{animation:none!important;}
+}
