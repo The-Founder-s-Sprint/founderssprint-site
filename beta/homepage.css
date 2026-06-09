@@ -1847,7 +1847,6 @@ footer .bottom {
 .proof #tw-hl .tw-ini{background:#9A3E16;font-size:20px;color:#EFE7D8;}
 .proof #tw-hl .tw-nm{font-size:13px;font-weight:700;}
 .proof #tw-hl .tw-ro{color:rgba(239,231,216,.78);font-size:12.5px;}
-.proof .tw-pill{position:relative;z-index:1;align-self:flex-start;margin-top:26px;display:inline-flex;align-items:center;gap:8px;background:rgba(239,231,216,.14);border:1px solid rgba(239,231,216,.22);padding:9px 15px;font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;}
 .proof .tw-dots{position:absolute;left:38px;bottom:24px;display:flex;gap:6px;z-index:1;}
 .proof .tw-dots i{width:6px;height:6px;border-radius:50%;background:rgba(239,231,216,.35);transition:background .3s,width .3s;}
 .proof .tw-dots i.on{background:#EFE7D8;width:18px;border-radius:3px;}
