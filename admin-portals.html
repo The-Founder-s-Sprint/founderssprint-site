@@ -109,6 +109,15 @@
   .app-actions{margin-top:14px;display:flex;gap:8px;}
   .btn-sm{font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:8px 14px;border:none;cursor:pointer;}
   .btn-sm.approve{background:var(--success);color:#fff;} .btn-sm.reject{background:none;color:#C0392B;border:1px solid var(--border-hi);}
+  .seg-row{display:flex;gap:6px;flex-wrap:wrap;}
+  .seg{font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:7px 13px;border:1px solid var(--border-hi);background:none;color:var(--muted);cursor:pointer;}
+  .seg.on{background:var(--ink);color:var(--bg);border-color:var(--ink);}
+  .tst-list{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--border);}
+  .tst-item{padding:16px 18px;border-bottom:1px solid var(--border);}
+  .tst-item:last-child{border-bottom:none;}
+  .tst-ini{width:42px;height:42px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:17px;color:var(--paper-mid);flex-shrink:0;}
+  .tst-tag{font-family:var(--sans);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border:1px solid var(--border-hi);padding:2px 7px;}
+  .tst-tag.grp{color:var(--terra);border-color:var(--terra);}
   .mat-coach{margin:8px 0 12px;} .mat-coach-h{font-size:12px;font-weight:600;color:var(--ink-mid);margin:6px 0 2px;}
   .mat-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:7px 0;border-top:1px solid var(--border);font-size:12.5px;}
   .app-card select,.app-card input{width:100%;background:var(--bg);border:1px solid var(--border);padding:8px 10px;font-size:13px;font-family:var(--font);color:var(--text);}
@@ -274,6 +283,7 @@ function canSeePortal(k){
   if(k==='founders')  return hasR('founder_support')||hasR('finance');
   if(k==='coaches')   return hasR('coach_support')||hasR('finance');
   if(k==='investors') return hasR('investor_support')||hasR('finance');
+  if(k==='testimonials') return hasR('founder_support')||hasR('coach_support');
   if(k==='admins')    return false; // super-admin only
   return false;
 }
@@ -285,12 +295,14 @@ const PORTALS=[
   {key:'founders',  label:'Founders'},
   {key:'coaches',   label:'Coaches'},
   {key:'investors', label:'Investors'},
+  {key:'testimonials', label:'Testimonials'},
   {key:'admins',    label:'Admin & Ops'}
 ];
 const PORTAL_SUB={
   founders:'Everyone with a founder account — their venture(s), enrolment, payment state and data-room sharing.',
   coaches:'The single home for coach management — roster by discipline, the application pipeline (lead vets suitability → admin vets due-diligence), and all teaching materials.',
   investors:'Approved and pending investor accounts with read access to opted-in data rooms.',
+  testimonials:'Incoming testimonials. Group testimonials are yours to approve; coach-specific ones are approved by each coach — you keep oversight and can moderate any of them.',
   admins:'Privileged roles — platform admins and hub partners. This is who can see across every portal.'
 };
 
@@ -334,6 +346,7 @@ async function boot(user){
     portalCounts.investors = await countOnly('investor_firms','');
     portalCounts.coaches   = coaches.length;
     portalCounts.admins    = await countOnly('user_roles',"role=in.(admin,hub_partner)");
+    portalCounts.testimonials = await countOnly('testimonial_submissions','status=eq.new');
     const firstPortal=PORTALS.find(p=>canSeePortal(p.key));
     renderTabs(); switchPortal(firstPortal?firstPortal.key:'founders');
     startPresence();   // heartbeat + who's-online polling (staff only)
@@ -362,6 +375,7 @@ function renderActive(){
   if(active==='founders')  loadFounders();
   else if(active==='coaches')  renderCoaches(q);
   else if(active==='investors') loadInvestors();
+  else if(active==='testimonials'){ tstLoaded?renderTestimonials():loadTestimonials(); }
   else renderAdmins(q);
 }
 
@@ -793,6 +807,73 @@ async function toggleFirmPublic(id,next){
   try{ await _w('PATCH','investor_firms','id=eq.'+id,{public:next,updated_at:new Date().toISOString()});
     iStatCounts=null; showToast(next?'Published to founders':'Unpublished','success'); loadInvestors();
   }catch(e){ showToast('Could not update — '+e.message,'error'); }
+}
+
+// ── Testimonials (ops: group approvals + oversight) ──
+let tstRows=[], tstFilter='new', tstLoaded=false;
+const TST_PHOTO_BASE=SUPABASE_URL+'/storage/v1/object/public/testimonial-photos/';
+function tstPhoto(p){ if(!p) return null; return /^https?:\/\//.test(p)?p:TST_PHOTO_BASE+p; }
+function tstTargetLabel(slug){ if(!slug||slug==='group') return 'Whole team'; const c=coaches.find(x=>x.slug===slug); return c?((c.first_name||'')+' '+(c.last_name||'')).trim():slug; }
+const TST_ST={'new':{l:'Pending',c:'#A6741F'},approved:{l:'Approved · live',c:'#0A8F64'},rejected:{l:'Declined',c:'#8A857C'},revoked:{l:'Revoked',c:'#8A857C'}};
+async function loadTestimonials(){
+  const host=document.getElementById('roster'); host.innerHTML='<div class="tbl-wrap"><div class="empty">Loading…</div></div>';
+  let params='select=*&order=created_at.desc&limit=500';
+  if(tstFilter!=='all') params+='&status=eq.'+tstFilter;
+  try{ tstRows=await _q('testimonial_submissions',params); tstLoaded=true; }
+  catch(e){ host.innerHTML='<div class="tbl-wrap"><div class="empty">Could not load — '+esc(e.message)+'</div></div>'; return; }
+  try{
+    const c=await Promise.all([
+      countOnly('testimonial_submissions',''),
+      countOnly('testimonial_submissions','status=eq.new'),
+      countOnly('testimonial_submissions','and=(status.eq.new,for_target.eq.group)'),
+      countOnly('testimonial_submissions','status=eq.approved')
+    ]);
+    stats([{v:c[0],l:'Total'},{v:c[1],l:'Pending'},{v:c[2],l:'Group to approve'},{v:c[3],l:'Live'}]);
+  }catch(_){}
+  renderTestimonials();
+}
+function tstFilterSet(f){ tstFilter=f; loadTestimonials(); }
+function renderTestimonials(){
+  const q=searchVal();
+  const rows=tstRows.filter(t=>match(q,t.name,t.company,t.role_title,t.testimonial,tstTargetLabel(t.for_target)));
+  const chips=[['new','Pending'],['approved','Live'],['rejected','Declined'],['revoked','Revoked'],['all','All']]
+    .map(c=>'<button class="seg'+(tstFilter===c[0]?' on':'')+'" onclick="tstFilterSet(\''+c[0]+'\')">'+c[1]+'</button>').join('');
+  const body = rows.length ? '<div class="tst-list">'+rows.map(tstItem).join('')+'</div>'
+                           : '<div class="tbl-wrap"><div class="empty">No testimonials in this view.</div></div>';
+  document.getElementById('roster').innerHTML='<div class="seg-row" style="margin-bottom:14px">'+chips+'</div>'+body;
+}
+function tstItem(t){
+  const ph=tstPhoto(t.photo_path);
+  const av=ph?'<img src="'+esc(ph)+'" loading="lazy" alt="" style="width:42px;height:42px;border-radius:50%;object-fit:cover;flex-shrink:0">'
+            :'<div class="tst-ini">'+esc((t.name||'?').slice(0,1))+'</div>';
+  const st=TST_ST[t.status]||TST_ST['new'];
+  const isGroup=(!t.for_target||t.for_target==='group');
+  const tgt='<span class="tst-tag'+(isGroup?' grp':'')+'">'+esc(tstTargetLabel(t.for_target))+'</span>';
+  const meta=[t.role_title,t.company].filter(Boolean).map(esc).join(' · ');
+  let act='';
+  if(t.status==='new') act='<button class="btn-sm approve" onclick="tstDecide(\''+t.id+'\',\'approved\')">Approve</button><button class="btn-sm reject" onclick="tstDecide(\''+t.id+'\',\'rejected\')">Decline</button>';
+  else if(t.status==='approved') act='<button class="btn-sm reject" onclick="tstDecide(\''+t.id+'\',\'revoked\')">Revoke</button>';
+  else act='<button class="btn-sm approve" onclick="tstDecide(\''+t.id+'\',\'approved\')">Approve</button>';
+  if(isSuper()) act+='<button class="btn-sm" style="border:1px solid var(--border-hi);background:none;color:#8A857C" onclick="tstDelete(\''+t.id+'\')">Delete</button>';
+  return '<div class="tst-item"><div style="display:flex;gap:12px;align-items:flex-start">'+av+
+    '<div style="flex:1;min-width:0"><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:baseline">'+
+      '<strong>'+esc(t.name)+'</strong>'+(meta?'<span style="color:var(--muted);font-size:12px">'+meta+'</span>':'')+tgt+
+      '<span style="margin-left:auto;font-family:var(--sans);font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:'+st.c+'">'+st.l+'</span></div>'+
+      '<div style="margin:7px 0 0;color:var(--ink-mid);line-height:1.55;font-size:13px">“'+esc(t.testimonial)+'”</div>'+
+      '<div style="margin-top:10px;display:flex;gap:7px;flex-wrap:wrap">'+act+'</div>'+
+    '</div></div></div>';
+}
+async function tstDecide(id,status){
+  try{ await _w('PATCH','testimonial_submissions','id=eq.'+encodeURIComponent(id),{status}); }
+  catch(e){ showToast('Update failed — '+e.message,'error'); return; }
+  showToast(status==='approved'?'Approved — live on the wall':status==='rejected'?'Declined':status==='revoked'?'Revoked':'Updated','success');
+  loadTestimonials();
+}
+async function tstDelete(id){
+  if(!confirm('Permanently delete this testimonial submission?')) return;
+  try{ await _w('DELETE','testimonial_submissions','id=eq.'+encodeURIComponent(id)); }
+  catch(e){ showToast('Delete failed — '+e.message,'error'); return; }
+  showToast('Deleted','success'); loadTestimonials();
 }
 let staffDir=null;
 async function loadStaffDir(){ try{ staffDir=await _rpc('staff_directory')||[]; }catch(e){ staffDir=[]; } renderAdmins(document.getElementById('search').value); }

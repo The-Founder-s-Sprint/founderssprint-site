@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Founders, in their own words · The Founder's Sprint</title>
+<meta name="description" content="What founders say after building with direction. Real testimonials from The Founder's Sprint.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://ivedeivyotwevjxvcuoe.supabase.co" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1A1A1A;--ink-soft:#202229;--ink-card:#23252D;--paper:#EFE7D8;--paper-dim:#A09888;
+    --terra:#C8531F;--terra-deep:#9A3E16;--ochre:#C9923A;--sage:#8AAB5C;--moss:#3D4A2E;--stone:#777770;
+    --sans:'Josefin Sans',system-ui,sans-serif;--display:'Cormorant Garamond',serif;--font:'Inter',system-ui,sans-serif;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--ink);color:var(--paper);font-family:var(--font);-webkit-font-smoothing:antialiased;overflow-x:hidden;}
+  a{color:inherit;text-decoration:none;}
+
+  /* top bar */
+  .bar{display:flex;align-items:center;justify-content:space-between;padding:20px 32px;position:relative;z-index:5;}
+  .brand{display:flex;align-items:center;gap:11px;}
+  .brand svg{width:26px;height:26px;}
+  .brand .wm{font-family:var(--sans);font-weight:700;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--paper);}
+  .share-cta{font-family:var(--sans);font-weight:700;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink);background:var(--paper);padding:10px 18px;transition:opacity .2s;}
+  .share-cta:hover{opacity:.88;}
+
+  /* faint grid background */
+  .grid-bg{position:fixed;inset:0;z-index:0;pointer-events:none;
+    background-image:linear-gradient(rgba(239,231,216,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(239,231,216,.035) 1px,transparent 1px);
+    background-size:64px 64px;mask-image:radial-gradient(ellipse 80% 70% at 50% 35%,#000 30%,transparent 85%);
+    -webkit-mask-image:radial-gradient(ellipse 80% 70% at 50% 35%,#000 30%,transparent 85%);}
+
+  .wrap{position:relative;z-index:2;max-width:1280px;margin:0 auto;padding:18px 32px 80px;}
+  .head{text-align:center;max-width:680px;margin:14px auto 30px;}
+  .eyebrow{font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.32em;text-transform:uppercase;color:var(--ochre);margin-bottom:16px;}
+  .head h1{font-family:var(--display);font-weight:500;font-size:54px;line-height:1.04;letter-spacing:-.01em;}
+  .head h1 em{font-style:italic;color:var(--terra);}
+  .head p{margin-top:14px;color:rgba(239,231,216,.66);font-size:15px;line-height:1.6;}
+
+  /* stage */
+  .stage{display:grid;grid-template-columns:1.18fr 1fr;gap:26px;align-items:stretch;min-height:560px;}
+
+  /* left: floating field */
+  .field{position:relative;overflow:hidden;border:1px solid rgba(239,231,216,.07);background:
+     radial-gradient(120% 90% at 0% 50%,rgba(200,83,31,.07),transparent 60%);min-height:560px;}
+  .bubble{position:absolute;left:-360px;width:300px;will-change:left,opacity;
+    animation-name:drift;animation-timing-function:linear;animation-iteration-count:infinite;}
+  @keyframes drift{0%{left:-360px;opacity:0}9%{opacity:1}66%{opacity:.96}100%{left:76%;opacity:0}}
+  .bubble .inner{background:rgba(35,37,45,.82);border:1px solid rgba(239,231,216,.10);backdrop-filter:blur(3px);
+    padding:15px 17px 15px;animation:bob 6.5s ease-in-out infinite alternate;}
+  @keyframes bob{from{transform:translateY(-7px)}to{transform:translateY(9px)}}
+  .bubble .row{display:flex;align-items:center;gap:10px;margin-bottom:9px;}
+  .bubble .av,.bubble .ini{width:34px;height:34px;border-radius:50%;flex-shrink:0;object-fit:cover;}
+  .bubble .ini{background:#33363f;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:15px;color:var(--paper-dim);}
+  .bubble .nm{font-family:var(--sans);font-weight:600;font-size:11px;letter-spacing:.04em;color:var(--paper);}
+  .bubble .ro{font-size:10.5px;color:rgba(239,231,216,.5);margin-top:1px;}
+  .bubble .qt{font-size:12.5px;line-height:1.5;color:rgba(239,231,216,.82);}
+
+  /* right: highlight */
+  .highlight{position:relative;background:var(--terra);color:var(--paper);padding:42px 40px;display:flex;flex-direction:column;justify-content:center;overflow:hidden;}
+  .highlight::after{content:"";position:absolute;right:-60px;bottom:-60px;width:240px;height:240px;border:1px solid rgba(239,231,216,.16);border-radius:50%;}
+  .hl-eyebrow{font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:rgba(239,231,216,.7);margin-bottom:20px;}
+  #hl{transition:opacity .42s ease;}
+  #hl .quote{font-family:var(--display);font-weight:500;font-size:30px;line-height:1.28;letter-spacing:-.005em;}
+  #hl .attrib{display:flex;align-items:center;gap:13px;margin-top:26px;}
+  #hl .attrib .av,#hl .attrib .ini{width:50px;height:50px;border-radius:50%;flex-shrink:0;object-fit:cover;border:2px solid rgba(239,231,216,.55);}
+  #hl .attrib .ini{background:var(--terra-deep);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:22px;}
+  #hl .attrib .nm{font-family:var(--sans);font-weight:700;font-size:13px;letter-spacing:.04em;}
+  #hl .attrib .ro{font-size:12.5px;color:rgba(239,231,216,.78);margin-top:2px;}
+  .hl-pill{position:relative;z-index:1;align-self:flex-start;margin-top:30px;display:inline-flex;align-items:center;gap:8px;
+    background:rgba(239,231,216,.14);border:1px solid rgba(239,231,216,.22);padding:9px 15px;font-family:var(--display);font-style:italic;font-size:14px;}
+  .hl-dots{position:absolute;left:40px;bottom:26px;display:flex;gap:6px;z-index:1;}
+  .hl-dots i{width:6px;height:6px;border-radius:50%;background:rgba(239,231,216,.35);transition:background .3s,width .3s;}
+  .hl-dots i.on{background:var(--paper);width:18px;border-radius:3px;}
+
+  /* mobile list (hidden on desktop) */
+  .mlist{display:none;flex-direction:column;gap:12px;margin-top:8px;}
+  .mcard{background:rgba(35,37,45,.82);border:1px solid rgba(239,231,216,.10);padding:16px 17px;}
+  .mcard .row{display:flex;align-items:center;gap:10px;margin-bottom:9px;}
+  .mcard .av,.mcard .ini{width:36px;height:36px;border-radius:50%;object-fit:cover;flex-shrink:0;}
+  .mcard .ini{background:#33363f;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:15px;color:var(--paper-dim);}
+  .mcard .nm{font-family:var(--sans);font-weight:600;font-size:11px;color:var(--paper);}
+  .mcard .ro{font-size:10.5px;color:rgba(239,231,216,.5);}
+  .mcard .qt{font-size:13px;line-height:1.55;color:rgba(239,231,216,.84);}
+
+  .foot{text-align:center;margin-top:46px;color:rgba(239,231,216,.5);font-size:13px;}
+  .foot a{color:var(--ochre);}
+  .foot .tag{font-family:var(--display);font-style:italic;color:var(--ochre);opacity:.7;font-size:15px;display:block;margin-top:10px;}
+
+  .empty{grid-column:1/-1;text-align:center;padding:80px 20px;color:rgba(239,231,216,.6);}
+  .empty .m{font-family:var(--display);font-size:46px;color:rgba(239,231,216,.3);margin-bottom:12px;}
+  .empty a{color:var(--terra);}
+
+  @media(max-width:860px){
+    .wrap{padding:8px 18px 60px;}
+    .head h1{font-size:38px;}
+    .stage{display:block;min-height:0;}
+    .field{display:none;}
+    .highlight{padding:32px 24px;}
+    #hl .quote{font-size:24px;}
+    .mlist{display:flex;}
+  }
+  @media(prefers-reduced-motion:reduce){
+    .bubble{animation:none!important;}
+    .bubble .inner{animation:none!important;}
+  }
+</style>
+</head>
+<body>
+<div class="grid-bg"></div>
+
+<div class="bar">
+  <a class="brand" href="/index.html" aria-label="The Founder's Sprint">
+    <svg viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.85"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.8" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.78" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.82" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+    <span class="wm">The Founder's Sprint</span>
+  </a>
+  <a class="share-cta" href="/share-testimonial.html">Share your story</a>
+</div>
+
+<div class="wrap">
+  <div class="head">
+    <div class="eyebrow">Testimonials</div>
+    <h1>Founders, in their <em>own words</em>.</h1>
+    <p>Real founders who built with direction — and what changed once they did.</p>
+  </div>
+
+  <div class="stage" id="stage">
+    <div class="field" id="field" aria-hidden="true"></div>
+    <div class="highlight">
+      <div class="hl-eyebrow">In their words</div>
+      <div id="hl"></div>
+      <div class="hl-pill">◇ Build with direction.</div>
+      <div class="hl-dots" id="dots"></div>
+    </div>
+    <div class="mlist" id="mlist"></div>
+  </div>
+
+  <div class="foot">
+    Coached by The Founder's Sprint and want to add yours? <a href="/share-testimonial.html">Share your story →</a>
+    <span class="tag">Build with direction.</span>
+  </div>
+</div>
+
+<script>
+const SB_URL='https://ivedeivyotwevjxvcuoe.supabase.co';
+const SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss';
+const PHOTO_BASE=SB_URL+'/storage/v1/object/public/testimonial-photos/';
+const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function photo(p){ if(!p) return null; return /^https?:\/\//.test(p)?p:PHOTO_BASE+encodeURIComponent(p); }
+function initials(n){ const a=String(n||'?').trim().split(/\s+/); return ((a[0]||'?')[0]+(a.length>1?a[a.length-1][0]:'')).toUpperCase(); }
+function excerpt(t,n){ t=String(t||'').replace(/\s+/g,' ').trim(); return t.length>n? t.slice(0,n-1).replace(/[\s,;:]+\S*$/,'')+'…' : t; }
+function avatarHTML(q,cls){ const p=photo(q.photo_path); return p?'<img class="av '+cls+'" src="'+esc(p)+'" alt="" loading="lazy">':'<div class="ini '+cls+'">'+esc(initials(q.name))+'</div>'; }
+function meta(q){ return [q.role_title,q.company].filter(Boolean).map(esc).join(' · '); }
+
+let QUOTES=[], qi=0;
+function nextQuote(){ const q=QUOTES[qi%QUOTES.length]; qi++; return q; }
+
+async function load(){
+  try{
+    const r=await fetch(SB_URL+'/rest/v1/testimonial_submissions?status=eq.approved&select=name,role_title,company,for_target,testimonial,photo_path&order=created_at.desc&limit=60',
+      {headers:{apikey:SB_ANON,Authorization:'Bearer '+SB_ANON}});
+    QUOTES=r.ok?await r.json():[];
+  }catch(e){ QUOTES=[]; }
+  // light shuffle so the wall varies between visits
+  for(let i=QUOTES.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [QUOTES[i],QUOTES[j]]=[QUOTES[j],QUOTES[i]]; }
+  if(!QUOTES.length){ renderEmpty(); return; }
+  buildField(); buildMobile(); startHighlight();
+}
+
+function renderEmpty(){
+  document.getElementById('stage').innerHTML=
+    '<div class="empty"><div class="m">◇</div><div style="font-family:var(--display);font-size:26px;color:var(--paper);margin-bottom:8px">Founders’ stories, coming soon.</div>'
+    +'<div>The first testimonials are being reviewed. <a href="/share-testimonial.html">Share yours</a> to be among them.</div></div>';
+}
+
+/* ── floating field ── */
+function fillBubble(el){
+  const q=nextQuote();
+  el.querySelector('.inner').innerHTML=
+    '<div class="row">'+avatarHTML(q,'')+'<div><div class="nm">'+esc(q.name)+'</div>'+(meta(q)?'<div class="ro">'+meta(q)+'</div>':'')+'</div></div>'
+    +'<div class="qt">“'+esc(excerpt(q.testimonial,150))+'”</div>';
+}
+function buildField(){
+  const field=document.getElementById('field'); if(!field) return; field.innerHTML='';
+  const count=Math.min(6, Math.max(3, QUOTES.length));
+  for(let i=0;i<count;i++){
+    const el=document.createElement('div'); el.className='bubble';
+    el.innerHTML='<div class="inner"></div>';
+    el.style.top=(6 + i*(80/count) + Math.random()*6)+'%';
+    fillBubble(el);
+    if(reduce){
+      el.style.animation='none'; el.style.left=(4 + (i%2)*40 + Math.random()*8)+'%'; el.style.opacity='1';
+      if(i>3){ el.style.display='none'; }
+    }else{
+      const dur=17 + Math.random()*9;
+      el.style.animationDuration=dur+'s';
+      el.style.animationDelay=(-Math.random()*dur)+'s';
+      el.querySelector('.inner').style.animationDelay=(-Math.random()*6)+'s';
+      el.addEventListener('animationiteration',()=>{ el.style.top=(5 + Math.random()*82)+'%'; fillBubble(el); });
+    }
+    field.appendChild(el);
+  }
+}
+
+/* ── mobile static list ── */
+function buildMobile(){
+  const host=document.getElementById('mlist'); if(!host) return;
+  host.innerHTML=QUOTES.slice(0,4).map(q=>
+    '<div class="mcard"><div class="row">'+avatarHTML(q,'')+'<div><div class="nm">'+esc(q.name)+'</div>'+(meta(q)?'<div class="ro">'+meta(q)+'</div>':'')+'</div></div>'
+    +'<div class="qt">“'+esc(excerpt(q.testimonial,220))+'”</div></div>').join('');
+}
+
+/* ── orange highlight rotator ── */
+function highlightHTML(q){
+  return '<div class="quote">“'+esc(excerpt(q.testimonial,240))+'”</div>'
+    +'<div class="attrib">'+avatarHTML(q,'')+'<div><div class="nm">'+esc(q.name)+'</div>'+(meta(q)?'<div class="ro">'+meta(q)+'</div>':'')+'</div></div>';
+}
+function startHighlight(){
+  const el=document.getElementById('hl'), dotsEl=document.getElementById('dots');
+  const N=Math.min(QUOTES.length,6);
+  dotsEl.innerHTML=Array.from({length:N},()=>'<i></i>').join('');
+  const dots=[...dotsEl.children];
+  let hi=Math.floor(Math.random()*QUOTES.length);
+  function paint(){
+    const q=QUOTES[hi%QUOTES.length];
+    el.style.opacity='0';
+    setTimeout(()=>{ el.innerHTML=highlightHTML(q); el.style.opacity='1'; },reduce?0:420);
+    dots.forEach((d,i)=>d.classList.toggle('on', i===(hi%N)));
+  }
+  paint();
+  if(!reduce && QUOTES.length>1){ setInterval(()=>{ hi++; paint(); }, 6500); }
+}
+
+load();
+</script>
+</body>
+</html>

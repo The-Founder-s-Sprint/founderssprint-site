@@ -140,6 +140,7 @@
     <button class="tab" data-tab="profile" onclick="switchTab('profile')">Profile</button>
     <button class="tab" data-tab="earnings" onclick="switchTab('earnings')">Earnings &amp; Payout</button>
     <button class="tab" data-tab="materials" onclick="switchTab('materials')">Materials</button>
+    <button class="tab" data-tab="testimonials" onclick="switchTab('testimonials')">Testimonials <span id="tst-badge" style="display:none;background:var(--terra);color:#fff;border-radius:9px;font-size:9px;padding:1px 6px;margin-left:3px">0</span></button>
   </div>
   <div class="main">
     <!-- FOUNDERS -->
@@ -207,6 +208,13 @@
       <div class="page-title">Materials</div>
       <div class="page-sub">Your branded presentation modules will live here. Today, the founding team builds materials with Teddy as the brand standard; the self-serve template builder ships in the next phase.</div>
       <div id="materials-body"></div>
+    </div>
+    <!-- TESTIMONIALS -->
+    <div class="tab-panel" id="panel-testimonials">
+      <div class="page-eyebrow">Social proof</div>
+      <div class="page-title">Testimonials</div>
+      <div class="page-sub">Founders submit testimonials about working with you. You decide what goes public — approve to feature it on the testimonials wall, decline if it's not a fit, or revoke a live one at any time. You can't edit a founder's words; the approval is yours.</div>
+      <div id="testimonials-body"></div>
     </div>
   </div>
 </div>
@@ -283,6 +291,7 @@ async function boot(user){
     await loadRoster(); await loadAvailability();
     try{ myMaterials=await _q('course_materials','coach_id=eq.'+user.id+'&select=id,title,discipline,module_type,format,week_number,source_url,file_path,status&order=sort_order'); }catch(e){ myMaterials=[]; }
     renderSessions(); renderProfile(); renderEarnings(); renderMaterials();
+    loadTestimonials();
     if(isLead){ document.getElementById('tab-applications').style.display=''; loadLeadApps(); }
   }catch(e){ showToast('Load failed — '+e.message,'error'); }
 }
@@ -675,6 +684,58 @@ async function addAvailability(){
 async function delAvailability(id){
   try{ await _w('DELETE','coach_availability','id=eq.'+id); await loadAvailability(); showToast('Window removed','success'); }
   catch(e){ showToast('Could not remove — '+e.message,'error'); }
+}
+
+// ── TESTIMONIALS ──
+let myTestimonials=[];
+const TST_PHOTO_BASE=SUPABASE_URL+'/storage/v1/object/public/testimonial-photos/';
+function tstPhotoUrl(p){ if(!p) return null; return /^https?:\/\//.test(p)?p:TST_PHOTO_BASE+p; }
+const TST_STATUS={'new':{l:'Pending review',c:'var(--ochre)'},approved:{l:'Approved · live',c:'#3D7A4E'},rejected:{l:'Declined',c:'var(--stone)'},revoked:{l:'Revoked',c:'var(--stone)'}};
+async function loadTestimonials(){
+  if(!coach||!coach.slug) return;
+  try{ myTestimonials=await _q('testimonial_submissions','for_target=eq.'+encodeURIComponent(coach.slug)+'&select=*&order=created_at.desc'); }
+  catch(e){ myTestimonials=[]; }
+  const pend=myTestimonials.filter(t=>t.status==='new').length;
+  const b=document.getElementById('tst-badge'); if(b){ b.textContent=pend; b.style.display=pend?'inline-block':'none'; }
+  renderTestimonials();
+}
+function tstCard(t){
+  const ph=tstPhotoUrl(t.photo_path);
+  const av=ph?'<img src="'+esc(ph)+'" alt="'+esc(t.name)+'" loading="lazy" style="width:46px;height:46px;border-radius:50%;object-fit:cover;flex-shrink:0">'
+            :'<div style="width:46px;height:46px;border-radius:50%;background:var(--paper-deep);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:18px;color:var(--paper-dim);flex-shrink:0">'+esc((t.name||'?').slice(0,1))+'</div>';
+  const st=TST_STATUS[t.status]||TST_STATUS['new'];
+  const meta=[t.role_title,t.company].filter(Boolean).map(esc).join(' · ');
+  let actions='';
+  if(t.status==='new') actions='<button class="btn" onclick="tstDecide(\''+t.id+'\',\'approved\')">Approve</button><button class="btn-del" onclick="tstDecide(\''+t.id+'\',\'rejected\')">Decline</button>';
+  else if(t.status==='approved') actions='<button class="btn-del" onclick="tstDecide(\''+t.id+'\',\'revoked\')">Revoke</button>';
+  else actions='<button class="btn" onclick="tstDecide(\''+t.id+'\',\'approved\')">Approve</button>';
+  return '<div style="display:flex;gap:12px;align-items:flex-start">'+av+
+    '<div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline">'+
+      '<div style="font-weight:600">'+esc(t.name)+(meta?' <span style="font-weight:400;color:var(--muted);font-size:12px">— '+meta+'</span>':'')+'</div>'+
+      '<span style="font-family:var(--sans);font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:'+st.c+'">'+st.l+'</span></div>'+
+      '<div style="margin:8px 0 0;color:var(--ink-mid);line-height:1.6;font-size:13.5px">“'+esc(t.testimonial)+'”</div>'+
+      '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">'+actions+'</div>'+
+    '</div></div>';
+}
+function renderTestimonials(){
+  const host=document.getElementById('testimonials-body'); if(!host) return;
+  if(!coach||!coach.slug){ host.innerHTML='<div class="card"><div class="empty"><div class="empty-mark">◇</div><div style="color:var(--ink-mid)">Testimonials appear here once your coach profile is set up.</div></div></div>'; return; }
+  if(!myTestimonials.length){ host.innerHTML='<div class="card"><div class="empty"><div class="empty-mark">◇</div><div style="color:var(--ink-mid)">No testimonials yet.</div><div style="margin-top:6px;color:var(--muted);font-size:12.5px">Share your collection link with founders: <a href="/share-testimonial.html" target="_blank" style="color:var(--terra)">founderssprint.co/share-testimonial.html</a></div></div></div>'; return; }
+  const groups=[['new','Pending your review'],['approved','Live on the wall'],['rejected','Declined'],['revoked','Revoked']];
+  let html='';
+  for(const g of groups){
+    const rows=myTestimonials.filter(t=>t.status===g[0]);
+    if(!rows.length) continue;
+    html+='<div class="section-title"'+(html?'':' style="margin-top:0"')+'>'+g[1]+' <span style="color:var(--paper-dim);font-weight:400">('+rows.length+')</span></div>';
+    html+='<div class="card">'+rows.map(tstCard).join('<div style="height:1px;background:var(--border);margin:16px 0"></div>')+'</div>';
+  }
+  host.innerHTML=html;
+}
+async function tstDecide(id,status){
+  try{ await _w('PATCH','testimonial_submissions','id=eq.'+encodeURIComponent(id),{status}); }
+  catch(e){ showToast('Update failed — '+e.message,'error'); return; }
+  showToast(status==='approved'?'Approved — now live on the wall':status==='rejected'?'Declined':status==='revoked'?'Revoked from the wall':'Updated','success');
+  loadTestimonials();
 }
 
 function switchTab(name){
