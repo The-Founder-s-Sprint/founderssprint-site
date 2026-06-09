@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Share your story · The Founder's Sprint</title>
+<meta name="description" content="Tell us how The Founder's Sprint helped you build with direction.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://ivedeivyotwevjxvcuoe.supabase.co" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+  :root{--ink:#1A1A1A;--ink-soft:#22242B;--paper:#EFE7D8;--paper-deep:#E6DCC7;--muted:#5A564F;--paper-dim:#A09888;
+    --terra:#C8531F;--terra-deep:#9A3E16;--ochre:#C9923A;--moss:#3D4A2E;--sage:#8AAB5C;--stone:#777770;
+    --border:rgba(26,26,26,0.18);--border-hi:rgba(26,26,26,0.32);--success:#0A8F64;
+    --sans:'Josefin Sans',system-ui,sans-serif;--display:'Cormorant Garamond',serif;--font:'Inter',system-ui,sans-serif;}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--paper);color:var(--ink);font-family:var(--font);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;}
+  .hero{position:relative;background:radial-gradient(1100px 520px at 50% -10%,#262932 0%,var(--ink) 62%);color:var(--paper);text-align:center;padding:54px 24px 60px;overflow:hidden;}
+  #constellation{position:absolute;inset:0;width:100%;height:100%;opacity:.55;}
+  .hero-in{position:relative;max-width:680px;margin:0 auto;}
+  .mark{width:40px;height:40px;margin:0 auto 18px;display:block;}
+  .eyebrow{font-family:var(--sans);font-size:10px;letter-spacing:.28em;text-transform:uppercase;color:var(--ochre);margin-bottom:14px;font-weight:600;}
+  .hero h1{font-family:var(--display);font-size:46px;font-weight:600;line-height:1.04;margin-bottom:14px;}
+  .hero p{font-size:15px;color:rgba(239,231,216,.78);max-width:520px;margin:0 auto;line-height:1.6;}
+  .wrap{max-width:600px;margin:-34px auto 80px;padding:0 22px;position:relative;}
+  .card{background:var(--paper);border:1px solid var(--border);border-top:2px solid var(--terra);padding:30px 28px 32px;}
+  .sec{font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin:0 0 16px;}
+  .f{display:flex;flex-direction:column;gap:6px;margin-bottom:16px;}
+  label{font-family:var(--sans);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#444;}
+  .req{color:var(--terra);}
+  input,select,textarea{width:100%;background:rgba(0,0,0,.025);border:1px solid var(--border);padding:12px 13px;font-size:14px;font-family:var(--font);color:var(--ink);}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--terra);}
+  textarea{resize:vertical;min-height:108px;line-height:1.55;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+  .hint{font-size:11px;color:var(--muted);}
+  .photo-row{display:flex;align-items:center;gap:14px;}
+  .photo-prev{width:60px;height:60px;border-radius:50%;border:1px solid var(--border-hi);background:var(--paper-deep);object-fit:cover;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:24px;color:var(--paper-dim);}
+  .filebtn{font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--terra);border:1px solid var(--border-hi);padding:10px 16px;cursor:pointer;background:none;}
+  .consent{display:flex;gap:10px;align-items:flex-start;margin:6px 0 4px;font-size:12.5px;color:#3D3B35;line-height:1.5;}
+  .consent input{width:auto;margin-top:2px;flex-shrink:0;}
+  .btn{width:100%;background:var(--terra);color:#fff;border:none;padding:15px;font-family:var(--sans);font-weight:700;font-size:12px;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;margin-top:8px;}
+  .btn:hover{background:var(--terra-deep);} .btn:disabled{opacity:.5;cursor:default;}
+  .msg{font-size:13px;margin-top:12px;min-height:18px;} .msg.err{color:#C0392B;} .msg.ok{color:var(--success);}
+  .done{text-align:center;padding:34px 8px;}
+  .done .m{font-family:var(--display);font-size:46px;color:var(--terra);margin-bottom:10px;}
+  .foot{text-align:center;font-size:11px;color:var(--muted);margin-top:18px;}
+  .tagline{font-family:var(--display);font-style:italic;color:var(--ochre);opacity:.6;font-size:15px;margin-top:14px;}
+  @media(max-width:560px){.hero h1{font-size:34px;}.grid2{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="hero">
+  <canvas id="constellation"></canvas>
+  <div class="hero-in">
+    <svg class="mark" viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.85"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.8" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.78" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.82" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+    <div class="eyebrow">The Founder's Sprint</div>
+    <h1>Share your story.</h1>
+    <p>If the coaching moved your business forward, we'd be honoured to hear it — and to share it, with your blessing. A few sentences is all it takes.</p>
+    <div class="tagline">Build with direction.</div>
+  </div>
+</div>
+
+<div class="wrap">
+  <div class="card" id="form-card">
+    <div class="sec">Your testimonial</div>
+    <div class="f">
+      <label>Who is this for? <span class="req">*</span></label>
+      <select id="for_target">
+        <option value="group">The whole Founder's Sprint team</option>
+        <option value="teddy-ruge">Teddy Ruge · Marketing &amp; Branding</option>
+        <option value="barry-wojega">Barry Wojega · Financial Modelling</option>
+        <option value="joseph-kalema">Joseph Kalema · Investment Readiness</option>
+        <option value="moses-okudu">Moses Engwau Okudu · Strategy &amp; Team</option>
+        <option value="patrick-ngolobe">Patrick Ngolobe · Product Dev &amp; Pricing</option>
+      </select>
+    </div>
+    <div class="f">
+      <label>Your testimonial <span class="req">*</span></label>
+      <textarea id="testimonial" placeholder="What changed for you and your business?"></textarea>
+      <span class="hint">A few honest sentences are perfect.</span>
+    </div>
+
+    <div class="sec" style="margin-top:24px">About you</div>
+    <div class="grid2">
+      <div class="f"><label>Full name <span class="req">*</span></label><input id="name" placeholder="Your name"></div>
+      <div class="f"><label>Position / title</label><input id="role_title" placeholder="e.g. Founder &amp; CEO"></div>
+    </div>
+    <div class="f"><label>Company</label><input id="company" placeholder="Your company"></div>
+
+    <div class="f">
+      <label>Profile photo</label>
+      <div class="photo-row">
+        <div class="photo-prev" id="prev">◇</div>
+        <div>
+          <label class="filebtn" for="photo">Choose photo</label>
+          <input id="photo" type="file" accept="image/*" style="display:none">
+          <div class="hint" id="photo-name" style="margin-top:6px">A friendly headshot — square works best. Max 5 MB.</div>
+        </div>
+      </div>
+    </div>
+
+    <label class="consent"><input type="checkbox" id="consent"><span>I'm happy for The Founder's Sprint to share this testimonial — with my name, role, company and photo — on its website and marketing.</span></label>
+
+    <button class="btn" id="submit" onclick="submitForm()">Send my testimonial</button>
+    <div class="msg" id="msg"></div>
+    <div class="foot">Thank you for taking the time. It means a great deal to the team.</div>
+  </div>
+
+  <div class="card" id="done-card" style="display:none">
+    <div class="done"><div class="m">◇</div>
+      <div style="font-family:var(--display);font-size:30px;font-weight:600;margin-bottom:8px">Thank you — we've got it.</div>
+      <div style="color:var(--muted);max-width:420px;margin:0 auto;line-height:1.6">Your words mean a lot. We'll review and, with your permission, feature them across The Founder's Sprint.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL='https://ivedeivyotwevjxvcuoe.supabase.co';
+const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss';
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON,{auth:{persistSession:false}});
+
+let photoFile=null;
+document.getElementById('photo').addEventListener('change',e=>{
+  const f=e.target.files[0]; if(!f) return;
+  if(f.size>5*1024*1024){ document.getElementById('photo-name').textContent='That file is over 5 MB — please choose a smaller one.'; return; }
+  photoFile=f; document.getElementById('photo-name').textContent=f.name;
+  const r=new FileReader(); r.onload=ev=>{ const p=document.getElementById('prev'); p.innerHTML='<img src="'+ev.target.result+'" style="width:100%;height:100%;object-fit:cover;border-radius:50%">'; }; r.readAsDataURL(f);
+});
+function val(id){ return (document.getElementById(id).value||'').trim(); }
+
+async function submitForm(){
+  const msg=document.getElementById('msg'); msg.textContent=''; msg.className='msg';
+  const name=val('name'), testimonial=val('testimonial'), for_target=val('for_target');
+  if(!name||!testimonial){ msg.textContent='Please add your name and a few words.'; msg.className='msg err'; return; }
+  if(!document.getElementById('consent').checked){ msg.textContent='Please tick the box so we can share your words.'; msg.className='msg err'; return; }
+  const btn=document.getElementById('submit'); btn.disabled=true; btn.textContent='Sending…';
+  try{
+    let photo_path=null;
+    if(photoFile){
+      const ext=(photoFile.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,'')||'jpg';
+      const path=(crypto.randomUUID?crypto.randomUUID():Date.now()+'-'+Math.random().toString(36).slice(2))+'.'+ext;
+      const { error:upErr }=await sb.storage.from('testimonial-photos').upload(path, photoFile, { contentType:photoFile.type||'image/jpeg', upsert:false });
+      if(upErr) throw new Error('Photo upload failed — '+upErr.message);
+      photo_path=path;
+    }
+    const { error }=await sb.from('testimonial_submissions').insert({
+      name, role_title:val('role_title')||null, company:val('company')||null,
+      for_target, testimonial, photo_path, consent:true, status:'new'
+    });
+    if(error) throw new Error(error.message);
+    document.getElementById('form-card').style.display='none';
+    document.getElementById('done-card').style.display='block';
+    window.scrollTo(0,0);
+  }catch(e){ msg.textContent='Could not send — '+e.message; msg.className='msg err'; btn.disabled=false; btn.textContent='Send my testimonial'; }
+}
+
+/* constellation — lightweight, reduced-motion aware */
+(function(){
+  const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const cv=document.getElementById('constellation'); if(!cv) return;
+  const ctx=cv.getContext('2d'); let W,H,dpr,nodes=[],raf=null;
+  const COLORS=['#E9C9A6','#EFE7D8','#C9923A'];
+  function size(){ dpr=Math.min(window.devicePixelRatio||1,2); const r=cv.getBoundingClientRect(); W=r.width; H=r.height; cv.width=W*dpr; cv.height=H*dpr; ctx.setTransform(dpr,0,0,dpr,0,0); }
+  function init(){ const n=Math.max(20,Math.min(46,Math.round(W*H/24000))); nodes=[]; for(let i=0;i<n;i++){ nodes.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*0.14,vy:(Math.random()-.5)*0.14,r:Math.random()*1.4+0.5,c:COLORS[i%COLORS.length]}); } }
+  function draw(){ ctx.clearRect(0,0,W,H);
+    for(let i=0;i<nodes.length;i++){ const a=nodes[i]; for(let j=i+1;j<nodes.length;j++){ const b=nodes[j],dx=a.x-b.x,dy=a.y-b.y,d=Math.hypot(dx,dy); if(d<120){ ctx.globalAlpha=(1-d/120)*0.14; ctx.strokeStyle='#E9C9A6'; ctx.lineWidth=0.6; ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke(); } } }
+    for(const a of nodes){ ctx.globalAlpha=0.85; ctx.fillStyle=a.c; ctx.beginPath(); ctx.arc(a.x,a.y,a.r,0,6.2832); ctx.fill(); } ctx.globalAlpha=1; }
+  function frame(){ for(const a of nodes){ a.x+=a.vx; a.y+=a.vy; if(a.x<0||a.x>W)a.vx*=-1; if(a.y<0||a.y>H)a.vy*=-1; } draw(); raf=requestAnimationFrame(frame); }
+  size(); init(); if(reduce){ draw(); } else frame();
+  window.addEventListener('resize',()=>{ size(); init(); if(reduce) draw(); });
+  document.addEventListener('visibilitychange',()=>{ if(document.hidden){ if(raf){cancelAnimationFrame(raf);raf=null;} } else if(!reduce && !raf){ frame(); } });
+})();
+</script>
+</body>
+</html>
