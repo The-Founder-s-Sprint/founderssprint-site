@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Week 2 · Pitch Development &amp; Investor Communication · The Founder's Sprint</title>
+<title>Week 5 · Investor Relations &amp; Governance · The Founder's Sprint</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <style>
@@ -20,31 +20,17 @@
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
 html,body{height:100%;}
 body{background:var(--ink);color:var(--paper);font-family:var(--body);overflow:hidden;}
-
 .deck{position:fixed;inset:0;}
-.slide{position:absolute;inset:0;display:none;flex-direction:column;
-  padding:clamp(28px,4.4vw,76px) clamp(26px,5vw,96px) clamp(56px,5vw,82px);opacity:0;}
+.slide{position:absolute;inset:0;display:none;flex-direction:column;padding:clamp(28px,4.4vw,76px) clamp(26px,5vw,96px) clamp(56px,5vw,82px);opacity:0;}
 .slide.active{display:flex;opacity:1;}
 .slide.active .anim{animation:riseIn .52s cubic-bezier(.25,1,.5,1) both;}
-.slide.active .anim:nth-child(1){animation-delay:.06s}
-.slide.active .anim:nth-child(2){animation-delay:.12s}
-.slide.active .anim:nth-child(3){animation-delay:.17s}
-.slide.active .anim:nth-child(4){animation-delay:.22s}
-.slide.active .anim:nth-child(5){animation-delay:.27s}
-.slide.active .anim:nth-child(6){animation-delay:.32s}
-.slide.active .anim:nth-child(7){animation-delay:.37s}
-.slide.active .anim:nth-child(8){animation-delay:.42s}
+.slide.active .anim:nth-child(1){animation-delay:.06s}.slide.active .anim:nth-child(2){animation-delay:.12s}.slide.active .anim:nth-child(3){animation-delay:.17s}.slide.active .anim:nth-child(4){animation-delay:.22s}.slide.active .anim:nth-child(5){animation-delay:.27s}.slide.active .anim:nth-child(6){animation-delay:.32s}.slide.active .anim:nth-child(7){animation-delay:.37s}.slide.active .anim:nth-child(8){animation-delay:.42s}
 @keyframes riseIn{from{opacity:0;transform:translateY(15px);}to{opacity:1;transform:none;}}
-
-.s-paper{background:var(--paper);color:var(--ink);}
-.s-dark{background:var(--ink);color:var(--paper);}
-.s-paper .chip-bar,.s-dark .chip-bar{display:flex;justify-content:space-between;align-items:center;
-  font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.18em;text-transform:uppercase;}
-.s-paper .chip-bar{color:rgba(26,26,26,0.5);}
-.s-dark .chip-bar{color:rgba(239,231,216,0.5);}
+.s-paper{background:var(--paper);color:var(--ink);}.s-dark{background:var(--ink);color:var(--paper);}
+.s-paper .chip-bar,.s-dark .chip-bar{display:flex;justify-content:space-between;align-items:center;font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.18em;text-transform:uppercase;}
+.s-paper .chip-bar{color:rgba(26,26,26,0.5);}.s-dark .chip-bar{color:rgba(239,231,216,0.5);}
 .accent-top{position:absolute;top:0;left:0;right:0;height:5px;background:var(--accent);}
 .mark-corner{position:absolute;top:clamp(20px,3vw,40px);right:clamp(20px,4vw,64px);width:clamp(34px,3.4vw,52px);height:auto;opacity:.95;z-index:3;}
-
 .eyebrow{font-family:var(--sans);font-size:clamp(10px,1.05vw,13px);font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:var(--accent-deep);}
 .s-dark .eyebrow{color:var(--ochre);}
 h1.title{font-family:var(--display);font-weight:300;letter-spacing:-0.012em;font-size:clamp(30px,4.6vw,62px);line-height:1.04;margin-top:.32em;}
@@ -53,25 +39,16 @@ h1.title{font-family:var(--display);font-weight:300;letter-spacing:-0.012em;font
 .body-col{margin-top:clamp(14px,2vw,26px);max-width:62ch;}
 p.body{font-size:clamp(14px,1.45vw,20px);line-height:1.55;font-weight:400;color:var(--ink-mid);}
 .s-dark p.body{color:var(--paper-mid);}
-strong{color:var(--accent-deep);font-weight:600;}
-.s-dark strong{color:var(--ochre);font-weight:500;}
-
+strong{color:var(--accent-deep);font-weight:600;}.s-dark strong{color:var(--ochre);font-weight:500;}
 .slide-body{flex:1;display:flex;flex-direction:column;justify-content:center;min-height:0;}
-.foot{position:absolute;bottom:clamp(16px,2.4vw,30px);left:clamp(26px,5vw,96px);right:clamp(26px,5vw,96px);
-  display:flex;justify-content:space-between;align-items:center;
-  font-family:var(--sans);font-size:clamp(8px,.85vw,11px);letter-spacing:0.22em;text-transform:uppercase;}
-.s-paper .foot{color:rgba(26,26,26,0.4);} .s-dark .foot{color:rgba(239,231,216,0.4);}
+.foot{position:absolute;bottom:clamp(16px,2.4vw,30px);left:clamp(26px,5vw,96px);right:clamp(26px,5vw,96px);display:flex;justify-content:space-between;align-items:center;font-family:var(--sans);font-size:clamp(8px,.85vw,11px);letter-spacing:0.22em;text-transform:uppercase;}
+.s-paper .foot{color:rgba(26,26,26,0.4);}.s-dark .foot{color:rgba(239,231,216,0.4);}
 .foot .tag{font-family:var(--display);font-style:italic;letter-spacing:0;text-transform:none;color:var(--accent-deep);opacity:.75;}
-
-/* TITLE */
 #s-title{padding:0;background:var(--ink);}
 .title-bg{position:absolute;inset:0;overflow:hidden;}
-.title-photo{position:absolute;inset:0;background:#1A1A1A url('assets/title-pitch2.jpg') center 26%/cover no-repeat;filter:grayscale(1) contrast(1.06) brightness(0.5);}
-.title-tint{position:absolute;inset:0;background:
-   radial-gradient(95% 95% at 20% 16%, rgba(86,110,51,0.42) 0%, transparent 55%),
-   linear-gradient(180deg, rgba(26,26,26,0.42) 0%, rgba(26,26,26,0.30) 40%, rgba(26,26,26,0.88) 100%);}
-.title-grain{position:absolute;inset:0;opacity:.06;mix-blend-mode:overlay;
-  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+.title-photo{position:absolute;inset:0;background:#1A1A1A url('assets/title-ir.jpg') center 24%/cover no-repeat;filter:grayscale(1) contrast(1.06) brightness(0.5);}
+.title-tint{position:absolute;inset:0;background:radial-gradient(95% 95% at 20% 16%, rgba(86,110,51,0.42) 0%, transparent 55%),linear-gradient(180deg, rgba(26,26,26,0.42) 0%, rgba(26,26,26,0.30) 40%, rgba(26,26,26,0.88) 100%);}
+.title-grain{position:absolute;inset:0;opacity:.06;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
 .title-vignette{position:absolute;inset:0;background:radial-gradient(118% 118% at 50% 42%, transparent 50%, rgba(0,0,0,0.55) 100%);}
 #cv-title{position:absolute;inset:0;width:100%;height:100%;opacity:.9;z-index:2;}
 .title-inner{position:relative;z-index:4;height:100%;display:flex;flex-direction:column;padding:clamp(30px,4vw,64px) clamp(30px,5.5vw,104px);}
@@ -91,13 +68,11 @@ strong{color:var(--accent-deep);font-weight:600;}
 .ts-coach .ts-dot{margin:0 .5em;opacity:.5;font-style:normal;}
 .title-h{font-family:var(--display);font-weight:300;font-size:clamp(38px,6.6vw,98px);line-height:0.98;letter-spacing:-0.02em;color:var(--paper);}
 .title-h em{font-style:italic;color:var(--ochre);}
-.title-sub{font-family:var(--display);font-style:italic;font-size:clamp(16px,2.1vw,28px);color:var(--paper);opacity:.82;margin-top:.7em;max-width:31ch;text-wrap:balance;}
+.title-sub{font-family:var(--display);font-style:italic;font-size:clamp(16px,2.1vw,28px);color:var(--paper);opacity:.82;margin-top:.7em;max-width:32ch;text-wrap:balance;}
 .title-foot{margin-top:clamp(20px,3vw,38px);display:flex;flex-wrap:wrap;gap:8px 26px;align-items:baseline;font-family:var(--sans);font-size:clamp(9px,1vw,12px);letter-spacing:0.2em;text-transform:uppercase;color:var(--paper);opacity:.72;}
 .title-foot .dot{color:var(--sage);}
 .title-cta{position:absolute;left:clamp(30px,5.5vw,104px);bottom:clamp(22px,3vw,42px);font-family:var(--sans);font-size:clamp(9px,1vw,11px);letter-spacing:0.18em;text-transform:uppercase;color:var(--paper);opacity:.5;z-index:5;}
 @keyframes spin{to{transform:rotate(360deg);}}
-
-/* DIVIDER */
 .s-divider{background:var(--ink);color:var(--paper);overflow:hidden;justify-content:center;}
 .s-divider .div-photo{position:absolute;inset:0;background-position:center 30%;background-size:cover;filter:sepia(.5) saturate(1.05) hue-rotate(38deg) contrast(1.02) brightness(.72);opacity:.5;}
 .s-divider .div-overlay{position:absolute;inset:0;background:linear-gradient(110deg,rgba(26,26,26,0.72) 0%,rgba(26,26,26,0.38) 45%,rgba(26,26,26,0.80) 100%);}
@@ -107,48 +82,34 @@ strong{color:var(--accent-deep);font-weight:600;}
 .div-eyebrow{font-family:var(--sans);font-size:clamp(10px,1.05vw,13px);font-weight:700;letter-spacing:0.34em;text-transform:uppercase;color:var(--paper);opacity:.4;margin-bottom:.35em;}
 .div-title{font-family:var(--display);font-style:italic;font-weight:300;font-size:clamp(30px,5.4vw,84px);line-height:1.04;color:var(--paper);letter-spacing:-0.01em;}
 .div-meta{margin-top:1em;font-family:var(--display);font-style:italic;font-size:clamp(14px,1.7vw,22px);line-height:1.4;color:var(--sage);opacity:.95;max-width:34ch;text-wrap:pretty;}
-
-/* CARDS / GRID */
 .grid{display:grid;gap:clamp(12px,1.6vw,22px);}
-.g2{grid-template-columns:repeat(2,1fr);} .g3{grid-template-columns:repeat(3,1fr);} .g4{grid-template-columns:repeat(4,1fr);}
+.g2{grid-template-columns:repeat(2,1fr);}.g3{grid-template-columns:repeat(3,1fr);}.g4{grid-template-columns:repeat(4,1fr);}
 .card{background:var(--paper-deep);border-left:3px solid var(--accent);padding:clamp(14px,1.7vw,24px);}
 .s-dark .card{background:rgba(239,231,216,0.06);border-left-color:var(--ochre);}
 .card h4{font-family:var(--sans);font-size:clamp(11px,1.15vw,15px);font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink);margin-bottom:.45em;}
 .s-dark .card h4{color:var(--paper);}
-.card p{font-size:clamp(12px,1.25vw,16px);line-height:1.5;color:var(--ink-mute);}
-.s-dark .card p{color:var(--paper-mid);}
-.card .num{font-family:var(--display);font-weight:300;font-size:clamp(26px,3vw,46px);color:var(--accent-deep);line-height:1;}
-.s-dark .card .num{color:var(--ochre);}
-
+.card p{font-size:clamp(12px,1.25vw,16px);line-height:1.5;color:var(--ink-mute);}.s-dark .card p{color:var(--paper-mid);}
+.card .num{font-family:var(--display);font-weight:300;font-size:clamp(26px,3vw,46px);color:var(--accent-deep);line-height:1;}.s-dark .card .num{color:var(--ochre);}
 ul.list{list-style:none;margin-top:.4em;}
 ul.list li{position:relative;padding-left:1.4em;margin-bottom:.62em;font-size:clamp(13px,1.4vw,19px);line-height:1.5;color:var(--ink-mid);}
 .s-dark ul.list li{color:var(--paper-mid);}
 ul.list li::before{content:"";position:absolute;left:0;top:.55em;width:9px;height:9px;background:var(--accent);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);}
-
 .pull{font-family:var(--display);font-style:italic;font-weight:300;font-size:clamp(24px,4vw,56px);line-height:1.16;color:var(--paper);letter-spacing:-0.01em;max-width:20ch;text-wrap:balance;}
 .pull .by{display:block;margin-top:.7em;font-family:var(--sans);font-style:normal;font-size:clamp(10px,1.1vw,14px);font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--ochre);}
-
-.case{display:grid;grid-template-columns:auto 1fr;gap:clamp(14px,2vw,30px);align-items:start;}
-.case-badge{font-family:var(--sans);font-size:clamp(9px,.95vw,12px);font-weight:700;letter-spacing:0.18em;text-transform:uppercase;background:var(--accent);color:var(--ink);padding:6px 12px;white-space:nowrap;align-self:start;}
-.case-flag{display:inline-block;font-family:var(--sans);font-size:clamp(9px,.9vw,11px);font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--accent-deep);border:1px solid var(--accent);padding:3px 9px;margin-bottom:.7em;}
-
-/* PICK-CHIP system */
+/* pick-chip */
 .pick-wrap{display:grid;grid-template-columns:0.85fr 1.15fr;gap:clamp(16px,2.5vw,42px);align-items:start;margin-top:clamp(14px,2vw,28px);}
-.pick-chips{display:flex;flex-wrap:wrap;gap:8px;}
-.pick-chip{font-family:var(--sans);font-size:clamp(10px,1.1vw,14px);font-weight:600;letter-spacing:0.04em;border:1.5px solid var(--rule);background:var(--paper-deep);color:var(--ink);padding:9px 13px;cursor:pointer;transition:all .2s ease;display:inline-flex;align-items:center;gap:7px;}
-.pick-chip b{font-family:var(--display);font-weight:500;font-size:1.3em;line-height:1;color:var(--accent-deep);}
+.pick-chips{display:flex;flex-direction:column;gap:8px;}
+.pick-chip{font-family:var(--sans);font-size:clamp(10px,1.15vw,14px);font-weight:600;letter-spacing:0.04em;border:1.5px solid var(--rule);background:var(--paper-deep);color:var(--ink);padding:12px 16px;cursor:pointer;transition:all .2s ease;text-align:left;}
 .pick-chip:hover{border-color:var(--accent);}
 .pick-chip.on{background:var(--accent);color:var(--ink);border-color:var(--accent);}
-.pick-chip.on b{color:var(--ink);}
-.pick-detail{background:var(--paper-deep);border-top:4px solid var(--accent);padding:clamp(16px,2vw,28px);min-height:clamp(180px,22vw,250px);}
+.pick-detail{background:var(--paper-deep);border-top:4px solid var(--accent);padding:clamp(16px,2vw,28px);min-height:clamp(190px,23vw,260px);}
 .pick-detail .pk{font-family:var(--sans);font-size:clamp(12px,1.3vw,17px);font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent-deep);margin-bottom:.2em;}
-.pick-detail .ptag{display:inline-block;font-family:var(--sans);font-size:clamp(8px,.9vw,11px);font-weight:700;letter-spacing:0.12em;text-transform:uppercase;padding:3px 10px;margin-bottom:.7em;background:var(--ochre);color:var(--ink);}
+.pick-detail .ptag{display:inline-block;font-family:var(--display);font-style:italic;font-size:clamp(15px,1.9vw,26px);color:var(--ink);margin-bottom:.4em;}
 .pick-detail .pv{font-size:clamp(13px,1.45vw,19px);line-height:1.55;color:var(--ink-mid);}
 .pick-detail .peg{margin-top:.85em;font-family:var(--display);font-style:italic;font-size:clamp(14px,1.6vw,21px);color:var(--accent-deep);}
-
-/* JOURNEY RAIL */
+/* jrail */
 .jrail{position:relative;display:flex;gap:4px;margin-top:clamp(16px,2.4vw,30px);}
-.jrail::before{content:"";position:absolute;top:clamp(21px,2.3vw,28px);left:11%;right:11%;height:2px;background:var(--rule);z-index:0;}
+.jrail::before{content:"";position:absolute;top:clamp(21px,2.3vw,28px);left:12%;right:12%;height:2px;background:var(--rule);z-index:0;}
 .jnode{position:relative;z-index:1;flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;text-align:center;cursor:pointer;}
 .jdot{width:clamp(44px,4.6vw,57px);height:clamp(44px,4.6vw,57px);border-radius:50%;background:var(--paper);border:2px solid var(--paper-mid);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:500;font-size:clamp(16px,1.8vw,24px);color:var(--ink-mute);transition:all .25s ease;}
 .jnode:hover .jdot{border-color:var(--accent);color:var(--accent-deep);}
@@ -161,34 +122,26 @@ ul.list li::before{content:"";position:absolute;left:0;top:.55em;width:9px;heigh
 .step-detail .sd-q{font-family:var(--display);font-style:italic;font-size:clamp(16px,2vw,26px);color:var(--ink);}
 .step-detail .sd-v{font-size:clamp(13px,1.4vw,18px);line-height:1.5;color:var(--ink-mid);margin-top:.55em;}
 .step-detail .sd-v b{color:var(--accent-deep);}
-
-/* DATA ROOM checklist + meter */
+/* checklist + meter */
 .dr-wrap{display:grid;grid-template-columns:1.35fr 1fr;gap:clamp(18px,3vw,46px);align-items:start;margin-top:clamp(12px,1.8vw,24px);}
 .dr-list{display:flex;flex-direction:column;gap:clamp(7px,1vw,11px);}
 .dr-item{display:flex;align-items:flex-start;gap:13px;cursor:pointer;background:var(--paper-deep);padding:clamp(11px,1.3vw,16px) clamp(13px,1.5vw,18px);border-left:3px solid var(--rule);transition:all .18s ease;}
 .dr-item:hover{border-left-color:var(--accent);}
 .dr-item.on{border-left-color:var(--accent);background:rgba(138,171,92,0.12);}
-.dr-cb{flex:none;width:clamp(20px,2vw,25px);height:clamp(20px,2vw,25px);border:1.5px solid var(--accent);display:flex;align-items:center;justify-content:center;margin-top:1px;transition:all .15s;}
+.dr-cb{flex:none;width:clamp(20px,2vw,25px);height:clamp(20px,2vw,25px);border:1.5px solid var(--accent);display:flex;align-items:center;justify-content:center;margin-top:1px;}
 .dr-item.on .dr-cb::after{content:"";width:48%;height:48%;background:var(--accent);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);}
 .dr-tx .dt{font-family:var(--sans);font-size:clamp(11px,1.2vw,15px);font-weight:700;letter-spacing:0.04em;color:var(--ink);text-transform:uppercase;}
 .dr-tx .dd{font-size:clamp(11px,1.2vw,15px);line-height:1.4;color:var(--ink-mute);margin-top:.18em;}
-.dr-out{background:var(--ink);color:var(--paper);padding:clamp(18px,2.2vw,30px);text-align:center;position:sticky;top:0;}
+.dr-out{background:var(--ink);color:var(--paper);padding:clamp(18px,2.2vw,30px);text-align:center;}
 .dr-out .do-k{font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--paper-mid);}
-.dr-out .do-n{font-family:var(--display);font-weight:300;font-size:clamp(48px,7vw,90px);line-height:1;color:var(--paper);margin:.02em 0;}
+.dr-out .do-n{font-family:var(--display);font-weight:300;font-size:clamp(40px,6vw,76px);line-height:1;color:var(--paper);margin:.05em 0;}
 .dr-bar{height:8px;background:rgba(239,231,216,0.16);margin:.4em 0 0;}
 .dr-fill{height:100%;width:0;background:var(--sage);transition:width .3s ease;}
 .dr-verdict{margin-top:1em;font-family:var(--sans);font-size:clamp(11px,1.3vw,16px);font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:10px;}
-.dr-verdict.ready{background:rgba(138,171,92,0.22);color:var(--sage);}
-.dr-verdict.mid{background:rgba(201,146,58,0.2);color:var(--ochre);}
-.dr-verdict.low{background:rgba(200,83,31,0.2);color:#E27A4A;}
-
-/* boxes */
+.dr-verdict.ready{background:rgba(138,171,92,0.22);color:var(--sage);}.dr-verdict.mid{background:rgba(201,146,58,0.2);color:var(--ochre);}.dr-verdict.low{background:rgba(200,83,31,0.2);color:#E27A4A;}
 .box{border:1.5px solid var(--accent);padding:clamp(16px,2.2vw,32px);background:rgba(138,171,92,0.09);}
 .s-dark .box{border-color:var(--ochre);background:rgba(201,146,58,0.08);}
-.box .bk{font-family:var(--sans);font-size:clamp(10px,1.1vw,14px);font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent-deep);margin-bottom:.6em;}
-.s-dark .box .bk{color:var(--ochre);}
-
-/* Exercise worksheet */
+.box .bk{font-family:var(--sans);font-size:clamp(10px,1.1vw,14px);font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent-deep);margin-bottom:.6em;}.s-dark .box .bk{color:var(--ochre);}
 .ex-head{display:flex;flex-wrap:wrap;align-items:flex-end;gap:14px 20px;}
 .ex-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(10px,1.3vw,18px);margin-top:clamp(14px,2vw,26px);}
 .ex-card{position:relative;background:var(--paper-deep);border-top:3px solid var(--accent);padding:clamp(15px,1.8vw,24px) clamp(14px,1.5vw,20px) clamp(16px,1.8vw,24px);overflow:hidden;display:flex;flex-direction:column;}
@@ -198,10 +151,7 @@ ul.list li::before{content:"";position:absolute;left:0;top:.55em;width:9px;heigh
 .ex-card .exp{position:relative;font-size:clamp(11px,1.2vw,15px);line-height:1.45;color:var(--ink-mute);}
 .ex-card .exeg{position:relative;margin-top:.6em;padding-left:10px;border-left:2px solid var(--ochre);font-family:var(--display);font-style:italic;font-size:clamp(12px,1.3vw,17px);line-height:1.32;color:var(--accent-deep);}
 .ex-card .exeg b{font-style:normal;font-family:var(--sans);font-weight:700;font-size:.7em;letter-spacing:0.14em;text-transform:uppercase;color:#9A6E1E;display:block;margin-bottom:.2em;}
-.ex-card .write{margin-top:auto;padding-top:1em;}
-.ex-card .write span{display:block;border-bottom:1.5px dashed var(--paper-dim);height:1.15em;}
-
-/* Homework */
+.ex-card .write{margin-top:auto;padding-top:1em;}.ex-card .write span{display:block;border-bottom:1.5px dashed var(--paper-dim);height:1.15em;}
 .due-tag{display:inline-flex;align-items:center;gap:8px;font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink);background:var(--ochre);padding:7px 15px;}
 .due-tag .d{width:9px;height:9px;background:var(--ink);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);}
 .hw-grid{display:grid;grid-template-columns:1.12fr .88fr;gap:clamp(20px,3.4vw,56px);align-items:start;margin-top:clamp(14px,2vw,26px);}
@@ -217,14 +167,10 @@ ul.list li::before{content:"";position:absolute;left:0;top:.55em;width:9px;heigh
 .hw-quote .qt{font-family:var(--display);font-style:italic;font-weight:300;font-size:clamp(19px,2.3vw,32px);line-height:1.26;color:var(--paper);text-wrap:balance;}
 .hw-quote .qb{font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--sage);margin-top:1em;}
 .hw-bridge{margin-top:clamp(13px,1.7vw,20px);font-size:clamp(13px,1.4vw,18px);line-height:1.55;color:var(--paper-mid);text-wrap:pretty;}
-
-/* closer */
 #s-close{align-items:center;justify-content:center;text-align:center;}
 #s-close .mark{width:clamp(90px,13vw,180px);height:auto;}
 #s-close .ct{font-family:var(--display);font-style:italic;font-weight:300;font-size:clamp(22px,3.2vw,44px);color:var(--paper);margin-top:.6em;}
 #s-close .cc{font-family:var(--sans);font-size:clamp(9px,1vw,12px);letter-spacing:0.24em;text-transform:uppercase;color:var(--paper-mid);margin-top:1.4em;}
-
-/* NAV / HUD */
 .progress{position:fixed;bottom:0;left:0;height:4px;background:var(--accent);width:0;z-index:41;transition:width .3s ease;}
 .nav{position:fixed;bottom:clamp(14px,2vw,26px);right:clamp(16px,2.5vw,34px);display:flex;gap:8px;z-index:42;}
 .nav button{width:clamp(38px,3.6vw,46px);height:clamp(38px,3.6vw,46px);border:1px solid rgba(239,231,216,0.3);background:rgba(26,26,26,0.55);color:var(--paper);font-size:18px;cursor:pointer;backdrop-filter:blur(4px);transition:all .2s;display:flex;align-items:center;justify-content:center;}
@@ -233,7 +179,6 @@ body.on-paper .nav button{border-color:rgba(26,26,26,0.25);background:rgba(239,2
 .counter{position:fixed;bottom:clamp(16px,2vw,28px);left:clamp(18px,2.5vw,34px);z-index:42;font-family:var(--sans);font-size:clamp(10px,1.1vw,13px);font-weight:600;letter-spacing:0.16em;color:var(--paper-mid);pointer-events:none;}
 body.on-paper .counter{color:var(--ink-mute);}
 .kbd-hint{position:fixed;bottom:clamp(16px,2vw,28px);left:50%;transform:translateX(-50%);z-index:42;font-family:var(--sans);font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--paper-dim);opacity:.7;pointer-events:none;}
-
 .overview{position:fixed;inset:0;background:rgba(12,16,10,0.96);z-index:60;display:none;padding:clamp(20px,3vw,48px);overflow-y:auto;}
 .overview.show{display:block;}
 .ov-title{font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--ochre);margin-bottom:18px;}
@@ -242,23 +187,12 @@ body.on-paper .counter{color:var(--ink-mute);}
 .ov-item:hover{border-color:var(--accent);background:rgba(138,171,92,0.18);}
 .ov-item .oi-n{font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:0.16em;color:var(--sage);}
 .ov-item .oi-t{font-family:var(--display);font-size:18px;color:var(--paper);margin-top:4px;line-height:1.15;}
-
-/* Unified caption */
-.pick-hint,.step-hint,.dr-hint,.gen-hint{
-  font-family:var(--sans);font-size:clamp(10px,1.1vw,12px);font-weight:600;letter-spacing:0.16em;
-  text-transform:uppercase;line-height:1.5;margin-top:clamp(12px,1.6vw,20px);color:var(--paper-dim);text-wrap:pretty;}
+.pick-hint,.step-hint,.dr-hint,.gen-hint{font-family:var(--sans);font-size:clamp(10px,1.1vw,12px);font-weight:600;letter-spacing:0.16em;text-transform:uppercase;line-height:1.5;margin-top:clamp(12px,1.6vw,20px);color:var(--paper-dim);text-wrap:pretty;}
 .s-paper .pick-hint,.s-paper .step-hint,.s-paper .dr-hint,.s-paper .gen-hint{color:var(--ink-mute);}
-
-/* widow control */
 .slide h1,.slide h4,.slide p,.slide li,.lede,.div-meta,.title-sub,.step-detail,.pick-detail .pv{text-wrap:pretty;}
 h1.title,.title-h,.div-title,.lede,.pull,.card h4,.ex-card .ext,.hw-quote .qt,.title-sub{text-wrap:balance;}
-
 @media (max-width:880px){.ex-grid{grid-template-columns:repeat(2,1fr);}}
-@media (max-width:768px){
-  .grid.g3,.grid.g4{grid-template-columns:repeat(2,1fr);}
-  .pick-wrap,.dr-wrap,.hw-grid,.case{grid-template-columns:1fr;}
-  .kbd-hint{display:none;}
-}
+@media (max-width:768px){.grid.g3,.grid.g4{grid-template-columns:repeat(2,1fr);}.pick-wrap,.dr-wrap,.hw-grid{grid-template-columns:1fr;}.kbd-hint{display:none;}}
 @media (max-width:560px){.grid.g2,.grid.g3,.grid.g4{grid-template-columns:1fr;}}
 @media (max-width:520px){.ex-grid{grid-template-columns:1fr;}}
 @media (prefers-reduced-motion:reduce){.title-top .mark,.s-divider .div-mark{animation:none;}.slide.active .anim{animation:none;}}
@@ -277,17 +211,16 @@ h1.title,.title-h,.div-title,.lede,.pull,.card h4,.ex-card .ext,.hw-quote .qt,.t
     </div>
     <div class="title-mid">
       <div class="title-series">
-        <div class="ts-week"><span class="ts-wk">Week 2</span><span class="ts-of">of 5</span></div>
+        <div class="ts-week"><span class="ts-wk">Week 5</span><span class="ts-of">of 5</span></div>
         <div class="ts-info"><div class="ts-disc">Investment Readiness &amp; Fundraising</div><div class="ts-coach">Coach Joseph Kalema<span class="ts-dot">·</span>Wednesday cohort session</div></div>
       </div>
-      <h1 class="title-h">Opening the<br><em>door</em>.</h1>
-      <div class="title-sub">The pitch opens the door; the data room closes the deal. This week we build both — and the follow-up that turns a meeting into a cheque.</div>
+      <h1 class="title-h">After the<br><em>cheque</em>.</h1>
+      <div class="title-sub">Raising is the start, not the finish. This week: keeping investors close, surviving the hard rounds, and the governance that DFI-backed money expects.</div>
       <div class="title-foot">
-        <span><span class="dot">●</span> Narrative</span>
-        <span><span class="dot">●</span> The deck</span>
-        <span><span class="dot">●</span> Data room</span>
-        <span><span class="dot">●</span> The meeting</span>
-        <span><span class="dot">●</span> Follow-up</span>
+        <span><span class="dot">●</span> Investor relations</span>
+        <span><span class="dot">●</span> Hard rounds</span>
+        <span><span class="dot">●</span> Exit</span>
+        <span><span class="dot">●</span> Governance &amp; ESG</span>
       </div>
     </div>
     <div class="title-cta">Press &rarr; or Space to begin &nbsp;·&nbsp; O overview &nbsp;·&nbsp; P presenter notes</div>
@@ -298,225 +231,218 @@ h1.title,.title-h,.div-title,.lede,.pull,.card h4,.ex-card .ext,.hw-quote .qt,.t
 <section class="slide s-paper" data-surface="paper" data-title="Today's map">
   <div class="accent-top"></div>
   <svg class="mark-corner" viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.92"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.86" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.83" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.86" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.8" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#1A1A1A"/><circle cx="50" cy="50" r="2" fill="#EFE7D8"/></svg>
-  <div class="chip-bar anim"><span>Investment Readiness · Week 2</span><span>Pitch Development &amp; Investor Communication</span></div>
+  <div class="chip-bar anim"><span>Investment Readiness · Week 5</span><span>Investor Relations &amp; Governance</span></div>
   <div class="slide-body">
     <div class="eyebrow anim">Today's map · 60 min teaching + 60 min Q&amp;A</div>
-    <h1 class="title anim">Two artefacts carry a raise.</h1>
+    <h1 class="title anim">The relationship outlasts the round.</h1>
     <div class="grid g3 anim" style="margin-top:clamp(18px,2.5vw,34px)">
-      <div class="card"><div class="num">01</div><h4>The Narrative</h4><p>A clear story an investor believes — built for African startups.</p></div>
-      <div class="card"><div class="num">02</div><h4>The Deck</h4><p>10–12 slides, designed well, led by your strongest evidence.</p></div>
-      <div class="card"><div class="num">03</div><h4>The Data Room</h4><p>The proof behind the story — organised, ready, diligence-fast.</p></div>
-      <div class="card"><div class="num">04</div><h4>The Meeting</h4><p>Preparation, the room itself, and the questions you'll be asked.</p></div>
-      <div class="card"><div class="num">05</div><h4>The Follow-Up</h4><p>The protocol that turns a meeting into a relationship.</p></div>
-      <div class="card" style="border-left-color:var(--ink)"><div class="num" style="color:var(--ink)">→</div><h4>You leave with</h4><p>A deck outline, a data-room checklist, and a follow-up plan.</p></div>
+      <div class="card"><div class="num">01</div><h4>Investor Relations</h4><p>Reporting, the board, and keeping investors close.</p></div>
+      <div class="card"><div class="num">02</div><h4>Many Investors</h4><p>Managing several relationships without losing your focus.</p></div>
+      <div class="card"><div class="num">03</div><h4>Hard Rounds</h4><p>Bridge, down rounds and crisis fundraising — and how to survive them.</p></div>
+      <div class="card"><div class="num">04</div><h4>Exit</h4><p>The return event you plan for from the start.</p></div>
+      <div class="card"><div class="num">05</div><h4>Governance &amp; ESG</h4><p>What DFI-backed money expects you to report and uphold.</p></div>
+      <div class="card" style="border-left-color:var(--ink)"><div class="num" style="color:var(--ink)">→</div><h4>You leave with</h4><p>An IR cadence and a governance-readiness score.</p></div>
     </div>
   </div>
   <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
 </section>
 
 <!-- 3 · DIVIDER 01 -->
-<section class="slide s-divider" data-surface="dark" data-title="01 · The pitch" data-photo="assets/jw2-01.jpg">
+<section class="slide s-divider" data-surface="dark" data-title="01 · Investor relations" data-photo="assets/jw5-01.jpg">
   <div class="div-photo"></div><div class="div-overlay"></div>
   <svg class="div-mark" viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.92"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.86" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.83" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.86" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#EFE7D8" opacity="0.8" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
   <div class="div-inner">
     <div class="div-num anim">01</div>
-    <div class="div-eyebrow anim">L3-4.2.1 &amp; 4.2.2</div>
-    <div class="div-title anim">The pitch opens<br>the door.</div>
-    <div class="div-meta anim">Investors don't fund spreadsheets — they fund a story they believe, told by a founder they trust.</div>
+    <div class="div-eyebrow anim">L3-4.4.1 &amp; 4.4.2</div>
+    <div class="div-title anim">The cheque clears.<br>The work begins.</div>
+    <div class="div-meta anim">Good investor relations turns a one-time backer into a long-term ally for the next round.</div>
   </div>
   <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
 </section>
 
-<!-- 4 · A PITCH IS A STORY -->
-<section class="slide s-dark" data-surface="dark" data-title="A story investors believe">
-  <div class="chip-bar anim"><span>Investment Readiness · Week 2</span><span>Pitch narrative &amp; storytelling</span></div>
+<!-- 4 · THE RELATIONSHIP -->
+<section class="slide s-dark" data-surface="dark" data-title="The relationship">
+  <div class="chip-bar anim"><span>Investment Readiness · Week 5</span><span>Post-investment reporting &amp; board management</span></div>
   <div class="slide-body">
     <div class="grid g2 anim" style="align-items:center;gap:clamp(20px,4vw,64px)">
-      <div class="pull">A seed deck tells a clear story — and traction is the slide investors look at first.<span class="by">Joseph Kalema</span></div>
+      <div class="pull">Investors back founders they've watched execute — so let them watch.<span class="by">Joseph Kalema</span></div>
       <div class="body-col" style="margin-top:0">
-        <p class="body" style="color:var(--paper-mid)">Last week you mapped your capital and sequence. This week you arrange the evidence — your market, traction and team — into a narrative that <strong>persuades</strong> a specific investor to act.</p>
-        <p class="body" style="margin-top:1em;color:var(--paper-mid)">For an East African startup, the story must also speak the funder's language — jobs, inclusion, climate — because the DFI-backed funds behind your investor must report that impact upward.</p>
+        <p class="body" style="color:var(--paper-mid)">A clean monthly update — wins, metrics, lowlights, and a specific ask — is the cheapest, highest-return thing a founder can do after a raise. Silence breeds doubt; consistency breeds trust.</p>
+        <p class="body" style="margin-top:1em;color:var(--paper-mid)">The same investor who funds this round usually leads or fills the next. Keep them close and your next raise is half-done before it starts.</p>
       </div>
     </div>
   </div>
   <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
 </section>
 
-<!-- 5 · PITCH DECK EXPLORER (interactive) -->
-<section class="slide s-paper" data-surface="paper" data-title="Pitch deck explorer">
+<!-- 5 · IR CADENCE (interactive) -->
+<section class="slide s-paper" data-surface="paper" data-title="IR cadence">
   <div class="accent-top"></div>
-  <div class="chip-bar anim"><span>Investment Readiness · Week 2</span><span>The seed deck · tap a slide</span></div>
+  <div class="chip-bar anim"><span>Investment Readiness · Week 5</span><span>The IR cadence · tap a habit</span></div>
   <div class="slide-body">
-    <div class="eyebrow anim">Interactive · tap any slide</div>
-    <h1 class="title anim" style="font-size:clamp(26px,3.8vw,50px)">Eleven slides, one clear story.</h1>
-    <div class="pick-wrap" id="dkWrap">
-      <div class="pick-chips" id="dkChips">
-        <button class="pick-chip on" data-k="0"><b>1</b> Cover</button>
-        <button class="pick-chip" data-k="1"><b>2</b> Problem</button>
-        <button class="pick-chip" data-k="2"><b>3</b> Solution</button>
-        <button class="pick-chip" data-k="3"><b>4</b> Why now</button>
-        <button class="pick-chip" data-k="4"><b>5</b> Market</button>
-        <button class="pick-chip" data-k="5"><b>6</b> Traction</button>
-        <button class="pick-chip" data-k="6"><b>7</b> Model</button>
-        <button class="pick-chip" data-k="7"><b>8</b> Competition</button>
-        <button class="pick-chip" data-k="8"><b>9</b> Team</button>
-        <button class="pick-chip" data-k="9"><b>10</b> The ask</button>
-        <button class="pick-chip" data-k="10"><b>11</b> Use of funds</button>
-      </div>
-      <div class="pick-detail" id="dkDetail"></div>
-    </div>
-    <div class="pick-hint anim">Lead with your <strong>strongest evidence</strong>. If traction is your best slide, don't bury it at slide six.</div>
-  </div>
-  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
-</section>
-
-<!-- 6 · DECK DESIGN -->
-<section class="slide s-paper" data-surface="paper" data-title="Deck design">
-  <div class="accent-top"></div>
-  <div class="chip-bar anim"><span>Investment Readiness · Week 2</span><span>Pitch deck design &amp; visual communication</span></div>
-  <div class="slide-body">
-    <div class="eyebrow anim">A deck is read in minutes, not studied</div>
-    <h1 class="title anim" style="font-size:clamp(26px,3.8vw,50px)">Make it skimmable, make it honest.</h1>
-    <div class="grid g4 anim" style="margin-top:clamp(16px,2.4vw,32px)">
-      <div class="card"><h4>One idea per slide</h4><p>A headline that states the point; the slide just proves it. If it needs explaining, it's two slides.</p></div>
-      <div class="card"><h4>Lead with traction</h4><p>Investors look at it first. Put your strongest number where the eye lands.</p></div>
-      <div class="card"><h4>Numbers, not adjectives</h4><p>"40% month-on-month" beats "huge growth." Every claim has a number behind it.</p></div>
-      <div class="card"><h4>Clean &amp; consistent</h4><p>One font system, lots of white space, readable charts. Polish signals professionalism.</p></div>
-    </div>
-    <p class="pick-hint anim">A confusing slide makes an investor wonder what else is confusing. Clarity in the deck signals <strong>clarity in the founder</strong>.</p>
-  </div>
-  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
-</section>
-
-<!-- 7 · CASE: narrative that raised -->
-<section class="slide s-dark" data-surface="dark" data-title="Case · the narrative">
-  <div class="chip-bar anim"><span>Investment Readiness · Week 2</span><span>Case study · a story investors repeated</span></div>
-  <div class="slide-body">
-    <div class="eyebrow anim" style="color:var(--ochre)">🇺🇬 Chipper Cash &amp; 🇰🇪 Gro Intelligence</div>
-    <h1 class="title anim" style="color:var(--paper)">A simple story, told to the right rooms.</h1>
-    <div class="grid g3 anim" style="margin-top:clamp(16px,2.4vw,32px)">
-      <div class="card"><h4>One sharp problem</h4><p>Chipper: cross-border payments across Africa were slow and costly — a pain millions feel.</p></div>
-      <div class="card"><h4>A category to own</h4><p>Gro framed a big, clear idea investors and press could repeat — and raised an $85M Series B.</p></div>
-      <div class="card"><h4>Proof, in the right rooms</h4><p>Real traction, told from Y Combinator to Series C — a Ugandan-founded story investors believed.</p></div>
-    </div>
-    <p class="pick-hint anim">A great pitch isn't louder — it's a problem worth solving, a solution anyone can repeat, and the <strong>proof to back it</strong>.</p>
-  </div>
-  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
-</section>
-
-<!-- 8 · DIVIDER 02 -->
-<section class="slide s-divider" data-surface="dark" data-title="02 · The data room" data-photo="assets/jw2-02.jpg">
-  <div class="div-photo"></div><div class="div-overlay"></div>
-  <svg class="div-mark" viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.92"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.86" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.83" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.86" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#EFE7D8" opacity="0.8" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
-  <div class="div-inner">
-    <div class="div-num anim">02</div>
-    <div class="div-eyebrow anim">L3-4.2.3</div>
-    <div class="div-title anim">The data room<br>closes the deal.</div>
-    <div class="div-meta anim">When an investor is interested, they ask for proof. Having it ready shortens diligence dramatically.</div>
-  </div>
-  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
-</section>
-
-<!-- 9 · DATA ROOM CONTENT -->
-<section class="slide s-paper" data-surface="paper" data-title="What's in a data room">
-  <div class="accent-top"></div>
-  <div class="chip-bar anim"><span>Investment Readiness · Week 2</span><span>Due diligence readiness</span></div>
-  <div class="slide-body">
-    <div class="eyebrow anim">An organised folder, ready before they ask</div>
-    <h1 class="title anim" style="font-size:clamp(26px,3.8vw,50px)">The proof behind every claim.</h1>
-    <div class="grid g3 anim" style="margin-top:clamp(16px,2.4vw,32px)">
-      <div class="card"><h4>Company &amp; cap table</h4><p>Registration documents and a clean record of who owns what.</p></div>
-      <div class="card"><h4>Financial model + history</h4><p>Your projections and the actual historical numbers behind them.</p></div>
-      <div class="card"><h4>Key contracts</h4><p>Customer, partner and supplier agreements that de-risk the story.</p></div>
-      <div class="card"><h4>Product &amp; traction metrics</h4><p>Usage, retention and revenue data — the evidence, not the claim.</p></div>
-      <div class="card"><h4>Founder details</h4><p>Bios, IDs and references — the people the investor is backing.</p></div>
-      <div class="card" style="border-left-color:var(--moss)"><h4>The deck + one-pager</h4><p>The story itself, plus a one-page summary they can forward internally.</p></div>
-    </div>
-  </div>
-  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
-</section>
-
-<!-- 10 · DATA ROOM READINESS (interactive) -->
-<section class="slide s-paper" data-surface="paper" data-title="Data room readiness">
-  <div class="accent-top"></div>
-  <div class="chip-bar anim"><span>Investment Readiness · Week 2</span><span>Data-room readiness · tap what you have</span></div>
-  <div class="slide-body">
-    <div class="eyebrow anim">Interactive · check what's ready</div>
-    <h1 class="title anim" style="font-size:clamp(24px,3.4vw,46px)">How diligence-ready are you?</h1>
-    <div class="dr-wrap anim">
-      <div class="dr-list" id="drList"></div>
-      <div class="dr-out">
-        <div class="do-k">Readiness</div>
-        <div class="do-n" id="drNum">0%</div>
-        <div class="dr-bar"><div class="dr-fill" id="drFill"></div></div>
-        <div class="dr-verdict low" id="drVerdict">Not ready yet</div>
-      </div>
-    </div>
-    <div class="dr-hint anim">A ready data room signals professionalism and shortens diligence. Build it <strong>before</strong> the investor asks — not during the panic.</div>
-  </div>
-  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
-</section>
-
-<!-- 11 · DIVIDER 03 -->
-<section class="slide s-divider" data-surface="dark" data-title="03 · The meeting & follow-up" data-photo="assets/jw2-03.jpg">
-  <div class="div-photo"></div><div class="div-overlay"></div>
-  <svg class="div-mark" viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.92"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.86" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.83" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.86" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#EFE7D8" opacity="0.8" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
-  <div class="div-inner">
-    <div class="div-num anim">03</div>
-    <div class="div-eyebrow anim">L3-4.2.4</div>
-    <div class="div-title anim">The follow-up<br>wins the round.</div>
-    <div class="div-meta anim">The pitch opens the door. The follow-up — and the relationship — closes it.</div>
-  </div>
-  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
-</section>
-
-<!-- 12 · MEETING & FOLLOW-UP STEPPER (interactive) -->
-<section class="slide s-paper" data-surface="paper" data-title="Meeting protocol">
-  <div class="accent-top"></div>
-  <div class="chip-bar anim"><span>Investment Readiness · Week 2</span><span>Investor meeting &amp; follow-up · tap a stage</span></div>
-  <div class="slide-body">
-    <div class="eyebrow anim">Interactive · the four-stage protocol</div>
-    <h1 class="title anim" style="font-size:clamp(26px,3.8vw,50px)">A meeting is the start, not the finish.</h1>
+    <div class="eyebrow anim">Interactive · what good IR looks like</div>
+    <h1 class="title anim" style="font-size:clamp(26px,3.8vw,50px)">Four habits that keep investors close.</h1>
     <div class="jrail anim" id="steps">
-      <div class="jnode on" data-s="0"><div class="jdot">1</div><div class="jname">Prepare</div><div class="jcap">Before</div></div>
-      <div class="jnode" data-s="1"><div class="jdot">2</div><div class="jname">The meeting</div><div class="jcap">In the room</div></div>
-      <div class="jnode" data-s="2"><div class="jdot">3</div><div class="jname">Follow-up</div><div class="jcap">Within 24h</div></div>
-      <div class="jnode" data-s="3"><div class="jdot">4</div><div class="jname">Keep warm</div><div class="jcap">Ongoing</div></div>
+      <div class="jnode on" data-s="0"><div class="jdot">1</div><div class="jname">Report</div><div class="jcap">Monthly</div></div>
+      <div class="jnode" data-s="1"><div class="jdot">2</div><div class="jname">The board</div><div class="jcap">Run it well</div></div>
+      <div class="jnode" data-s="2"><div class="jdot">3</div><div class="jname">Manage many</div><div class="jcap">Proportionally</div></div>
+      <div class="jnode" data-s="3"><div class="jdot">4</div><div class="jname">Ask for help</div><div class="jcap">Use them</div></div>
     </div>
     <div class="step-detail anim" id="stepDetail"></div>
   </div>
   <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
 </section>
 
-<!-- 13 · FOLLOW-UP WINS -->
-<section class="slide s-dark" data-surface="dark" data-title="The silence after">
-  <div class="chip-bar anim"><span>Investment Readiness · Week 2</span><span>Most rounds are lost in the silence</span></div>
+<!-- 6 · MANAGING MANY -->
+<section class="slide s-paper" data-surface="paper" data-title="Managing many investors">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Investment Readiness · Week 5</span><span>Managing multiple investor relationships</span></div>
   <div class="slide-body">
-    <div class="eyebrow anim">Fundraising is a relationship, not a transaction</div>
-    <h1 class="title anim" style="color:var(--paper);font-size:clamp(26px,3.8vw,50px)">Investors back founders they've watched execute.</h1>
+    <div class="eyebrow anim">Several backers, one focused founder</div>
+    <h1 class="title anim" style="font-size:clamp(26px,3.8vw,50px)">Keep everyone informed — without losing your week.</h1>
     <div class="grid g3 anim" style="margin-top:clamp(16px,2.4vw,32px)">
-      <div class="card"><h4>Warm intros open doors</h4><p>Investors back people introduced by people they trust. Map who can introduce you — cold rarely converts.</p></div>
-      <div class="card"><h4>Follow up fast</h4><p>Within 24 hours: thank-you, the answers you promised, the deck, the data-room link, a clear next step.</p></div>
-      <div class="card"><h4>Keep them updated</h4><p>Short, regular notes on traction. A 'no, not yet' becomes a 'yes' once they've seen you deliver.</p></div>
+      <div class="card"><h4>One update, many readers</h4><p>A single monthly note to all investors beats ten one-off calls. Add 1:1 time only where it earns its keep.</p></div>
+      <div class="card"><h4>Lean on your lead</h4><p>Your lead investor is your ally — let them help corral and reassure the others.</p></div>
+      <div class="card"><h4>No surprises</h4><p>Bad news travels best when it travels early and from you. Surprises destroy trust fastest.</p></div>
     </div>
-    <p class="pick-hint anim">A founder who <strong>follows up well</strong> stands out more than one with a prettier deck. Most rounds are lost in the silence after the meeting.</p>
+    <p class="pick-hint anim">Protect your focus: investor management is a system, not an inbox. Done well, it <strong>buys you back time</strong>.</p>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 7 · DIVIDER 02 -->
+<section class="slide s-divider" data-surface="dark" data-title="02 · Hard rounds" data-photo="assets/jw5-02.jpg">
+  <div class="div-photo"></div><div class="div-overlay"></div>
+  <svg class="div-mark" viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.92"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.86" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.83" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.86" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#EFE7D8" opacity="0.8" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+  <div class="div-inner">
+    <div class="div-num anim">02</div>
+    <div class="div-eyebrow anim">L3-4.4.3 &amp; 4.4.4</div>
+    <div class="div-title anim">When the next round<br>is hard.</div>
+    <div class="div-meta anim">Bridges, down rounds, crises and exits — every founder meets at least one. Know them before you do.</div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 8 · SCENARIO NAVIGATOR (interactive) -->
+<section class="slide s-paper" data-surface="paper" data-title="Scenario navigator">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Investment Readiness · Week 5</span><span>Hard-round scenarios · tap one</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Interactive · know the playbook</div>
+    <h1 class="title anim" style="font-size:clamp(26px,3.8vw,50px)">Four situations every founder should rehearse.</h1>
+    <div class="pick-wrap" id="scWrap">
+      <div class="pick-chips" id="scChips">
+        <button class="pick-chip on" data-k="bridge">Bridge round</button>
+        <button class="pick-chip" data-k="down">Down round</button>
+        <button class="pick-chip" data-k="crisis">Crisis fundraising</button>
+        <button class="pick-chip" data-k="exit">Exit</button>
+      </div>
+      <div class="pick-detail" id="scDetail"></div>
+    </div>
+    <div class="pick-hint anim">None of these is failure. Handled with transparency and a plan, each can be the moment you <strong>keep the company alive</strong>.</div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 9 · EXIT -->
+<section class="slide s-dark" data-surface="dark" data-title="Exit — the long game">
+  <div class="chip-bar anim"><span>Investment Readiness · Week 5</span><span>Exit · the return event</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Plan for it from the start</div>
+    <h1 class="title anim" style="color:var(--paper);font-size:clamp(26px,3.8vw,50px)">Every investor needs a way out — eventually.</h1>
+    <div class="grid g3 anim" style="margin-top:clamp(16px,2.4vw,32px)">
+      <div class="card"><h4>The return event</h4><p>Acquisition is the common path in Africa; IPOs are rare. It's how your investors realise their return.</p></div>
+      <div class="card"><h4>It shapes who you take</h4><p>An investor's exit timeline must match yours. Patient, catalytic capital expects a longer horizon.</p></div>
+      <div class="card"><h4>Build optionality</h4><p>Clean cap table, clean records, real traction — the things that make any exit possible later.</p></div>
+    </div>
+    <p class="pick-hint anim">You don't plan the exit to sell tomorrow — you plan it so the choices stay <strong>open</strong> when the moment comes.</p>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 10 · DIVIDER 03 -->
+<section class="slide s-divider" data-surface="dark" data-title="03 · Governance & ESG" data-photo="assets/jw5-03.jpg">
+  <div class="div-photo"></div><div class="div-overlay"></div>
+  <svg class="div-mark" viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.92"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.86" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.83" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.86" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#EFE7D8" opacity="0.8" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+  <div class="div-inner">
+    <div class="div-num anim">03</div>
+    <div class="div-eyebrow anim">Handbook Module 5</div>
+    <div class="div-title anim">DFI money comes<br>with expectations.</div>
+    <div class="div-meta anim">Impact reporting, ESG standards and clean governance — anticipate them rather than be surprised.</div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 11 · GOVERNANCE & ESG -->
+<section class="slide s-paper" data-surface="paper" data-title="Governance & ESG">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Investment Readiness · Week 5</span><span>Impact, ESG &amp; reporting expectations</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">What capital with a development mandate expects</div>
+    <h1 class="title anim" style="font-size:clamp(26px,3.8vw,50px)">Treat reporting as an asset, not a chore.</h1>
+    <div class="grid g4 anim" style="margin-top:clamp(16px,2.4vw,32px)">
+      <div class="card"><h4>Impact measurement</h4><p>Track and report development outcomes — not just revenue.</p></div>
+      <div class="card"><h4>ESG standards</h4><p>Fair labour, safeguarding, environmental care, clean governance — sometimes audited.</p></div>
+      <div class="card"><h4>Gender &amp; inclusion</h4><p>Many DFI-backed funds have explicit mandates — an advantage if it's your story.</p></div>
+      <div class="card"><h4>Governance discipline</h4><p>Clean records, proper accounts, a functioning board — more than a typical angel deal.</p></div>
+    </div>
+    <p class="pick-hint anim">The startups that win DFI-linked capital are the ones who can <strong>show their impact</strong> as clearly as their revenue.</p>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 12 · GOVERNANCE READINESS (interactive) -->
+<section class="slide s-paper" data-surface="paper" data-title="Governance readiness">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Investment Readiness · Week 5</span><span>Governance &amp; ESG readiness · tick what's in place</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Interactive · score your readiness</div>
+    <h1 class="title anim" style="font-size:clamp(24px,3.4vw,46px)">Are you ready for capital with standards?</h1>
+    <div class="dr-wrap anim">
+      <div class="dr-list" id="govList"></div>
+      <div class="dr-out">
+        <div class="do-k">Readiness</div>
+        <div class="do-n" id="govNum">0%</div>
+        <div class="dr-bar"><div class="dr-fill" id="govFill"></div></div>
+        <div class="dr-verdict low" id="govVerdict">Not ready yet</div>
+      </div>
+    </div>
+    <div class="dr-hint anim">None of this needs to be perfect at seed — but a founder who already thinks this way is <strong>far easier to back</strong>.</div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 13 · THE JOURNEY COMPLETED -->
+<section class="slide s-dark" data-surface="dark" data-title="The journey, completed">
+  <div class="chip-bar anim"><span>Investment Readiness · Week 5</span><span>Five weeks, one funding strategy</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">It all comes together as a sequence</div>
+    <h1 class="title anim" style="color:var(--paper)">Use the cheapest capital first — and keep the company.</h1>
+    <div class="grid g3 anim" style="margin-top:clamp(16px,2.4vw,32px)">
+      <div class="card"><h4>Wk 1 · Landscape</h4><p>The capital map and your funding sequence.</p></div>
+      <div class="card"><h4>Wk 2 · Pitch</h4><p>The deck and data room that open doors.</p></div>
+      <div class="card"><h4>Wk 3 · Grants &amp; DFIs</h4><p>Build value with non-dilutive capital first.</p></div>
+      <div class="card"><h4>Wk 4 · The deal</h4><p>Structure it so you keep ownership.</p></div>
+      <div class="card"><h4>Wk 5 · After the cheque</h4><p>Relationships and governance for the long game.</p></div>
+      <div class="card" style="border-left-color:var(--ochre)"><h4>The data room</h4><p>Holds the proof behind every step — investor-ready.</p></div>
+    </div>
   </div>
   <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
 </section>
 
 <!-- 14 · RECAP -->
 <section class="slide s-dark" data-surface="dark" data-title="Recap">
-  <div class="chip-bar anim"><span>Investment Readiness · Week 2</span><span>What we locked down</span></div>
+  <div class="chip-bar anim"><span>Investment Readiness · Week 5</span><span>What we locked down</span></div>
   <div class="slide-body">
     <div class="eyebrow anim">The through-line</div>
-    <h1 class="title anim" style="color:var(--paper)">The deck opens the door; the data room closes the deal.</h1>
+    <h1 class="title anim" style="color:var(--paper)">The relationship — and the governance — outlast the round.</h1>
     <div class="grid g3 anim" style="margin-top:clamp(16px,2.4vw,32px)">
-      <div class="card"><h4>Narrative</h4><p>A story investors believe; speak the funder's language.</p></div>
-      <div class="card"><h4>The deck</h4><p>11 slides, designed clean, led by traction.</p></div>
-      <div class="card"><h4>Data room</h4><p>The proof, organised and ready before they ask.</p></div>
-      <div class="card"><h4>The meeting</h4><p>Prepare, tell the story, agree a next step.</p></div>
-      <div class="card"><h4>Follow-up</h4><p>24 hours, then keep them warm with updates.</p></div>
-      <div class="card" style="border-left-color:var(--ochre)"><h4>Next Wednesday</h4><p>We move to <em>deal structuring &amp; negotiation</em>.</p></div>
+      <div class="card"><h4>Investor relations</h4><p>Report, run the board, ask for help.</p></div>
+      <div class="card"><h4>Many investors</h4><p>One update, lean on your lead, no surprises.</p></div>
+      <div class="card"><h4>Hard rounds</h4><p>Bridge, down, crisis — transparency keeps you alive.</p></div>
+      <div class="card"><h4>Exit</h4><p>Plan early; it shapes who you take money from.</p></div>
+      <div class="card"><h4>Governance &amp; ESG</h4><p>Show impact as clearly as revenue.</p></div>
+      <div class="card" style="border-left-color:var(--ochre)"><h4>The discipline is done</h4><p>Five weeks of investment readiness — now go and raise.</p></div>
     </div>
   </div>
   <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
@@ -525,49 +451,49 @@ h1.title,.title-h,.div-title,.lede,.pull,.card h4,.ex-card .ext,.hw-quote .qt,.t
 <!-- 15 · EXERCISE -->
 <section class="slide s-paper" data-surface="paper" data-title="In-session exercise">
   <div class="accent-top"></div>
-  <div class="chip-bar anim"><span>Investment Readiness · Week 2</span><span>Self-guided worksheet · in session</span></div>
+  <div class="chip-bar anim"><span>Investment Readiness · Week 5</span><span>Self-guided worksheet · in session</span></div>
   <div class="slide-body">
     <div class="ex-head anim">
       <div>
         <div class="eyebrow">Self-guided worksheet · do it now</div>
-        <h1 class="title" style="margin-top:.15em">Draft your raise in 4 moves.</h1>
+        <h1 class="title" style="margin-top:.15em">Set up life after the cheque in 4 moves.</h1>
       </div>
       <span style="margin-left:auto;margin-bottom:.2em;display:inline-block;font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--paper);background:var(--ink);padding:5px 12px">⏱ 25 min solo · 35 min group</span>
     </div>
     <div class="ex-grid anim">
-      <div class="ex-card"><span class="exn">1</span><div class="exk">Your strongest slide</div><div class="ext">Lead with it</div><div class="exp">Which slide is your best evidence — and is it early enough?</div><div class="exeg"><b>Example</b>"Traction — 500 users, 30% MoM. Move it to slide 3."</div><div class="write"><span></span></div></div>
-      <div class="ex-card"><span class="exn">2</span><div class="exk">Data-room gaps</div><div class="ext">Two missing items</div><div class="exp">From the readiness check — what will you build this week?</div><div class="exeg"><b>Example</b>"Cap table + a one-page financial summary."</div><div class="write"><span></span></div></div>
-      <div class="ex-card"><span class="exn">3</span><div class="exk">A warm intro</div><div class="ext">One real path</div><div class="exp">Name one investor and who could introduce you to them.</div><div class="exeg"><b>Example</b>"Fund X — my accelerator mentor knows the partner."</div><div class="write"><span></span></div></div>
-      <div class="ex-card"><span class="exn">4</span><div class="exk">Your follow-up</div><div class="ext">The 24h email</div><div class="exp">Draft the one-line next step you'd ask for after a meeting.</div><div class="exeg"><b>Example</b>"Can I send our data room and book a 30-min deep dive?"</div><div class="write"><span></span></div></div>
+      <div class="ex-card"><span class="exn">1</span><div class="exk">Your update</div><div class="ext">The monthly template</div><div class="exp">List the 4 lines every investor update should carry.</div><div class="exeg"><b>Example</b>"Wins · key metric · lowlight · the one ask."</div><div class="write"><span></span></div></div>
+      <div class="ex-card"><span class="exn">2</span><div class="exk">Your one ask</div><div class="ext">Use your investors</div><div class="exp">The single intro or help you'd request this month.</div><div class="exeg"><b>Example</b>"An intro to a retail-distribution partner in Nairobi."</div><div class="write"><span></span></div></div>
+      <div class="ex-card"><span class="exn">3</span><div class="exk">Your scenario</div><div class="ext">Rehearse one</div><div class="exp">Bridge, down or crisis — what's your first move?</div><div class="exeg"><b>Example</b>"Bridge — cut burn 20%, then go to existing backers."</div><div class="write"><span></span></div></div>
+      <div class="ex-card"><span class="exn">4</span><div class="exk">Your gov gap</div><div class="ext">One to close</div><div class="exp">The governance/ESG item you'll put in place first.</div><div class="exeg"><b>Example</b>"Start a simple impact metric: jobs created per quarter."</div><div class="write"><span></span></div></div>
     </div>
-    <p class="pick-hint anim">How we'll review: each founder names their <b>strongest slide</b> and <b>one data-room gap</b> — and the room checks the slide really is the best evidence, told as a number.</p>
+    <p class="pick-hint anim">How we'll review: each founder shares their <b>monthly-update lines</b> and <b>one governance gap</b> — and the room checks the update is honest, not a highlight reel.</p>
   </div>
   <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
 </section>
 
 <!-- 16 · HOMEWORK -->
 <section class="slide s-dark" data-surface="dark" data-title="Homework">
-  <div class="chip-bar anim"><span>Investment Readiness · Week 2</span><span>Homework · due next Wednesday</span></div>
+  <div class="chip-bar anim"><span>Investment Readiness · Week 5</span><span>Homework · the capstone</span></div>
   <div class="slide-body">
-    <div class="anim"><span class="due-tag"><span class="d"></span>Due next Wednesday · Week 3 · Grants &amp; DFIs</span></div>
-    <h1 class="title anim" style="color:var(--paper);margin-top:.5em">Build the door — and the room behind it.</h1>
+    <div class="anim"><span class="due-tag"><span class="d"></span>The capstone · your complete funding strategy</span></div>
+    <h1 class="title anim" style="color:var(--paper);margin-top:.5em">Finish your investment-readiness pack.</h1>
     <div class="hw-grid anim">
       <div>
         <div class="hw-klbl">Four deliverables</div>
         <ul class="hw-check">
-          <li><span class="cbx"></span><div><b>An 11-slide deck outline</b> — one headline per slide, traction led with.</div></li>
-          <li><span class="cbx"></span><div><b>A data-room checklist</b> — what you have, and the gaps to fill this week.</div></li>
-          <li><span class="cbx"></span><div><b>A warm-intro map</b> — 5 target investors and who can introduce you.</div></li>
-          <li><span class="cbx"></span><div><b>A follow-up template</b> — your 24-hour email, ready to personalise.</div></li>
+          <li><span class="cbx"></span><div><b>A monthly investor-update template</b> — wins, metrics, lowlights, the ask.</div></li>
+          <li><span class="cbx"></span><div><b>A one-page hard-round plan</b> — your first three moves if cash gets tight.</div></li>
+          <li><span class="cbx"></span><div><b>A governance &amp; ESG checklist</b> — what's in place and the first gap to close.</div></li>
+          <li><span class="cbx"></span><div><b>Your complete data room</b> — five weeks of work, investor-ready and shareable.</div></li>
         </ul>
       </div>
       <div>
         <div class="hw-quote">
           <span class="qm">&ldquo;</span>
-          <div class="qt">The pitch deck opens the door; the data room closes the deal. Have both ready before you talk to a single investor.</div>
+          <div class="qt">A funding strategy is a deliberate sequence — each step raises the company's value and lowers its risk before the next.</div>
           <div class="qb">Joseph Kalema · Investment Readiness</div>
         </div>
-        <p class="hw-bridge">Next Wednesday we turn to the East African reality of <strong>grants &amp; DFIs</strong>. Add your deck outline and data-room checklist to your <strong>data room</strong>.</p>
+        <p class="hw-bridge">That completes the Investment Readiness discipline. Your capital map, pitch, data room, deal terms and governance now live in one place — <strong>investor-ready</strong>. Go and raise.</p>
       </div>
     </div>
   </div>
@@ -578,7 +504,7 @@ h1.title,.title-h,.div-title,.lede,.pull,.card h4,.ex-card .ext,.hw-quote .qt,.t
 <section class="slide s-dark" id="s-close" data-surface="dark" data-title="Close">
   <svg class="mark" viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.92"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.86" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.83" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.86" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#EFE7D8" opacity="0.8" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
   <div class="ct anim">Build with direction.</div>
-  <div class="cc anim">The Founder's Sprint · Investment Readiness · Week 2 of 5 · Kampala</div>
+  <div class="cc anim">The Founder's Sprint · Investment Readiness · Week 5 of 5 · Kampala</div>
 </section>
 
 </div>
@@ -601,120 +527,75 @@ h1.title,.title-h,.div-title,.lede,.pull,.card h4,.ex-card .ext,.hw-quote .qt,.t
   let i=0;
   const counter=document.getElementById('counter'), progress=document.getElementById('progress');
   document.querySelectorAll('.s-divider').forEach(s=>{const p=s.getAttribute('data-photo');if(p){const el=s.querySelector('.div-photo');if(el)el.style.backgroundImage="url('"+p+"')";}});
-
-  function show(n){
-    n=Math.max(0,Math.min(slides.length-1,n));
-    slides[i].classList.remove('active'); i=n;
-    const cur=slides[i]; cur.classList.add('active');
-    cur.querySelectorAll('.anim').forEach(el=>{el.style.animation='none';void el.offsetWidth;el.style.animation='';});
-    counter.textContent=String(i+1).padStart(2,'0')+' / '+String(slides.length).padStart(2,'0');
-    progress.style.width=((i)/(slides.length-1)*100)+'%';
-    document.body.classList.toggle('on-paper',cur.getAttribute('data-surface')==='paper');
-    presSync();
-  }
+  function show(n){n=Math.max(0,Math.min(slides.length-1,n));slides[i].classList.remove('active');i=n;const cur=slides[i];cur.classList.add('active');cur.querySelectorAll('.anim').forEach(el=>{el.style.animation='none';void el.offsetWidth;el.style.animation='';});counter.textContent=String(i+1).padStart(2,'0')+' / '+String(slides.length).padStart(2,'0');progress.style.width=((i)/(slides.length-1)*100)+'%';document.body.classList.toggle('on-paper',cur.getAttribute('data-surface')==='paper');presSync();}
   const next=()=>show(i+1), prev=()=>show(i-1);
   document.getElementById('nextBtn').addEventListener('click',next);
   document.getElementById('prevBtn').addEventListener('click',prev);
   document.getElementById('resetBtn').addEventListener('click',()=>show(0));
-
   const overview=document.getElementById('overview'), ovGrid=document.getElementById('ovGrid');
   slides.forEach((s,idx)=>{const t=s.getAttribute('data-title')||('Slide '+(idx+1));const d=document.createElement('div');d.className='ov-item';d.innerHTML='<div class="oi-n">'+String(idx+1).padStart(2,'0')+'</div><div class="oi-t">'+t+'</div>';d.addEventListener('click',()=>{overview.classList.remove('show');show(idx);});ovGrid.appendChild(d);});
   const toggleOverview=()=>overview.classList.toggle('show');
-
-  document.addEventListener('keydown',e=>{
-    if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' '){e.preventDefault();next();}
-    else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();prev();}
-    else if(e.key==='Home'){show(0);} else if(e.key==='End'){show(slides.length-1);}
-    else if(e.key==='o'||e.key==='O'){toggleOverview();}
-    else if(e.key==='Escape'){overview.classList.remove('show');}
-    else if((e.key==='p'||e.key==='P')&&!e.metaKey&&!e.ctrlKey){openPresenter();}
-    else if(e.key==='f'||e.key==='F'){if(!document.fullscreenElement){document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();}else{document.exitFullscreen&&document.exitFullscreen();}}
-  });
-  let tx=0,ty=0;
-  document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;ty=e.touches[0].clientY;},{passive:true});
+  document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' '){e.preventDefault();next();}else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();prev();}else if(e.key==='Home'){show(0);}else if(e.key==='End'){show(slides.length-1);}else if(e.key==='o'||e.key==='O'){toggleOverview();}else if(e.key==='Escape'){overview.classList.remove('show');}else if((e.key==='p'||e.key==='P')&&!e.metaKey&&!e.ctrlKey){openPresenter();}else if(e.key==='f'||e.key==='F'){if(!document.fullscreenElement){document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();}else{document.exitFullscreen&&document.exitFullscreen();}}});
+  let tx=0,ty=0;document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;ty=e.touches[0].clientY;},{passive:true});
   document.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-tx,dy=e.changedTouches[0].clientY-ty;if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)){dx<0?next():prev();}},{passive:true});
 
-  // ── Pitch deck explorer ──
-  const deck=[
-    {k:'1 · Cover',v:'Company name, a one-line tagline that says what you do, and contact details. Set a confident, clean tone.',eg:'Make the first three seconds count.'},
-    {k:'2 · Problem',v:'The problem you solve — made real, painful and relatable. The investor should feel it before you sell the fix.',eg:'A painkiller, not a vitamin.'},
-    {k:'3 · Solution',v:'Your product, and why it solves that problem better than the alternatives. Simple enough to repeat in one line.',eg:'They should be able to pitch it for you.'},
-    {k:'4 · Why now',v:'The shift that makes this the moment — new behaviour, technology, regulation, or market change. Timing wins or kills good ideas.',eg:'Name the wave you are riding.'},
-    {k:'5 · Market size',v:'TAM / SAM / SOM. Show a substantial, reachable opportunity — and the beachhead you win first.',eg:'Straight from Week 1 sizing.'},
-    {k:'6 · Traction',v:'Revenue, users, retention, partnerships, letters of intent — your proof you can execute. This is the slide investors read first.',eg:'★ Lead with this if it is your best.'},
-    {k:'7 · Business model',v:'How you make money — pricing, revenue streams, unit economics. Show the path to a real business.',eg:'CAC, LTV, the margin story.'},
-    {k:'8 · Competition',v:'Who else is in the space and how you are clearly differentiated. Acknowledge them; never say you have none.',eg:'Own the box no one else ticks.'},
-    {k:'9 · Team',v:'Who you are and why you are the right people — relevant insight, complementary skills, track record.',eg:'Investors bet on the jockey too.'},
-    {k:'10 · The ask',v:'Exactly how much you are raising, the instrument, and the runway it buys. Be specific and confident.',eg:'A clear number, clearly justified.'},
-    {k:'11 · Use of funds',v:'What the money will achieve — the milestones it buys that justify the next round. Tie every shilling to a result.',eg:'Money to a milestone, not a wishlist.'}
-  ];
-  const dkChips=document.getElementById('dkChips'), dkDetail=document.getElementById('dkDetail');
-  function renderDk(n){const d=deck[n];dkDetail.innerHTML='<div class="pk">'+d.k+'</div><div class="pv">'+d.v+'</div><div class="peg">'+d.eg+'</div>';dkChips.querySelectorAll('.pick-chip').forEach(c=>c.classList.toggle('on',+c.getAttribute('data-k')===n));}
-  if(dkChips){dkChips.addEventListener('click',e=>{const b=e.target.closest('.pick-chip');if(b)renderDk(+b.getAttribute('data-k'));});renderDk(0);}
-
-  // ── Data room readiness checklist ──
-  const drItems=[
-    {t:'Company registration & cap table',d:'Who owns what — clean and current.'},
-    {t:'Financial model + historicals',d:'Projections plus the real numbers behind them.'},
-    {t:'Key contracts & agreements',d:'Customer, partner and supplier deals that de-risk you.'},
-    {t:'Product & traction metrics',d:'Usage, retention, revenue — the evidence.'},
-    {t:'Founder details & references',d:'Bios, IDs, and people who vouch for you.'},
-    {t:'The deck + a one-page summary',d:'The story, plus something they can forward.'}
-  ];
-  const drState=drItems.map(()=>false);
-  const drList=document.getElementById('drList');
-  function buildDr(){
-    drList.innerHTML=drItems.map(function(it,ci){
-      return '<div class="dr-item'+(drState[ci]?' on':'')+'" data-i="'+ci+'"><span class="dr-cb"></span><span class="dr-tx"><span class="dt">'+it.t+'</span><span class="dd">'+it.d+'</span></span></div>';
-    }).join('');
-  }
-  function recomputeDr(){
-    const have=drState.filter(Boolean).length, pct=Math.round(have/drItems.length*100);
-    document.getElementById('drNum').textContent=pct+'%';
-    document.getElementById('drFill').style.width=pct+'%';
-    const v=document.getElementById('drVerdict');
-    if(pct===100){v.className='dr-verdict ready';v.textContent='Diligence-ready';}
-    else if(pct>=50){v.className='dr-verdict mid';v.textContent='Getting there';}
-    else{v.className='dr-verdict low';v.textContent=pct===0?'Not ready yet':'Big gaps remain';}
-  }
-  if(drList){
-    buildDr(); recomputeDr();
-    drList.addEventListener('click',function(e){const it=e.target.closest('.dr-item');if(!it)return;const ci=+it.getAttribute('data-i');drState[ci]=!drState[ci];buildDr();recomputeDr();});
-  }
-
-  // ── Meeting & follow-up stepper ──
-  const protocol=[
-    {q:'Prepare — earn the meeting before it starts',v:'Research the investor and their mandate. Know your numbers cold. Anticipate the hard questions. Bring the deck and the data-room link. <b>First impressions are hard to reverse.</b>'},
-    {q:'The meeting — tell the story, then listen',v:'Open with the hook, lead with traction, be honest about risks, and read the room. The goal of the first meeting is a <b>second meeting</b> — always agree a clear next step.'},
-    {q:'Follow-up — within 24 hours',v:'A short thank-you, the answers you promised, the deck, the data-room link, and one clear ask. <b>Most rounds are lost in the silence after the meeting</b> — don\'t go quiet.'},
-    {q:'Keep warm — until it\'s a yes',v:'Send short, regular updates on traction and milestones. Investors back founders they\'ve <b>watched execute</b>. A "not yet" becomes a "yes" when they\'ve seen you deliver.'}
+  // ── IR cadence ──
+  const ir=[
+    {q:'Report — a clean monthly update',v:'Wins, the key metric, the lowlights, and one specific ask. <b>Consistency builds trust; silence breeds doubt.</b> The same investor usually funds the next round.'},
+    {q:'The board — run it well',v:'Agenda and materials ahead of time, decisions logged, no surprises. A board is a resource to steer with, not a tribunal to survive.'},
+    {q:'Manage many — proportionally',v:'One update to all; 1:1 time only where it earns its keep. Lean on your <b>lead investor</b> to help corral and reassure the rest.'},
+    {q:'Ask for help — use them',v:'Investors are a resource: intros, hiring, advice, the next cheque. The best founders <b>ask</b> — a specific request is easy to act on.'}
   ];
   const steps=document.getElementById('steps'), stepDetail=document.getElementById('stepDetail');
-  function renderStep(n){const d=protocol[n];stepDetail.innerHTML='<div class="sd-q">'+d.q+'</div><div class="sd-v">'+d.v+'</div>';steps.querySelectorAll('.jnode').forEach((s,idx)=>s.classList.toggle('on',idx===n));}
+  function renderStep(n){const d=ir[n];stepDetail.innerHTML='<div class="sd-q">'+d.q+'</div><div class="sd-v">'+d.v+'</div>';steps.querySelectorAll('.jnode').forEach((s,idx)=>s.classList.toggle('on',idx===n));}
   if(steps){steps.addEventListener('click',e=>{const s=e.target.closest('.jnode');if(s)renderStep(+s.getAttribute('data-s'));});renderStep(0);}
 
-  // ────────────────────────────────────────────────────────────
-  // Presenter View — private coach-only speaker notes
-  // ────────────────────────────────────────────────────────────
+  // ── Scenario navigator ──
+  const sc={
+    bridge:{k:'Bridge round',tag:'Buy time to a milestone',v:'A small raise between rounds to extend runway to a specific proof point — often from existing investors. The signal you send: you need more time, not a new story. Name the milestone the bridge buys.',eg:'Best when: one clear milestone is just out of reach.'},
+    down:{k:'Down round',tag:'Raising at a lower valuation',v:'Painful — more dilution, bruised morale, and it can trigger anti-dilution clauses. But a down round beats no round. Be transparent with the team and lead with the recovery plan.',eg:'Better than dying. Communicate early and honestly.'},
+    crisis:{k:'Crisis fundraising',tag:'Raising when cash is nearly out',v:'The weakest position to raise from. Cut burn first to extend runway, lead with a credible plan, and lean on existing backers who are already invested in your survival.',eg:'Cut burn first; raise from people already in.'},
+    exit:{k:'Exit',tag:'The investor\'s return event',v:'Acquisition is the common path in Africa; IPOs are rare. Plan for it from the start — it shapes who you take money from, since their exit timeline must match yours.',eg:'Plan early so the choices stay open.'}
+  };
+  const scChips=document.getElementById('scChips'), scDetail=document.getElementById('scDetail');
+  function renderSc(key){const d=sc[key];scDetail.innerHTML='<div class="pk">'+d.k+'</div><div class="ptag">'+d.tag+'</div><div class="pv">'+d.v+'</div><div class="peg">'+d.eg+'</div>';scChips.querySelectorAll('.pick-chip').forEach(c=>c.classList.toggle('on',c.getAttribute('data-k')===key));}
+  if(scChips){scChips.addEventListener('click',e=>{const b=e.target.closest('.pick-chip');if(b)renderSc(b.getAttribute('data-k'));});renderSc('bridge');}
+
+  // ── Governance & ESG readiness ──
+  const govItems=[
+    {t:'Impact measurement',d:'You track development outcomes, not just revenue.'},
+    {t:'ESG standards',d:'Fair labour, safeguarding, environment, clean governance.'},
+    {t:'Gender &amp; inclusion lens',d:'You can articulate your inclusion story.'},
+    {t:'Clean records &amp; accounts',d:'Proper bookkeeping and audit-ready documents.'},
+    {t:'A functioning board',d:'Regular meetings, logged decisions, real oversight.'},
+    {t:'Regular investor reporting',d:'A consistent update cadence already running.'}
+  ];
+  const govState=govItems.map(()=>false);
+  const govList=document.getElementById('govList');
+  function buildGov(){govList.innerHTML=govItems.map(function(it,ci){return '<div class="dr-item'+(govState[ci]?' on':'')+'" data-i="'+ci+'"><span class="dr-cb"></span><span class="dr-tx"><span class="dt">'+it.t+'</span><span class="dd">'+it.d+'</span></span></div>';}).join('');}
+  function recomputeGov(){const have=govState.filter(Boolean).length,pct=Math.round(have/govItems.length*100);document.getElementById('govNum').textContent=pct+'%';document.getElementById('govFill').style.width=pct+'%';const v=document.getElementById('govVerdict');if(pct===100){v.className='dr-verdict ready';v.textContent='DFI-ready';}else if(pct>=50){v.className='dr-verdict mid';v.textContent='Getting there';}else{v.className='dr-verdict low';v.textContent=pct===0?'Not ready yet':'Big gaps remain';}}
+  if(govList){buildGov();recomputeGov();govList.addEventListener('click',function(e){const it=e.target.closest('.dr-item');if(!it)return;const ci=+it.getAttribute('data-i');govState[ci]=!govState[ci];buildGov();recomputeGov();});}
+
+  // ── Presenter View ──
   var presenterWin = null;
   const NOTES = [
-    /* 01 Title */ ["Welcome back — Investment Readiness, Week 2 of 5 (Wednesdays), with Joseph Kalema.","Recall Week 1: capital map + funding sequence. This week = the pitch &amp; data room that open investor doors.","Frame: ~60 min teaching, ~60 min Q&amp;A. They leave with a deck outline, a data-room checklist and a follow-up plan.","Anchor line: 'The pitch opens the door; the data room closes the deal.'"],
-    /* 02 Agenda */ ["Five beats: narrative, deck, data room, the meeting, the follow-up.","Stress the last card — concrete artefacts they walk out with.","~2 minutes."],
-    /* 03 Divider: pitch */ ["Transition: investors fund a story they believe, told by a founder they trust."],
-    /* 04 A story */ ["Core: arrange the evidence (market, traction, team) into a persuasive narrative for a SPECIFIC investor.","Traction is the slide they look at FIRST — say it now, repeat it on the deck.","EA nuance: speak the funder's impact language (jobs, inclusion, climate) — the DFI-backed fund must report it upward."],
-    /* 05 Deck explorer */ ["Tap each of the 11 slides; note slide 6 Traction is tagged ★.","Push: lead with strongest evidence — don't bury traction at slide six.","Ask a founder which slide is their strongest, then where it currently sits."],
-    /* 06 Deck design */ ["One idea per slide; a headline that states the point.","Numbers, not adjectives — '40% MoM' beats 'huge growth'.","Land it: clarity in the deck signals clarity in the founder."],
-    /* 07 Case: narrative */ ["Chipper (sharp problem, repeatable solution) and Gro (a category investors could repeat → $85M Series B).","Proof told in the right rooms — YC to Series C, Ugandan-founded.","A great pitch isn't louder — problem + simple solution + proof."],
-    /* 08 Divider: data room */ ["Transition: when they're interested, they ask for proof. Readiness shortens diligence."],
-    /* 09 Data room content */ ["Walk the six sections; this is the proof behind every claim in the deck.","Stress: organised &amp; ready BEFORE they ask signals professionalism.","Tie to the platform — their FS data room is exactly this, coach-vetted."],
-    /* 10 Data room readiness */ ["Have a founder tap what they actually have — watch the readiness % and verdict move.","Goal is 'Diligence-ready'. Note which two gaps each founder will close this week.","The point: build it before the panic, not during diligence."],
-    /* 11 Divider: meeting */ ["Transition: the meeting is the start, not the finish — the follow-up wins it."],
-    /* 12 Meeting stepper */ ["Tap each stage: Prepare → Meeting → 24h Follow-up → Keep warm.","The goal of the first meeting is a SECOND meeting — always agree a next step.","Hammer the 24-hour follow-up; most rounds die in the silence."],
-    /* 13 Follow-up wins */ ["Warm intros open doors; cold rarely converts.","Keep them updated — a 'not yet' becomes a 'yes' once they've watched you execute.","A founder who follows up well beats one with a prettier deck."],
-    /* 14 Recap */ ["Recall: narrative, deck, data room, meeting, follow-up.","Repeat the anchor: deck opens the door, data room closes the deal.","Tease Week 3: grants &amp; DFIs — the EA reality."],
-    /* 15 Exercise */ ["25 min solo, 35 min group — CIRCULATE.","Each founder states their strongest slide + one data-room gap aloud.","Pressure-test: is that really the best evidence, and is it told as a number?"],
-    /* 16 Homework */ ["11-slide outline + data-room checklist + warm-intro map (5) + a 24h follow-up template.","Upload the deck outline and data-room checklist to their data room.","Remind: have both ready BEFORE talking to a single investor."],
-    /* 17 Close */ ["Tagline: 'Build with direction.'","Confirm next Wednesday = Grants, DFIs &amp; Non-Dilutive Capital.","Thank them; the deck &amp; data room feed every later week."]
+    ["Welcome to the final session — Investment Readiness, Week 5 of 5, with Joseph Kalema.","Recall the arc: landscape, pitch/data room, grants/DFIs, the deal. This week = life AFTER the cheque.","Frame: ~60 teach + ~60 Q&amp;A. They leave with an IR cadence and a governance-readiness score.","Anchor: 'Raising is the start, not the finish.'"],
+    ["Preview five blocks; outcome = an IR cadence + governance score.","~2 minutes."],
+    ["Transition: the cheque clears, the work begins."],
+    ["The cheapest, highest-return post-raise habit is a clean monthly update.","Silence breeds doubt; consistency breeds trust.","The same investor usually leads or fills the next round — keep them close."],
+    ["Tap the four IR habits: report, board, manage many, ask for help.","Stress 'ask for help' — a specific request is easy to act on; founders under-use it.","Ask each founder if they currently send investor updates."],
+    ["One update to all beats ten one-off calls; lean on your lead.","No surprises — bad news travels best early and from you.","Protect focus: investor management is a system, not an inbox."],
+    ["Transition: every founder meets at least one hard round — know them first."],
+    ["Tap each scenario; emphasise none of these is failure.","Crisis: cut burn FIRST, then raise from existing backers.","Down round beats no round — transparency keeps the team and cap table intact."],
+    ["Exit: acquisition is the common African path; IPOs rare.","It shapes WHO you take money from — exit timelines must match.","Plan early so choices stay open, not to sell tomorrow."],
+    ["Transition: DFI money comes with expectations — anticipate them."],
+    ["Impact measurement, ESG, gender/inclusion, governance discipline.","Reframe reporting as an ASSET, not a chore.","The winners show impact as clearly as revenue."],
+    ["Have a founder tick what's in place — watch the readiness % move.","Nothing needs to be perfect at seed; a founder who thinks this way is easier to back.","Note each founder's first governance gap to close."],
+    ["Tie the whole discipline together: the five weeks as one sequence.","Cheapest capital first; structure to keep the company; relationships for the long game.","The data room holds the proof behind every step."],
+    ["Recall: IR, many investors, hard rounds, exit, governance.","Repeat: the relationship and governance outlast the round.","This completes the discipline — now they go and raise."],
+    ["25 solo, 35 group — CIRCULATE.","Each shares their monthly-update lines + one governance gap.","Check: is the update honest, not a highlight reel?"],
+    ["The capstone: update template + hard-round plan + governance checklist + the complete data room.","Everything from five weeks now lives in one investor-ready place.","Congratulate them — they've finished investment readiness."],
+    ["Tagline: Build with direction.","This completes the Investment Readiness &amp; Fundraising discipline.","Thank them — celebrate the finish, then send them to raise."]
   ];
   function notesHTML(idx){const a=NOTES[idx]||[];if(!a.length)return '<p class="empty">No speaker notes for this slide yet.</p>';return '<ul>'+a.map(function(b){return '<li>'+b+'</li>';}).join('')+'</ul>';}
   function presSync(){ if(presenterWin&&!presenterWin.closed){ try{ presenterWin.postMessage({type:'goto',i:i,total:slides.length,title:(slides[i].getAttribute('data-title')||('Slide '+(i+1))),notes:notesHTML(i),next:(slides[i+1]?(slides[i+1].getAttribute('data-title')||''):'')},'*'); }catch(e){} } }
@@ -743,16 +624,9 @@ h1.title,.title-h,.div-title,.lede,.pull,.card h4,.ex-card .ext,.hw-quote .qt,.t
     +'window.addEventListener("message",function(e){var m=e.data||{};if(m.type==="goto"){document.getElementById("pnum").textContent=(m.i+1)+" / "+m.total;document.getElementById("cur").textContent=m.title;document.getElementById("notes").innerHTML=m.notes||"";document.getElementById("next").innerHTML=m.next?("Next &rarr; <b>"+m.next+"</b>"):"End of deck";}});'
     +'if(window.opener&&!window.opener.closed){window.opener.postMessage({type:"fs-ready"},"*");}'
     +'<\/scr'+'ipt></body></html>';
-  function openPresenter(){
-    if(presenterWin&&!presenterWin.closed){presenterWin.focus();presSync();return;}
-    presenterWin=window.open('','fsPresenter','width=760,height=860');
-    if(!presenterWin){alert('Please allow pop-ups for this page to open Presenter View.');return;}
-    presenterWin.document.open();presenterWin.document.write(PRESENTER_DOC);presenterWin.document.close();
-    setTimeout(presSync,350);
-  }
+  function openPresenter(){if(presenterWin&&!presenterWin.closed){presenterWin.focus();presSync();return;}presenterWin=window.open('','fsPresenter','width=760,height=860');if(!presenterWin){alert('Please allow pop-ups for this page to open Presenter View.');return;}presenterWin.document.open();presenterWin.document.write(PRESENTER_DOC);presenterWin.document.close();setTimeout(presSync,350);}
   window.addEventListener('message',function(e){const m=e.data||{};if(m.type==='fs-nav'){m.dir>0?next():prev();}else if(m.type==='fs-ready'){presSync();}});
   var _pBtn=document.getElementById('presBtn'); if(_pBtn) _pBtn.addEventListener('click',openPresenter);
-
   show(0);
 })();
 </script>

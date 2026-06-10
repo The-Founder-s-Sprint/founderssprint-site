@@ -1,0 +1,613 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Week 1 · Business Definition &amp; Market Analysis · The Founder's Sprint</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1A1A1A; --ink-soft:#2A2826; --ink-mid:#444; --ink-mute:#5A564F;
+  --paper:#EFE7D8; --paper-mid:#C0B8A8; --paper-dim:#A09888; --paper-deep:#E6DCC7;
+  --terra:#C8531F; --ochre:#C9923A; --sage:#8AAB5C; --moss:#3D4A2E; --stone:#777770;
+  --rule:rgba(26,26,26,0.18);
+  --sans:'Josefin Sans',Inter,system-ui,sans-serif;
+  --display:'Cormorant Garamond',Georgia,serif;
+  --body:'Inter',system-ui,sans-serif;
+  --accent:#4A5A33; --accent-deep:#34421F;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--ink);color:var(--paper);font-family:var(--body);overflow:hidden;}
+.deck{position:fixed;inset:0;}
+.slide{position:absolute;inset:0;display:none;flex-direction:column;padding:clamp(28px,4.4vw,76px) clamp(26px,5vw,96px) clamp(56px,5vw,82px);opacity:0;}
+.slide.active{display:flex;opacity:1;}
+.slide.active .anim{animation:riseIn .62s cubic-bezier(.22,1,.36,1) both;}
+.slide.active .anim:nth-child(1){animation-delay:.06s}.slide.active .anim:nth-child(2){animation-delay:.13s}.slide.active .anim:nth-child(3){animation-delay:.19s}.slide.active .anim:nth-child(4){animation-delay:.25s}.slide.active .anim:nth-child(5){animation-delay:.31s}.slide.active .anim:nth-child(6){animation-delay:.37s}.slide.active .anim:nth-child(7){animation-delay:.43s}.slide.active .anim:nth-child(8){animation-delay:.49s}
+@keyframes riseIn{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:none;}}
+.s-paper{background:var(--paper);color:var(--ink);}.s-dark{background:var(--ink);color:var(--paper);}
+.s-paper .chip-bar,.s-dark .chip-bar{display:flex;justify-content:space-between;align-items:center;font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.18em;text-transform:uppercase;}
+.s-paper .chip-bar{color:rgba(26,26,26,0.5);}.s-dark .chip-bar{color:rgba(239,231,216,0.5);}
+.accent-top{position:absolute;top:0;left:0;right:0;height:5px;background:var(--accent);}
+.mark-corner{position:absolute;top:clamp(20px,3vw,40px);right:clamp(20px,4vw,64px);width:clamp(34px,3.4vw,52px);height:auto;opacity:.95;z-index:3;}
+.eyebrow{font-family:var(--sans);font-size:clamp(10px,1.05vw,13px);font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:var(--accent-deep);}
+.s-dark .eyebrow{color:var(--ochre);}
+h1.title{font-family:var(--display);font-weight:300;letter-spacing:-0.012em;font-size:clamp(30px,4.6vw,62px);line-height:1.04;margin-top:.32em;}
+.lede{font-family:var(--display);font-style:italic;font-weight:400;font-size:clamp(17px,2.1vw,30px);line-height:1.32;color:var(--ink-mute);margin-top:.5em;max-width:24ch;}
+.s-dark .lede{color:var(--paper-mid);}
+.body-col{margin-top:clamp(14px,2vw,26px);max-width:62ch;}
+p.body{font-size:clamp(14px,1.45vw,20px);line-height:1.55;font-weight:400;color:var(--ink-mid);}
+.s-dark p.body{color:var(--paper-mid);}
+strong{color:var(--accent-deep);font-weight:600;}.s-dark strong{color:var(--ochre);font-weight:500;}
+.slide-body{flex:1;display:flex;flex-direction:column;justify-content:center;min-height:0;}
+.foot{position:absolute;bottom:clamp(16px,2.4vw,30px);left:clamp(26px,5vw,96px);right:clamp(26px,5vw,96px);display:flex;justify-content:space-between;align-items:center;font-family:var(--sans);font-size:clamp(8px,.85vw,11px);letter-spacing:0.22em;text-transform:uppercase;}
+.s-paper .foot{color:rgba(26,26,26,0.4);}.s-dark .foot{color:rgba(239,231,216,0.4);}
+.foot .tag{font-family:var(--display);font-style:italic;letter-spacing:0;text-transform:none;color:var(--accent-deep);opacity:.75;}
+#s-title{padding:0;background:var(--ink);}
+.title-bg{position:absolute;inset:0;overflow:hidden;}
+.title-photo{position:absolute;inset:0;background:#1A1A1A url('assets/title-strategy.jpg') center 22%/cover no-repeat;filter:grayscale(1) contrast(1.06) brightness(0.48);}
+.title-tint{position:absolute;inset:0;background:radial-gradient(95% 95% at 22% 16%, rgba(61,74,46,0.5) 0%, transparent 55%),linear-gradient(180deg, rgba(26,26,26,0.42) 0%, rgba(26,26,26,0.30) 40%, rgba(26,26,26,0.88) 100%);}
+.title-grain{position:absolute;inset:0;opacity:.06;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+.title-vignette{position:absolute;inset:0;background:radial-gradient(118% 118% at 50% 42%, transparent 50%, rgba(0,0,0,0.55) 100%);}
+.title-inner{position:relative;z-index:4;height:100%;display:flex;flex-direction:column;padding:clamp(30px,4vw,64px) clamp(30px,5.5vw,104px);}
+.title-top{display:flex;align-items:center;gap:14px;}
+.title-top .mark{width:clamp(34px,3.2vw,46px);height:auto;animation:spin 64s linear infinite;}
+.title-top .wm{font-family:var(--sans);font-size:clamp(10px,1.05vw,13px);font-weight:700;letter-spacing:0.24em;text-transform:uppercase;color:var(--paper);}
+.title-mid{margin-top:auto;margin-bottom:auto;}
+.title-series{display:flex;align-items:stretch;gap:clamp(13px,1.5vw,20px);margin-bottom:clamp(16px,2.2vw,28px);}
+.ts-week{display:flex;flex-direction:column;justify-content:center;padding:clamp(7px,.9vw,11px) clamp(12px,1.4vw,18px);border:1.5px solid rgba(239,231,216,0.28);border-left:3px solid var(--ochre);}
+.ts-wk{font-family:var(--display);font-weight:400;font-size:clamp(20px,2.5vw,33px);line-height:1;color:var(--paper);letter-spacing:-0.01em;}
+.ts-of{font-family:var(--sans);font-size:clamp(8px,.92vw,11px);font-weight:600;letter-spacing:0.24em;text-transform:uppercase;color:var(--ochre);margin-top:.45em;}
+.ts-info{display:flex;flex-direction:column;justify-content:center;min-width:0;}
+.ts-disc{font-family:var(--sans);font-size:clamp(11px,1.35vw,16px);font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--paper);line-height:1.15;}
+.ts-coach{font-family:var(--display);font-style:italic;font-size:clamp(13px,1.5vw,19px);color:var(--paper);opacity:.74;margin-top:.32em;line-height:1.1;}
+.ts-coach .ts-dot{margin:0 .5em;opacity:.5;font-style:normal;}
+.title-h{font-family:var(--display);font-weight:300;font-size:clamp(38px,6.6vw,98px);line-height:0.98;letter-spacing:-0.02em;color:var(--paper);}
+.title-h em{font-style:italic;color:var(--ochre);}
+.title-sub{font-family:var(--display);font-style:italic;font-size:clamp(16px,2.1vw,28px);color:var(--paper);opacity:.82;margin-top:.7em;max-width:32ch;text-wrap:balance;}
+.title-foot{margin-top:clamp(20px,3vw,38px);display:flex;flex-wrap:wrap;gap:8px 26px;align-items:baseline;font-family:var(--sans);font-size:clamp(9px,1vw,12px);letter-spacing:0.2em;text-transform:uppercase;color:var(--paper);opacity:.72;}
+.title-foot .dot{color:var(--sage);}
+.title-cta{position:absolute;left:clamp(30px,5.5vw,104px);bottom:clamp(22px,3vw,42px);font-family:var(--sans);font-size:clamp(9px,1vw,11px);letter-spacing:0.18em;text-transform:uppercase;color:var(--paper);opacity:.5;z-index:5;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.s-divider{background:var(--ink);color:var(--paper);overflow:hidden;justify-content:center;}
+.s-divider .div-photo{position:absolute;inset:0;background-position:center 32%;background-size:cover;filter:sepia(.45) saturate(1.05) hue-rotate(55deg) contrast(1.02) brightness(.72);opacity:.5;}
+.s-divider .div-overlay{position:absolute;inset:0;background:linear-gradient(110deg,rgba(26,26,26,0.72) 0%,rgba(26,26,26,0.38) 45%,rgba(26,26,26,0.80) 100%);}
+.s-divider .div-mark{position:absolute;top:clamp(26px,4vw,58px);right:clamp(26px,4.5vw,72px);width:clamp(50px,7vw,105px);height:auto;animation:spin 18s linear infinite;opacity:.85;z-index:2;}
+.div-inner{position:relative;z-index:3;display:flex;flex-direction:column;align-items:flex-start;}
+.div-num{font-family:var(--display);font-weight:300;font-size:clamp(40px,6vw,86px);line-height:1;color:rgba(239,231,216,0.22);letter-spacing:-0.02em;margin-bottom:.18em;}
+.div-eyebrow{font-family:var(--sans);font-size:clamp(10px,1.05vw,13px);font-weight:700;letter-spacing:0.34em;text-transform:uppercase;color:var(--paper);opacity:.4;margin-bottom:.35em;}
+.div-title{font-family:var(--display);font-style:italic;font-weight:300;font-size:clamp(30px,5.4vw,84px);line-height:1.04;color:var(--paper);letter-spacing:-0.01em;}
+.div-meta{margin-top:1em;font-family:var(--display);font-style:italic;font-size:clamp(14px,1.7vw,22px);line-height:1.4;color:var(--sage);opacity:.95;max-width:34ch;text-wrap:pretty;}
+.grid{display:grid;gap:clamp(12px,1.6vw,22px);}
+.g2{grid-template-columns:repeat(2,1fr);}.g3{grid-template-columns:repeat(3,1fr);}.g4{grid-template-columns:repeat(4,1fr);}
+.card{background:var(--paper-deep);border-left:3px solid var(--accent);padding:clamp(14px,1.7vw,24px);}
+.s-dark .card{background:rgba(239,231,216,0.06);border-left-color:var(--ochre);}
+.card h4{font-family:var(--sans);font-size:clamp(11px,1.15vw,15px);font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink);margin-bottom:.45em;}
+.s-dark .card h4{color:var(--paper);}
+.card p{font-size:clamp(12px,1.25vw,16px);line-height:1.5;color:var(--ink-mute);}.s-dark .card p{color:var(--paper-mid);}
+.card .num{font-family:var(--display);font-weight:300;font-size:clamp(26px,3vw,46px);color:var(--accent-deep);line-height:1;}.s-dark .card .num{color:var(--ochre);}
+ul.list{list-style:none;margin-top:.4em;}
+ul.list li{position:relative;padding-left:1.4em;margin-bottom:.62em;font-size:clamp(13px,1.4vw,19px);line-height:1.5;color:var(--ink-mid);}
+.s-dark ul.list li{color:var(--paper-mid);}
+ul.list li::before{content:"";position:absolute;left:0;top:.55em;width:9px;height:9px;background:var(--accent);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);}
+.pull{font-family:var(--display);font-style:italic;font-weight:300;font-size:clamp(24px,4vw,56px);line-height:1.16;color:var(--paper);letter-spacing:-0.01em;max-width:20ch;text-wrap:balance;}
+.pull .by{display:block;margin-top:.7em;font-family:var(--sans);font-style:normal;font-size:clamp(10px,1.1vw,14px);font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--ochre);}
+/* pick-chip */
+.pick-wrap{display:grid;grid-template-columns:0.85fr 1.15fr;gap:clamp(16px,2.5vw,42px);align-items:start;margin-top:clamp(14px,2vw,28px);}
+.pick-chips{display:flex;flex-direction:column;gap:8px;}
+.pick-chip{font-family:var(--sans);font-size:clamp(10px,1.15vw,14px);font-weight:600;letter-spacing:0.04em;border:1.5px solid var(--rule);background:var(--paper-deep);color:var(--ink);padding:12px 16px;cursor:pointer;transition:all .2s ease;text-align:left;}
+.pick-chip:hover{border-color:var(--accent);}
+.pick-chip.on{background:var(--accent);color:var(--paper);border-color:var(--accent);}
+.pick-detail{background:var(--paper-deep);border-top:4px solid var(--accent);padding:clamp(16px,2vw,28px);min-height:clamp(190px,23vw,260px);}
+.pick-detail .pk{font-family:var(--sans);font-size:clamp(12px,1.3vw,17px);font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent-deep);margin-bottom:.2em;}
+.pick-detail .ptag{display:inline-block;font-family:var(--display);font-style:italic;font-size:clamp(15px,1.9vw,26px);color:var(--ink);margin-bottom:.4em;}
+.pick-detail .pv{font-size:clamp(13px,1.45vw,19px);line-height:1.55;color:var(--ink-mid);}
+.pick-detail .peg{margin-top:.85em;font-family:var(--display);font-style:italic;font-size:clamp(14px,1.6vw,21px);color:var(--accent-deep);}
+/* jrail */
+.jrail{position:relative;display:flex;gap:4px;margin-top:clamp(16px,2.4vw,30px);}
+.jrail::before{content:"";position:absolute;top:clamp(21px,2.3vw,28px);left:12%;right:12%;height:2px;background:var(--rule);z-index:0;}
+.jnode{position:relative;z-index:1;flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;text-align:center;cursor:pointer;}
+.jdot{width:clamp(44px,4.6vw,57px);height:clamp(44px,4.6vw,57px);border-radius:50%;background:var(--paper);border:2px solid var(--paper-mid);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:500;font-size:clamp(16px,1.8vw,24px);color:var(--ink-mute);transition:all .25s ease;}
+.jnode:hover .jdot{border-color:var(--accent);color:var(--accent-deep);}
+.jnode.on .jdot{background:var(--accent);border-color:var(--accent);color:var(--paper);transform:scale(1.14);box-shadow:0 8px 20px rgba(74,90,51,0.45);}
+.jname{font-family:var(--display);font-size:clamp(15px,1.7vw,23px);color:var(--ink-mid);margin-top:.55em;line-height:1.06;}
+.jnode.on .jname{color:var(--accent-deep);font-style:italic;}
+.jcap{font-family:var(--sans);font-size:clamp(8px,.92vw,11px);font-weight:600;letter-spacing:0.06em;color:var(--paper-dim);margin-top:.3em;}
+.jnode.on .jcap{color:var(--accent-deep);}
+.step-detail{margin-top:clamp(16px,2.2vw,28px);background:var(--paper-deep);padding:clamp(16px,2vw,28px);border-left:4px solid var(--accent);min-height:clamp(110px,13vw,150px);}
+.step-detail .sd-q{font-family:var(--display);font-style:italic;font-size:clamp(16px,2vw,26px);color:var(--ink);}
+.step-detail .sd-v{font-size:clamp(13px,1.4vw,18px);line-height:1.5;color:var(--ink-mid);margin-top:.55em;}
+.step-detail .sd-v b{color:var(--accent-deep);}
+/* slider calc */
+.calc-wrap{display:grid;grid-template-columns:1fr 1.05fr;gap:clamp(22px,4vw,64px);align-items:start;margin-top:clamp(10px,1.6vw,22px);}
+.calc-inputs{display:flex;flex-direction:column;gap:clamp(14px,2vw,26px);}
+.calc-row__head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:7px;}
+.calc-row__lbl{font-family:var(--sans);font-size:clamp(11px,1.15vw,14px);font-weight:600;letter-spacing:0.04em;color:var(--paper-mid);}
+.calc-row__val{font-family:var(--display);font-size:clamp(20px,2.3vw,34px);color:var(--paper);font-weight:400;line-height:1;}
+.calc-row__legend{display:flex;justify-content:space-between;font-family:var(--sans);font-size:clamp(9px,.95vw,11px);letter-spacing:0.14em;color:rgba(239,231,216,0.4);text-transform:uppercase;margin-top:4px;}
+.calc-row input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;background:rgba(239,231,216,0.18);outline:none;cursor:pointer;}
+.calc-row input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:22px;height:22px;border-radius:50%;background:var(--sage);border:2px solid var(--paper);cursor:pointer;box-shadow:0 0 0 4px rgba(138,171,92,0.2);}
+.calc-row input[type=range]::-moz-range-thumb{width:22px;height:22px;border-radius:50%;background:var(--sage);border:2px solid var(--paper);cursor:pointer;box-shadow:0 0 0 4px rgba(138,171,92,0.2);}
+.calc-note{margin-top:2px;padding:11px 16px;background:rgba(138,171,92,0.12);border-left:3px solid var(--sage);font-family:var(--sans);font-size:clamp(9px,1vw,12px);letter-spacing:0.14em;text-transform:uppercase;color:var(--paper-mid);}
+.calc-right{display:flex;flex-direction:column;gap:clamp(11px,1.4vw,16px);}
+.funnel{display:flex;flex-direction:column;gap:7px;}
+.fbar{position:relative;height:clamp(34px,4vw,50px);display:flex;align-items:center;justify-content:space-between;padding:0 clamp(12px,1.4vw,18px);color:var(--ink);font-family:var(--sans);font-weight:700;letter-spacing:0.04em;transition:width .35s cubic-bezier(.22,1,.36,1);overflow:hidden;}
+.fbar .fl{font-size:clamp(9px,1vw,12px);text-transform:uppercase;z-index:1;}
+.fbar .fv{font-family:var(--display);font-weight:400;font-size:clamp(14px,1.6vw,22px);z-index:1;}
+.fbar.f1{background:var(--accent);color:var(--paper);}
+.fbar.f2{background:var(--sage);}
+.fbar.f3{background:var(--ochre);}
+.fbar.f4{background:var(--terra);color:var(--paper);}
+.calc-flag{font-family:var(--sans);font-size:clamp(10px,1.15vw,14px);font-weight:700;letter-spacing:0.06em;text-transform:uppercase;padding:10px 14px;text-align:center;background:rgba(138,171,92,0.18);color:var(--sage);}
+.box{border:1.5px solid var(--accent);padding:clamp(16px,2.2vw,32px);background:rgba(74,90,51,0.09);}
+.s-dark .box{border-color:var(--ochre);background:rgba(201,146,58,0.08);}
+.box .bk{font-family:var(--sans);font-size:clamp(10px,1.1vw,14px);font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent-deep);margin-bottom:.6em;}.s-dark .box .bk{color:var(--ochre);}
+.ex-head{display:flex;flex-wrap:wrap;align-items:flex-end;gap:14px 20px;}
+.ex-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(10px,1.3vw,18px);margin-top:clamp(14px,2vw,26px);}
+.ex-card{position:relative;background:var(--paper-deep);border-top:3px solid var(--accent);padding:clamp(15px,1.8vw,24px) clamp(14px,1.5vw,20px) clamp(16px,1.8vw,24px);overflow:hidden;display:flex;flex-direction:column;}
+.ex-card .exn{position:absolute;top:-0.12em;right:8px;font-family:var(--display);font-weight:300;font-size:clamp(60px,7vw,118px);line-height:1;color:rgba(74,90,51,0.16);pointer-events:none;}
+.ex-card .exk{position:relative;font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--accent-deep);}
+.ex-card .ext{position:relative;font-family:var(--display);font-weight:500;font-size:clamp(17px,1.9vw,26px);color:var(--ink);margin:.14em 0 .3em;line-height:1.08;}
+.ex-card .exp{position:relative;font-size:clamp(11px,1.2vw,15px);line-height:1.45;color:var(--ink-mute);}
+.ex-card .exeg{position:relative;margin-top:.6em;padding-left:10px;border-left:2px solid var(--ochre);font-family:var(--display);font-style:italic;font-size:clamp(12px,1.3vw,17px);line-height:1.32;color:var(--accent-deep);}
+.ex-card .exeg b{font-style:normal;font-family:var(--sans);font-weight:700;font-size:.7em;letter-spacing:0.14em;text-transform:uppercase;color:#9A6E1E;display:block;margin-bottom:.2em;}
+.ex-card .write{margin-top:auto;padding-top:1em;}.ex-card .write span{display:block;border-bottom:1.5px dashed var(--paper-dim);height:1.15em;}
+.due-tag{display:inline-flex;align-items:center;gap:8px;font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink);background:var(--ochre);padding:7px 15px;}
+.due-tag .d{width:9px;height:9px;background:var(--ink);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);}
+.hw-grid{display:grid;grid-template-columns:1.12fr .88fr;gap:clamp(20px,3.4vw,56px);align-items:start;margin-top:clamp(14px,2vw,26px);}
+.hw-klbl{font-family:var(--sans);font-size:clamp(10px,1.1vw,13px);font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--ochre);margin-bottom:.4em;}
+.hw-check{list-style:none;}
+.hw-check li{display:flex;gap:14px;align-items:flex-start;padding:clamp(10px,1.3vw,15px) 0;border-bottom:1px solid rgba(239,231,216,0.14);font-size:clamp(13px,1.4vw,18px);line-height:1.45;color:var(--paper-mid);}
+.hw-check li:last-child{border-bottom:none;}
+.hw-check .cbx{flex:none;width:clamp(21px,2vw,27px);height:clamp(21px,2vw,27px);border:1.5px solid var(--ochre);display:flex;align-items:center;justify-content:center;margin-top:1px;}
+.hw-check .cbx::after{content:"";width:46%;height:46%;background:var(--ochre);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);}
+.hw-check b{color:var(--paper);font-weight:600;}
+.hw-quote{background:rgba(74,90,51,0.16);border-left:3px solid var(--sage);padding:clamp(18px,2.3vw,32px) clamp(18px,2.2vw,30px) clamp(20px,2.4vw,30px);}
+.hw-quote .qm{font-family:var(--display);font-size:clamp(52px,6vw,96px);line-height:.4;color:var(--sage);display:block;height:.5em;}
+.hw-quote .qt{font-family:var(--display);font-style:italic;font-weight:300;font-size:clamp(19px,2.3vw,32px);line-height:1.26;color:var(--paper);text-wrap:balance;}
+.hw-quote .qb{font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--sage);margin-top:1em;}
+.hw-bridge{margin-top:clamp(13px,1.7vw,20px);font-size:clamp(13px,1.4vw,18px);line-height:1.55;color:var(--paper-mid);text-wrap:pretty;}
+#s-close{align-items:center;justify-content:center;text-align:center;}
+#s-close .mark{width:clamp(90px,13vw,180px);height:auto;}
+#s-close .ct{font-family:var(--display);font-style:italic;font-weight:300;font-size:clamp(22px,3.2vw,44px);color:var(--paper);margin-top:.6em;}
+#s-close .cc{font-family:var(--sans);font-size:clamp(9px,1vw,12px);letter-spacing:0.24em;text-transform:uppercase;color:var(--paper-mid);margin-top:1.4em;}
+.progress{position:fixed;bottom:0;left:0;height:4px;background:var(--accent);width:0;z-index:41;transition:width .3s ease;}
+.nav{position:fixed;bottom:clamp(14px,2vw,26px);right:clamp(16px,2.5vw,34px);display:flex;gap:8px;z-index:42;}
+.nav button{width:clamp(38px,3.6vw,46px);height:clamp(38px,3.6vw,46px);border:1px solid rgba(239,231,216,0.3);background:rgba(26,26,26,0.55);color:var(--paper);font-size:18px;cursor:pointer;backdrop-filter:blur(4px);transition:all .2s;display:flex;align-items:center;justify-content:center;}
+body.on-paper .nav button{border-color:rgba(26,26,26,0.25);background:rgba(239,231,216,0.7);color:var(--ink);}
+.nav button:hover{border-color:var(--accent);color:var(--accent-deep);}
+.counter{position:fixed;bottom:clamp(16px,2vw,28px);left:clamp(18px,2.5vw,34px);z-index:42;font-family:var(--sans);font-size:clamp(10px,1.1vw,13px);font-weight:600;letter-spacing:0.16em;color:var(--paper-mid);pointer-events:none;}
+body.on-paper .counter{color:var(--ink-mute);}
+.kbd-hint{position:fixed;bottom:clamp(16px,2vw,28px);left:50%;transform:translateX(-50%);z-index:42;font-family:var(--sans);font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--paper-dim);opacity:.7;pointer-events:none;}
+.overview{position:fixed;inset:0;background:rgba(12,15,9,0.96);z-index:60;display:none;padding:clamp(20px,3vw,48px);overflow-y:auto;}
+.overview.show{display:block;}
+.ov-title{font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--ochre);margin-bottom:18px;}
+.ov-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;}
+.ov-item{background:rgba(239,231,216,0.06);border:1px solid rgba(239,231,216,0.14);padding:14px;cursor:pointer;transition:all .2s;}
+.ov-item:hover{border-color:var(--accent);background:rgba(74,90,51,0.3);}
+.ov-item .oi-n{font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:0.16em;color:var(--sage);}
+.ov-item .oi-t{font-family:var(--display);font-size:18px;color:var(--paper);margin-top:4px;line-height:1.15;}
+.pick-hint,.step-hint,.calc-hint,.gen-hint{font-family:var(--sans);font-size:clamp(10px,1.1vw,12px);font-weight:600;letter-spacing:0.16em;text-transform:uppercase;line-height:1.5;margin-top:clamp(12px,1.6vw,20px);color:var(--paper-dim);text-wrap:pretty;}
+.s-paper .pick-hint,.s-paper .step-hint,.s-paper .calc-hint,.s-paper .gen-hint{color:var(--ink-mute);}
+.slide h1,.slide h4,.slide p,.slide li,.lede,.div-meta,.title-sub,.step-detail,.pick-detail .pv{text-wrap:pretty;}
+h1.title,.title-h,.div-title,.lede,.pull,.card h4,.ex-card .ext,.hw-quote .qt,.title-sub{text-wrap:balance;}
+@media (max-width:880px){.ex-grid{grid-template-columns:repeat(2,1fr);}}
+@media (max-width:768px){.grid.g3,.grid.g4{grid-template-columns:repeat(2,1fr);}.pick-wrap,.calc-wrap,.hw-grid{grid-template-columns:1fr;}.kbd-hint{display:none;}}
+@media (max-width:560px){.grid.g2,.grid.g3,.grid.g4{grid-template-columns:1fr;}}
+@media (max-width:520px){.ex-grid{grid-template-columns:1fr;}}
+@media (prefers-reduced-motion:reduce){.title-top .mark,.s-divider .div-mark{animation:none;}.slide.active .anim{animation:none;}}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<!-- 1 · TITLE -->
+<section class="slide" id="s-title" data-surface="dark" data-title="Title">
+  <div class="title-bg"><div class="title-photo"></div><div class="title-tint"></div><div class="title-grain"></div><div class="title-vignette"></div></div>
+  <div class="title-inner">
+    <div class="title-top">
+      <svg class="mark" viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.92"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.86" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.83" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.86" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#EFE7D8" opacity="0.8" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+      <span class="wm">The Founder's Sprint</span>
+    </div>
+    <div class="title-mid">
+      <div class="title-series">
+        <div class="ts-week"><span class="ts-wk">Week 1</span><span class="ts-of">of 5</span></div>
+        <div class="ts-info"><div class="ts-disc">Strategy &amp; Team Building</div><div class="ts-coach">Coach Moses Engwau Okudu<span class="ts-dot">·</span>Thursday cohort session</div></div>
+      </div>
+      <h1 class="title-h">What business<br>are you <em>really</em><br>in?</h1>
+      <div class="title-sub">Before strategy, before team — the engine. This week we define exactly what you sell, to whom, at what return, and who you actually compete against.</div>
+      <div class="title-foot">
+        <span><span class="dot">●</span> The engine</span>
+        <span><span class="dot">●</span> The competition</span>
+        <span><span class="dot">●</span> The niche</span>
+        <span><span class="dot">●</span> Market analysis</span>
+      </div>
+    </div>
+    <div class="title-cta">Press &rarr; or Space to begin &nbsp;·&nbsp; O overview &nbsp;·&nbsp; P presenter notes</div>
+  </div>
+</section>
+
+<!-- 2 · AGENDA -->
+<section class="slide s-paper" data-surface="paper" data-title="Today's map">
+  <div class="accent-top"></div>
+  <svg class="mark-corner" viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.92"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.86" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.83" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.86" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.8" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#1A1A1A"/><circle cx="50" cy="50" r="2" fill="#EFE7D8"/></svg>
+  <div class="chip-bar anim"><span>Strategy &amp; Team · Week 1</span><span>Business Definition &amp; Market Analysis</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Today's map · 60 min teaching + 60 min Q&amp;A</div>
+    <h1 class="title anim">Get the foundation right, and everything above it holds.</h1>
+    <div class="grid g3 anim" style="margin-top:clamp(18px,2.5vw,34px)">
+      <div class="card"><div class="num">01</div><h4>The business engine</h4><p>What value, for which customer, at what economic return.</p></div>
+      <div class="card"><div class="num">02</div><h4>Your competition</h4><p>Who you actually compete with — and where the white space hides.</p></div>
+      <div class="card"><div class="num">03</div><h4>Scope to win</h4><p>A market narrow enough that dominance is mathematically viable.</p></div>
+      <div class="card"><div class="num">04</div><h4>Market analysis</h4><p>The L3 skill: reading your market with evidence, not hope.</p></div>
+      <div class="card"><div class="num">05</div><h4>The case</h4><p>How a Kampala startup won by scoping narrow before going wide.</p></div>
+      <div class="card" style="border-left-color:var(--ink)"><div class="num" style="color:var(--ink)">→</div><h4>You leave with</h4><p>Your business defined in one sentence and your beachhead named.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 3 · DIVIDER 01 -->
+<section class="slide s-divider" data-surface="dark" data-title="01 · The engine" data-photo="assets/sw1-01.jpg">
+  <div class="div-photo"></div><div class="div-overlay"></div>
+  <svg class="div-mark" viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.92"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.86" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.83" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.86" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#EFE7D8" opacity="0.8" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+  <div class="div-inner">
+    <div class="div-num anim">01</div>
+    <div class="div-eyebrow anim">Competitive Strategy · L3 Market Analysis</div>
+    <div class="div-title anim">Define the engine<br>before you tune it.</div>
+    <div class="div-meta anim">A business is a simple exchange: value out, money in. Most founders have never written theirs down precisely.</div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 4 · THE ENGINE INTRO -->
+<section class="slide s-paper" data-surface="paper" data-title="The business engine">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Strategy &amp; Team · Week 1</span><span>The three parameters</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Every business answers three questions</div>
+    <h1 class="title anim" style="font-size:clamp(26px,3.8vw,50px)">Value, customer, return — get all three sharp.</h1>
+    <div class="grid g3 anim" style="margin-top:clamp(16px,2.4vw,32px)">
+      <div class="card"><h4>What value</h4><p>The specific problem you solve or outcome you create — not the product, the result.</p></div>
+      <div class="card"><h4>For whom</h4><p>The exact customer who feels that problem most — named, not "everyone".</p></div>
+      <div class="card"><h4>At what return</h4><p>How the value converts to money: price, margin, and how often they pay.</p></div>
+    </div>
+    <p class="pick-hint anim">If you can't state all three in one clean sentence, the strategy on top of it will wobble. <strong>Precision here pays compound interest.</strong></p>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 5 · ENGINE BUILDER (interactive) -->
+<section class="slide s-paper" data-surface="paper" data-title="Business-engine builder">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Strategy &amp; Team · Week 1</span><span>Business-engine builder · tap a part</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Interactive · tap each parameter</div>
+    <h1 class="title anim" style="font-size:clamp(26px,3.8vw,50px)">Build your one-sentence business definition.</h1>
+    <div class="pick-wrap" id="engWrap">
+      <div class="pick-chips" id="engChips">
+        <button class="pick-chip on" data-k="value">① What value</button>
+        <button class="pick-chip" data-k="who">② For whom</button>
+        <button class="pick-chip" data-k="return">③ At what return</button>
+      </div>
+      <div class="pick-detail" id="engDetail"></div>
+    </div>
+    <p class="pick-hint anim">Your sentence: &ldquo;We help <strong>[who]</strong> achieve <strong>[value]</strong>, and we earn by <strong>[return]</strong>.&rdquo;</p>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 6 · DIVIDER 02 -->
+<section class="slide s-divider" data-surface="dark" data-title="02 · The competition" data-photo="assets/sw1-02.jpg">
+  <div class="div-photo"></div><div class="div-overlay"></div>
+  <svg class="div-mark" viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.92"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.86" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.83" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.86" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#EFE7D8" opacity="0.8" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+  <div class="div-inner">
+    <div class="div-num anim">02</div>
+    <div class="div-eyebrow anim">Competitive Strategy · L3 Market Analysis</div>
+    <div class="div-title anim">You compete with<br>more than you think.</div>
+    <div class="div-meta anim">Your real rival is often the status quo — the spreadsheet, the cousin who does it for free, doing nothing at all.</div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 7 · COMPETITION INTRO -->
+<section class="slide s-paper" data-surface="paper" data-title="Map your competition">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Strategy &amp; Team · Week 1</span><span>Mapping the competitive field</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Map vulnerabilities — and find the white space</div>
+    <h1 class="title anim" style="font-size:clamp(26px,3.8vw,50px)">Name every way your customer solves this today.</h1>
+    <div class="grid g2 anim" style="align-items:center;gap:clamp(20px,4vw,56px);margin-top:clamp(14px,2vw,26px)">
+      <p class="body">Competition isn't just the company that looks like you. It's every alternative your customer can choose instead — including the cheapest one of all: doing nothing. Map them all, and the gaps between them become your <strong>white space</strong>.</p>
+      <div class="box"><div class="bk">The white-space question</div><p class="body" style="color:var(--ink);font-family:var(--display);font-style:italic;font-size:clamp(16px,2vw,26px)">"Where are customers badly served by every existing option — including no option at all?"</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 8 · COMPETITOR MAP (interactive) -->
+<section class="slide s-paper" data-surface="paper" data-title="Competitor map">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Strategy &amp; Team · Week 1</span><span>Four kinds of competitor · tap each</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Interactive · tap each rival type</div>
+    <h1 class="title anim" style="font-size:clamp(26px,3.8vw,50px)">Four rivals — only one looks like you.</h1>
+    <div class="jrail anim" id="compRail">
+      <div class="jnode on" data-s="0"><div class="jdot">1</div><div class="jname">Direct</div><div class="jcap">Looks like you</div></div>
+      <div class="jnode" data-s="1"><div class="jdot">2</div><div class="jname">Indirect</div><div class="jcap">Different shape</div></div>
+      <div class="jnode" data-s="2"><div class="jdot">3</div><div class="jname">Substitute</div><div class="jcap">DIY / improvised</div></div>
+      <div class="jnode" data-s="3"><div class="jdot">4</div><div class="jname">Non-consumption</div><div class="jcap">Doing nothing</div></div>
+    </div>
+    <div class="step-detail anim" id="compDetail"></div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 9 · DIVIDER 03 -->
+<section class="slide s-divider" data-surface="dark" data-title="03 · Scope to win" data-photo="assets/sw1-03.jpg">
+  <div class="div-photo"></div><div class="div-overlay"></div>
+  <svg class="div-mark" viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.92"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.86" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.83" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.86" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#EFE7D8" opacity="0.8" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+  <div class="div-inner">
+    <div class="div-num anim">03</div>
+    <div class="div-eyebrow anim">Competitive Strategy · L3 Market Analysis</div>
+    <div class="div-title anim">Win a beachhead<br>before a market.</div>
+    <div class="div-meta anim">A narrow segment you can dominate beats a huge market where you're invisible. Scope down to win.</div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 10 · MARKET FUNNEL (interactive) -->
+<section class="slide s-dark" data-surface="dark" data-title="Market funnel · live">
+  <div class="chip-bar anim"><span>Strategy &amp; Team · Week 1</span><span>From total market to beachhead</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Interactive · narrow the scope</div>
+    <h1 class="title anim" style="color:var(--paper);font-size:clamp(24px,3.6vw,48px)">The narrower you scope, the more <em style="font-style:italic;color:var(--ochre)">winnable</em> it gets.</h1>
+    <div class="calc-wrap anim">
+      <div class="calc-inputs">
+        <div class="calc-row"><div class="calc-row__head"><span class="calc-row__lbl">Total market (TAM) — people with the problem</span><span class="calc-row__val" data-out="tam">2,000,000</span></div><input type="range" id="in-tam" min="50000" max="5000000" step="50000" value="2000000"><div class="calc-row__legend"><span>50K</span><span>5M</span></div></div>
+        <div class="calc-row"><div class="calc-row__head"><span class="calc-row__lbl">How tightly you scope your beachhead</span><span class="calc-row__val" data-out="focus">Tight</span></div><input type="range" id="in-focus" min="1" max="4" step="1" value="3"><div class="calc-row__legend"><span>Everyone</span><span>One niche</span></div></div>
+        <div class="calc-note">SAM = reachable today · SOM = realistically yours year one · Beachhead = where you start</div>
+      </div>
+      <div class="calc-right">
+        <div class="funnel">
+          <div class="fbar f1" id="bar-tam" style="width:100%"><span class="fl">TAM · all with the problem</span><span class="fv" data-out="vtam">2.0M</span></div>
+          <div class="fbar f2" id="bar-sam" style="width:55%"><span class="fl">SAM · you can reach</span><span class="fv" data-out="vsam">600K</span></div>
+          <div class="fbar f3" id="bar-som" style="width:30%"><span class="fl">SOM · realistic year one</span><span class="fv" data-out="vsom">90K</span></div>
+          <div class="fbar f4" id="bar-bh" style="width:14%"><span class="fl">Beachhead · start here</span><span class="fv" data-out="vbh">9K</span></div>
+        </div>
+        <div class="calc-flag" id="funnelFlag">A 9K beachhead you can own beats 2M you can't</div>
+      </div>
+    </div>
+    <p class="calc-hint anim">Dominance is <strong>mathematically viable</strong> when your beachhead is small enough to serve better than anyone else — then you expand outward from strength.</p>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 11 · CASE STUDY -->
+<section class="slide s-paper" data-surface="paper" data-title="Case · scope to win">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Strategy &amp; Team · Week 1</span><span>Kampala case · narrow then wide</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">A Kampala case study</div>
+    <h1 class="title anim" style="font-size:clamp(26px,3.8vw,50px)">SafeBoda won one ride, in one city, first.</h1>
+    <div class="grid g3 anim" style="margin-top:clamp(16px,2.4vw,32px)">
+      <div class="card"><h4>The engine</h4><p>Value: a safe, trackable boda ride. Customer: Kampala commuters who feared informal stages. Return: a commission per trip.</p></div>
+      <div class="card"><h4>The competition</h4><p>Not other apps — the thousands of informal boda riders at every stage. The status quo <em>was</em> the rival.</p></div>
+      <div class="card"><h4>The beachhead</h4><p>One product, one city, done better than anyone — safety, training, helmets. Dominate, then expand from strength.</p></div>
+    </div>
+    <p class="pick-hint anim">They didn't try to be transport for everyone. They owned <strong>a precise niche in Kampala</strong> — and earned the right to grow.</p>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 12 · RECAP -->
+<section class="slide s-dark" data-surface="dark" data-title="Recap">
+  <div class="chip-bar anim"><span>Strategy &amp; Team · Week 1</span><span>What we locked down</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">The through-line</div>
+    <h1 class="title anim" style="color:var(--paper)">Define the engine, know the field, scope to win.</h1>
+    <div class="grid g3 anim" style="margin-top:clamp(16px,2.4vw,32px)">
+      <div class="card"><h4>The engine</h4><p>Value · customer · return — in one sentence.</p></div>
+      <div class="card"><h4>The competition</h4><p>Direct, indirect, substitute, non-consumption.</p></div>
+      <div class="card"><h4>White space</h4><p>Where every option serves the customer badly.</p></div>
+      <div class="card"><h4>The beachhead</h4><p>A niche small enough to dominate.</p></div>
+      <div class="card"><h4>Market analysis</h4><p>Read the market with evidence, not hope.</p></div>
+      <div class="card" style="border-left-color:var(--ochre)"><h4>Next Thursday</h4><p>Make it defensible: <em>positioning, moats &amp; scenario planning</em>.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 13 · EXERCISE -->
+<section class="slide s-paper" data-surface="paper" data-title="In-session exercise">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Strategy &amp; Team · Week 1</span><span>Self-guided worksheet · in session</span></div>
+  <div class="slide-body">
+    <div class="ex-head anim">
+      <div>
+        <div class="eyebrow">Self-guided worksheet · do it now</div>
+        <h1 class="title" style="margin-top:.15em">Define your business in 4 moves.</h1>
+      </div>
+      <span style="margin-left:auto;margin-bottom:.2em;display:inline-block;font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--paper);background:var(--ink);padding:5px 12px">⏱ 25 min solo · 35 min group</span>
+    </div>
+    <div class="ex-grid anim">
+      <div class="ex-card"><span class="exn">1</span><div class="exk">Your engine</div><div class="ext">One sentence</div><div class="exp">Value · customer · return — write the single sentence.</div><div class="exeg"><b>Example</b>"We help small Kampala retailers restock on credit, earning a fee per order."</div><div class="write"><span></span></div></div>
+      <div class="ex-card"><span class="exn">2</span><div class="exk">Your rivals</div><div class="ext">All four types</div><div class="exp">Name a direct, indirect, substitute and non-consumption rival.</div><div class="exeg"><b>Example</b>"Non-consumption: shops that simply run out of stock."</div><div class="write"><span></span></div></div>
+      <div class="ex-card"><span class="exn">3</span><div class="exk">Your white space</div><div class="ext">The gap</div><div class="exp">Where is every current option weakest for your customer?</div><div class="exeg"><b>Example</b>"No one lends small, fast, and on mobile money."</div><div class="write"><span></span></div></div>
+      <div class="ex-card"><span class="exn">4</span><div class="exk">Your beachhead</div><div class="ext">Start here</div><div class="exp">The narrowest segment you could dominate first.</div><div class="exeg"><b>Example</b>"Pharmacies in two Kampala divisions."</div><div class="write"><span></span></div></div>
+    </div>
+    <p class="pick-hint anim">How we'll review: each founder reads their <b>one-sentence engine</b> aloud — and names the <b>beachhead</b> they'll start with.</p>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 14 · HOMEWORK -->
+<section class="slide s-dark" data-surface="dark" data-title="Homework">
+  <div class="chip-bar anim"><span>Strategy &amp; Team · Week 1</span><span>Homework · due next Thursday</span></div>
+  <div class="slide-body">
+    <div class="anim"><span class="due-tag"><span class="d"></span>Due next Thursday · Week 2 · Positioning &amp; Moats</span></div>
+    <h1 class="title anim" style="color:var(--paper);margin-top:.5em">Pressure-test your definition with real evidence.</h1>
+    <div class="hw-grid anim">
+      <div>
+        <div class="hw-klbl">Four deliverables</div>
+        <ul class="hw-check">
+          <li><span class="cbx"></span><div><b>Your one-sentence business definition</b> — value, customer, return.</div></li>
+          <li><span class="cbx"></span><div><b>A competitor map</b> — at least one rival in each of the four types.</div></li>
+          <li><span class="cbx"></span><div><b>Three customer conversations</b> — does the problem you named actually hurt?</div></li>
+          <li><span class="cbx"></span><div><b>Your chosen beachhead</b> — and one reason you can win it.</div></li>
+        </ul>
+      </div>
+      <div>
+        <div class="hw-quote">
+          <span class="qm">&ldquo;</span>
+          <div class="qt">A narrow market you can dominate is worth more than a huge market where nobody notices you.</div>
+          <div class="qb">Moses Engwau Okudu · Strategy &amp; Team Building</div>
+        </div>
+        <p class="hw-bridge">Next Thursday: once you know your niche, we make it <strong>defensible</strong> — positioning, moats, and planning for base, bull and bear. Add your definition and competitor map to your <strong>data room</strong>.</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 15 · CLOSER -->
+<section class="slide s-dark" id="s-close" data-surface="dark" data-title="Close">
+  <svg class="mark" viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.92"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.86" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.83" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.86" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#EFE7D8" opacity="0.8" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+  <div class="ct anim">Build with direction.</div>
+  <div class="cc anim">The Founder's Sprint · Strategy &amp; Team Building · Week 1 of 5 · Kampala</div>
+</section>
+
+</div>
+
+<div class="progress" id="progress"></div>
+<div class="counter" id="counter">01 / 15</div>
+<div class="kbd-hint">← → navigate · O overview · P presenter · F fullscreen</div>
+<div class="nav">
+  <button id="presBtn" aria-label="Presenter view" title="Presenter view — private speaker notes (P)"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="13" rx="1.5"/><line x1="8" y1="20" x2="16" y2="20"/></svg></button>
+  <button id="resetBtn" aria-label="Restart from first slide" title="Restart">⟲</button>
+  <button id="prevBtn" aria-label="Previous slide">‹</button>
+  <button id="nextBtn" aria-label="Next slide">›</button>
+</div>
+<div class="overview" id="overview"><div class="ov-title">Slide overview · click to jump · Esc to close</div><div class="ov-grid" id="ovGrid"></div></div>
+
+<script>
+(function(){
+  "use strict";
+  const slides=Array.from(document.querySelectorAll('.slide'));
+  let i=0;
+  const counter=document.getElementById('counter'), progress=document.getElementById('progress');
+  document.querySelectorAll('.s-divider').forEach(s=>{const p=s.getAttribute('data-photo');if(p){const el=s.querySelector('.div-photo');if(el)el.style.backgroundImage="url('"+p+"')";}});
+
+  function show(n){n=Math.max(0,Math.min(slides.length-1,n));slides[i].classList.remove('active');i=n;const cur=slides[i];cur.classList.add('active');cur.querySelectorAll('.anim').forEach(el=>{el.style.animation='none';void el.offsetWidth;el.style.animation='';});counter.textContent=String(i+1).padStart(2,'0')+' / '+String(slides.length).padStart(2,'0');progress.style.width=((i)/(slides.length-1)*100)+'%';document.body.classList.toggle('on-paper',cur.getAttribute('data-surface')==='paper');presSync();}
+  const next=()=>show(i+1), prev=()=>show(i-1);
+  document.getElementById('nextBtn').addEventListener('click',next);
+  document.getElementById('prevBtn').addEventListener('click',prev);
+  document.getElementById('resetBtn').addEventListener('click',()=>show(0));
+  const overview=document.getElementById('overview'), ovGrid=document.getElementById('ovGrid');
+  slides.forEach((s,idx)=>{const t=s.getAttribute('data-title')||('Slide '+(idx+1));const d=document.createElement('div');d.className='ov-item';d.innerHTML='<div class="oi-n">'+String(idx+1).padStart(2,'0')+'</div><div class="oi-t">'+t+'</div>';d.addEventListener('click',()=>{overview.classList.remove('show');show(idx);});ovGrid.appendChild(d);});
+  const toggleOverview=()=>overview.classList.toggle('show');
+  document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' '){e.preventDefault();next();}else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();prev();}else if(e.key==='Home'){show(0);}else if(e.key==='End'){show(slides.length-1);}else if(e.key==='o'||e.key==='O'){toggleOverview();}else if(e.key==='Escape'){overview.classList.remove('show');}else if((e.key==='p'||e.key==='P')&&!e.metaKey&&!e.ctrlKey){openPresenter();}else if(e.key==='f'||e.key==='F'){if(!document.fullscreenElement){document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();}else{document.exitFullscreen&&document.exitFullscreen();}}});
+  let tx=0,ty=0;document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;ty=e.touches[0].clientY;},{passive:true});
+  document.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-tx,dy=e.changedTouches[0].clientY-ty;if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)){dx<0?next():prev();}},{passive:true});
+
+  // ── Business-engine builder ──
+  const eng={
+    value:{k:'What value',tag:'The outcome, not the product',v:'State the specific problem you remove or the result you create. Customers buy the outcome — faster restocking, fewer stockouts, more sleep — not your features.',eg:'Sharpen it until a stranger nods.'},
+    who:{k:'For whom',tag:'A named customer, not "everyone"',v:'The exact person who feels this problem most acutely and can pay. "Everyone" is not a customer. The tighter the who, the stronger the message and the product.',eg:'If it\'s everyone, it\'s no one.'},
+    'return':{k:'At what return',tag:'How value becomes money',v:'Price, margin, and frequency: what they pay, what it costs you, and how often the money comes back. A business without a clear return is a hobby with a logo.',eg:'Know the unit economics from day one.'}
+  };
+  const engChips=document.getElementById('engChips'), engDetail=document.getElementById('engDetail');
+  function renderEng(key){const d=eng[key];engDetail.innerHTML='<div class="pk">'+d.k+'</div><div class="ptag">'+d.tag+'</div><div class="pv">'+d.v+'</div><div class="peg">'+d.eg+'</div>';engChips.querySelectorAll('.pick-chip').forEach(c=>c.classList.toggle('on',c.getAttribute('data-k')===key));}
+  if(engChips){engChips.addEventListener('click',e=>{const b=e.target.closest('.pick-chip');if(b)renderEng(b.getAttribute('data-k'));});renderEng('value');}
+
+  // ── Competitor map ──
+  const comp=[
+    {q:'Direct — looks just like you',v:'Same solution, same customer. Easy to spot, but rarely where the real threat or opportunity is. <b>Don\'t fixate here.</b>'},
+    {q:'Indirect — a different shape',v:'Solves the same problem a different way. A founder selling delivery competes with the customer\'s own motorbike, not just other apps.'},
+    {q:'Substitute — DIY / improvised',v:'The spreadsheet, the cousin who does it cheap, the manual workaround. Cheap, "good enough," and <b>deeply underestimated.</b>'},
+    {q:'Non-consumption — doing nothing',v:'The customer lives with the problem because no option feels worth it. The biggest market of all — and the hardest to convert.'}
+  ];
+  const compRail=document.getElementById('compRail'), compDetail=document.getElementById('compDetail');
+  function renderComp(n){const d=comp[n];compDetail.innerHTML='<div class="sd-q">'+d.q+'</div><div class="sd-v">'+d.v+'</div>';compRail.querySelectorAll('.jnode').forEach((s,idx)=>s.classList.toggle('on',idx===n));}
+  if(compRail){compRail.addEventListener('click',e=>{const s=e.target.closest('.jnode');if(s)renderComp(+s.getAttribute('data-s'));});renderComp(0);}
+
+  // ── Market funnel ──
+  (function(){
+    const $=id=>document.getElementById(id), out=k=>document.querySelectorAll('[data-out="'+k+'"]');
+    if(!$('in-tam'))return;
+    const FOCUS={1:{lbl:'Everyone',sam:.70,som:.22,bh:.09},2:{lbl:'Broad',sam:.55,som:.16,bh:.06},3:{lbl:'Tight',sam:.30,som:.045,bh:.0045},4:{lbl:'One niche',sam:.18,som:.02,bh:.0015}};
+    function fmt(n){if(n>=1e6)return (n/1e6).toFixed(n>=1e7?0:1).replace(/\.0$/,'')+'M';if(n>=1e3)return Math.round(n/1e3)+'K';return Math.round(n);}
+    function rc(){
+      const tam=+$('in-tam').value, f=FOCUS[+$('in-focus').value];
+      const sam=tam*f.sam, som=tam*f.som, bh=tam*f.bh;
+      out('tam').forEach(e=>e.textContent=(+tam).toLocaleString());
+      out('focus').forEach(e=>e.textContent=f.lbl);
+      out('vtam').forEach(e=>e.textContent=fmt(tam));
+      out('vsam').forEach(e=>e.textContent=fmt(sam));
+      out('vsom').forEach(e=>e.textContent=fmt(som));
+      out('vbh').forEach(e=>e.textContent=fmt(bh));
+      $('bar-tam').style.width='100%';
+      $('bar-sam').style.width=Math.max(8,f.sam*100)+'%';
+      $('bar-som').style.width=Math.max(6,f.som*100*1.6)+'%';
+      $('bar-bh').style.width=Math.max(4,f.bh*100*4+4)+'%';
+      $('funnelFlag').textContent='A '+fmt(bh)+' beachhead you can own beats '+fmt(tam)+' you can’t';
+    }
+    ['in-tam','in-focus'].forEach(id=>{const el=$(id);if(el)el.addEventListener('input',rc);});
+    rc();
+  })();
+
+  // ── Presenter View ──
+  var presenterWin = null;
+  const NOTES = [
+    ["Welcome to Strategy &amp; Team Building, Week 1 of 5 (Thursdays), with Moses Engwau Okudu.","This is the foundation week: business definition + market analysis. Everything else builds on it.","Frame: ~60 teach + ~60 Q&amp;A. They leave with a one-sentence business definition and a named beachhead.","Anchor: 'Before strategy, before team — get the engine right.'"],
+    ["Preview the five blocks; outcome = definition + beachhead.","~2 minutes."],
+    ["Transition: define the engine before you tune it."],
+    ["Teach the three parameters slowly: value, customer, return.","Push on 'value = outcome, not product' and 'customer ≠ everyone'.","If they can't say it in one sentence, the strategy above wobbles."],
+    ["Tap each parameter; have founders draft their own sentence live.","The fill-in line at the bottom is the template — read it aloud.","Collect two or three sentences from the room and sharpen them."],
+    ["Transition: you compete with more than you think."],
+    ["The real rival is often the status quo — doing nothing, the spreadsheet, the cousin.","Set up the white-space question and let it sit.","Ask: 'Who is your non-consumption competitor?' Most haven't considered it."],
+    ["Tap all four rival types; dwell on substitute and non-consumption.","Most founders only list direct rivals — that's the trap.","White space lives in the gaps between these four."],
+    ["Transition: win a beachhead before a market."],
+    ["Have a founder set their TAM, then narrow the focus slider — watch the funnel shrink.","Stress: a small beachhead you can OWN beats a huge market you can't.","'Mathematically viable dominance' = serve a niche better than anyone, then expand."],
+    ["SafeBoda: precise value, precise customer, precise return — in one city first.","Their rival was the informal boda stage, not other apps.","They earned the right to grow by owning the niche first. (Keep it Kampala.)"],
+    ["Recall: engine, competition, white space, beachhead, market analysis.","Repeat: define the engine, know the field, scope to win.","Tease Week 2: positioning, moats &amp; scenario planning."],
+    ["25 solo, 35 group — CIRCULATE.","Each founder reads their one-sentence engine aloud + names a beachhead.","Sharpen vague sentences on the spot — this is the highest-value minute of the week."],
+    ["Definition + four-type competitor map + three customer conversations + chosen beachhead.","The customer conversations matter most — does the problem actually hurt?","Add the definition and map to the data room."],
+    ["Tagline: Build with direction.","Next Thursday = Positioning, Moats &amp; Scenario Planning.","Thank them."]
+  ];
+  function notesHTML(idx){const a=NOTES[idx]||[];if(!a.length)return '<p class="empty">No speaker notes for this slide yet.</p>';return '<ul>'+a.map(function(b){return '<li>'+b+'</li>';}).join('')+'</ul>';}
+  function presSync(){ if(presenterWin&&!presenterWin.closed){ try{ presenterWin.postMessage({type:'goto',i:i,total:slides.length,title:(slides[i].getAttribute('data-title')||('Slide '+(i+1))),notes:notesHTML(i),next:(slides[i+1]?(slides[i+1].getAttribute('data-title')||''):'')},'*'); }catch(e){} } }
+  const PRESENTER_DOC='<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Presenter · The Founder\'s Sprint</title>'
+    +'<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">'
+    +'<style>:root{--paper:#EFE7D8;--ochre:#C9923A;--sage:#8AAB5C;--mut:#A09888;--sans:\'Josefin Sans\',sans-serif;--disp:\'Cormorant Garamond\',serif;--body:\'Inter\',sans-serif;}'
+    +'*{box-sizing:border-box;margin:0;padding:0;}body{background:#11140C;color:var(--paper);font-family:var(--body);min-height:100vh;display:flex;flex-direction:column;padding:22px 26px;}'
+    +'.top{display:flex;justify-content:space-between;align-items:center;font-family:var(--sans);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mut);border-bottom:1px solid rgba(239,231,216,.14);padding-bottom:12px;gap:12px;}'
+    +'.top .brand{color:var(--sage);font-weight:700;}.pnum{font-weight:700;color:var(--paper);margin-left:auto;}.clock{font-family:var(--disp);font-size:24px;color:var(--ochre);}'
+    +'.eyebrow{font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--sage);margin-top:16px;}'
+    +'.cur{font-family:var(--disp);font-size:30px;line-height:1.12;color:var(--paper);margin:4px 0 0;}'
+    +'.notes{flex:1;overflow:auto;margin-top:16px;}.notes ul{list-style:none;}.notes li{position:relative;padding-left:24px;margin-bottom:15px;font-size:18px;line-height:1.5;color:#EDE6D6;}'
+    +'.notes li::before{content:"";position:absolute;left:0;top:9px;width:9px;height:9px;background:var(--sage);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);}'
+    +'.notes .empty{color:var(--mut);font-style:italic;font-family:var(--disp);font-size:20px;}'
+    +'.next{font-family:var(--sans);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);padding-top:14px;border-top:1px solid rgba(239,231,216,.14);}.next b{color:var(--paper);font-weight:600;}'
+    +'.ctrl{display:flex;gap:10px;margin-top:14px;}.ctrl button{flex:1;background:rgba(239,231,216,.08);border:1px solid rgba(239,231,216,.25);color:var(--paper);font-family:var(--sans);font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:13px;cursor:pointer;transition:.15s;}'
+    +'.ctrl button:hover{border-color:var(--sage);color:var(--sage);}</style></head><body>'
+    +'<div class="top"><span class="brand">The Founder\'s Sprint · Presenter</span><span class="pnum" id="pnum">—</span><span class="clock" id="clock">00:00</span></div>'
+    +'<div class="eyebrow">Now presenting</div><div class="cur" id="cur">—</div><div class="notes" id="notes"></div><div class="next" id="next"></div>'
+    +'<div class="ctrl"><button id="pp">‹ Prev</button><button id="nn">Next ›</button></div>'
+    +'<scr'+'ipt>var t0=Date.now();function pad(n){return String(n).padStart(2,"0");}'
+    +'setInterval(function(){var s=Math.floor((Date.now()-t0)/1000);document.getElementById("clock").textContent=pad(Math.floor(s/60))+":"+pad(s%60);},500);'
+    +'function nav(d){if(window.opener&&!window.opener.closed){window.opener.postMessage({type:"fs-nav",dir:d},"*");}}'
+    +'document.getElementById("pp").onclick=function(){nav(-1);};document.getElementById("nn").onclick=function(){nav(1);};'
+    +'window.addEventListener("keydown",function(e){if(e.key==="ArrowRight"||e.key===" "||e.key==="PageDown"){e.preventDefault();nav(1);}else if(e.key==="ArrowLeft"||e.key==="PageUp"){e.preventDefault();nav(-1);}});'
+    +'window.addEventListener("message",function(e){var m=e.data||{};if(m.type==="goto"){document.getElementById("pnum").textContent=(m.i+1)+" / "+m.total;document.getElementById("cur").textContent=m.title;document.getElementById("notes").innerHTML=m.notes||"";document.getElementById("next").innerHTML=m.next?("Next &rarr; <b>"+m.next+"</b>"):"End of deck";}});'
+    +'if(window.opener&&!window.opener.closed){window.opener.postMessage({type:"fs-ready"},"*");}'
+    +'<\/scr'+'ipt></body></html>';
+  function openPresenter(){if(presenterWin&&!presenterWin.closed){presenterWin.focus();presSync();return;}presenterWin=window.open('','fsPresenter','width=760,height=860');if(!presenterWin){alert('Please allow pop-ups for this page to open Presenter View.');return;}presenterWin.document.open();presenterWin.document.write(PRESENTER_DOC);presenterWin.document.close();setTimeout(presSync,350);}
+  window.addEventListener('message',function(e){const m=e.data||{};if(m.type==='fs-nav'){m.dir>0?next():prev();}else if(m.type==='fs-ready'){presSync();}});
+  var _pBtn=document.getElementById('presBtn'); if(_pBtn) _pBtn.addEventListener('click',openPresenter);
+  show(0);
+})();
+</script>
+</body>
+</html>
