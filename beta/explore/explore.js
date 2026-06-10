@@ -925,27 +925,30 @@
     return html;
   }
 
-  // Build quote rows for a coach from shared testimonials data (or fall back to inline)
+  // ---- Real founder testimonials (captured via /share-testimonial, approved by the coach or ops) ----
+  // These are the same approved submissions that power the homepage wall — surfaced per-coach here.
+  const TST_URL = 'https://ivedeivyotwevjxvcuoe.supabase.co';
+  const TST_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss';
+  const TST_BY_COACH = {};
+  function escH(s){ return String(s==null?'':s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
   function getCoachQuotesHTML(coach) {
-    // Prefer shared testimonials.js data if loaded
-    if (window.FS_Testimonials) {
-      const quotes = window.FS_Testimonials.getBySurface('coach', coach.id);
-      if (quotes.length) {
-        return quotes.map(q => `
-          <div class="dir-quote">
-            <div class="dir-quote-text">“${q.text}”</div>
-            <div class="dir-quote-author">${q.name} · ${q.company}${q.cohort ? ' · ' + q.cohort : ''}</div>
-          </div>
-        `).join('');
-      }
+    const list = TST_BY_COACH[coach.id] || [];
+    if (!list.length) {
+      return '<div class="dir-quote" style="opacity:.6"><div class="dir-quote-text">No founder testimonials yet — be the first to share your story.</div></div>';
     }
-    // Fallback: inline quotes on the coach object (backwards compatible)
-    return (coach.quotes || []).map(q => `
-      <div class="dir-quote">
-        <div class="dir-quote-text">“${q.text}”</div>
-        <div class="dir-quote-author">${q.who} · ${q.co}</div>
-      </div>
-    `).join('');
+    return list.map(t => {
+      const meta = [t.role_title, t.company].filter(Boolean).map(escH).join(' · ');
+      return '<div class="dir-quote"><div class="dir-quote-text">“'+escH(t.testimonial)+'”</div><div class="dir-quote-author">'+escH(t.name)+(meta?' · '+meta:'')+'</div></div>';
+    }).join('');
+  }
+  async function loadCoachTestimonials() {
+    try {
+      const r = await fetch(TST_URL+'/rest/v1/testimonial_submissions?status=eq.approved&select=name,role_title,company,for_target,testimonial,photo_path&order=created_at.desc&limit=300',
+        { headers: { apikey: TST_ANON, Authorization: 'Bearer '+TST_ANON } });
+      const rows = r.ok ? await r.json() : [];
+      rows.forEach(t => { (TST_BY_COACH[t.for_target] = TST_BY_COACH[t.for_target] || []).push(t); });
+    } catch (e) { /* leave empty states in place */ }
+    COACHES.forEach(c => { const el = document.getElementById('dirq-'+c.id); if (el) el.innerHTML = getCoachQuotesHTML(c); });
   }
 
   function buildDirectory() {
@@ -988,9 +991,11 @@
                 </div>
                 <p class="dir-bio">${coach.bio}</p>
                 <div class="dir-section-h">What founders say</div>
-                <div class="dir-quotes">
+                <div class="dir-quotes" id="dirq-${coach.id}">
                   ${getCoachQuotesHTML(coach)}
                 </div>
+                <a class="dir-testify" href="/share-testimonial.html?for=${coach.id}" target="_blank" rel="noopener"
+                   style="display:inline-block;margin-top:12px;font-family:var(--sans,'Josefin Sans',sans-serif);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${coach.color};text-decoration:none;border:1px solid ${coach.color};padding:8px 14px">Worked with ${escH(coach.name.split(' ')[0])}? Share your story →</a>
               </div>
               <div class="dir-avail">
                 <div class="dir-avail-h">Availability</div>
@@ -1103,6 +1108,7 @@
   }
 
   buildDirectory();
+  loadCoachTestimonials();
 
   // Wire coach card click in detail panel → scroll to directory
   detailEl.querySelector('.coach-card').addEventListener('click', () => {

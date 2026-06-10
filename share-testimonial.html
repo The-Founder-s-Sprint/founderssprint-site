@@ -58,6 +58,7 @@
     <div class="eyebrow">The Founder's Sprint</div>
     <h1>Share your story.</h1>
     <p>If the coaching moved your business forward, we'd be honoured to hear it — and to share it, with your blessing. A few sentences is all it takes.</p>
+    <div id="hero-ctx" style="margin-top:12px;font-family:var(--display);font-style:italic;color:var(--ochre);font-size:16px;display:none"></div>
     <div class="tagline">Build with direction.</div>
   </div>
 </div>
@@ -120,6 +121,20 @@
 const SUPABASE_URL='https://ivedeivyotwevjxvcuoe.supabase.co';
 const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss';
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON,{auth:{persistSession:false}});
+
+/* Deep-link pre-targeting: /share-testimonial.html?for=<slug> (from coach profiles, courses, etc.) */
+(function(){
+  const NAMES={'teddy-ruge':'Teddy Ruge','barry-wojega':'Barry Wojega','joseph-kalema':'Joseph Kalema','moses-okudu':'Moses Engwau Okudu','patrick-ngolobe':'Patrick Ngolobe','group':"the whole Founder's Sprint team"};
+  try{
+    const p=new URLSearchParams(location.search);
+    const f=(p.get('for')||p.get('coach')||p.get('target')||'').trim().toLowerCase();
+    if(f && NAMES[f]){
+      const sel=document.getElementById('for_target'); if(sel) sel.value=f;
+      const ctx=document.getElementById('hero-ctx');
+      if(ctx){ ctx.textContent = f==='group' ? "You're sharing a story about The Founder's Sprint." : "You're sharing a story about working with "+NAMES[f]+"."; ctx.style.display='block'; }
+    }
+  }catch(e){}
+})();
 
 let photoFile=null;
 document.getElementById('photo').addEventListener('change',e=>{
