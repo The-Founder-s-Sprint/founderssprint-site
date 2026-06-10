@@ -58,7 +58,19 @@
     + '#fs-sponsor-slide .fs-sp-allcta{display:inline-block;margin-top:26px;font-family:"Josefin Sans",sans-serif;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#5A564F;text-decoration:none}'
     + '#fs-sponsor-slide .fs-sp-allcta:hover{color:#C8531F}'
     + '#fs-sponsor-slide .fs-sp-note{margin-top:18px;font-family:"Inter",sans-serif;font-size:11px;color:#A09888}'
-    + '@media(max-width:760px){#fs-sponsor-slide .fs-sp-card{width:100%}}';
+    + '#fs-sponsor-slide .fs-sp-heroes{display:flex;flex-direction:column;gap:14px;margin-top:4px}'
+    + '#fs-sponsor-slide .fs-sp-hero{display:flex;gap:24px;align-items:center;background:#1A1A1A;color:#EFE7D8;border-left:4px solid #C8531F;padding:24px 28px;text-decoration:none;transition:transform .15s}'
+    + '#fs-sponsor-slide .fs-sp-hero:hover{transform:translateY(-2px)}'
+    + '#fs-sponsor-slide .fs-hero-media{flex-shrink:0;width:92px;height:92px;display:flex;align-items:center;justify-content:center;background:#23252D;border:1px solid rgba(239,231,216,.12)}'
+    + '#fs-sponsor-slide .fs-hero-logo{max-width:74px;max-height:74px;object-fit:contain}'
+    + '#fs-sponsor-slide .fs-hero-ini{font-family:"Cormorant Garamond",serif;font-size:42px;color:#EFE7D8}'
+    + '#fs-sponsor-slide .fs-hero-badge{font-family:"Josefin Sans",sans-serif;font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#C9923A;display:block;margin-bottom:7px}'
+    + '#fs-sponsor-slide .fs-hero-name{font-family:"Cormorant Garamond",serif;font-size:clamp(24px,2.8vw,34px);font-weight:500;line-height:1.1;display:block}'
+    + '#fs-sponsor-slide .fs-hero-tag{font-family:"Inter",sans-serif;font-size:14px;color:rgba(239,231,216,.78);display:block;margin-top:7px;max-width:620px;line-height:1.45}'
+    + '#fs-sponsor-slide .fs-hero-go{font-family:"Josefin Sans",sans-serif;font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#E2723F;display:inline-block;margin-top:13px}'
+    + '#fs-sponsor-slide .fs-sp-also{margin-top:16px;font-family:"Inter",sans-serif;font-size:12.5px;color:#5A564F}'
+    + '#fs-sponsor-slide .fs-sp-also a{color:#9A3E16;text-decoration:none}'
+    + '@media(max-width:760px){#fs-sponsor-slide .fs-sp-card{width:100%}#fs-sponsor-slide .fs-sp-hero{flex-direction:column;align-items:flex-start;gap:14px}}';
   var st=document.createElement('style'); st.textContent=css; document.head.appendChild(st);
 
   // ---- 2) async: fetch matched providers (RLS returns only active, unexpired) and fill ----
@@ -71,33 +83,66 @@
       fill(list);
     });
 
+  function heroHTML(p){
+    var logo=p.logo_dark_url||p.logo_url;
+    var media=logo?('<img class="fs-hero-logo" src="'+esc(logo)+'" alt="">'):('<span class="fs-hero-ini">'+esc((p.company_name||'?').trim().slice(0,1))+'</span>');
+    var tag=p.banner_tagline||p.description||CAT_LABEL[p.category]||'';
+    return '<a class="fs-sp-hero" href="'+esc(href(p))+'" target="_blank" rel="noopener" data-pid="'+esc(p.id)+'">'
+      +'<div class="fs-hero-media">'+media+'</div>'
+      +'<div class="fs-hero-body"><span class="fs-hero-badge">Featured partner · '+esc(CAT_LABEL[p.category]||p.category)+'</span>'
+      +'<span class="fs-hero-name">'+esc(p.company_name)+'</span>'
+      +(tag?'<span class="fs-hero-tag">'+esc(String(tag).slice(0,170))+'</span>':'')
+      +'<span class="fs-hero-go">Visit '+esc(p.company_name)+' →</span></div></a>';
+  }
+  function cardHTML(p){
+    var tag=p.banner_tagline||p.description||CAT_LABEL[p.category]||'';
+    var logo=p.logo_url?('<img class="fs-sp-logo" src="'+esc(p.logo_url)+'" alt="">'):('<span class="fs-sp-ini">'+esc((p.company_name||'?').trim().slice(0,1))+'</span>');
+    return '<a class="fs-sp-card" href="'+esc(href(p))+'" target="_blank" rel="noopener" data-pid="'+esc(p.id)+'">'
+      +logo+'<span class="fs-sp-name">'+esc(p.company_name)+'</span>'
+      +(tag?'<span class="fs-sp-tag">'+esc(String(tag).slice(0,90))+'</span>':'')
+      +'<span class="fs-sp-badge">Verified</span><span class="fs-sp-go">Visit →</span></a>';
+  }
+  var ALLCTA='<a class="fs-sp-allcta" href="'+DIR_URL+'" target="_blank" rel="noopener">See all providers in the directory →</a>'
+    +'<div class="fs-sp-note">Partners pay to appear here; their presence isn’t an endorsement of any specific outcome.</div>';
+
   function fill(list){
     var body=document.getElementById('fs-sponsor-body'); if(!body) return;
-    var head='<div class="fs-sp-eyebrow">Recommended partners</div>'
-      +'<h2 class="fs-sp-h">Providers who can help you act on this</h2>'
-      +'<p class="fs-sp-sub">Vetted service providers from The Founder’s Sprint directory, matched to this discipline. Verified by us — reach out directly.</p>';
     if(!list.length){
-      body.innerHTML=head+'<a class="fs-sp-allcta" href="'+DIR_URL+'" target="_blank" rel="noopener">Browse the full provider directory →</a>';
+      body.innerHTML='<div class="fs-sp-eyebrow">Recommended partners</div>'
+        +'<h2 class="fs-sp-h">Providers who can help you act on this</h2>'
+        +'<a class="fs-sp-allcta" href="'+DIR_URL+'" target="_blank" rel="noopener">Browse the full provider directory →</a>';
       return;
     }
-    var byCat={}; list.forEach(function(p){ (byCat[p.category]=byCat[p.category]||[]).push(p); });
-    var groups=CATS.filter(function(c){return byCat[c];}).map(function(cat){
-      var cards=byCat[cat].slice(0,3).map(function(p){
-        var tag=p.banner_tagline||p.description||CAT_LABEL[p.category]||'';
-        var logo=p.logo_url?('<img class="fs-sp-logo" src="'+esc(p.logo_url)+'" alt="">'):('<span class="fs-sp-ini">'+esc((p.company_name||'?').trim().slice(0,1))+'</span>');
-        return '<a class="fs-sp-card" href="'+esc(href(p))+'" target="_blank" rel="noopener" data-pid="'+esc(p.id)+'">'
-          +logo+'<span class="fs-sp-name">'+esc(p.company_name)+'</span>'
-          +(tag?'<span class="fs-sp-tag">'+esc(String(tag).slice(0,90))+'</span>':'')
-          +'<span class="fs-sp-badge'+(p.featured?' feat':'')+'">'+(p.featured?'Featured':'Verified')+'</span>'
-          +'<span class="fs-sp-go">Visit →</span></a>';
+    var featured=list.filter(function(p){ return p.featured; });
+    var verified=list.filter(function(p){ return !p.featured; });
+    var html;
+    if(featured.length){
+      // Featured tier takes over the slide as a full sponsor placement; verified get an "also vetted" line.
+      var heroes=featured.slice(0,2).map(heroHTML).join('');
+      var also=verified.length
+        ? '<div class="fs-sp-also">Also vetted for this discipline: '
+          + verified.slice(0,5).map(function(p){ return '<a href="'+esc(href(p))+'" target="_blank" rel="noopener" data-pid="'+esc(p.id)+'">'+esc(p.company_name)+'</a>'; }).join(' · ')
+          + '</div>'
+        : '';
+      html='<div class="fs-sp-eyebrow">Featured partner</div>'
+        +'<h2 class="fs-sp-h">A partner who can help you act on this</h2>'
+        +'<div class="fs-sp-heroes">'+heroes+'</div>'+also;
+    } else {
+      // Verified rail, grouped by category (preserves discipline order)
+      var byCat={}; verified.forEach(function(p){ (byCat[p.category]=byCat[p.category]||[]).push(p); });
+      var groups=CATS.filter(function(c){ return byCat[c]; }).map(function(cat){
+        return '<div class="fs-sp-group"><div class="fs-sp-cat">'+esc(CAT_LABEL[cat]||cat)+'</div>'
+          +'<div class="fs-sp-cards">'+byCat[cat].slice(0,3).map(cardHTML).join('')+'</div></div>';
       }).join('');
-      return '<div class="fs-sp-group"><div class="fs-sp-cat">'+esc(CAT_LABEL[cat]||cat)+'</div><div class="fs-sp-cards">'+cards+'</div></div>';
-    }).join('');
-    body.innerHTML=head+'<div class="fs-sp-groups">'+groups+'</div>'
-      +'<a class="fs-sp-allcta" href="'+DIR_URL+'" target="_blank" rel="noopener">See all providers in the directory →</a>'
-      +'<div class="fs-sp-note">Partners pay to appear here; their presence isn’t an endorsement of any specific outcome.</div>';
-    var cardsEls=[].slice.call(body.querySelectorAll('.fs-sp-card'));
-    cardsEls.forEach(function(a){ a.addEventListener('click', function(){ log([a.getAttribute('data-pid')], true); }); });
+      html='<div class="fs-sp-eyebrow">Recommended partners</div>'
+        +'<h2 class="fs-sp-h">Providers who can help you act on this</h2>'
+        +'<p class="fs-sp-sub">Vetted service providers from The Founder’s Sprint directory, matched to this discipline. Verified by us — reach out directly.</p>'
+        +'<div class="fs-sp-groups">'+groups+'</div>';
+    }
+    body.innerHTML=html+ALLCTA;
+    [].slice.call(body.querySelectorAll('[data-pid]')).forEach(function(a){
+      a.addEventListener('click', function(){ log([a.getAttribute('data-pid')], true); });
+    });
     watchView(list.map(function(p){ return p.id; }));
   }
 

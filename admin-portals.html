@@ -898,8 +898,31 @@ function renderAdmins(q){
     + tbl(['Account','Roles',''],rows)
     + '<div class="page-sub" style="margin-top:16px;font-size:12.5px"><b>What each role can do:</b> <b>Super admin</b> — everything, incl. role management. <b>Finance</b> — payments/pricing, sees payout/bank, final coach approval. <b>Coach support</b> — coaches, applications (suitability only), materials. <b>Investor support</b> — investors. <b>Founder support</b> — founder accounts. <b>Partner</b> — partner cohorts.</div>'
     + '<div id="search-gaps" style="margin-top:24px"></div>'
+    + '<div id="provider-activation" style="margin-top:24px"></div>'
     + '<div id="audit-feed" style="margin-top:22px"></div>';
-  paintPresence(); loadAudit(); loadSearchGaps();
+  paintPresence(); loadAudit(); loadSearchGaps(); loadProviderActivation();
+}
+async function loadProviderActivation(){
+  const el=document.getElementById('provider-activation'); if(!el||!isSuper()) return;
+  let rows=[]; try{ rows=await _rpc('provider_activation',{p_days:30})||[]; }catch(_){ el.innerHTML=''; return; }
+  const head='<div style="display:flex;justify-content:space-between;align-items:baseline;gap:14px;margin-bottom:8px;flex-wrap:wrap">'
+    +'<div style="font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-mid)">Provider activation · last 30 days</div>'
+    +'<div style="font-size:11.5px;color:var(--muted);max-width:540px">Directory placements shown inside course decks — impressions, click-throughs and CTR per provider. This is the pay-per-introduction billing basis.</div></div>';
+  if(!rows.length){ el.innerHTML=head+'<div class="tbl-wrap"><div class="empty">No deck provider activity yet.</div></div>'; return; }
+  const body=rows.map(r=>{
+    const imp=Number(r.impressions)||0, clk=Number(r.clicks)||0;
+    const ctr=imp>0?Math.round(clk/imp*100):0;
+    const when=r.last_seen?new Date(r.last_seen).toLocaleDateString():'';
+    const tier='<span class="tst-tag'+(r.tier==='featured'?' grp':'')+'">'+esc(r.tier||'—')+'</span>';
+    return '<tr class="row"><td><div class="nm">'+esc(r.company_name||'—')+'</div></td>'
+      +'<td style="color:var(--muted)">'+esc(r.category||'—')+'</td>'
+      +'<td>'+tier+'</td>'
+      +'<td style="text-align:center">'+imp+'</td>'
+      +'<td style="text-align:center">'+clk+'</td>'
+      +'<td style="text-align:center">'+ctr+'%</td>'
+      +'<td style="text-align:right;color:var(--muted);white-space:nowrap">'+when+'</td></tr>';
+  });
+  el.innerHTML=head+tbl(['Provider','Category','Tier','Impressions','Clicks','CTR','Last seen'],body);
 }
 async function loadSearchGaps(){
   const el=document.getElementById('search-gaps'); if(!el||!isSuper()) return;
