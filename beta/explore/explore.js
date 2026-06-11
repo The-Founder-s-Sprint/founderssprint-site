@@ -50,6 +50,7 @@
       ],
       // Coverage: entire L1 discipline 0 (Marketing & Branding)
       covers: { l1: [0] },
+      geo: { base: 'uganda', covers: ['uganda', 'eac'] },
     },
     {
       id: 'barry-wojega',
@@ -67,6 +68,7 @@
         { who: "Lulu R.",     co: "Solo Solar · Cohort 10", text: "I came in scared of finance. I left running monthly reviews myself. He teaches the mechanics, not just the answers." },
       ],
       covers: { l1: [1] },
+      geo: { base: 'uganda', covers: ['uganda', 'eac'] },
     },
     {
       id: 'joseph-kalema',
@@ -84,6 +86,7 @@
         { who: "Dele A.",    co: "Lekki Labs · Cohort 12", text: "Joseph is the coach you want when the meeting is in two weeks and the deck is still wrong. He moves fast and he's almost always right." },
       ],
       covers: { l1: [2] },
+      geo: { base: 'uganda', covers: ['uganda', 'eac'] },
     },
     {
       id: 'moses-okudu',
@@ -101,6 +104,7 @@
         { who: "Esi T.",     co: "Mawu Mobility · Cohort 11", text: "He told us what we needed to hear, not what we wanted. We restructured the leadership team within six weeks and our shipping velocity doubled." },
       ],
       covers: { l1: [3] },
+      geo: { base: 'uganda', covers: ['uganda', 'eac'] },
     },
     {
       id: 'patrick-ngolobe',
@@ -118,6 +122,7 @@
         { who: "Chiamaka I.",co: "Niyo Studio · Cohort 11", text: "Best PMF conversations I've had. He has a sixth sense for the difference between real signal and founder hope." },
       ],
       covers: { l1: [4] },
+      geo: { base: 'uganda', covers: ['uganda', 'eac'] },
     },
   ];
 
@@ -414,6 +419,165 @@
       for (const name in rule.boosts) out[name] = Math.max(out[name] || 0, rule.boosts[name]);
     }
     return out;
+  }
+
+  // ============================================================
+  //   GEO CONTEXT LAYER — SOM/SAM/TAM expansion harness
+  //   Every African country, capital, key commercial hub, demonym
+  //   and economic bloc is indexed. A query like "best marketing
+  //   strategy for reaching customers in Lusaka, Zambia" detects
+  //   {zambia · SADC}, boosts the geo-relevant specialties, and
+  //   resolves the best coach by geographic coverage (coaches.geo)
+  //   — falling back to the founding team until a coach covering
+  //   that geography joins. Adding a Zambian coach later requires
+  //   ONLY a coaches row with geo.covers: ['zambia','sadc'].
+  //   NOTE on AES (Mali/Burkina Faso/Niger): kept under the ecowas
+  //   market-region tag for coach-coverage purposes; this is a
+  //   commercial region grouping, not a membership claim.
+  // ============================================================
+  // [key, Display, 'capital,hub,hub…', 'demonym/adjective…', 'bloc,bloc…'] — all terms lowercase ascii
+  const GEO_COUNTRIES = [
+    ['algeria','Algeria','algiers,oran','algerian','amu'],
+    ['angola','Angola','luanda','angolan','sadc,eccas'],
+    ['benin','Benin','porto-novo,cotonou','beninese','ecowas'],
+    ['botswana','Botswana','gaborone','botswanan,motswana','sadc'],
+    ['burkina-faso','Burkina Faso','ouagadougou,bobo-dioulasso','burkinabe','ecowas,aes'],
+    ['burundi','Burundi','gitega,bujumbura','burundian','eac,comesa,eccas'],
+    ['cabo-verde','Cabo Verde','praia,mindelo','cape verdean,cape verde','ecowas'],
+    ['cameroon','Cameroon','yaounde,douala','cameroonian','eccas'],
+    ['car','Central African Republic','bangui','central african republic','eccas'],
+    ['chad','Chad','ndjamena','chadian','eccas'],
+    ['comoros','Comoros','moroni','comorian','comesa,sadc'],
+    ['congo-rep','Republic of Congo','brazzaville,pointe-noire','congo-brazzaville','eccas'],
+    ['cote-divoire','Côte d\'Ivoire','yamoussoukro,abidjan','ivorian,ivory coast','ecowas'],
+    ['djibouti','Djibouti','djibouti','djiboutian','igad,comesa'],
+    ['drc','DR Congo','kinshasa,lubumbashi,goma','congolese,drc,dr congo,democratic republic of congo,congo','eac,sadc,eccas,comesa'],
+    ['egypt','Egypt','cairo,alexandria,giza','egyptian','comesa'],
+    ['equatorial-guinea','Equatorial Guinea','malabo,bata','equatoguinean','eccas'],
+    ['eritrea','Eritrea','asmara','eritrean','igad'],
+    ['eswatini','Eswatini','mbabane,manzini','swazi,swaziland','sadc,comesa'],
+    ['ethiopia','Ethiopia','addis ababa,dire dawa','ethiopian','igad,comesa'],
+    ['gabon','Gabon','libreville','gabonese','eccas'],
+    ['gambia','The Gambia','banjul,serekunda','gambian','ecowas'],
+    ['ghana','Ghana','accra,kumasi,tamale','ghanaian','ecowas'],
+    ['guinea','Guinea','conakry','guinean','ecowas'],
+    ['guinea-bissau','Guinea-Bissau','bissau','guinea-bissau','ecowas'],
+    ['kenya','Kenya','nairobi,mombasa,kisumu','kenyan','eac,comesa,igad'],
+    ['lesotho','Lesotho','maseru','basotho','sadc'],
+    ['liberia','Liberia','monrovia','liberian','ecowas'],
+    ['libya','Libya','tripoli,benghazi','libyan','amu,comesa'],
+    ['madagascar','Madagascar','antananarivo','malagasy','sadc,comesa'],
+    ['malawi','Malawi','lilongwe,blantyre','malawian','sadc,comesa'],
+    ['mali','Mali','bamako','malian','ecowas,aes'],
+    ['mauritania','Mauritania','nouakchott','mauritanian','amu'],
+    ['mauritius','Mauritius','port louis','mauritian','sadc,comesa'],
+    ['morocco','Morocco','rabat,casablanca,marrakesh,tangier','moroccan','amu'],
+    ['mozambique','Mozambique','maputo,beira','mozambican','sadc'],
+    ['namibia','Namibia','windhoek','namibian','sadc'],
+    ['niger','Niger','niamey','nigerien','ecowas,aes'],
+    ['nigeria','Nigeria','abuja,lagos,kano,port harcourt,ibadan','nigerian','ecowas'],
+    ['rwanda','Rwanda','kigali','rwandan,rwandese','eac,comesa'],
+    ['sao-tome','São Tomé & Príncipe','sao tome','santomean','eccas'],
+    ['senegal','Senegal','dakar','senegalese','ecowas'],
+    ['seychelles','Seychelles','victoria','seychellois','sadc,comesa'],
+    ['sierra-leone','Sierra Leone','freetown','sierra leonean','ecowas'],
+    ['somalia','Somalia','mogadishu,hargeisa','somali','eac,igad,comesa'],
+    ['south-africa','South Africa','pretoria,johannesburg,cape town,durban,bloemfontein','south african','sadc'],
+    ['south-sudan','South Sudan','juba','south sudanese','eac,igad'],
+    ['sudan','Sudan','khartoum,port sudan','sudanese','comesa,igad'],
+    ['tanzania','Tanzania','dodoma,dar es salaam,arusha,zanzibar','tanzanian','eac,sadc'],
+    ['togo','Togo','lome','togolese','ecowas'],
+    ['tunisia','Tunisia','tunis,sfax','tunisian','amu,comesa'],
+    ['uganda','Uganda','kampala,entebbe,jinja,gulu,mbarara','ugandan','eac,comesa,igad'],
+    ['zambia','Zambia','lusaka,ndola,kitwe','zambian','sadc,comesa'],
+    ['zimbabwe','Zimbabwe','harare,bulawayo','zimbabwean','sadc,comesa'],
+  ];
+  // Bloc search terms → bloc key (markets founders actually name)
+  const GEO_BLOC_TERMS = {
+    'eac': 'eac', 'east african community': 'eac', 'east africa': 'eac',
+    'sadc': 'sadc', 'southern africa': 'sadc',
+    'ecowas': 'ecowas', 'west africa': 'ecowas',
+    'comesa': 'comesa',
+    'eccas': 'eccas', 'central africa': 'eccas',
+    'amu': 'amu', 'maghreb': 'amu', 'north africa': 'amu',
+    'igad': 'igad', 'horn of africa': 'igad',
+    'aes': 'aes', 'sahel': 'aes',
+    'afcfta': 'afcfta', 'pan african': 'afcfta', 'pan-african': 'afcfta', 'across africa': 'afcfta', 'all of africa': 'afcfta',
+  };
+  const GEO_BLOC_LABEL = {
+    eac: 'East Africa (EAC)', sadc: 'Southern Africa (SADC)', ecowas: 'West Africa (ECOWAS)',
+    comesa: 'COMESA', eccas: 'Central Africa (ECCAS)', amu: 'North Africa (Maghreb)',
+    igad: 'Horn of Africa (IGAD)', aes: 'Sahel (AES)', afcfta: 'Africa-wide (AfCFTA)',
+  };
+
+  // Build term → geo lookup + one boundary-anchored matcher (longest first,
+  // so "south sudan" wins over "sudan", "nigeria" never half-matches "niger").
+  const GEO_TERM_MAP = new Map();
+  const GEO_BY_KEY = new Map();
+  GEO_COUNTRIES.forEach(row => {
+    const [key, display, cities, adj, blocs] = row;
+    const entry = { key, display, blocs: blocs.split(',') };
+    GEO_BY_KEY.set(key, entry);
+    const baseName = display.normalize('NFD').replace(/[\u0300-\u036f]/g, '')   // Côte d'Ivoire → cote d'ivoire
+      .toLowerCase().replace(/[^a-z\s\-']/g, ' ').replace(/\s+/g, ' ').trim();
+    const terms = [baseName].concat(cities.split(','), adj.split(','));
+    terms.forEach(t => { t = t.trim(); if (t) GEO_TERM_MAP.set(t, entry); });
+  });
+  Object.keys(GEO_BLOC_TERMS).forEach(t => GEO_TERM_MAP.set(t, { bloc: GEO_BLOC_TERMS[t] }));
+  const GEO_RE = new RegExp('\\b(' +
+    Array.from(GEO_TERM_MAP.keys())
+      .sort((a, b) => b.length - a.length)
+      .map(p => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
+      .join('|') + ')\\b', 'g');
+
+  // detectGeo('…customers in lusaka zambia') →
+  //   { countries:[zambia], blocs:[sadc,comesa], label:'Zambia · Southern Africa (SADC)' }
+  function detectGeo(rawQ) {
+    GEO_RE.lastIndex = 0;
+    const countries = [], blocs = [];
+    let m;
+    while ((m = GEO_RE.exec(rawQ)) !== null) {
+      const e = GEO_TERM_MAP.get(m[1]);
+      if (!e) continue;
+      if (e.bloc) { if (!blocs.includes(e.bloc)) blocs.push(e.bloc); }
+      else if (!countries.includes(e.key)) {
+        countries.push(e.key);
+        e.blocs.forEach(b => { if (!blocs.includes(b)) blocs.push(b); });
+      }
+    }
+    if (!countries.length && !blocs.length) return null;
+    const names = countries.map(k => GEO_BY_KEY.get(k).display);
+    const label = (names.length ? names.join(', ') : '') +
+      (blocs.length ? (names.length ? ' · ' : '') + (GEO_BLOC_LABEL[blocs[0]] || blocs[0].toUpperCase()) : '');
+    return { countries, blocs, label };
+  }
+
+  // Geo-aware coach resolution: prefer a coach whose geo.covers names the
+  // country (strongest) or shares a bloc; otherwise the standard resolver
+  // order stands. New-market coaches are picked up with zero engine change.
+  function coachCoversGeo(c, geo) {
+    const cov = (c.geo && c.geo.covers) || [];
+    if (geo.countries.some(k => cov.includes(k))) return 2;
+    if (geo.blocs.some(b => cov.includes(b))) return 1;
+    return 0;
+  }
+  function resolveCoachForGeo(l1Idx, l2Idx, l3Idx, geo) {
+    const all = resolveAllCoaches(l1Idx, l2Idx, l3Idx);
+    if (!all.length) return null;
+    if (!geo) return all[0];
+    let best = all[0], bestS = coachCoversGeo(all[0], geo);
+    for (let i = 1; i < all.length; i++) {
+      const s = coachCoversGeo(all[i], geo);
+      if (s > bestS) { best = all[i]; bestS = s; }
+    }
+    return best;
+  }
+  function geoCoverLabel(c, geo) {
+    const cov = (c.geo && c.geo.covers) || [];
+    const ck = geo.countries.find(k => cov.includes(k));
+    if (ck) return GEO_BY_KEY.get(ck).display;
+    const bk = geo.blocs.find(b => cov.includes(b));
+    return bk ? (GEO_BLOC_LABEL[bk] || bk.toUpperCase()) : '';
   }
 
   // ============================================================
@@ -1347,10 +1511,18 @@
     if (qTokens.length === 0) return [];
     const scored = [];
     const boosts = intentBoosts(rawQ);
+    // Geo context: a named place pulls the geo-relevant specialties into
+    // reach (entering/serving that market) without hijacking queries whose
+    // tokens already name a stronger specialty (e.g. "tax in nairobi").
+    lastGeo = detectGeo(rawQ);
+    if (lastGeo) {
+      boosts['Market Entry'] = Math.max(boosts['Market Entry'] || 0, 4);
+      boosts['Channel Mix'] = Math.max(boosts['Channel Mix'] || 0, 1.6);
+    }
     NODES.forEach(n => {
       let sc = scoreNode(n, qTokens, rawQ);
       const b = n.level === 3 ? (boosts[n.name] || 0) : 0;
-      if (b) sc += b + (sc === 0 ? 0.8 : 0);   // goal matches surface even with zero token hits
+      if (b) sc += b + (sc === 0 ? 0.8 : 0);   // goal/geo matches surface even with zero token hits
       if (sc > 0) scored.push({ n, sc });
     });
     scored.sort((a, b) => b.sc - a.sc || (b.n.level - a.n.level) || a.n.name.localeCompare(b.n.name));
@@ -1360,6 +1532,7 @@
 
   // ---- Search-gap logging: capture what founders type so real misses feed the next keyword/node pass ----
   let lastSearchMeta = { count: 0, topScore: 0, topNode: null };
+  let lastGeo = null;   // geo context of the current query (set by searchMatches)
   const SEARCH_LOG = { url: 'https://ivedeivyotwevjxvcuoe.supabase.co', anon: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss' };
   const loggedQueries = new Set();
   let searchLogTimer = null;
@@ -1419,6 +1592,17 @@
       searchList.innerHTML = `<div class="s-hint">No match. Try fewer letters.</div>`;
       return;
     }
+    // Geo context strip — names the detected market and whether a coach
+    // covers it (founding team covers EAC; new-market coaches appear here
+    // automatically once their coaches row carries geo.covers).
+    if (lastGeo) {
+      const covered = COACHES.some(c => coachCoversGeo(c, lastGeo) > 0);
+      const strip = document.createElement('div');
+      strip.className = 's-geo';
+      strip.textContent = 'Market context: ' + lastGeo.label +
+        (covered ? '' : ' — East Africa covered today; regional coaches joining as we expand');
+      searchList.appendChild(strip);
+    }
     results.forEach(n => {
       const div = document.createElement('div');
       div.className = 's-item';
@@ -1426,7 +1610,13 @@
       const lvl = ['L1 · Discipline','L2 · Sub-category','L3 · Specialty'][n.level - 1];
       const crumb = n.level === 3 ? `${n.grandparentName} · ${n.parentName}` :
                     n.level === 2 ? `${n.parentName}` : '';
-      div.innerHTML = `<i class="s-dot"></i><div class="s-meta"><div class="s-name">${n.name}</div><div class="s-sub">${lvl}${crumb ? ' · ' + crumb : ''}</div></div>`;
+      // Geo-aware coach annotation: prefer a coach covering the detected market
+      let geoNote = '';
+      if (lastGeo) {
+        const gc = resolveCoachForGeo(n.l1Idx, n.l2Idx, n.l3Idx, lastGeo);
+        if (gc && coachCoversGeo(gc, lastGeo) > 0) geoNote = ` · ${escH(gc.name.split(' ')[0])} covers ${escH(geoCoverLabel(gc, lastGeo))}`;
+      }
+      div.innerHTML = `<i class="s-dot"></i><div class="s-meta"><div class="s-name">${n.name}</div><div class="s-sub">${lvl}${crumb ? ' · ' + crumb : ''}${geoNote}</div></div>`;
       div.addEventListener('click', () => {
         const target = resolveBestL3(n, state.searchQuery);
         const desiredYaw = 90 - target.theta;
@@ -2057,12 +2247,21 @@
       listEl.classList.add('has');
       return;
     }
-    listEl.innerHTML = results.map(n => {
+    const geoStrip = lastGeo
+      ? '<div class="md-geo">Market context: ' + escH(lastGeo.label) +
+        (COACHES.some(c => coachCoversGeo(c, lastGeo) > 0) ? '' : ' — regional coaches joining as we expand') + '</div>'
+      : '';
+    listEl.innerHTML = geoStrip + results.map(n => {
       const crumb = n.level === 3 ? n.grandparentName + ' · ' + n.parentName :
                     n.level === 2 ? n.parentName : 'Discipline';
+      let coachTxt = n.coach;
+      if (lastGeo) {
+        const gc = resolveCoachForGeo(n.l1Idx, n.l2Idx, n.l3Idx, lastGeo);
+        if (gc) coachTxt = gc.name + (coachCoversGeo(gc, lastGeo) > 0 ? ' · covers ' + geoCoverLabel(gc, lastGeo) : '');
+      }
       return '<button class="md-result" data-id="' + n.id + '" style="--md-c:' + n.color + '">' +
         '<span class="md-result-name">' + escH(n.name) + '</span>' +
-        '<span class="md-result-sub">' + escH(crumb) + (n.coach ? ' · ' + escH(n.coach) : '') + '</span></button>';
+        '<span class="md-result-sub">' + escH(crumb) + (coachTxt ? ' · ' + escH(coachTxt) : '') + '</span></button>';
     }).join('');
     listEl.classList.add('has');
     listEl.querySelectorAll('.md-result').forEach(r => r.addEventListener('click', () => {

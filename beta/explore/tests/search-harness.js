@@ -31,10 +31,52 @@ function extractBlock(name) {
 
 const ctx = {};
 vm.createContext(ctx);
-for (const name of ['COACHES', 'TAXONOMY', 'L3_DESC', 'DISCIPLINE_KEYWORDS', 'L3_KEYWORDS', 'INTENT_RULES']) {
+for (const name of ['COACHES', 'TAXONOMY', 'L3_DESC', 'DISCIPLINE_KEYWORDS', 'L3_KEYWORDS', 'INTENT_RULES', 'GEO_COUNTRIES', 'GEO_BLOC_TERMS', 'GEO_BLOC_LABEL']) {
   vm.runInContext(extractBlock(name).replace('const ', 'globalThis.'), ctx);
 }
-const { COACHES, TAXONOMY, L3_DESC, DISCIPLINE_KEYWORDS, L3_KEYWORDS, INTENT_RULES } = ctx;
+const { COACHES, TAXONOMY, L3_DESC, DISCIPLINE_KEYWORDS, L3_KEYWORDS, INTENT_RULES, GEO_COUNTRIES, GEO_BLOC_TERMS, GEO_BLOC_LABEL } = ctx;
+
+// ---- Replicate the GEO context layer (keep in sync with explore.js) ----
+const GEO_TERM_MAP = new Map();
+const GEO_BY_KEY = new Map();
+GEO_COUNTRIES.forEach(row => {
+  const [key, display, cities, adj, blocs] = row;
+  const entry = { key, display, blocs: blocs.split(',') };
+  GEO_BY_KEY.set(key, entry);
+  const baseName = display.normalize('NFD').replace(/[̀-ͯ]/g, '')
+    .toLowerCase().replace(/[^a-z\s\-']/g, ' ').replace(/\s+/g, ' ').trim();
+  const terms = [baseName].concat(cities.split(','), adj.split(','));
+  terms.forEach(t => { t = t.trim(); if (t) GEO_TERM_MAP.set(t, entry); });
+});
+Object.keys(GEO_BLOC_TERMS).forEach(t => GEO_TERM_MAP.set(t, { bloc: GEO_BLOC_TERMS[t] }));
+const GEO_RE = new RegExp('\\b(' +
+  Array.from(GEO_TERM_MAP.keys()).sort((a, b) => b.length - a.length)
+    .map(p => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')\\b', 'g');
+function detectGeo(rawQ) {
+  GEO_RE.lastIndex = 0;
+  const countries = [], blocs = [];
+  let m;
+  while ((m = GEO_RE.exec(rawQ)) !== null) {
+    const e = GEO_TERM_MAP.get(m[1]);
+    if (!e) continue;
+    if (e.bloc) { if (!blocs.includes(e.bloc)) blocs.push(e.bloc); }
+    else if (!countries.includes(e.key)) {
+      countries.push(e.key);
+      e.blocs.forEach(b => { if (!blocs.includes(b)) blocs.push(b); });
+    }
+  }
+  if (!countries.length && !blocs.length) return null;
+  const names = countries.map(k => GEO_BY_KEY.get(k).display);
+  const label = (names.length ? names.join(', ') : '') +
+    (blocs.length ? (names.length ? ' · ' : '') + (GEO_BLOC_LABEL[blocs[0]] || blocs[0].toUpperCase()) : '');
+  return { countries, blocs, label };
+}
+function coachCoversGeo(c, geo) {
+  const cov = (c.geo && c.geo.covers) || [];
+  if (geo.countries.some(k => cov.includes(k))) return 2;
+  if (geo.blocs.some(b => cov.includes(b))) return 1;
+  return 0;
+}
 
 // ---- Replicate resolveCoach (verbatim contract) ----
 function resolveCoach(l1Idx, l2Idx, l3Idx) {
@@ -135,6 +177,11 @@ function searchMatches(query) {
   if (qTokens.length === 0) return [];
   const scored = [];
   const boosts = intentBoosts(rawQ);
+  const geo = detectGeo(rawQ);
+  if (geo) {
+    boosts['Market Entry'] = Math.max(boosts['Market Entry'] || 0, 4);
+    boosts['Channel Mix'] = Math.max(boosts['Channel Mix'] || 0, 1.6);
+  }
   NODES.forEach(n => {
     let sc = scoreNode(n, qTokens, rawQ);
     const b = n.level === 3 ? (boosts[n.name] || 0) : 0;
@@ -245,6 +292,31 @@ const GOAL_QUERIES = [
   ['i am losing money every month', ['Contribution Margin', 'Cash Flow Management', 'Burn Rate & Runway']],
 ];
 
+// ---- GEO battery: place-aware queries (SOM/SAM/TAM expansion harness).
+//      mustTop1 = the specialty the tokens name must NOT be hijacked by geo. ----
+const GEO_QUERIES = [
+  { q: 'best marketing strategy for reaching customers in lusaka zambia', accept: ['Market Entry', 'Channel Mix', 'Content Strategy', 'Brand Positioning'] },
+  { q: 'expand my business to nairobi', accept: ['Market Entry'] },
+  { q: 'sell to customers in accra', accept: ['Channel Mix', 'Market Entry'] },
+  { q: 'market entry strategy for sadc', accept: ['Market Entry'] },
+  { q: 'find investors in lagos', accept: ['Investor Targeting', 'Pre-seed Rounds', 'Seed Rounds'] },
+  { q: 'pricing for ethiopian customers', accept: ['Value-Based Pricing', 'Competitive Pricing', 'Price Testing'] },
+  { q: 'tax compliance in kampala', accept: ['Tax & Compliance'], mustTop1: true },
+  { q: 'register a company in kigali', accept: ['Legal & Registration'], mustTop1: true },
+];
+// ---- detectGeo unit checks + coach geo-coverage contract ----
+const GEO_CHECKS = [
+  ['customers in lusaka zambia', g => g && g.countries.join() === 'zambia' && g.blocs.includes('sadc')],
+  ['startup in south sudan', g => g && g.countries.join() === 'south-sudan'],
+  ['selling in niger', g => g && g.countries.join() === 'niger'],
+  ['selling in nigeria', g => g && g.countries.join() === 'nigeria'],
+  ['johannesburg market', g => g && g.countries.join() === 'south-africa'],
+  ['ecowas expansion plan', g => g && g.countries.length === 0 && g.blocs.join() === 'ecowas'],
+  ['my pitch deck needs work', g => g === null],
+  ['cash flow help in kampala', g => g && COACHES.some(c => coachCoversGeo(c, g) > 0)],          // EAC covered today
+  ['cash flow help in lusaka', g => g && COACHES.every(c => coachCoversGeo(c, g) === 0)],        // fallback path until a SADC coach joins
+];
+
 // ---- Run ----
 let top1 = 0, top3 = 0, miss = [];
 for (const [q, accept] of QUERIES) {
@@ -263,12 +335,29 @@ for (const [q, accept] of GOAL_QUERIES) {
   else goalMiss.push({ q, accept, got: res.slice(0, 3) });
   if (verbose) console.log(`${hit ? '✓' : '✗'} [goal] "${q}" → [${res.slice(0,3).join(' | ')}]`);
 }
+let geoPass = 0; const geoMiss = [];
+for (const t of GEO_QUERIES) {
+  const res = searchMatches(t.q).map(x => x.name);
+  const ok = t.mustTop1 ? t.accept.includes(res[0])
+                        : res.slice(0, 3).some(name => t.accept.includes(name));
+  if (ok) geoPass++;
+  else geoMiss.push({ q: t.q, accept: t.accept, got: res.slice(0, 3) });
+  if (verbose) console.log(`${ok ? '✓' : '✗'} [geo] "${t.q}" → [${res.slice(0,3).join(' | ')}]`);
+}
+let geoUnitPass = 0; const geoUnitMiss = [];
+for (const [q, fn] of GEO_CHECKS) {
+  const ok = fn(detectGeo(q));
+  if (ok) geoUnitPass++; else geoUnitMiss.push(q);
+  if (verbose) console.log(`${ok ? '✓' : '✗'} [detectGeo] "${q}"`);
+}
+
 const n = QUERIES.length;
 console.log('\n========================================');
 console.log(`Queries: ${n}`);
 console.log(`Top-1:   ${top1}/${n}  (${(100*top1/n).toFixed(1)}%)`);
 console.log(`Top-3:   ${top3}/${n}  (${(100*top3/n).toFixed(1)}%)`);
 console.log(`Goal-intent: ${goalPass}/${GOAL_QUERIES.length} in top-3`);
+console.log(`Geo queries: ${geoPass}/${GEO_QUERIES.length} · detectGeo units: ${geoUnitPass}/${GEO_CHECKS.length} · geo terms: ${GEO_TERM_MAP.size}`);
 console.log(`Nodes:   ${NODES.length} (L3: ${NODES.filter(x=>x.level===3).length})`);
 if (miss.length) {
   console.log('\nTop-3 misses:');
@@ -278,4 +367,12 @@ if (goalMiss.length) {
   console.log('\nGoal misses:');
   goalMiss.forEach(m => console.log(`  ✗ "${m.q}" want any of ${m.accept.join('/')} got [${m.got.join(' | ')}]`));
 }
-process.exit(miss.length || goalMiss.length ? 1 : 0);
+if (geoMiss.length) {
+  console.log('\nGeo misses:');
+  geoMiss.forEach(m => console.log(`  ✗ "${m.q}" want ${m.accept.join('/')} got [${m.got.join(' | ')}]`));
+}
+if (geoUnitMiss.length) {
+  console.log('\ndetectGeo unit misses:');
+  geoUnitMiss.forEach(q => console.log(`  ✗ "${q}"`));
+}
+process.exit(miss.length || goalMiss.length || geoMiss.length || geoUnitMiss.length ? 1 : 0);
