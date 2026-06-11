@@ -1,0 +1,27 @@
+'use strict';
+const fs = require('fs'); const path = require('path'); const { JSDOM } = require('jsdom');
+const dir = process.argv[2];
+const dom = new JSDOM(fs.readFileSync(path.join(dir,'index.html'),'utf8'), { url:'https://founderssprint.co/beta/explore/', runScripts:'outside-only', pretendToBeVisual:true });
+const { window } = dom;
+window.matchMedia = () => ({ matches:false, addEventListener(){}, removeEventListener(){} });
+window.fetch = () => Promise.reject(new Error('offline'));
+const src = fs.readFileSync(path.join(dir,'explore.js'),'utf8');
+window.eval(src);
+const doc = window.document;
+let fail = 0; const check = (l,c)=>{ console.log((c?'✓ ':'✗ ')+l); if(!c) fail++; };
+const hit = doc.querySelector('.center-hit');
+const input = doc.getElementById('search-input');
+// open search, type, close, reopen → query restored
+hit.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+input.value = 'pitch deck';
+input.dispatchEvent(new window.Event('input'));
+check('search shows results for typed query', doc.querySelectorAll('#search-list .s-item').length > 0);
+doc.getElementById('search-close').click();
+check('closed: match-dim query cleared', window.__constellation.state.searchQuery === '');
+hit.dispatchEvent(new window.MouseEvent('click', { bubbles: true }));
+check('reopened: last query restored in input', input.value === 'pitch deck');
+check('reopened: results re-rendered', doc.querySelectorAll('#search-list .s-item').length > 0);
+check('idle close is 30s (source)', /setTimeout\(closeSearch, 30000\)/.test(src));
+check('auto-reset guarded by searchOpen (source)', /&& !searchOpen\)/.test(src));
+console.log(fail ? fail + ' FAILURE(S)' : 'ALL PASS');
+process.exit(fail ? 1 : 0);

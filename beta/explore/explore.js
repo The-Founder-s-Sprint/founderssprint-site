@@ -90,7 +90,7 @@
       name: 'Moses Engwau Okudu',
       role: 'Lead Strategy & Team Building Coach',
       photo: '../images/coach-moses.jpg',
-      color: '#3d4a2e',
+      color: '#5f7a45',   // brightened moss for dark surfaces — brand moss #3d4a2e is illegible on near-black
       rating: 4.7,
       sessions: 31,
       years: 14,
@@ -201,7 +201,7 @@
     },
     {
       l1: "Strategy & Team Building", l1Short: ["STRATEGY","& TEAM"],
-      color: '#3d4a2e',
+      color: '#5f7a45',   // brightened moss (display variant) — keeps the moss identity but reads against ink
       l2: [
         { name: "Competitive Strategy",l3: ["Market Analysis","Positioning & Moats","Scenario Planning"] },
         { name: "Team Architecture",   l3: ["Hiring Strategy","Culture Design","Org Structure","Payroll & HR Compliance"] },
@@ -531,6 +531,15 @@
   const NODE_MAP = new Map();
   NODES.forEach(n => NODE_MAP.set(n.id, n));
 
+  // Global label fan order per discipline — in the selected state L3
+  // labels stagger by their angular neighbour order (not per-branch
+  // index), so edge labels of adjacent L2 branches can't collide.
+  TAXONOMY.forEach((d, i) => {
+    NODES.filter(n => n.level === 3 && n.l1Idx === i)
+      .sort((a, b) => a.theta - b.theta)
+      .forEach((n, idx) => { n.fanIdx = idx; });
+  });
+
   // ============================================================
   //   DOM REFS + STATIC BUILD
   // ============================================================
@@ -700,7 +709,7 @@
       n._innerDot = el('circle', { cx: 0, cy: 0, r: 3, fill: n.color });
       g.appendChild(n._glow); g.appendChild(n._ring); g.appendChild(n._innerDot);
 
-      n._label = el('text', { 'text-anchor': 'middle', 'dominant-baseline': 'middle', fill: n.color, 'font-family': "'Josefin Sans', sans-serif", 'font-size': 11, 'font-weight': 600, 'letter-spacing': 1.8, class: 'label' });
+      n._label = el('text', { 'text-anchor': 'middle', 'dominant-baseline': 'middle', fill: n.color, 'font-family': "'Josefin Sans', sans-serif", 'font-size': 9.5, 'font-weight': 600, 'letter-spacing': 1.5, class: 'label' });
       n._label.textContent = n.name.toUpperCase();
       g.appendChild(n._label);
 
@@ -1215,23 +1224,32 @@
   let hoverTimer = null;
   let idleTimer = null;
 
+  let lastQuery = '';   // survives close/reopen within the visit — founders don't start over
   function bumpIdle() {
     clearTimeout(idleTimer);
     if (!searchOpen) return;
-    idleTimer = setTimeout(closeSearch, 5000);
+    idleTimer = setTimeout(closeSearch, 30000);   // was 5s — too aggressive while reading results
   }
   function openSearch() {
     if (searchOpen) return;
     searchOpen = true;
     searchEl.classList.add('show');
+    // Restore the last search of this visit so re-engaging resumes
+    // where the founder left off.
+    if (!searchInpt.value && lastQuery) {
+      searchInpt.value = lastQuery;
+      state.searchQuery = lastQuery.trim().toLowerCase();
+      renderSearchResults();
+    }
     setTimeout(() => searchInpt.focus(), 200);
     bumpIdle();
   }
   function closeSearch() {
     searchOpen = false;
+    if (searchInpt.value.trim()) lastQuery = searchInpt.value.trim();
     searchEl.classList.remove('show');
     searchInpt.value = '';
-    state.searchQuery = '';
+    state.searchQuery = '';   // clears the match-dim on L3 nodes while closed
     renderSearchResults();
     clearTimeout(idleTimer);
   }
@@ -1586,8 +1604,9 @@
       pentagonEl.setAttribute('stroke', `rgba(239,231,216,${ringOp * 0.9})`);
     }
 
-    // Auto-reset: after 12 seconds of no interaction, clear selection and resume rotation
-    if (state.lastInteraction && (state.pinnedId || state.focusedL1 != null)) {
+    // Auto-reset: after 12 seconds of no interaction, clear selection and
+    // resume rotation — but never while the founder is mid-search.
+    if (state.lastInteraction && (state.pinnedId || state.focusedL1 != null) && !searchOpen) {
       const idle = Date.now() - state.lastInteraction;
       if (idle > 12000) {
         state.lastInteraction = 0;
@@ -1649,8 +1668,8 @@
         else if (n.l1Idx === activeNode.l1Idx && n.level > 1) { isSibling = true; isDimmed = true; }
       }
 
-      const GRAY = '#6b6862';
-      const GRAY_LABEL = 'rgba(239,231,216,0.55)';
+      const GRAY = '#55524c';
+      const GRAY_LABEL = 'rgba(239,231,216,0.38)';
       const SIBLING_DESAT = '#8a857d';
       const isGray = isDimmed && !isActive && !isLineage;
       // Active: full color. Lineage: discipline color. Siblings: desaturated. Others: gray.
@@ -1662,13 +1681,15 @@
         : (n.level === 3 ? 'rgba(239,231,216,0.78)' : n.color);
 
       if (n.level === 1) {
-        const op = isActive ? 1 : isLineage ? 0.95 : isGray ? 0.45 : baseOp;
+        // Unselected disciplines recede hard (dim + grayscale) so the
+        // selected lineage is unmistakable.
+        const op = isActive ? 1 : isLineage ? 0.95 : isGray ? 0.22 : baseOp;
         n._group.style.opacity = op * introOp;
         n._glow.setAttribute('fill', isActive ? n.color : fillCol);
         n._glow.setAttribute('opacity', lp < 1 ? Math.max(0.18, introFlare * 0.65)
-          : isActive ? 0.75 : isLineage ? 0.35 : isGray ? 0.06 : 0.18 * baseOp);
+          : isActive ? 0.75 : isLineage ? 0.35 : isGray ? 0.02 : 0.18 * baseOp);
         n._halo.setAttribute('stroke', isActive ? n.color : fillCol);
-        n._halo.setAttribute('opacity', isActive ? 0.55 : isLineage ? 0.35 : isGray ? 0.05 : 0.22 * baseOp);
+        n._halo.setAttribute('opacity', isActive ? 0.55 : isLineage ? 0.35 : isGray ? 0.02 : 0.22 * baseOp);
         n._halo.setAttribute('r', isActive ? 48 : 42);
         n._spec.setAttribute('opacity', isGray ? 0.08 : 0.3 * Math.max(baseOp, isActive ? 1 : 0));
         n._ring.setAttribute('stroke', isActive ? n.color : fillCol);
@@ -1682,14 +1703,14 @@
         const dy = (dirP.sy - p.sy) / (scale || 1);
         n._coach.setAttribute('x', dx);
         n._coach.setAttribute('y', dy);
-        n._coach.setAttribute('opacity', isActive ? 0.9 : isGray ? 0.15 : isDimmed && !isLineage ? 0.06 : baseOp * 0.5);
+        n._coach.setAttribute('opacity', isActive ? 0.9 : isGray ? 0.05 : isDimmed && !isLineage ? 0.04 : baseOp * 0.5);
 
       } else if (n.level === 2) {
-        const op = isActive ? 1 : isLineage ? 0.9 : isSibling ? 0.2 : isGray ? 0.5 : baseOp;
+        const op = isActive ? 1 : isLineage ? 0.9 : isSibling ? 0.2 : isGray ? 0.25 : baseOp;
         n._group.style.opacity = op * introOp;
         n._glow.setAttribute('fill', isActive ? n.color : fillCol);
         n._glow.setAttribute('opacity', lp < 1 ? Math.max(0.15, introFlare * 0.5)
-          : isActive ? 0.6 : isLineage ? 0.12 : isSibling ? 0.04 : isGray ? 0.05 : 0.15 * baseOp);
+          : isActive ? 0.6 : isLineage ? 0.12 : isSibling ? 0.04 : isGray ? 0.02 : 0.15 * baseOp);
         n._ring.setAttribute('stroke', isActive ? n.color : fillCol);
         n._innerDot.setAttribute('fill', isActive ? n.color : fillCol);
         n._label.setAttribute('fill', isActive ? n.color : labelCol);
@@ -1698,11 +1719,11 @@
         const [dx, dy] = labelOffset(n, p, scale, labelPos, 30, -28);
         n._label.setAttribute('x', dx);
         n._label.setAttribute('y', dy);
-        const labelOp = isActive ? 1 : isLineage ? 0.8 : isSibling ? 0.1 : Math.max(0, (tNorm - 0.45) * 1.8) * (isGray ? 0.45 : 1);
+        const labelOp = isActive ? 1 : isLineage ? 0.8 : isSibling ? 0.1 : Math.max(0, (tNorm - 0.45) * 1.8) * (isGray ? 0.15 : 1);
         n._label.setAttribute('opacity', labelOp);
 
       } else {
-        const op = isActive ? 1 : isLineage ? 0.85 : isSibling ? 0.2 : isGray ? 0.35 : 0.55 * baseOp;
+        const op = isActive ? 1 : isLineage ? 0.85 : isSibling ? 0.2 : isGray ? 0.16 : 0.55 * baseOp;
         n._group.style.opacity = op * introOp;
         // Twinkle: idle stars breathe individually (size + brightness)
         const tw = Math.sin(now / 1100 + n._twPhase);
@@ -1716,15 +1737,18 @@
         if (n._tick) n._tick.setAttribute('stroke', isActive ? n.color : fillCol);
         n._label.setAttribute('fill', isActive ? '#efe7d8' : labelCol);
 
-        // Staggered fan distances. In the selected (lineage) state the
-        // labels spread wider and alternate height + size so every
-        // specialty under the chosen L2 is readable at a glance —
-        // overlap is only tolerated while idly rotating.
+        // Staggered fan distances. In the selected (lineage) state every
+        // visible label takes a 3-tier distance + alternating lift keyed
+        // to its ANGULAR NEIGHBOUR order across the whole discipline
+        // (fanIdx) — adjacent labels never share a tier, so they read
+        // cleanly even when a full L1's ~10 specialties show at once.
+        // Overlap is only tolerated while idly rotating.
         const emph = isActive || isLineage;
-        const radial = l3RadialDist(n.l3Idx, n.l3Len) + (emph ? 30 + (n.l3Idx % 2) * 22 : 0);
-        const lift = emph ? (n.l3Idx % 2 === 0 ? -64 : -30) : -48;
+        const fi = n.fanIdx != null ? n.fanIdx : n.l3Idx;
+        const radial = emph ? 40 + (fi % 3) * 44 : l3RadialDist(n.l3Idx, n.l3Len);
+        const lift = emph ? (fi % 2 === 0 ? -66 : -34) : -48;
         const [dx, dy] = labelOffset(n, p, scale, labelPos, radial, lift);
-        n._label.setAttribute('font-size', isActive ? 11.5 : emph ? (n.l3Idx % 2 === 0 ? 10.5 : 9.5) : 10);
+        n._label.setAttribute('font-size', isActive ? 11.5 : emph ? (fi % 2 === 0 ? 10.5 : 9.5) : 10);
         n._label.setAttribute('x', dx);
         n._label.setAttribute('y', dy);
 
