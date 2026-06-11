@@ -1,0 +1,677 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Week 5 · Pricing Architecture for Scaling Ventures · The Founder's Sprint</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1A1A1A; --ink-soft:#2A2826; --ink-mid:#444; --ink-mute:#5A564F;
+  --paper:#EFE7D8; --paper-mid:#C0B8A8; --paper-dim:#A09888; --paper-deep:#E6DCC7;
+  --terra:#C8531F; --ochre:#C9923A; --sage:#8AAB5C; --moss:#3D4A2E; --stone:#777770;
+  --rule:rgba(26,26,26,0.18);
+  --sans:'Josefin Sans',Inter,system-ui,sans-serif;
+  --display:'Cormorant Garamond',Georgia,serif;
+  --body:'Inter',system-ui,sans-serif;
+  --accent:#777770; --accent-deep:#54544E;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--ink);color:var(--paper);font-family:var(--body);overflow:hidden;}
+.deck{position:fixed;inset:0;}
+.slide{position:absolute;inset:0;display:none;flex-direction:column;padding:clamp(28px,4.4vw,76px) clamp(26px,5vw,96px) clamp(56px,5vw,82px);opacity:0;}
+.slide.active{display:flex;opacity:1;}
+.slide.active .anim{animation:riseIn .52s cubic-bezier(.25,1,.5,1) both;}
+.slide.active .anim:nth-child(1){animation-delay:.06s}.slide.active .anim:nth-child(2){animation-delay:.12s}.slide.active .anim:nth-child(3){animation-delay:.17s}.slide.active .anim:nth-child(4){animation-delay:.22s}.slide.active .anim:nth-child(5){animation-delay:.27s}.slide.active .anim:nth-child(6){animation-delay:.32s}.slide.active .anim:nth-child(7){animation-delay:.37s}.slide.active .anim:nth-child(8){animation-delay:.42s}
+@keyframes riseIn{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
+.s-paper{background:var(--paper);color:var(--ink);}.s-dark{background:var(--ink);color:var(--paper);}
+.s-paper .chip-bar,.s-dark .chip-bar{display:flex;justify-content:space-between;align-items:center;font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.18em;text-transform:uppercase;}
+.s-paper .chip-bar{color:rgba(26,26,26,0.5);}.s-dark .chip-bar{color:rgba(239,231,216,0.5);}
+.accent-top{position:absolute;top:0;left:0;right:0;height:5px;background:var(--accent);}
+.mark-corner{position:absolute;top:clamp(20px,3vw,40px);right:clamp(20px,4vw,64px);width:clamp(34px,3.4vw,52px);height:auto;opacity:.95;z-index:3;}
+.eyebrow{font-family:var(--sans);font-size:clamp(10px,1.05vw,13px);font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:var(--accent-deep);}
+.s-dark .eyebrow{color:var(--ochre);}
+h1.title{font-family:var(--display);font-weight:300;letter-spacing:-0.012em;font-size:clamp(30px,4.6vw,62px);line-height:1.04;margin-top:.32em;}
+.lede{font-family:var(--display);font-style:italic;font-weight:400;font-size:clamp(17px,2.1vw,30px);line-height:1.32;color:var(--ink-mute);margin-top:.5em;max-width:24ch;}
+.s-dark .lede{color:var(--paper-mid);}
+.body-col{margin-top:clamp(14px,2vw,26px);max-width:62ch;}
+p.body{font-size:clamp(14px,1.45vw,20px);line-height:1.55;font-weight:400;color:var(--ink-mid);}
+.s-dark p.body{color:var(--paper-mid);}
+strong{color:var(--accent-deep);font-weight:600;}.s-dark strong{color:var(--ochre);font-weight:500;}
+.slide-body{flex:1;display:flex;flex-direction:column;justify-content:center;min-height:0;}
+.foot{position:absolute;bottom:clamp(16px,2.4vw,30px);left:clamp(26px,5vw,96px);right:clamp(26px,5vw,96px);display:flex;justify-content:space-between;align-items:center;font-family:var(--sans);font-size:clamp(8px,.85vw,11px);letter-spacing:0.22em;text-transform:uppercase;}
+.s-paper .foot{color:rgba(26,26,26,0.4);}.s-dark .foot{color:rgba(239,231,216,0.4);}
+.foot .tag{font-family:var(--display);font-style:italic;letter-spacing:0;text-transform:none;color:var(--accent-deep);opacity:.8;}
+#s-title{padding:0;background:var(--ink);}
+.title-bg{position:absolute;inset:0;overflow:hidden;}
+.title-photo{position:absolute;inset:0;background:#1A1A1A url('assets/title-pricing5.jpg') center 26%/cover no-repeat;filter:grayscale(1) contrast(1.06) brightness(0.5);}
+.title-tint{position:absolute;inset:0;background:radial-gradient(95% 95% at 22% 16%, rgba(119,119,112,0.5) 0%, transparent 55%),linear-gradient(180deg, rgba(26,26,26,0.42) 0%, rgba(26,26,26,0.30) 40%, rgba(26,26,26,0.88) 100%);}
+.title-grain{position:absolute;inset:0;opacity:.06;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+.title-vignette{position:absolute;inset:0;background:radial-gradient(118% 118% at 50% 42%, transparent 50%, rgba(0,0,0,0.55) 100%);}
+.title-inner{position:relative;z-index:4;height:100%;display:flex;flex-direction:column;padding:clamp(30px,4vw,64px) clamp(30px,5.5vw,104px);}
+.title-top{display:flex;align-items:center;gap:14px;}
+.title-top .mark{width:clamp(34px,3.2vw,46px);height:auto;animation:spin 64s linear infinite;}
+.title-top .wm{font-family:var(--sans);font-size:clamp(10px,1.05vw,13px);font-weight:700;letter-spacing:0.24em;text-transform:uppercase;color:var(--paper);}
+.title-mid{margin-top:auto;margin-bottom:auto;}
+.title-series{display:flex;align-items:stretch;gap:clamp(13px,1.5vw,20px);margin-bottom:clamp(16px,2.2vw,28px);}
+.ts-week{display:flex;flex-direction:column;justify-content:center;padding:clamp(7px,.9vw,11px) clamp(12px,1.4vw,18px);border:1.5px solid rgba(239,231,216,0.28);border-left:3px solid var(--ochre);}
+.ts-wk{font-family:var(--display);font-weight:400;font-size:clamp(20px,2.5vw,33px);line-height:1;color:var(--paper);letter-spacing:-0.01em;}
+.ts-of{font-family:var(--sans);font-size:clamp(8px,.92vw,11px);font-weight:600;letter-spacing:0.24em;text-transform:uppercase;color:var(--ochre);margin-top:.45em;}
+.ts-info{display:flex;flex-direction:column;justify-content:center;min-width:0;}
+.ts-disc{font-family:var(--sans);font-size:clamp(11px,1.35vw,16px);font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--paper);line-height:1.15;}
+.ts-coach{font-family:var(--display);font-style:italic;font-size:clamp(13px,1.5vw,19px);color:var(--paper);opacity:.74;margin-top:.32em;line-height:1.1;}
+.ts-coach .ts-dot{margin:0 .5em;opacity:.5;font-style:normal;}
+.title-h{font-family:var(--display);font-weight:300;font-size:clamp(38px,6.6vw,98px);line-height:0.98;letter-spacing:-0.02em;color:var(--paper);}
+.title-h em{font-style:italic;color:var(--ochre);}
+.title-sub{font-family:var(--display);font-style:italic;font-size:clamp(16px,2.1vw,28px);color:var(--paper);opacity:.82;margin-top:.7em;max-width:32ch;text-wrap:balance;}
+.title-foot{margin-top:clamp(20px,3vw,38px);display:flex;flex-wrap:wrap;gap:8px 26px;align-items:baseline;font-family:var(--sans);font-size:clamp(9px,1vw,12px);letter-spacing:0.2em;text-transform:uppercase;color:var(--paper);opacity:.72;}
+.title-foot .dot{color:var(--stone);}
+.title-cta{position:absolute;left:clamp(30px,5.5vw,104px);bottom:clamp(22px,3vw,42px);font-family:var(--sans);font-size:clamp(9px,1vw,11px);letter-spacing:0.18em;text-transform:uppercase;color:var(--paper);opacity:.5;z-index:5;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.s-divider{background:var(--ink);color:var(--paper);overflow:hidden;justify-content:center;}
+.s-divider .div-photo{position:absolute;inset:0;background-position:center 32%;background-size:cover;filter:sepia(.4) saturate(.82) hue-rotate(8deg) contrast(1.03) brightness(.72);opacity:.5;}
+.s-divider .div-overlay{position:absolute;inset:0;background:linear-gradient(110deg,rgba(26,26,26,0.72) 0%,rgba(26,26,26,0.38) 45%,rgba(26,26,26,0.80) 100%);}
+.s-divider .div-mark{position:absolute;top:clamp(26px,4vw,58px);right:clamp(26px,4.5vw,72px);width:clamp(50px,7vw,105px);height:auto;animation:spin 18s linear infinite;opacity:.85;z-index:2;}
+.div-inner{position:relative;z-index:3;display:flex;flex-direction:column;align-items:flex-start;}
+.div-num{font-family:var(--display);font-weight:300;font-size:clamp(40px,6vw,86px);line-height:1;color:rgba(239,231,216,0.22);letter-spacing:-0.02em;margin-bottom:.18em;}
+.div-eyebrow{font-family:var(--sans);font-size:clamp(10px,1.05vw,13px);font-weight:700;letter-spacing:0.34em;text-transform:uppercase;color:var(--paper);opacity:.4;margin-bottom:.35em;}
+.div-title{font-family:var(--display);font-style:italic;font-weight:300;font-size:clamp(30px,5.4vw,84px);line-height:1.04;color:var(--paper);letter-spacing:-0.01em;}
+.div-meta{margin-top:1em;font-family:var(--display);font-style:italic;font-size:clamp(14px,1.7vw,22px);line-height:1.4;color:var(--paper-mid);opacity:.95;max-width:34ch;text-wrap:pretty;}
+.grid{display:grid;gap:clamp(12px,1.6vw,22px);}
+.g2{grid-template-columns:repeat(2,1fr);}.g3{grid-template-columns:repeat(3,1fr);}.g4{grid-template-columns:repeat(4,1fr);}.g5{grid-template-columns:repeat(5,1fr);}
+.card{background:var(--paper-deep);border-left:3px solid var(--accent);padding:clamp(14px,1.7vw,24px);}
+.s-dark .card{background:rgba(239,231,216,0.06);border-left-color:var(--ochre);}
+.card h4{font-family:var(--sans);font-size:clamp(11px,1.15vw,15px);font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink);margin-bottom:.45em;}
+.s-dark .card h4{color:var(--paper);}
+.card p{font-size:clamp(12px,1.25vw,16px);line-height:1.5;color:var(--ink-mute);}.s-dark .card p{color:var(--paper-mid);}
+.card .num{font-family:var(--display);font-weight:300;font-size:clamp(26px,3vw,46px);color:var(--accent-deep);line-height:1;}.s-dark .card .num{color:var(--ochre);}
+.card.sm{padding:clamp(11px,1.3vw,17px);}.card.sm h4{font-size:clamp(10px,1.05vw,13px);}.card.sm p{font-size:clamp(10px,1.1vw,13px);}
+ul.list{list-style:none;margin-top:.4em;}
+ul.list li{position:relative;padding-left:1.2em;margin-bottom:.5em;font-size:clamp(11px,1.2vw,15px);line-height:1.42;color:var(--ink-mid);}
+.s-dark ul.list li{color:var(--paper-mid);}
+ul.list li::before{content:"";position:absolute;left:0;top:.5em;width:7px;height:7px;background:var(--accent);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);}
+.s-dark ul.list li::before{background:var(--ochre);}
+.pull{font-family:var(--display);font-style:italic;font-weight:300;font-size:clamp(24px,4vw,56px);line-height:1.16;color:var(--paper);letter-spacing:-0.01em;max-width:20ch;text-wrap:balance;}
+.pull .by{display:block;margin-top:.7em;font-family:var(--sans);font-style:normal;font-size:clamp(10px,1.1vw,14px);font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--ochre);}
+.pick-wrap{display:grid;grid-template-columns:0.85fr 1.15fr;gap:clamp(16px,2.5vw,42px);align-items:start;margin-top:clamp(14px,2vw,28px);}
+.pick-chips{display:flex;flex-direction:column;gap:8px;}
+.pick-chip{font-family:var(--sans);font-size:clamp(10px,1.15vw,14px);font-weight:600;letter-spacing:0.04em;border:1.5px solid var(--rule);background:var(--paper-deep);color:var(--ink);padding:11px 16px;cursor:pointer;transition:all .2s ease;text-align:left;}
+.pick-chip:hover{border-color:var(--accent);}
+.pick-chip.on{background:var(--accent);color:var(--paper);border-color:var(--accent);}
+.pick-detail{background:var(--paper-deep);border-top:4px solid var(--accent);padding:clamp(16px,2vw,28px);min-height:clamp(190px,23vw,260px);}
+.pick-detail .pk{font-family:var(--sans);font-size:clamp(12px,1.3vw,17px);font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent-deep);margin-bottom:.2em;}
+.pick-detail .ptag{display:inline-block;font-family:var(--display);font-style:italic;font-size:clamp(15px,1.9vw,26px);color:var(--ink);margin-bottom:.4em;}
+.pick-detail .pv{font-size:clamp(13px,1.45vw,19px);line-height:1.55;color:var(--ink-mid);}
+.pick-detail .peg{margin-top:.85em;font-family:var(--display);font-style:italic;font-size:clamp(14px,1.6vw,21px);color:var(--accent-deep);}
+.step-detail{margin-top:clamp(16px,2.2vw,28px);background:var(--paper-deep);padding:clamp(16px,2vw,28px);border-left:4px solid var(--accent);min-height:clamp(110px,13vw,150px);}
+.step-detail .sd-q{font-family:var(--display);font-style:italic;font-size:clamp(16px,2vw,26px);color:var(--ink);}
+.step-detail .sd-v{font-size:clamp(13px,1.4vw,18px);line-height:1.5;color:var(--ink-mid);margin-top:.55em;}
+.step-detail .sd-v b{color:var(--accent-deep);}
+.calc-wrap{display:grid;grid-template-columns:1fr 1.05fr;gap:clamp(20px,3.5vw,56px);align-items:start;margin-top:clamp(10px,1.6vw,20px);}
+.calc-inputs{display:flex;flex-direction:column;gap:clamp(11px,1.5vw,18px);}
+.calc-row__head{display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:6px;}
+.calc-row__lbl{font-family:var(--sans);font-size:clamp(10px,1.1vw,13px);font-weight:600;letter-spacing:0.03em;color:var(--paper-mid);}
+.calc-row__val{font-family:var(--display);font-size:clamp(18px,2.1vw,30px);color:var(--paper);font-weight:400;line-height:1;}
+.calc-row__legend{display:flex;justify-content:space-between;font-family:var(--sans);font-size:clamp(8px,.9vw,11px);letter-spacing:0.12em;color:rgba(239,231,216,0.4);text-transform:uppercase;margin-top:3px;}
+.calc-row input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:4px;background:rgba(239,231,216,0.18);outline:none;cursor:pointer;}
+.calc-row input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:21px;height:21px;border-radius:50%;background:var(--sage);border:2px solid var(--paper);cursor:pointer;box-shadow:0 0 0 4px rgba(138,171,92,0.2);}
+.calc-row input[type=range]::-moz-range-thumb{width:21px;height:21px;border-radius:50%;background:var(--sage);border:2px solid var(--paper);cursor:pointer;box-shadow:0 0 0 4px rgba(138,171,92,0.2);}
+.calc-note{margin-top:2px;padding:10px 15px;background:rgba(138,171,92,0.12);border-left:3px solid var(--sage);font-family:var(--sans);font-size:clamp(8px,.95vw,11px);letter-spacing:0.12em;text-transform:uppercase;color:var(--paper-mid);}
+.calc-right{display:flex;flex-direction:column;gap:clamp(11px,1.4vw,16px);}
+.calc-outs{display:grid;grid-template-columns:repeat(2,1fr);gap:clamp(8px,1vw,14px);}
+.calc-out{padding:clamp(11px,1.3vw,18px) clamp(10px,1.1vw,16px);border:1px solid rgba(239,231,216,0.18);background:rgba(239,231,216,0.04);display:flex;flex-direction:column;gap:5px;}
+.calc-out--hot{background:rgba(138,171,92,0.14);border-color:rgba(138,171,92,0.55);}
+.calc-out__lbl{font-family:var(--sans);font-size:clamp(8px,.95vw,11px);font-weight:700;letter-spacing:0.14em;text-transform:uppercase;color:var(--ochre);}
+.calc-out__val{font-family:var(--display);font-style:italic;font-size:clamp(19px,2.5vw,34px);color:var(--paper);font-weight:400;line-height:1.05;}
+.calc-out--hot .calc-out__val{color:var(--sage);}
+.calc-out__sub{font-family:var(--body);font-size:clamp(9px,1vw,12px);color:var(--paper-mid);letter-spacing:0.02em;}
+.calc-flag{font-family:var(--sans);font-size:clamp(10px,1.15vw,14px);font-weight:700;letter-spacing:0.05em;text-transform:uppercase;padding:11px 14px;text-align:center;}
+.calc-flag.ok{background:rgba(138,171,92,0.2);color:var(--sage);}.calc-flag.warn{background:rgba(200,83,31,0.22);color:#E27A4A;}
+.dr-wrap{display:grid;grid-template-columns:1.35fr 1fr;gap:clamp(18px,3vw,46px);align-items:start;margin-top:clamp(12px,1.8vw,24px);}
+.dr-list{display:flex;flex-direction:column;gap:clamp(7px,1vw,11px);}
+.dr-item{display:flex;align-items:flex-start;gap:13px;cursor:pointer;background:var(--paper-deep);padding:clamp(11px,1.3vw,16px) clamp(13px,1.5vw,18px);border-left:3px solid var(--rule);transition:all .18s ease;}
+.dr-item:hover{border-left-color:var(--accent);}
+.dr-item.on{border-left-color:var(--accent);background:rgba(119,119,112,0.14);}
+.dr-cb{flex:none;width:clamp(20px,2vw,25px);height:clamp(20px,2vw,25px);border:1.5px solid var(--accent);display:flex;align-items:center;justify-content:center;margin-top:1px;}
+.dr-item.on .dr-cb::after{content:"";width:48%;height:48%;background:var(--accent);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);}
+.dr-tx .dt{font-family:var(--sans);font-size:clamp(11px,1.2vw,15px);font-weight:700;letter-spacing:0.04em;color:var(--ink);text-transform:uppercase;}
+.dr-tx .dd{font-size:clamp(11px,1.2vw,15px);line-height:1.4;color:var(--ink-mute);margin-top:.18em;}
+.dr-out{background:var(--ink);color:var(--paper);padding:clamp(18px,2.2vw,30px);text-align:center;}
+.dr-out .do-k{font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--paper-mid);}
+.dr-out .do-n{font-family:var(--display);font-weight:300;font-size:clamp(40px,6vw,76px);line-height:1;color:var(--paper);margin:.05em 0;}
+.dr-out .do-n small{font-size:.42em;color:var(--paper-mid);}
+.dr-bar{height:8px;background:rgba(239,231,216,0.16);margin:.4em 0 0;}
+.dr-fill{height:100%;width:0;background:var(--sage);transition:width .3s ease;}
+.dr-verdict{margin-top:1em;font-family:var(--sans);font-size:clamp(11px,1.3vw,16px);font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:10px;}
+.dr-verdict.ready{background:rgba(138,171,92,0.22);color:var(--sage);}.dr-verdict.mid{background:rgba(201,146,58,0.2);color:var(--ochre);}.dr-verdict.low{background:rgba(200,83,31,0.2);color:#E27A4A;}
+.box{border:1.5px solid var(--accent);padding:clamp(16px,2.2vw,32px);background:rgba(119,119,112,0.1);}
+.s-dark .box{border-color:var(--ochre);background:rgba(201,146,58,0.08);}
+.box .bk{font-family:var(--sans);font-size:clamp(10px,1.1vw,14px);font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent-deep);margin-bottom:.6em;}.s-dark .box .bk{color:var(--ochre);}
+.phase{background:rgba(239,231,216,0.06);border-top:3px solid var(--ochre);padding:clamp(14px,1.7vw,22px);}
+.phase .ph-d{font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--ochre);}
+.phase .ph-t{font-family:var(--display);font-style:italic;font-size:clamp(18px,2.1vw,28px);color:var(--paper);margin:.05em 0 .5em;}
+.ex-head{display:flex;flex-wrap:wrap;align-items:flex-end;gap:14px 20px;}
+.ex-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(10px,1.3vw,18px);margin-top:clamp(14px,2vw,26px);}
+.ex-card{border-radius:0 0 24px 0;position:relative;background:var(--paper-deep);border-top:3px solid var(--accent);padding:clamp(15px,1.8vw,24px) clamp(14px,1.5vw,20px) clamp(16px,1.8vw,24px);overflow:hidden;display:flex;flex-direction:column;}
+.ex-card .exn{position:absolute;top:-0.12em;right:8px;font-family:var(--display);font-weight:300;font-size:clamp(60px,7vw,118px);line-height:1;color:rgba(119,119,112,0.16);pointer-events:none;}
+.ex-card .exk{position:relative;font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--accent-deep);}
+.ex-card .ext{position:relative;font-family:var(--display);font-weight:500;font-size:clamp(17px,1.9vw,26px);color:var(--ink);margin:.14em 0 .3em;line-height:1.08;}
+.ex-card .exp{position:relative;font-size:clamp(11px,1.2vw,15px);line-height:1.45;color:var(--ink-mute);}
+.ex-card .exeg{position:relative;margin-top:.6em;padding-left:10px;border-left:2px solid var(--ochre);font-family:var(--display);font-style:italic;font-size:clamp(12px,1.3vw,17px);line-height:1.32;color:var(--accent-deep);}
+.ex-card .exeg b{font-style:normal;font-family:var(--sans);font-weight:700;font-size:.7em;letter-spacing:0.14em;text-transform:uppercase;color:#9A6E1E;display:block;margin-bottom:.2em;}
+.ex-card .write{margin-top:auto;padding-top:1em;}.ex-card .write span{display:block;border-bottom:1.5px dashed var(--paper-dim);height:1.15em;}
+.due-tag{display:inline-flex;align-items:center;gap:8px;font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink);background:var(--ochre);padding:7px 15px;}
+.due-tag .d{width:9px;height:9px;background:var(--ink);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);}
+.hw-grid{display:grid;grid-template-columns:1.12fr .88fr;gap:clamp(20px,3.4vw,56px);align-items:start;margin-top:clamp(14px,2vw,26px);}
+.hw-klbl{font-family:var(--sans);font-size:clamp(10px,1.1vw,13px);font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--ochre);margin-bottom:.4em;}
+.hw-check{list-style:none;}
+.hw-check li{display:flex;gap:14px;align-items:flex-start;padding:clamp(10px,1.3vw,15px) 0;border-bottom:1px solid rgba(239,231,216,0.14);font-size:clamp(13px,1.4vw,18px);line-height:1.45;color:var(--paper-mid);}
+.hw-check li:last-child{border-bottom:none;}
+.hw-check .cbx{flex:none;width:clamp(21px,2vw,27px);height:clamp(21px,2vw,27px);border:1.5px solid var(--ochre);display:flex;align-items:center;justify-content:center;margin-top:1px;}
+.hw-check .cbx::after{content:"";width:46%;height:46%;background:var(--ochre);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);}
+.hw-check b{color:var(--paper);font-weight:600;}
+.hw-quote{background:rgba(119,119,112,0.16);border-left:3px solid var(--stone);padding:clamp(18px,2.3vw,32px) clamp(18px,2.2vw,30px) clamp(20px,2.4vw,30px);}
+.hw-quote .qm{font-family:var(--display);font-size:clamp(52px,6vw,96px);line-height:.4;color:var(--paper-mid);display:block;height:.5em;}
+.hw-quote .qt{font-family:var(--display);font-style:italic;font-weight:300;font-size:clamp(19px,2.3vw,32px);line-height:1.26;color:var(--paper);text-wrap:balance;}
+.hw-quote .qb{font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--paper-mid);margin-top:1em;}
+.hw-bridge{margin-top:clamp(13px,1.7vw,20px);font-size:clamp(13px,1.4vw,18px);line-height:1.55;color:var(--paper-mid);text-wrap:pretty;}
+#s-close{align-items:center;justify-content:center;text-align:center;}
+#s-close .mark{width:clamp(80px,11vw,150px);height:auto;}
+#s-close .cbig{font-family:var(--display);font-weight:300;font-size:clamp(26px,4.4vw,62px);line-height:1.05;color:var(--paper);margin-top:.4em;letter-spacing:-0.01em;}
+#s-close .cbig em{font-style:italic;color:var(--ochre);}
+#s-close .ct{font-family:var(--display);font-style:italic;font-size:clamp(16px,2vw,26px);color:var(--paper-mid);margin-top:.7em;max-width:32ch;}
+#s-close .cc{font-family:var(--sans);font-size:clamp(9px,1vw,12px);letter-spacing:0.24em;text-transform:uppercase;color:var(--paper-dim);margin-top:1.4em;}
+.progress{position:fixed;bottom:0;left:0;height:4px;background:var(--accent);width:0;z-index:41;transition:width .3s ease;}
+.nav{position:fixed;bottom:clamp(14px,2vw,26px);right:clamp(16px,2.5vw,34px);display:flex;gap:8px;z-index:42;}
+.nav button{width:clamp(38px,3.6vw,46px);height:clamp(38px,3.6vw,46px);border:1px solid rgba(239,231,216,0.3);background:rgba(26,26,26,0.55);color:var(--paper);font-size:18px;cursor:pointer;backdrop-filter:blur(4px);transition:all .2s;display:flex;align-items:center;justify-content:center;}
+body.on-paper .nav button{border-color:rgba(26,26,26,0.25);background:rgba(239,231,216,0.7);color:var(--ink);}
+.nav button:hover{border-color:var(--accent);color:var(--accent-deep);}
+.counter{position:fixed;bottom:clamp(16px,2vw,28px);left:clamp(18px,2.5vw,34px);z-index:42;font-family:var(--sans);font-size:clamp(10px,1.1vw,13px);font-weight:600;letter-spacing:0.16em;color:var(--paper-mid);pointer-events:none;}
+body.on-paper .counter{color:var(--ink-mute);}
+.kbd-hint{position:fixed;bottom:clamp(16px,2vw,28px);left:50%;transform:translateX(-50%);z-index:42;font-family:var(--sans);font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--paper-dim);opacity:.7;pointer-events:none;}
+.overview{position:fixed;inset:0;background:rgba(14,14,13,0.96);z-index:60;display:none;padding:clamp(20px,3vw,48px);overflow-y:auto;}
+.overview.show{display:block;}
+.ov-title{font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--ochre);margin-bottom:18px;}
+.ov-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;}
+.ov-item{background:rgba(239,231,216,0.06);border:1px solid rgba(239,231,216,0.14);padding:14px;cursor:pointer;transition:all .2s;}
+.ov-item:hover{border-color:var(--accent);background:rgba(119,119,112,0.32);}
+.ov-item .oi-n{font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:0.16em;color:var(--stone);}
+.ov-item .oi-t{font-family:var(--display);font-size:18px;color:var(--paper);margin-top:4px;line-height:1.15;}
+.pick-hint,.step-hint,.calc-hint,.dr-hint,.gen-hint{font-family:var(--sans);font-size:clamp(10px,1.1vw,12px);font-weight:600;letter-spacing:0.16em;text-transform:uppercase;line-height:1.5;margin-top:clamp(12px,1.6vw,20px);color:var(--paper-dim);text-wrap:pretty;}
+.s-paper .pick-hint,.s-paper .step-hint,.s-paper .calc-hint,.s-paper .dr-hint,.s-paper .gen-hint{color:var(--ink-mute);}
+.slide h1,.slide h4,.slide p,.slide li,.lede,.div-meta,.title-sub,.step-detail,.pick-detail .pv{text-wrap:pretty;}
+h1.title,.title-h,.div-title,.lede,.pull,.card h4,.ex-card .ext,.hw-quote .qt,.title-sub{text-wrap:balance;}
+@media (max-width:980px){.grid.g5{grid-template-columns:repeat(3,1fr);}}
+@media (max-width:880px){.ex-grid{grid-template-columns:repeat(2,1fr);}}
+@media (max-width:768px){.grid.g3,.grid.g4{grid-template-columns:repeat(2,1fr);}.pick-wrap,.calc-wrap,.dr-wrap,.hw-grid{grid-template-columns:1fr;}.kbd-hint{display:none;}}
+@media (max-width:560px){.grid.g2,.grid.g3,.grid.g4,.grid.g5{grid-template-columns:1fr;}.calc-outs{grid-template-columns:1fr;}}
+@media (max-width:520px){.ex-grid{grid-template-columns:1fr;}}
+@media (prefers-reduced-motion:reduce){.title-top .mark,.s-divider .div-mark{animation:none;}.slide.active .anim{animation:none;}}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<!-- 1 · TITLE -->
+<section class="slide" id="s-title" data-surface="dark" data-title="Title">
+  <div class="title-bg"><div class="title-photo"></div><div class="title-tint"></div><div class="title-grain"></div><div class="title-vignette"></div></div>
+  <div class="title-inner">
+    <div class="title-top">
+      <svg class="mark" viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.92"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.86" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.83" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.86" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.95" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+      <span class="wm">The Founder's Sprint</span>
+    </div>
+    <div class="title-mid">
+      <div class="title-series">
+        <div class="ts-week"><span class="ts-wk">Week 5</span><span class="ts-of">of 5 · final</span></div>
+        <div class="ts-info"><div class="ts-disc">Product Development &amp; Pricing</div><div class="ts-coach">Coach Patrick Ngolobe<span class="ts-dot">·</span>Friday cohort session</div></div>
+      </div>
+      <h1 class="title-h">Pricing as a<br><em>system</em>, not<br>a number.</h1>
+      <div class="title-sub">The capstone. This week we turn five weeks of pricing into an architecture that scales — unit economics, investor-grade metrics, and a 30-day plan to put it to work.</div>
+      <div class="title-foot">
+        <span><span class="dot">●</span> Architecture</span>
+        <span><span class="dot">●</span> Unit economics</span>
+        <span><span class="dot">●</span> Maturity score</span>
+        <span><span class="dot">●</span> 30-day plan</span>
+      </div>
+    </div>
+    <div class="title-cta">Press &rarr; or Space to begin &nbsp;·&nbsp; O overview &nbsp;·&nbsp; P presenter notes</div>
+  </div>
+</section>
+
+<!-- 2 · AGENDA -->
+<section class="slide s-paper" data-surface="paper" data-title="Today's map">
+  <div class="accent-top"></div>
+  <svg class="mark-corner" viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.92"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.86" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.83" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.86" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.95" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#1A1A1A"/><circle cx="50" cy="50" r="2" fill="#EFE7D8"/></svg>
+  <div class="chip-bar anim"><span>Product &amp; Pricing · Week 5 · Final</span><span>Pricing Architecture for Scaling Ventures</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Today's map · 60 min teaching + 60 min Q&amp;A</div>
+    <h1 class="title anim">Turn a price into a pricing system that scales.</h1>
+    <div class="grid g3 anim" style="margin-top:clamp(18px,2.5vw,34px)">
+      <div class="card"><div class="num">01</div><h4>Pricing architecture</h4><p>Six layers, from segments to monetisation.</p></div>
+      <div class="card"><div class="num">02</div><h4>Unit economics</h4><p>CAC, LTV, margin, payback — the investor lens.</p></div>
+      <div class="card"><div class="num">03</div><h4>Pricing maturity</h4><p>Score how investor-ready your pricing is.</p></div>
+      <div class="card"><div class="num">04</div><h4>The 30-day plan</h4><p>Diagnose, design, test — in one month.</p></div>
+      <div class="card"><div class="num">05</div><h4>The full sprint</h4><p>Five weeks of pricing, in one canvas.</p></div>
+      <div class="card" style="border-left-color:var(--ink)"><div class="num" style="color:var(--ink)">→</div><h4>You leave with</h4><p>Your unit economics, a maturity score and a 30-day plan.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 3 · DIVIDER 01 -->
+<section class="slide s-divider" data-surface="dark" data-title="01 · Pricing architecture" data-photo="assets/pw5-01.jpg">
+  <div class="div-photo"></div><div class="div-overlay"></div>
+  <svg class="div-mark" viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.92"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.86" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.83" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.86" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.95" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+  <div class="div-inner">
+    <div class="div-num anim">01</div>
+    <div class="div-eyebrow anim">Product &amp; Pricing · Pricing Architecture</div>
+    <div class="div-title anim">One price is a guess.<br>An architecture scales.</div>
+    <div class="div-meta anim">Pain → solution → value → price. Built in layers, your pricing grows with the venture instead of breaking under it.</div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 4 · ARCHITECTURE INTRO -->
+<section class="slide s-paper" data-surface="paper" data-title="The architecture">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Product &amp; Pricing · Week 5</span><span>Pain → solution → value → price</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Map the value before you build the price</div>
+    <h1 class="title anim" style="font-size:clamp(26px,3.8vw,50px)">Pricing architecture maps value all the way to revenue.</h1>
+    <div class="grid g4 anim" style="margin-top:clamp(16px,2.4vw,32px)">
+      <div class="card sm"><h4>Pain</h4><p>The problem the customer feels.</p></div>
+      <div class="card sm"><h4>Solution</h4><p>How you remove it.</p></div>
+      <div class="card sm"><h4>Value</h4><p>What that's worth to them.</p></div>
+      <div class="card sm" style="border-left-color:var(--ochre)"><h4>Price</h4><p>What you capture for it.</p></div>
+    </div>
+    <p class="pick-hint anim">Customers buy <strong>outcomes, not products</strong> (jobs-to-be-done). Architecture keeps every layer pointed at the outcome — so the price is never arbitrary.</p>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 5 · ARCHITECTURE BUILDER (interactive) -->
+<section class="slide s-paper" data-surface="paper" data-title="Architecture builder">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Product &amp; Pricing · Week 5</span><span>The six layers · tap one</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Interactive · build your pricing architecture, layer by layer</div>
+    <h1 class="title anim" style="font-size:clamp(26px,3.8vw,50px)">Six layers turn value into recurring revenue.</h1>
+    <div class="pick-wrap" id="archWrap">
+      <div class="pick-chips" id="archChips">
+        <button class="pick-chip on" data-k="seg">① Customer segments</button>
+        <button class="pick-chip" data-k="val">② Value drivers</button>
+        <button class="pick-chip" data-k="model">③ Pricing model</button>
+        <button class="pick-chip" data-k="rev">④ Revenue model</button>
+        <button class="pick-chip" data-k="pack">⑤ Packaging</button>
+        <button class="pick-chip" data-k="mon">⑥ Monetisation</button>
+      </div>
+      <div class="pick-detail" id="archDetail"></div>
+    </div>
+    <p class="pick-hint anim">Each layer builds on the last. Get the bottom layers right and the top ones — packaging, monetisation — almost design themselves.</p>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 6 · DIVIDER 02 -->
+<section class="slide s-divider" data-surface="dark" data-title="02 · Unit economics" data-photo="assets/pw5-02.jpg">
+  <div class="div-photo"></div><div class="div-overlay"></div>
+  <svg class="div-mark" viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.92"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.86" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.83" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.86" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.95" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+  <div class="div-inner">
+    <div class="div-num anim">02</div>
+    <div class="div-eyebrow anim">Product &amp; Pricing · Unit Economics</div>
+    <div class="div-title anim">Does each customer<br>make you money?</div>
+    <div class="div-meta anim">CAC, LTV, gross margin, payback. The numbers that decide whether growth builds the business — or burns it.</div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 7 · UNIT ECONOMICS INTRO -->
+<section class="slide s-paper" data-surface="paper" data-title="Unit economics">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Product &amp; Pricing · Week 5</span><span>Pricing drives the whole funnel</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Pricing shapes acquisition, retention and lifetime value</div>
+    <h1 class="title anim" style="font-size:clamp(26px,3.8vw,50px)">Four numbers investors check before anything else.</h1>
+    <div class="grid g4 anim" style="margin-top:clamp(16px,2.4vw,32px)">
+      <div class="card sm"><h4>CAC</h4><p>Cost to acquire one customer.</p></div>
+      <div class="card sm"><h4>LTV</h4><p>Total margin a customer brings over their life.</p></div>
+      <div class="card sm"><h4>Gross margin</h4><p>What's left after the cost of serving them.</p></div>
+      <div class="card sm"><h4>Payback</h4><p>Months to earn back the CAC.</p></div>
+    </div>
+    <p class="pick-hint anim">The rule of thumb investors use: <strong>LTV at least 3× CAC</strong>, and payback inside 12 months. Pricing is the fastest way to move both.</p>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 8 · UNIT ECONOMICS CALCULATOR (interactive) -->
+<section class="slide s-dark" data-surface="dark" data-title="Unit economics · live">
+  <div class="chip-bar anim"><span>Product &amp; Pricing · Week 5</span><span>The LTV : CAC calculator</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Interactive · does each customer pay you back?</div>
+    <h1 class="title anim" style="color:var(--paper);font-size:clamp(24px,3.6vw,48px)">Is your growth <em style="font-style:italic;color:var(--ochre)">profitable</em>?</h1>
+    <div class="calc-wrap anim">
+      <div class="calc-inputs">
+        <div class="calc-row"><div class="calc-row__head"><span class="calc-row__lbl">Revenue per customer / month</span><span class="calc-row__val" data-out="arpu">UGX 50K</span></div><input type="range" id="in-arpu" min="5000" max="500000" step="1000" value="50000"><div class="calc-row__legend"><span>5K</span><span>500K</span></div></div>
+        <div class="calc-row"><div class="calc-row__head"><span class="calc-row__lbl">Gross margin</span><span class="calc-row__val" data-out="gm">70%</span></div><input type="range" id="in-gm" min="20" max="95" step="1" value="70"><div class="calc-row__legend"><span>20%</span><span>95%</span></div></div>
+        <div class="calc-row"><div class="calc-row__head"><span class="calc-row__lbl">Avg customer lifetime</span><span class="calc-row__val" data-out="life">18 mo</span></div><input type="range" id="in-life" min="1" max="60" step="1" value="18"><div class="calc-row__legend"><span>1 mo</span><span>60 mo</span></div></div>
+        <div class="calc-row"><div class="calc-row__head"><span class="calc-row__lbl">Cost to acquire a customer (CAC)</span><span class="calc-row__val" data-out="cac">UGX 120K</span></div><input type="range" id="in-cac" min="5000" max="2000000" step="5000" value="120000"><div class="calc-row__legend"><span>5K</span><span>2M</span></div></div>
+      </div>
+      <div class="calc-right">
+        <div class="calc-outs">
+          <div class="calc-out"><div class="calc-out__lbl">Lifetime value</div><div class="calc-out__val" data-out="ltv">UGX 630K</div><div class="calc-out__sub">margin over their life</div></div>
+          <div class="calc-out"><div class="calc-out__lbl">Payback</div><div class="calc-out__val" data-out="pay">3.4 mo</div><div class="calc-out__sub">to earn back CAC</div></div>
+        </div>
+        <div class="calc-out calc-out--hot"><div class="calc-out__lbl">LTV : CAC ratio</div><div class="calc-out__val" data-out="ratio">5.3×</div><div class="calc-out__sub">aim for 3× or better</div></div>
+        <div class="calc-flag ok" id="ueFlag">Healthy — growth builds the business</div>
+      </div>
+    </div>
+    <div class="calc-hint anim">A higher price lifts ARPU and margin — which raises LTV <strong>and</strong> shortens payback at once. Pricing is the cheapest lever on both.</div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 9 · DIVIDER 03 -->
+<section class="slide s-divider" data-surface="dark" data-title="03 · Pricing maturity" data-photo="assets/pw5-03.jpg">
+  <div class="div-photo"></div><div class="div-overlay"></div>
+  <svg class="div-mark" viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.92"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.86" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.83" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.86" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.95" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+  <div class="div-inner">
+    <div class="div-num anim">03</div>
+    <div class="div-eyebrow anim">Product &amp; Pricing · Maturity &amp; Governance</div>
+    <div class="div-title anim">Pricing is never<br>finished.</div>
+    <div class="div-meta anim">Track it, experiment, and review it on a cadence. The best pricing is a discipline, not a one-time decision.</div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 10 · TRACK & EXPERIMENT -->
+<section class="slide s-paper" data-surface="paper" data-title="Track &amp; experiment">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Product &amp; Pricing · Week 5</span><span>Metrics, experiments &amp; governance</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Run pricing like a system, not a one-off</div>
+    <h1 class="title anim" style="font-size:clamp(26px,3.8vw,50px)">Measure it, test it, and review it on a cadence.</h1>
+    <div class="grid g3 anim" style="margin-top:clamp(16px,2.4vw,32px)">
+      <div class="card"><h4>The dashboard</h4><p>Track ARPU, churn, retention, margin, upsell and LTV — the pulse of your pricing.</p></div>
+      <div class="card"><h4>The experiment loop</h4><p>Hypothesis → test → measure → refine → scale. Small, safe price tests, always running.</p></div>
+      <div class="card"><h4>Governance</h4><p>Review price monthly, quarterly, annually. And expect AI and dynamic, personalised pricing next.</p></div>
+    </div>
+    <p class="pick-hint anim">Investors don't just check your price — they check your <strong>pricing power</strong>: gross margin, revenue quality, retention, and whether you can raise prices without losing customers.</p>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 11 · MATURITY SCORECARD (interactive) -->
+<section class="slide s-paper" data-surface="paper" data-title="Maturity scorecard">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Product &amp; Pricing · Week 5</span><span>Pricing maturity · tick what's strong</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Interactive · score your pricing maturity</div>
+    <h1 class="title anim" style="font-size:clamp(24px,3.4vw,46px)">How investor-ready is your pricing?</h1>
+    <div class="dr-wrap anim">
+      <div class="dr-list" id="matList"></div>
+      <div class="dr-out">
+        <div class="do-k">Pricing maturity</div>
+        <div class="do-n"><span id="matNum">0</span><small> / 5</small></div>
+        <div class="dr-bar"><div class="dr-fill" id="matFill"></div></div>
+        <div class="dr-verdict low" id="matVerdict">Early — keep building</div>
+      </div>
+    </div>
+    <div class="dr-hint anim">This is the Venture Pricing Scorecard. Your weakest area is exactly where the next month of work should go.</div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 12 · 30-DAY PLAN -->
+<section class="slide s-dark" data-surface="dark" data-title="Your 30-day plan">
+  <div class="chip-bar anim"><span>Product &amp; Pricing · Week 5</span><span>Your 30-day pricing action plan</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Leave with a plan, not just notes</div>
+    <h1 class="title anim" style="color:var(--paper);font-size:clamp(24px,3.4vw,46px)">The next 30 days, in three moves.</h1>
+    <div class="grid g3 anim" style="margin-top:clamp(14px,2vw,26px)">
+      <div class="phase"><div class="ph-d">Days 1–10</div><div class="ph-t">Diagnose</div><ul class="list"><li>Compute your unit economics (LTV, CAC, payback)</li><li>Audit current prices against value</li><li>Run a quick WTP check on one segment</li><li>Score your pricing maturity</li></ul></div>
+      <div class="phase"><div class="ph-d">Days 11–20</div><div class="ph-t">Design</div><ul class="list"><li>Confirm your strategy and pricing model</li><li>Build tiers and packaging</li><li>Set your price band per segment</li><li>Map the full pricing architecture</li></ul></div>
+      <div class="phase"><div class="ph-d">Days 21–30</div><div class="ph-t">Test &amp; track</div><ul class="list"><li>Launch one safe price experiment</li><li>Stand up the metrics dashboard</li><li>Set a monthly pricing review</li><li>Decide: keep, refine or scale</li></ul></div>
+    </div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 13 · THE FULL SPRINT -->
+<section class="slide s-paper" data-surface="paper" data-title="What we built">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Product &amp; Pricing · Week 5</span><span>Five weeks, one pricing system</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">What you built over five sessions</div>
+    <h1 class="title anim" style="font-size:clamp(24px,3.4vw,46px)">From a guess to a governed pricing system.</h1>
+    <div class="grid g5 anim" style="margin-top:clamp(16px,2.4vw,30px)">
+      <div class="card sm"><h4>S1 · Fundamentals</h4><p>Why price matters; the triangle and cycle.</p></div>
+      <div class="card sm"><h4>S2 · The floor</h4><p>Costs, margins and break-even.</p></div>
+      <div class="card sm"><h4>S3 · The ceiling</h4><p>Value and willingness to pay.</p></div>
+      <div class="card sm"><h4>S4 · The model</h4><p>Strategies and pricing models.</p></div>
+      <div class="card sm" style="border-left-color:var(--ochre)"><h4>S5 · The system</h4><p>Architecture, economics and maturity.</p></div>
+    </div>
+    <p class="pick-hint anim">It all lands on one page — the <strong>Founder's Pricing Canvas</strong>: segment, problem, value, WTP, strategy, model, revenue streams, risks.</p>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 14 · RECAP -->
+<section class="slide s-dark" data-surface="dark" data-title="Recap">
+  <div class="chip-bar anim"><span>Product &amp; Pricing · Week 5</span><span>What we locked down</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">The through-line</div>
+    <h1 class="title anim" style="color:var(--paper)">Build a pricing system that scales with you.</h1>
+    <div class="grid g3 anim" style="margin-top:clamp(16px,2.4vw,32px)">
+      <div class="card"><h4>Architecture</h4><p>Six layers, segments to monetisation.</p></div>
+      <div class="card"><h4>Unit economics</h4><p>LTV ≥ 3× CAC; payback under a year.</p></div>
+      <div class="card"><h4>Maturity</h4><p>Score it; work your weakest area.</p></div>
+      <div class="card"><h4>Govern it</h4><p>Track, experiment, review on a cadence.</p></div>
+      <div class="card"><h4>The plan</h4><p>Diagnose, design, test in 30 days.</p></div>
+      <div class="card" style="border-left-color:var(--ochre)"><h4>The discipline is done</h4><p>Five weeks of pricing — now go and charge well.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 15 · EXERCISE -->
+<section class="slide s-paper" data-surface="paper" data-title="In-session exercise">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Product &amp; Pricing · Week 5</span><span>Self-guided worksheet · in session</span></div>
+  <div class="slide-body">
+    <div class="ex-head anim">
+      <div>
+        <div class="eyebrow">Self-guided worksheet · do it now</div>
+        <h1 class="title" style="margin-top:.15em">Build your pricing system in 4 moves.</h1>
+      </div>
+      <span style="margin-left:auto;margin-bottom:.2em;display:inline-block;font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--paper);background:var(--ink);padding:5px 12px">⏱ 25 min solo · 35 min group</span>
+    </div>
+    <div class="ex-grid anim">
+      <div class="ex-card"><span class="exn">1</span><div class="exk">Your economics</div><div class="ext">The numbers</div><div class="exp">Your LTV, CAC, ratio and payback — real figures.</div><div class="exeg"><b>Example</b>"LTV 630K, CAC 120K → 5.3×, payback 3 mo."</div><div class="write"><span></span></div></div>
+      <div class="ex-card"><span class="exn">2</span><div class="exk">Your architecture</div><div class="ext">The six layers</div><div class="exp">One line for each layer, segments to monetisation.</div><div class="exeg"><b>Example</b>"Tiered model, recurring revenue, two segments."</div><div class="write"><span></span></div></div>
+      <div class="ex-card"><span class="exn">3</span><div class="exk">Your maturity</div><div class="ext">/5 + weakest</div><div class="exp">Your scorecard total and the lowest area.</div><div class="exeg"><b>Example</b>"3 / 5 — weakest is customer understanding."</div><div class="write"><span></span></div></div>
+      <div class="ex-card"><span class="exn">4</span><div class="exk">Your first move</div><div class="ext">Day one</div><div class="exp">The single price experiment you'll run this month.</div><div class="exeg"><b>Example</b>"Test a +15% price on new sign-ups."</div><div class="write"><span></span></div></div>
+    </div>
+    <p class="pick-hint anim">How we'll close: each founder shares their <b>LTV:CAC ratio</b> and the <b>one experiment</b> they'll run — to a peer who'll check in.</p>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 16 · HOMEWORK -->
+<section class="slide s-dark" data-surface="dark" data-title="Homework">
+  <div class="chip-bar anim"><span>Product &amp; Pricing · Week 5</span><span>The capstone deliverable</span></div>
+  <div class="slide-body">
+    <div class="anim"><span class="due-tag"><span class="d"></span>The capstone · your complete pricing pack</span></div>
+    <h1 class="title anim" style="color:var(--paper);margin-top:.5em">Turn five weeks into a working pricing system.</h1>
+    <div class="hw-grid anim">
+      <div>
+        <div class="hw-klbl">Four deliverables</div>
+        <ul class="hw-check">
+          <li><span class="cbx"></span><div><b>Your Founder's Pricing Canvas</b> — segment, problem, value, WTP, strategy, model, revenue, risks.</div></li>
+          <li><span class="cbx"></span><div><b>Your unit economics</b> — LTV, CAC, ratio and payback, with the assumptions.</div></li>
+          <li><span class="cbx"></span><div><b>Your maturity score</b> — out of 5, with the weakest area flagged.</div></li>
+          <li><span class="cbx"></span><div><b>A 30-day pricing plan</b> — diagnose, design, test, with one live experiment.</div></li>
+        </ul>
+      </div>
+      <div>
+        <div class="hw-quote">
+          <span class="qm">&ldquo;</span>
+          <div class="qt">A price you set once and forget is a price the market is already beating. Build a system, not a number.</div>
+          <div class="qb">Patrick Ngolobe · Product Development &amp; Pricing</div>
+        </div>
+        <p class="hw-bridge">That completes the Product Development &amp; Pricing discipline. Your floor, ceiling, model and system now live in one place — <strong>investor-ready</strong>. Now go and price with confidence.</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 17 · CLOSER -->
+<section class="slide s-dark" id="s-close" data-surface="dark" data-title="Close">
+  <svg class="mark" viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.92"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.86" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.83" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.86" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.95" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+  <div class="cbig anim">Price with <em>intent</em>.<br>Charge what it's worth.</div>
+  <div class="ct anim">Build the system, not the number. Thank you for your commitment to this sprint.</div>
+  <div class="cc anim">The Founder's Sprint · Product Development &amp; Pricing · Week 5 of 5 · Kampala</div>
+</section>
+
+</div>
+
+<div class="progress" id="progress"></div>
+<div class="counter" id="counter">01 / 17</div>
+<div class="kbd-hint">← → navigate · O overview · P presenter · F fullscreen</div>
+<div class="nav">
+  <button id="presBtn" aria-label="Presenter view" title="Presenter view — private speaker notes (P)"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="13" rx="1.5"/><line x1="8" y1="20" x2="16" y2="20"/></svg></button>
+  <button id="resetBtn" aria-label="Restart from first slide" title="Restart">⟲</button>
+  <button id="prevBtn" aria-label="Previous slide">‹</button>
+  <button id="nextBtn" aria-label="Next slide">›</button>
+</div>
+<div class="overview" id="overview"><div class="ov-title">Slide overview · click to jump · Esc to close</div><div class="ov-grid" id="ovGrid"></div></div>
+
+<script>
+(function(){
+  "use strict";
+  const slides=Array.from(document.querySelectorAll('.slide'));
+  let i=0;
+  const counter=document.getElementById('counter'), progress=document.getElementById('progress');
+  document.querySelectorAll('.s-divider').forEach(s=>{const p=s.getAttribute('data-photo');if(p){const el=s.querySelector('.div-photo');if(el)el.style.backgroundImage="url('"+p+"')";}});
+  function show(n){n=Math.max(0,Math.min(slides.length-1,n));slides[i].classList.remove('active');i=n;const cur=slides[i];cur.classList.add('active');cur.querySelectorAll('.anim').forEach(el=>{el.style.animation='none';void el.offsetWidth;el.style.animation='';});counter.textContent=String(i+1).padStart(2,'0')+' / '+String(slides.length).padStart(2,'0');progress.style.width=((i)/(slides.length-1)*100)+'%';document.body.classList.toggle('on-paper',cur.getAttribute('data-surface')==='paper');presSync();}
+  const next=()=>show(i+1), prev=()=>show(i-1);
+  document.getElementById('nextBtn').addEventListener('click',next);
+  document.getElementById('prevBtn').addEventListener('click',prev);
+  document.getElementById('resetBtn').addEventListener('click',()=>show(0));
+  const overview=document.getElementById('overview'), ovGrid=document.getElementById('ovGrid');
+  slides.forEach((s,idx)=>{const t=s.getAttribute('data-title')||('Slide '+(idx+1));const d=document.createElement('div');d.className='ov-item';d.innerHTML='<div class="oi-n">'+String(idx+1).padStart(2,'0')+'</div><div class="oi-t">'+t+'</div>';d.addEventListener('click',()=>{overview.classList.remove('show');show(idx);});ovGrid.appendChild(d);});
+  const toggleOverview=()=>overview.classList.toggle('show');
+  document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' '){e.preventDefault();next();}else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();prev();}else if(e.key==='Home'){show(0);}else if(e.key==='End'){show(slides.length-1);}else if(e.key==='o'||e.key==='O'){toggleOverview();}else if(e.key==='Escape'){overview.classList.remove('show');}else if((e.key==='p'||e.key==='P')&&!e.metaKey&&!e.ctrlKey){openPresenter();}else if(e.key==='f'||e.key==='F'){if(!document.fullscreenElement){document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();}else{document.exitFullscreen&&document.exitFullscreen();}}});
+  let tx=0,ty=0;document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;ty=e.touches[0].clientY;},{passive:true});
+  document.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-tx,dy=e.changedTouches[0].clientY-ty;if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)){dx<0?next():prev();}},{passive:true});
+
+  // ── Architecture builder ──
+  const arch={
+    seg:{k:'① Customer segments',tag:'Who you serve',v:'The foundation. Each segment carries a different willingness to pay and a different problem. Name them before anything else — the whole architecture rests on this layer.',eg:'Students, professionals, corporates — different ceilings.'},
+    val:{k:'② Value drivers',tag:'What you charge for',v:'The specific benefits each segment values — the pain you remove, the outcome you create. Map pain → solution → value so the price is anchored to something real.',eg:'Charge for the outcome, not the feature list.'},
+    model:{k:'③ Pricing model',tag:'How you charge',v:'The mechanism from Week 4 — value-based, subscription, tiered, freemium — chosen to fit the segment and value. This is where strategy becomes structure.',eg:'The model must fit the value you deliver.'},
+    rev:{k:'④ Revenue model',tag:'How money recurs',v:'One-off, recurring, usage-based, commission — how revenue actually flows over time. Recurring revenue is worth far more to the business and to investors.',eg:'Predictable, recurring revenue compounds.'},
+    pack:{k:'⑤ Packaging',tag:'How you present it',v:'How you bundle and tier the offer — good, better, best — so customers self-select and you capture more across segments. Packaging is quiet pricing power.',eg:'Tiers let one product serve many wallets.'},
+    mon:{k:'⑥ Monetisation',tag:'How you grow per customer',v:'The levers that grow revenue per customer over time — upsell, cross-sell, expansion, add-ons. The top layer, where a good architecture keeps paying off.',eg:'Land small, expand over the customer\'s life.'}
+  };
+  const archChips=document.getElementById('archChips'), archDetail=document.getElementById('archDetail');
+  function renderArch(key){const d=arch[key];archDetail.innerHTML='<div class="pk">'+d.k+'</div><div class="ptag">'+d.tag+'</div><div class="pv">'+d.v+'</div><div class="peg">'+d.eg+'</div>';archChips.querySelectorAll('.pick-chip').forEach(c=>c.classList.toggle('on',c.getAttribute('data-k')===key));}
+  if(archChips){archChips.addEventListener('click',e=>{const b=e.target.closest('.pick-chip');if(b)renderArch(b.getAttribute('data-k'));});renderArch('seg');}
+
+  // ── Unit economics calculator ──
+  (function(){
+    const $=id=>document.getElementById(id), out=k=>document.querySelectorAll('[data-out="'+k+'"]');
+    if(!$('in-arpu'))return;
+    function money(n){n=Math.round(n);if(Math.abs(n)>=1e6)return 'UGX '+(n/1e6).toFixed(2).replace(/\.?0+$/,'')+'M';if(Math.abs(n)>=1e3)return 'UGX '+Math.round(n/1e3)+'K';return 'UGX '+n;}
+    function rc(){
+      const arpu=+$('in-arpu').value, gm=+$('in-gm').value/100, life=+$('in-life').value, cac=+$('in-cac').value;
+      out('arpu').forEach(e=>e.textContent=money(arpu));
+      out('gm').forEach(e=>e.textContent=Math.round(gm*100)+'%');
+      out('life').forEach(e=>e.textContent=life+' mo');
+      out('cac').forEach(e=>e.textContent=money(cac));
+      const marginPerMo=arpu*gm, ltv=marginPerMo*life, ratio=cac>0?ltv/cac:0, pay=marginPerMo>0?cac/marginPerMo:Infinity;
+      out('ltv').forEach(e=>e.textContent=money(ltv));
+      out('ratio').forEach(e=>e.textContent=ratio.toFixed(1)+'×');
+      out('pay').forEach(e=>e.textContent=isFinite(pay)?(pay<1?pay.toFixed(1):Math.round(pay))+' mo':'—');
+      const f=$('ueFlag');
+      if(ratio>=3){f.className='calc-flag ok';f.textContent='Healthy — growth builds the business';}
+      else if(ratio>=1){f.className='calc-flag warn';f.textContent='Thin — each customer barely pays back';}
+      else{f.className='calc-flag warn';f.textContent='Unprofitable — you lose money on every customer';}
+    }
+    ['in-arpu','in-gm','in-life','in-cac'].forEach(id=>{const el=$(id);if(el)el.addEventListener('input',rc);});
+    rc();
+  })();
+
+  // ── Pricing maturity scorecard ──
+  const matItems=[
+    {t:'Value proposition',d:'A clear, differentiated reason customers pay you over alternatives.'},
+    {t:'Customer understanding',d:'You know your segments and their willingness to pay, from evidence.'},
+    {t:'Pricing model',d:'A deliberate model that fits your value, business and market.'},
+    {t:'Profitability',d:'Healthy margins and unit economics — LTV well above CAC.'},
+    {t:'Scalability',d:'Pricing that grows with the venture: tiers, recurring revenue, expansion.'}
+  ];
+  const matState=matItems.map(()=>false);
+  const matList=document.getElementById('matList');
+  function buildMat(){matList.innerHTML=matItems.map(function(it,ci){return '<div class="dr-item'+(matState[ci]?' on':'')+'" data-i="'+ci+'"><span class="dr-cb"></span><span class="dr-tx"><span class="dt">'+it.t+'</span><span class="dd">'+it.d+'</span></span></div>';}).join('');}
+  function recomputeMat(){const have=matState.filter(Boolean).length,pct=Math.round(have/matItems.length*100);document.getElementById('matNum').textContent=have;document.getElementById('matFill').style.width=pct+'%';const v=document.getElementById('matVerdict');if(have>=5){v.className='dr-verdict ready';v.textContent='Investor-ready pricing';}else if(have>=3){v.className='dr-verdict mid';v.textContent='Maturing — close the gaps';}else{v.className='dr-verdict low';v.textContent='Early — keep building';}}
+  if(matList){buildMat();recomputeMat();matList.addEventListener('click',function(e){const it=e.target.closest('.dr-item');if(!it)return;const ci=+it.getAttribute('data-i');matState[ci]=!matState[ci];buildMat();recomputeMat();});}
+
+  // ── Presenter View ──
+  var presenterWin = null;
+  const NOTES = [
+    ["Welcome to the FINAL session — Product Development &amp; Pricing, Week 5 of 5 (Fridays), with Patrick Ngolobe.","This is the capstone: turn five weeks of pricing into a SYSTEM that scales.","Frame: ~60 teach + ~60 Q&amp;A. They leave with unit economics, a maturity score and a 30-day plan.","Anchor: 'Pricing as a system, not a number.'"],
+    ["Preview the five blocks; outcome = economics + maturity score + 30-day plan.","~2 minutes."],
+    ["Transition: one price is a guess; an architecture scales."],
+    ["Map pain → solution → value → price; customers buy outcomes (jobs-to-be-done).","Architecture keeps every layer pointed at the outcome.","Set up the six-layer builder."],
+    ["Tap each of the six layers; stress they build bottom-up.","Get segments and value right and packaging/monetisation almost design themselves.","Have founders name their own segments and value drivers."],
+    ["Transition: does each customer actually make you money?"],
+    ["Four numbers: CAC, LTV, gross margin, payback.","The investor rule: LTV ≥ 3× CAC, payback under 12 months.","Pricing is the fastest lever on both LTV and payback."],
+    ["Have a founder enter their real ARPU, margin, lifetime and CAC.","Watch LTV, ratio and payback update; flags warn when ratio < 3 or < 1.","Show that raising price lifts LTV AND shortens payback at once."],
+    ["Transition: pricing is never finished."],
+    ["Dashboard: ARPU, churn, retention, margin, upsell, LTV.","Experiment loop: hypothesis → test → measure → refine → scale.","Investors check pricing POWER — can you raise prices without losing customers?"],
+    ["Have a founder score the five maturity areas honestly.","5 = investor-ready; 3–4 = maturing; under 3 = early.","Weakest area = where the next 30 days of work goes."],
+    ["Give 8–10 minutes for the 30-day plan: diagnose, design, test.","The live experiment is the point — leave with one running.","Set a monthly pricing review as the governance habit."],
+    ["Synthesis: five weeks = a governed pricing system, not a guess.","It all lands on the Founder's Pricing Canvas — one page.","Ask: what's the single most important pricing change you're leaving with?"],
+    ["Recall: architecture, economics, maturity, governance, the plan.","Repeat: build a pricing system that scales with you.","This completes the discipline — now go and charge well."],
+    ["25 solo, 35 group — CIRCULATE.","Each shares their LTV:CAC ratio + the one experiment they'll run.","Form accountability pairs for the experiment — highest-value outcome."],
+    ["Capstone: Pricing Canvas + unit economics + maturity score + 30-day plan with a live experiment.","Everything from five weeks now lives in one investor-ready place.","Congratulate them — they've finished Product Development &amp; Pricing."],
+    ["Close with energy: price with intent, charge what it's worth.","'A price you set once and forget is a price the market is already beating.'","Build the system, not the number. Thank them."]
+  ];
+  function notesHTML(idx){const a=NOTES[idx]||[];if(!a.length)return '<p class="empty">No speaker notes for this slide yet.</p>';return '<ul>'+a.map(function(b){return '<li>'+b+'</li>';}).join('')+'</ul>';}
+  function presSync(){ if(presenterWin&&!presenterWin.closed){ try{ presenterWin.postMessage({type:'goto',i:i,total:slides.length,title:(slides[i].getAttribute('data-title')||('Slide '+(i+1))),notes:notesHTML(i),next:(slides[i+1]?(slides[i+1].getAttribute('data-title')||''):'')},'*'); }catch(e){} } }
+  const PRESENTER_DOC='<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Presenter · The Founder\'s Sprint</title>'
+    +'<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">'
+    +'<style>:root{--paper:#EFE7D8;--ochre:#C9923A;--stone:#9a9a90;--mut:#A09888;--sans:\'Josefin Sans\',sans-serif;--disp:\'Cormorant Garamond\',serif;--body:\'Inter\',sans-serif;}'
+    +'*{box-sizing:border-box;margin:0;padding:0;}body{background:#121211;color:var(--paper);font-family:var(--body);min-height:100vh;display:flex;flex-direction:column;padding:22px 26px;}'
+    +'.top{display:flex;justify-content:space-between;align-items:center;font-family:var(--sans);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mut);border-bottom:1px solid rgba(239,231,216,.14);padding-bottom:12px;gap:12px;}'
+    +'.top .brand{color:var(--stone);font-weight:700;}.pnum{font-weight:700;color:var(--paper);margin-left:auto;}.clock{font-family:var(--disp);font-size:24px;color:var(--ochre);}'
+    +'.eyebrow{font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--stone);margin-top:16px;}'
+    +'.cur{font-family:var(--disp);font-size:30px;line-height:1.12;color:var(--paper);margin:4px 0 0;}'
+    +'.notes{flex:1;overflow:auto;margin-top:16px;}.notes ul{list-style:none;}.notes li{position:relative;padding-left:24px;margin-bottom:15px;font-size:18px;line-height:1.5;color:#EDE6D6;}'
+    +'.notes li::before{content:"";position:absolute;left:0;top:9px;width:9px;height:9px;background:var(--ochre);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);}'
+    +'.notes .empty{color:var(--mut);font-style:italic;font-family:var(--disp);font-size:20px;}'
+    +'.next{font-family:var(--sans);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);padding-top:14px;border-top:1px solid rgba(239,231,216,.14);}.next b{color:var(--paper);font-weight:600;}'
+    +'.ctrl{display:flex;gap:10px;margin-top:14px;}.ctrl button{flex:1;background:rgba(239,231,216,.08);border:1px solid rgba(239,231,216,.25);color:var(--paper);font-family:var(--sans);font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:13px;cursor:pointer;transition:.15s;}'
+    +'.ctrl button:hover{border-color:var(--ochre);color:var(--ochre);}</style></head><body>'
+    +'<div class="top"><span class="brand">The Founder\'s Sprint · Presenter</span><span class="pnum" id="pnum">—</span><span class="clock" id="clock">00:00</span></div>'
+    +'<div class="eyebrow">Now presenting</div><div class="cur" id="cur">—</div><div class="notes" id="notes"></div><div class="next" id="next"></div>'
+    +'<div class="ctrl"><button id="pp">‹ Prev</button><button id="nn">Next ›</button></div>'
+    +'<scr'+'ipt>var t0=Date.now();function pad(n){return String(n).padStart(2,"0");}'
+    +'setInterval(function(){var s=Math.floor((Date.now()-t0)/1000);document.getElementById("clock").textContent=pad(Math.floor(s/60))+":"+pad(s%60);},500);'
+    +'function nav(d){if(window.opener&&!window.opener.closed){window.opener.postMessage({type:"fs-nav",dir:d},"*");}}'
+    +'document.getElementById("pp").onclick=function(){nav(-1);};document.getElementById("nn").onclick=function(){nav(1);};'
+    +'window.addEventListener("keydown",function(e){if(e.key==="ArrowRight"||e.key===" "||e.key==="PageDown"){e.preventDefault();nav(1);}else if(e.key==="ArrowLeft"||e.key==="PageUp"){e.preventDefault();nav(-1);}});'
+    +'window.addEventListener("message",function(e){var m=e.data||{};if(m.type==="goto"){document.getElementById("pnum").textContent=(m.i+1)+" / "+m.total;document.getElementById("cur").textContent=m.title;document.getElementById("notes").innerHTML=m.notes||"";document.getElementById("next").innerHTML=m.next?("Next &rarr; <b>"+m.next+"</b>"):"End of deck";}});'
+    +'if(window.opener&&!window.opener.closed){window.opener.postMessage({type:"fs-ready"},"*");}'
+    +'<\/scr'+'ipt></body></html>';
+  function openPresenter(){if(presenterWin&&!presenterWin.closed){presenterWin.focus();presSync();return;}presenterWin=window.open('','fsPresenter','width=760,height=860');if(!presenterWin){alert('Please allow pop-ups for this page to open Presenter View.');return;}presenterWin.document.open();presenterWin.document.write(PRESENTER_DOC);presenterWin.document.close();setTimeout(presSync,350);}
+  window.addEventListener('message',function(e){const m=e.data||{};if(m.type==='fs-nav'){m.dir>0?next():prev();}else if(m.type==='fs-ready'){presSync();}});
+  var _pBtn=document.getElementById('presBtn'); if(_pBtn) _pBtn.addEventListener('click',openPresenter);
+  show(0);
+})();
+</script>
+<script src="/decks/_sponsors.js?v=1"></script>
+</body>
+</html>
