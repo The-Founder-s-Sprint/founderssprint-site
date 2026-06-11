@@ -31,10 +31,10 @@ function extractBlock(name) {
 
 const ctx = {};
 vm.createContext(ctx);
-for (const name of ['COACHES', 'TAXONOMY', 'L3_DESC', 'DISCIPLINE_KEYWORDS', 'L3_KEYWORDS']) {
+for (const name of ['COACHES', 'TAXONOMY', 'L3_DESC', 'DISCIPLINE_KEYWORDS', 'L3_KEYWORDS', 'INTENT_RULES']) {
   vm.runInContext(extractBlock(name).replace('const ', 'globalThis.'), ctx);
 }
-const { COACHES, TAXONOMY, L3_DESC, DISCIPLINE_KEYWORDS, L3_KEYWORDS } = ctx;
+const { COACHES, TAXONOMY, L3_DESC, DISCIPLINE_KEYWORDS, L3_KEYWORDS, INTENT_RULES } = ctx;
 
 // ---- Replicate resolveCoach (verbatim contract) ----
 function resolveCoach(l1Idx, l2Idx, l3Idx) {
@@ -119,6 +119,14 @@ function scoreNode(n, qTokens, rawQ){
   score += (n.level === 3 ? 0.7 : n.level === 2 ? 0.3 : 0);
   return score;
 }
+function intentBoosts(rawQ) {
+  const out = {};
+  for (const rule of INTENT_RULES) {
+    if (!rule.re.test(rawQ)) continue;
+    for (const name in rule.boosts) out[name] = Math.max(out[name] || 0, rule.boosts[name]);
+  }
+  return out;
+}
 function searchMatches(query) {
   const rawQ = String(query).trim().toLowerCase();   // mirrors searchInpt handler
   if (!rawQ) return [];
@@ -126,7 +134,13 @@ function searchMatches(query) {
   if (qTokens.length === 0) qTokens = tokenize(rawQ).filter(t => t.length >= 2);
   if (qTokens.length === 0) return [];
   const scored = [];
-  NODES.forEach(n => { const sc = scoreNode(n, qTokens, rawQ); if (sc > 0) scored.push({ n, sc }); });
+  const boosts = intentBoosts(rawQ);
+  NODES.forEach(n => {
+    let sc = scoreNode(n, qTokens, rawQ);
+    const b = n.level === 3 ? (boosts[n.name] || 0) : 0;
+    if (b) sc += b + (sc === 0 ? 0.8 : 0);
+    if (sc > 0) scored.push({ n, sc });
+  });
   scored.sort((a, b) => b.sc - a.sc || (b.n.level - a.n.level) || a.n.name.localeCompare(b.n.name));
   return scored.slice(0, 8).map(x => x.n);
 }
@@ -213,6 +227,24 @@ const QUERIES = [
   ['flutterwave', ['Payments & Mobile Money']],
 ];
 
+// ---- Goal-intent battery: vague outcome language, no course vocabulary.
+//      Pass = ANY accepted specialty in the top 3 (goal queries
+//      legitimately fan out across disciplines by design). ----
+const GOAL_QUERIES = [
+  ['i want to make more money', ['Value-Based Pricing', 'PMF Signals', 'Channel Mix', 'Contribution Margin', 'Brand Positioning', 'CAC & LTV']],
+  ['how do i get more customers', ['Channel Mix', 'Customer Research', 'Brand Positioning', 'Content Strategy', 'Problem Validation']],
+  ['my business is stuck', ['PMF Signals', 'Channel Mix', 'OKRs & KPIs', 'Positioning & Moats', 'Value-Based Pricing']],
+  ['i need money to grow my business', ['Pre-seed Rounds', 'Seed Rounds', 'Grants & DFIs', 'Investor Targeting']],
+  ['i dont know where to start', ['Problem Validation', 'Customer Research', 'MVP Design', 'Market Analysis', 'Legal & Registration']],
+  ['people keep leaving my company', ['Culture Design', 'Hiring Strategy', 'Org Structure']],
+  ['i want to be ready for investors', ['Pitch Deck Structure', 'Investor Narrative', 'Data Room', 'Due Diligence Prep', 'Investor Targeting']],
+  ['my customers are not paying me', ['Cash Flow Management', 'Payments & Mobile Money']],
+  ['i want to get noticed', ['Brand Positioning', 'Content Strategy', 'SEO & Discoverability', 'Channel Mix']],
+  ['i work too much', ['Process Design', 'Org Structure', 'Decision Frameworks', 'Hiring Strategy']],
+  ['competitors are killing us', ['Positioning & Moats', 'Market Analysis', 'Brand Positioning', 'Competitive Pricing']],
+  ['i am losing money every month', ['Contribution Margin', 'Cash Flow Management', 'Burn Rate & Runway']],
+];
+
 // ---- Run ----
 let top1 = 0, top3 = 0, miss = [];
 for (const [q, accept] of QUERIES) {
@@ -223,14 +255,27 @@ for (const [q, accept] of QUERIES) {
   else miss.push({ q, accept, got: res.slice(0, 3) });
   if (verbose) console.log(`${i === 0 ? '✓' : i > 0 && i < 3 ? '~' : '✗'} "${q}" → [${res.slice(0,3).join(' | ')}] (want ${accept.join('/')})`);
 }
+let goalPass = 0; const goalMiss = [];
+for (const [q, accept] of GOAL_QUERIES) {
+  const res = searchMatches(q).map(n => n.name);
+  const hit = res.slice(0, 3).some(name => accept.includes(name));
+  if (hit) goalPass++;
+  else goalMiss.push({ q, accept, got: res.slice(0, 3) });
+  if (verbose) console.log(`${hit ? '✓' : '✗'} [goal] "${q}" → [${res.slice(0,3).join(' | ')}]`);
+}
 const n = QUERIES.length;
 console.log('\n========================================');
 console.log(`Queries: ${n}`);
 console.log(`Top-1:   ${top1}/${n}  (${(100*top1/n).toFixed(1)}%)`);
 console.log(`Top-3:   ${top3}/${n}  (${(100*top3/n).toFixed(1)}%)`);
+console.log(`Goal-intent: ${goalPass}/${GOAL_QUERIES.length} in top-3`);
 console.log(`Nodes:   ${NODES.length} (L3: ${NODES.filter(x=>x.level===3).length})`);
 if (miss.length) {
   console.log('\nTop-3 misses:');
   miss.forEach(m => console.log(`  ✗ "${m.q}" want ${m.accept.join('/')} got [${m.got.join(' | ')}]`));
 }
-process.exit(miss.length ? 1 : 0);
+if (goalMiss.length) {
+  console.log('\nGoal misses:');
+  goalMiss.forEach(m => console.log(`  ✗ "${m.q}" want any of ${m.accept.join('/')} got [${m.got.join(' | ')}]`));
+}
+process.exit(miss.length || goalMiss.length ? 1 : 0);

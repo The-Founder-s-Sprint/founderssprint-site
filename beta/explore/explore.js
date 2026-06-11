@@ -354,6 +354,69 @@
   };
 
   // ============================================================
+  //   SEARCH INTENT LAYER — goal-level queries
+  //   Founders often describe the outcome they want ("I want to
+  //   make more money"), not a course name. Each rule recognises
+  //   goal language and boosts the specialties that answer it, so
+  //   vague queries still land on bookable paths. Boosts add on
+  //   top of the token matcher — they never suppress an exact
+  //   match — and matter increasingly beyond the ITM market where
+  //   founders won't share our vocabulary.
+  // ============================================================
+  const INTENT_RULES = [
+    { // earn more — revenue/profit growth as a stated goal
+      re: /(make|making|earn|earning|generate|bring in).{0,28}(money|profit|income|cash)|more (money|revenue|sales|profit|income)|increase (my )?(revenue|sales|profits?|income)|grow (my )?(revenue|sales|income|profits?)|boost (my )?(sales|revenue)|double (my )?(sales|revenue)/,
+      boosts: { 'Value-Based Pricing': 5, 'PMF Signals': 4.5, 'Channel Mix': 4.2, 'Contribution Margin': 3.8, 'Brand Positioning': 3.4, 'CAC & LTV': 3 } },
+    { // demand — can't find buyers
+      re: /(get|find|win|attract|reach).{0,16}(customers|clients|buyers|users)|nobody (is )?buying|no (one is )?buying|no sales|cant sell|can not sell|sales are (low|down|slow)/,
+      boosts: { 'Channel Mix': 5, 'Customer Research': 4.4, 'Brand Positioning': 4, 'Problem Validation': 3.8, 'Content Strategy': 3.4 } },
+    { // bleeding — losing money / cost pressure
+      re: /losing money|loss making|costs? (are )?(too )?(high|eating|killing)|expenses (are )?(too )?high|spending too much|not profitable|barely break(ing)? even/,
+      boosts: { 'Contribution Margin': 5, 'Cash Flow Management': 4.4, 'Burn Rate & Runway': 4.2, 'Value-Based Pricing': 3.8, 'CAC & LTV': 3.4 } },
+    { // capital — needs outside money
+      re: /(need|raise|raising|looking for|searching for).{0,16}(capital|funding|investment|money to (grow|start|build|expand))|need money|get funding|fund my (business|startup|idea)|where.{0,20}(funding|investors)/,
+      boosts: { 'Pre-seed Rounds': 5, 'Grants & DFIs': 4.6, 'Seed Rounds': 4.4, 'Investor Targeting': 4, 'Pitch Deck Structure': 3.4 } },
+    { // orientation — doesn't know where to start
+      re: /where (do|should) i (start|begin)|(dont|do not) know (where to (start|begin)|what to do)|just (started|starting)|new founder|first time founder|starting (a|my) business|have an idea/,
+      boosts: { 'Problem Validation': 5, 'Customer Research': 4.4, 'MVP Design': 4.2, 'Market Analysis': 3.8, 'Legal & Registration': 3.4 } },
+    { // plateau — growth stalled
+      re: /not growing|stopped growing|stuck|plateau|flat ?lin|slow(ed)? growth|growth (has )?stalled|cant grow|can not grow/,
+      boosts: { 'PMF Signals': 5, 'Channel Mix': 4.4, 'OKRs & KPIs': 3.9, 'Positioning & Moats': 3.6, 'Value-Based Pricing': 3.3 } },
+    { // competition pressure
+      re: /compet(itors?|ition).{0,12}(beating|killing|cheaper|winning|copying|taking)|losing (to|customers to) compet|crowded market|too much competition/,
+      boosts: { 'Positioning & Moats': 5, 'Market Analysis': 4.4, 'Brand Positioning': 4.2, 'Competitive Pricing': 3.8 } },
+    { // team pain
+      re: /(team|staff|people|employees?) (is |are )?(keep |keeps )?(quitting|leaving|fighting|underperforming)|cant (find|keep) (good )?(people|staff|talent)|manage my team|team problems/,
+      boosts: { 'Culture Design': 5, 'Hiring Strategy': 4.5, 'Org Structure': 4, 'Payroll & HR Compliance': 3.5, 'Decision Frameworks': 3.2 } },
+    { // investor readiness
+      re: /(impress|convince|attract|find|meet|ready for|talk to).{0,12}investors?|investor ready|investment ready|fundable|due diligence ready/,
+      boosts: { 'Pitch Deck Structure': 5, 'Investor Narrative': 4.5, 'Data Room': 4.2, 'Due Diligence Prep': 4, 'Investor Targeting': 3.8, 'Valuation Methods': 3.4 } },
+    { // legitimacy — compliance worry
+      re: /stay out of trouble|legal trouble|am i legal|trouble with (ura|the law|government|kcca)|get (compliant|legit|legal)|formali[sz]e|make (it|my business) official/,
+      boosts: { 'Legal & Registration': 5, 'Tax & Compliance': 4.6, 'Payroll & HR Compliance': 4 } },
+    { // pricing confidence
+      re: /charge more|raise (my )?prices?|too cheap|undercharg|overcharg|worth more|charging enough|right price|price.{0,10}right/,
+      boosts: { 'Value-Based Pricing': 5, 'Price Testing': 4.4, 'Competitive Pricing': 4, 'Contribution Margin': 3.4 } },
+    { // collections — getting paid
+      re: /(customers?|clients?) (are )?not paying|cant collect|chasing payments?|get paid (faster|on time)|late payments?/,
+      boosts: { 'Cash Flow Management': 5, 'Payments & Mobile Money': 4.4 } },
+    { // visibility — wants to be known
+      re: /get (noticed|famous|known|seen|discovered)|be (famous|known|visible)|nobody knows (us|my|about)|more (visibility|exposure|attention)|build (an |my )?audience/,
+      boosts: { 'Brand Positioning': 5, 'Content Strategy': 4.5, 'SEO & Discoverability': 4.2, 'Channel Mix': 3.8 } },
+    { // founder overload
+      re: /work(ing)? too (much|hard)|burn(ing|t)? ?out|everything depends on me|cant take a (break|holiday)|do everything myself/,
+      boosts: { 'Process Design': 5, 'Org Structure': 4.4, 'Decision Frameworks': 4, 'Hiring Strategy': 3.6 } },
+  ];
+  function intentBoosts(rawQ) {
+    const out = {};
+    for (const rule of INTENT_RULES) {
+      if (!rule.re.test(rawQ)) continue;
+      for (const name in rule.boosts) out[name] = Math.max(out[name] || 0, rule.boosts[name]);
+    }
+    return out;
+  }
+
+  // ============================================================
   //   HASH → L1 INDEX MAP (deep linking from homepage)
   // ============================================================
   const HASH_TO_L1 = {
@@ -450,6 +513,7 @@
           name: spec, color: d.color,
           coach: l3Coach ? l3Coach.name : '', coachRole: l3Coach ? l3Coach.role : '',
           coachId: l3Coach ? l3Coach.id : null,
+          l3Len,                                  // branch size — label fan + stagger adapt to it
           parentName: sub.name, grandparentName: d.l1,
           theta: l3Theta, r: R3, yLift: 0,
           t0: 0.44 + i * 0.04 + j * 0.02 + k * 0.01,
@@ -550,8 +614,12 @@
   // Rotate the center mark via JS in the render loop (Safari doesn't reliably
   // handle CSS animations + transform-box on SVG groups).
 
-  // ---------- Particle system (replaces starburst) ----------
-  const PARTICLE_COUNT = 60;
+  // ---------- Star-burst flash (intro pop, dissolves into the dust field) ----------
+  const burstFlash = el('circle', { cx: CX, cy: CY, r: 20, fill: 'url(#g-center)', opacity: 0 });
+  gBurst.appendChild(burstFlash);
+
+  // ---------- Particle system (star dust — bursts outward on load, then drifts) ----------
+  const PARTICLE_COUNT = 84;
   const particles = [];
   for (let i = 0; i < PARTICLE_COUNT; i++) {
     const angle = Math.random() * Math.PI * 2;
@@ -575,6 +643,9 @@
       baseY: CY + Math.sin(angle) * dist,
       color: PETAL_COLS[colorIdx],
       maxOpacity: 0.12 + Math.random() * 0.28,
+      depth: 0.25 + Math.random() * 0.75,   // parallax: nearer dust sweeps faster as the graph turns
+      px: CX, py: CY, vx: 0, vy: 0,         // spring-integrated position — burst start at the mark
+      sparkle: 0,                           // rare bright twinkle, decays exponentially
     });
   }
 
@@ -602,11 +673,15 @@
 
     if (n.level === 1) {
       n._glow = el('circle', { cx: 0, cy: 0, r: 48, fill: n.color, opacity: 0.18, filter: 'url(#f-glow-lg)' });
+      n._halo = el('circle', { cx: 0, cy: 0, r: 42, fill: 'none', stroke: n.color, 'stroke-width': 0.8, 'stroke-dasharray': '1 5', opacity: 0.22 });
       n._ring = el('circle', { cx: 0, cy: 0, r: 30, fill: COL_INK, stroke: n.color, 'stroke-width': 2 });
       n._innerDot = el('circle', { cx: 0, cy: 0, r: 4, fill: n.color });
+      n._spec = el('circle', { cx: -10, cy: -10, r: 2.4, fill: COL_PAPER, opacity: 0.3 });   // specular catch-light
       g.appendChild(n._glow);
+      g.appendChild(n._halo);
       g.appendChild(n._ring);
       g.appendChild(n._innerDot);
+      g.appendChild(n._spec);
 
       const t1 = el('text', { x: 0, y: -8, 'text-anchor': 'middle', 'dominant-baseline': 'middle', fill: n.color, opacity: 0.95, 'font-family': "'Josefin Sans', sans-serif", 'font-size': 8.5, 'font-weight': 700, 'letter-spacing': 1, class: 'label' });
       t1.textContent = n.short[0];
@@ -630,6 +705,7 @@
       g.appendChild(n._label);
 
     } else {
+      n._twPhase = Math.random() * Math.PI * 2;   // per-star twinkle offset
       n._innerDot = el('circle', { cx: 0, cy: 0, r: 3, fill: n.color, opacity: 0.7 });
       n._glowDot  = el('circle', { cx: 0, cy: 0, r: 6, fill: n.color, opacity: 0, filter: 'url(#f-glow-sm)' });
       n._tick = el('line', { x1: 0, y1: 0, x2: 0, y2: 0, stroke: n.color, 'stroke-width': 0.6, opacity: 0.3, class: 'tick' });
@@ -1252,7 +1328,13 @@
     if (qTokens.length === 0) qTokens = tokenize(rawQ).filter(t => t.length >= 2); // all-stopword fallback
     if (qTokens.length === 0) return [];
     const scored = [];
-    NODES.forEach(n => { const sc = scoreNode(n, qTokens, rawQ); if (sc > 0) scored.push({ n, sc }); });
+    const boosts = intentBoosts(rawQ);
+    NODES.forEach(n => {
+      let sc = scoreNode(n, qTokens, rawQ);
+      const b = n.level === 3 ? (boosts[n.name] || 0) : 0;
+      if (b) sc += b + (sc === 0 ? 0.8 : 0);   // goal matches surface even with zero token hits
+      if (sc > 0) scored.push({ n, sc });
+    });
     scored.sort((a, b) => b.sc - a.sc || (b.n.level - a.n.level) || a.n.name.localeCompare(b.n.name));
     lastSearchMeta = { count: scored.length, topScore: scored.length ? scored[0].sc : 0, topNode: scored.length ? scored[0].n.name : null };
     return scored.slice(0, 8).map(x => x.n);
@@ -1392,7 +1474,10 @@
       }
     } else if (!state.paused && !state.dragging && state.focusedL1 == null) {
       const introBoost = lp < 1 ? (1 + 1.5 * (1 - lp)) : 1;
-      state.yaw = (state.yaw + state.speed * introBoost * dt / 16.7) % 360;
+      // Organic flow: rotation speed swells and eases on two slow
+      // sine periods instead of running metronome-constant.
+      const flow = 1 + Math.sin(now / 9000) * 0.12 + Math.sin(now / 23000) * 0.08;
+      state.yaw = (state.yaw + state.speed * introBoost * flow * dt / 16.7) % 360;
     }
     // Smooth drag inertia decay
     if (!state.dragging && Math.abs(state.userYawVelocity) > 0.01) {
@@ -1411,13 +1496,17 @@
     }
     window.__constellation.renderTilt = renderTilt;
 
-    // Haze orbs — throttled to every 4th frame (~15fps). Pure decoration.
+    // Haze orbs — throttled to every 4th frame (~15fps). Yaw-coupled
+    // parallax so the constellation visibly turns *through* the clouds.
+    const yawRad = (state.yaw + state.userYawOffset) * Math.PI / 180;
     if (frameCount % 4 === 0) {
       const t = now / 1000;
       const hazeOp = lp < 1 ? lp * 0.9 : 0.9;
       hazeEls.forEach(h => {
-        const dx = Math.sin(t / h.dur * 2 * Math.PI + h.phase) * 80;
-        const dy = Math.cos(t / h.dur * 2 * Math.PI + h.phase * 0.7) * 60;
+        const dx = Math.sin(t / h.dur * 2 * Math.PI + h.phase) * 80
+                 + Math.cos(yawRad * 0.35 + h.phase * 2.1) * 46;
+        const dy = Math.cos(t / h.dur * 2 * Math.PI + h.phase * 0.7) * 60
+                 + Math.sin(yawRad * 0.35 + h.phase * 1.4) * 28;
         const sc = 1 + Math.sin(t / (h.dur * 0.7) + h.phase) * 0.05;
         h.el.setAttribute('cx', h.ox + dx);
         h.el.setAttribute('cy', h.oy + dy);
@@ -1426,42 +1515,57 @@
       });
     }
 
-    // Particles — smooth drift with organic motion (replaces starburst)
+    // Star dust — bursts out of the mark on load, then drifts with
+    // spring elasticity, depth parallax, twinkle sparkles.
     if (frameCount % 2 === 0) {
       const t = now / 1000;
+      // Intro burst: dust target expands from the centre outward
+      const burstT = lp < 1 ? easeOutCubic(clamp01((lp - 0.02) / 0.55)) : 1;
       particles.forEach(p => {
-        // Gentle orbital drift
         p.angle += p.drift * dt;
-        // Organic position with noise-like sine layers
-        const wobbleX = Math.sin(t * p.speed + p.phase) * 8
+        const effDist = p.dist * (0.06 + 0.94 * burstT);
+        // Depth-coupled parallax: nearer dust sweeps faster with the rotation
+        const rot = yawRad * 0.22 * p.depth;
+        const wobbleX = Math.sin(t * p.speed + p.phase) * 9
                       + Math.sin(t * p.speed * 0.7 + p.phase * 1.3) * 4;
-        const wobbleY = Math.cos(t * p.speed * 0.9 + p.phase * 0.8) * 6
+        const wobbleY = Math.cos(t * p.speed * 0.9 + p.phase * 0.8) * 7
                       + Math.cos(t * p.speed * 0.5 + p.phase * 1.6) * 3;
-        const x = CX + Math.cos(p.angle) * p.dist + wobbleX;
-        const y = CY + Math.sin(p.angle) * p.dist + wobbleY;
-        p.el.setAttribute('cx', x.toFixed(1));
-        p.el.setAttribute('cy', y.toFixed(1));
+        const tx = CX + Math.cos(p.angle + rot) * effDist + wobbleX;
+        const ty = CY + Math.sin(p.angle + rot) * effDist * 0.92 + wobbleY;  // slight squash echoes the tilt
+        // Elastic spring toward the target — motion lags, overshoots a touch, settles
+        p.vx = (p.vx + (tx - p.px) * 0.085) * 0.86;
+        p.vy = (p.vy + (ty - p.py) * 0.085) * 0.86;
+        p.px += p.vx; p.py += p.vy;
+        p.el.setAttribute('cx', p.px.toFixed(1));
+        p.el.setAttribute('cy', p.py.toFixed(1));
 
-        // Fade in smoothly during load, gentle pulse after
+        // Sparkle: rare bright twinkle with exponential decay
+        if (p.sparkle > 0.02) p.sparkle *= 0.90;
+        else if (Math.random() < 0.0012) p.sparkle = 1;
+
         let op;
         if (lp < 1) {
-          const fadeIn = clamp01((lp - 0.05) / 0.5);
-          op = easeOutCubic(fadeIn) * p.maxOpacity;
+          const fadeIn = clamp01((lp - 0.04) / 0.40);
+          op = easeOutCubic(fadeIn) * p.maxOpacity * (1.8 - 0.8 * burstT);  // flares in the burst, settles to ambient
         } else {
-          const pulse = 0.85 + Math.sin(t * p.speed * 1.2 + p.phase) * 0.15;
+          const pulse = 0.8 + Math.sin(t * p.speed * 1.2 + p.phase) * 0.2;
           op = p.maxOpacity * pulse;
         }
+        op = Math.min(0.85, op + p.sparkle * 0.55);
         p.el.setAttribute('opacity', op.toFixed(3));
-        // Subtle size breathing
-        const breathe = p.size * (0.9 + Math.sin(t * p.speed * 0.6 + p.phase * 2) * 0.1);
+        const breathe = p.size * (0.88 + Math.sin(t * p.speed * 0.6 + p.phase * 2) * 0.12) * (1 + p.sparkle * 0.9);
         p.el.setAttribute('r', breathe.toFixed(2));
       });
     }
-    // Center mark fade-in (smooth, no flash)
+    // Star-burst flash + centre mark reveal
     if (lp < 1) {
-      const centerOp = clamp01((lp - 0.15) / 0.45);
+      const ft = clamp01(lp / 0.5);
+      burstFlash.setAttribute('r', (20 + easeOutCubic(ft) * 680).toFixed(0));
+      burstFlash.setAttribute('opacity', (Math.sin(Math.PI * Math.min(1, ft * 1.25)) * 0.85 * (1 - ft * 0.35)).toFixed(3));
+      const centerOp = clamp01((lp - 0.10) / 0.40);
       petalsGroup.setAttribute('opacity', easeOutCubic(centerOp));
     } else {
+      if (burstFlash.getAttribute('opacity') !== '0') burstFlash.setAttribute('opacity', 0);
       petalsGroup.setAttribute('opacity', 1);
     }
     // Rotate center mark slowly (JS instead of CSS animation for Safari compat)
@@ -1493,8 +1597,14 @@
       }
     }
 
-    // Project nodes + build O(1) lookup map for connection endpoints
-    const projected = NODES.map(n => ({ n, p: projectAngle(n.theta, n.r, n.yLift, renderTilt) }));
+    // Project nodes + build O(1) lookup map for connection endpoints.
+    // Post-intro, every node gets a slow individual bob (phase keyed to
+    // its angle) so the whole field breathes instead of turning rigidly.
+    const bobT = now / 1000;
+    const projected = NODES.map(n => {
+      const bob = lp >= 1 ? Math.sin(bobT * 0.45 + n.theta * 0.11) * (n.level === 3 ? 5 : n.level === 2 ? 3.5 : 2) : 0;
+      return { n, p: projectAngle(n.theta, n.r, n.yLift + bob, renderTilt) };
+    });
     const projMap = new Map();
     projected.forEach(o => projMap.set(o.n.id, o.p));
 
@@ -1510,14 +1620,17 @@
     // Update nodes
     projected.forEach(({ n, p }) => {
       const scale = p.persp;
-      let sx = p.sx, sy = p.sy, introOp = 1, introScale = scale;
+      let sx = p.sx, sy = p.sy, introOp = 1, introScale = scale, introFlare = 0;
       if (lp < 1) {
         const localT = clamp01((lp - n.t0) / 0.28);
-        const eT = easeOutCubic(localT);
+        // Star-burst trajectory: dust flies past its target (easeOutBack
+        // overshoot, lighter nodes overshoot further) and settles back in.
+        const eT = easeOutBack(localT, n.level === 3 ? 2.2 : n.level === 2 ? 1.6 : 1.15);
         sx = lerp(CX, p.sx, eT);
         sy = lerp(CY, p.sy, eT);
         introOp = clamp01(localT * 1.2);
-        introScale = lerp(0.3, scale, eT);
+        introScale = lerp(0.2, scale, easeOutCubic(localT));
+        introFlare = Math.sin(Math.PI * localT);   // bright at mid-flight, fades as the node lands
       }
       n._group.style.transform = `translate(${sx}px, ${sy}px) scale(${introScale.toFixed(3)})`;
 
@@ -1552,7 +1665,12 @@
         const op = isActive ? 1 : isLineage ? 0.95 : isGray ? 0.45 : baseOp;
         n._group.style.opacity = op * introOp;
         n._glow.setAttribute('fill', isActive ? n.color : fillCol);
-        n._glow.setAttribute('opacity', isActive ? 0.75 : isLineage ? 0.35 : isGray ? 0.06 : 0.18 * baseOp);
+        n._glow.setAttribute('opacity', lp < 1 ? Math.max(0.18, introFlare * 0.65)
+          : isActive ? 0.75 : isLineage ? 0.35 : isGray ? 0.06 : 0.18 * baseOp);
+        n._halo.setAttribute('stroke', isActive ? n.color : fillCol);
+        n._halo.setAttribute('opacity', isActive ? 0.55 : isLineage ? 0.35 : isGray ? 0.05 : 0.22 * baseOp);
+        n._halo.setAttribute('r', isActive ? 48 : 42);
+        n._spec.setAttribute('opacity', isGray ? 0.08 : 0.3 * Math.max(baseOp, isActive ? 1 : 0));
         n._ring.setAttribute('stroke', isActive ? n.color : fillCol);
         n._innerDot.setAttribute('fill', isActive ? n.color : fillCol);
         if (n._innerLabel) n._innerLabel.forEach(t => t.setAttribute('fill', isActive ? n.color : fillCol));
@@ -1570,7 +1688,8 @@
         const op = isActive ? 1 : isLineage ? 0.9 : isSibling ? 0.2 : isGray ? 0.5 : baseOp;
         n._group.style.opacity = op * introOp;
         n._glow.setAttribute('fill', isActive ? n.color : fillCol);
-        n._glow.setAttribute('opacity', isActive ? 0.6 : isLineage ? 0.12 : isSibling ? 0.04 : isGray ? 0.05 : 0.15 * baseOp);
+        n._glow.setAttribute('opacity', lp < 1 ? Math.max(0.15, introFlare * 0.5)
+          : isActive ? 0.6 : isLineage ? 0.12 : isSibling ? 0.04 : isGray ? 0.05 : 0.15 * baseOp);
         n._ring.setAttribute('stroke', isActive ? n.color : fillCol);
         n._innerDot.setAttribute('fill', isActive ? n.color : fillCol);
         n._label.setAttribute('fill', isActive ? n.color : labelCol);
@@ -1585,16 +1704,27 @@
       } else {
         const op = isActive ? 1 : isLineage ? 0.85 : isSibling ? 0.2 : isGray ? 0.35 : 0.55 * baseOp;
         n._group.style.opacity = op * introOp;
+        // Twinkle: idle stars breathe individually (size + brightness)
+        const tw = Math.sin(now / 1100 + n._twPhase);
         n._innerDot.setAttribute('fill', isActive ? n.color : fillCol);
-        n._innerDot.setAttribute('r', isActive ? 6 : isLineage ? 3 : 3);
+        n._innerDot.setAttribute('r', isActive ? 6 : isLineage ? 3.4 : 3 + tw * 0.7);
+        n._innerDot.setAttribute('opacity', isActive ? 1 : 0.7 + tw * 0.18);
         n._glowDot.setAttribute('fill', isActive ? n.color : fillCol);
-        n._glowDot.setAttribute('opacity', isActive ? 0.85 : isLineage ? 0.15 : 0);
-        n._glowDot.setAttribute('r', isActive ? 14 : 6);
+        n._glowDot.setAttribute('opacity', lp < 1 ? (introFlare * 0.8).toFixed(3)
+          : isActive ? 0.85 : isLineage ? 0.18 : 0.05 + Math.max(0, tw) * 0.06);
+        n._glowDot.setAttribute('r', lp < 1 ? 6 + introFlare * 6 : isActive ? 14 : 6);
         if (n._tick) n._tick.setAttribute('stroke', isActive ? n.color : fillCol);
         n._label.setAttribute('fill', isActive ? '#efe7d8' : labelCol);
 
-        const radial = l3RadialDist(n.l3Idx);
-        const [dx, dy] = labelOffset(n, p, scale, labelPos, radial, -48);
+        // Staggered fan distances. In the selected (lineage) state the
+        // labels spread wider and alternate height + size so every
+        // specialty under the chosen L2 is readable at a glance —
+        // overlap is only tolerated while idly rotating.
+        const emph = isActive || isLineage;
+        const radial = l3RadialDist(n.l3Idx, n.l3Len) + (emph ? 30 + (n.l3Idx % 2) * 22 : 0);
+        const lift = emph ? (n.l3Idx % 2 === 0 ? -64 : -30) : -48;
+        const [dx, dy] = labelOffset(n, p, scale, labelPos, radial, lift);
+        n._label.setAttribute('font-size', isActive ? 11.5 : emph ? (n.l3Idx % 2 === 0 ? 10.5 : 9.5) : 10);
         n._label.setAttribute('x', dx);
         n._label.setAttribute('y', dy);
 
@@ -1733,7 +1863,14 @@
     return [(dirP.sx - p.sx) / (scale || 1), (dirP.sy - p.sy) / (scale || 1)];
   }
 
-  function l3RadialDist(k) { return [62, 26, 62][k]; }
+  function l3RadialDist(k, len) {
+    // Staggered near/far label fan. 4-child branches get a third tier —
+    // the old [62,26,62][k] returned undefined for k=3 (the four recently
+    // added specialties), which produced NaN label coordinates.
+    const seq = len === 4 ? [70, 26, 74, 116] : [62, 26, 62];
+    const d = seq[k % seq.length];
+    return d != null ? d : 62;
+  }
 
   // ============================================================
   //   CONTROLS

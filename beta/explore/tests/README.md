@@ -8,3 +8,4 @@ Run before and after ANY change to keywords, nodes, scoring, or the mobile modul
     node tests/resize-smoke.js .                     # breakpoint crossing (frozen-hero regression): 10 checks
 
 Baseline recorded 10 Jun 2026 (explore.js?v=16): matcher 66/72 top-1, 72/72 top-3 · 69 nodes (49 L3).
+    node tests/labels-smoke.js .                     # label NaN + selected-state size variation: 3 checks
