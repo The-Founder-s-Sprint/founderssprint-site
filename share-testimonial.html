@@ -35,6 +35,10 @@
   textarea{resize:vertical;min-height:108px;line-height:1.55;}
   .grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
   .hint{font-size:11px;color:var(--muted);}
+  .stars{display:flex;gap:5px;font-size:30px;line-height:1;margin:2px 0 4px;}
+  .star{background:none;border:none;cursor:pointer;color:var(--border-hi);padding:0 1px;transition:color .12s,transform .12s;line-height:1;}
+  .star:hover{transform:scale(1.08);}
+  .star.on{color:var(--ochre);}
   .photo-row{display:flex;align-items:center;gap:14px;}
   .photo-prev{width:60px;height:60px;border-radius:50%;border:1px solid var(--border-hi);background:var(--paper-deep);object-fit:cover;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:24px;color:var(--paper-dim);}
   .filebtn{font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--terra);border:1px solid var(--border-hi);padding:10px 16px;cursor:pointer;background:none;}
@@ -81,6 +85,17 @@
       <label>Your testimonial <span class="req">*</span></label>
       <textarea id="testimonial" placeholder="What changed for you and your business?"></textarea>
       <span class="hint">A few honest sentences are perfect.</span>
+    </div>
+    <div class="f" id="rating-block" style="display:none">
+      <label>Your rating <span style="color:var(--paper-dim);font-weight:400;text-transform:none;letter-spacing:0;font-size:11px">— how was working with <span id="rating-who">your coach</span>?</span></label>
+      <div class="stars" id="stars" role="radiogroup" aria-label="Star rating">
+        <button type="button" class="star" data-v="1" aria-label="1 star">★</button>
+        <button type="button" class="star" data-v="2" aria-label="2 stars">★</button>
+        <button type="button" class="star" data-v="3" aria-label="3 stars">★</button>
+        <button type="button" class="star" data-v="4" aria-label="4 stars">★</button>
+        <button type="button" class="star" data-v="5" aria-label="5 stars">★</button>
+      </div>
+      <span class="hint" id="rating-hint">Tap a star to rate (optional).</span>
     </div>
 
     <div class="sec" style="margin-top:24px">About you</div>
@@ -136,6 +151,28 @@ const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON,{auth:{persistSession:
   }catch(e){}
 })();
 
+/* Star rating — shown only when a specific coach is selected (not the whole-team option). */
+let ratingVal = 0;
+(function(){
+  const COACH_NAMES={'teddy-ruge':'Teddy Ruge','barry-wojega':'Barry Wojega','joseph-kalema':'Joseph Kalema','moses-okudu':'Moses Engwau Okudu','patrick-ngolobe':'Patrick Ngolobe'};
+  const block=document.getElementById('rating-block');
+  const stars=[].slice.call(document.querySelectorAll('#stars .star'));
+  const sel=document.getElementById('for_target');
+  function paint(n){ stars.forEach(s=>s.classList.toggle('on', Number(s.dataset.v)<=n)); }
+  stars.forEach(s=>{
+    s.addEventListener('mouseenter',()=>paint(Number(s.dataset.v)));
+    s.addEventListener('click',()=>{ ratingVal=Number(s.dataset.v); paint(ratingVal); document.getElementById('rating-hint').textContent='You rated '+ratingVal+' / 5 — thank you.'; });
+  });
+  document.getElementById('stars').addEventListener('mouseleave',()=>paint(ratingVal));
+  function update(){
+    const v=(sel.value||'').toLowerCase();
+    if(v && v!=='group'){ block.style.display=''; const who=document.getElementById('rating-who'); if(who) who.textContent=COACH_NAMES[v]||'your coach'; }
+    else { block.style.display='none'; ratingVal=0; paint(0); }
+  }
+  sel.addEventListener('change',update);
+  update();
+})();
+
 let photoFile=null;
 document.getElementById('photo').addEventListener('change',e=>{
   const f=e.target.files[0]; if(!f) return;
@@ -160,9 +197,10 @@ async function submitForm(){
       if(upErr) throw new Error('Photo upload failed — '+upErr.message);
       photo_path=path;
     }
+    const rating = (for_target && for_target!=='group' && ratingVal>=1 && ratingVal<=5) ? ratingVal : null;
     const { error }=await sb.from('testimonial_submissions').insert({
       name, role_title:val('role_title')||null, company:val('company')||null,
-      for_target, testimonial, photo_path, consent:true, status:'new'
+      for_target, testimonial, photo_path, consent:true, status:'new', rating
     });
     if(error) throw new Error(error.message);
     document.getElementById('form-card').style.display='none';

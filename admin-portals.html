@@ -859,6 +859,7 @@ function tstItem(t){
     '<div style="flex:1;min-width:0"><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:baseline">'+
       '<strong>'+esc(t.name)+'</strong>'+(meta?'<span style="color:var(--muted);font-size:12px">'+meta+'</span>':'')+tgt+
       '<span style="margin-left:auto;font-family:var(--sans);font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:'+st.c+'">'+st.l+'</span></div>'+
+      (t.rating?'<div style="color:#C9923A;font-size:13px;letter-spacing:2px;margin-top:5px" title="'+t.rating+' / 5">'+'★'.repeat(t.rating)+'<span style="color:var(--border-hi,#bbb)">'+'★'.repeat(5-t.rating)+'</span></div>':'')+
       '<div style="margin:7px 0 0;color:var(--ink-mid);line-height:1.55;font-size:13px">“'+esc(t.testimonial)+'”</div>'+
       '<div style="margin-top:10px;display:flex;gap:7px;flex-wrap:wrap">'+act+'</div>'+
     '</div></div></div>';

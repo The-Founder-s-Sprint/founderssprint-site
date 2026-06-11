@@ -713,6 +713,7 @@ function tstCard(t){
     '<div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline">'+
       '<div style="font-weight:600">'+esc(t.name)+(meta?' <span style="font-weight:400;color:var(--muted);font-size:12px">— '+meta+'</span>':'')+'</div>'+
       '<span style="font-family:var(--sans);font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:'+st.c+'">'+st.l+'</span></div>'+
+      (t.rating?'<div style="color:#C9923A;font-size:14px;letter-spacing:2px;margin-top:6px" title="'+t.rating+' / 5">'+'★'.repeat(t.rating)+'<span style="color:var(--border-hi)">'+'★'.repeat(5-t.rating)+'</span></div>':'')+
       '<div style="margin:8px 0 0;color:var(--ink-mid);line-height:1.6;font-size:13.5px">“'+esc(t.testimonial)+'”</div>'+
       '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">'+actions+'</div>'+
     '</div></div>';
@@ -721,15 +722,27 @@ function renderTestimonials(){
   const host=document.getElementById('testimonials-body'); if(!host) return;
   if(!coach||!coach.slug){ host.innerHTML='<div class="card"><div class="empty"><div class="empty-mark">◇</div><div style="color:var(--ink-mid)">Testimonials appear here once your coach profile is set up.</div></div></div>'; return; }
   if(!myTestimonials.length){ host.innerHTML='<div class="card"><div class="empty"><div class="empty-mark">◇</div><div style="color:var(--ink-mid)">No testimonials yet.</div><div style="margin-top:6px;color:var(--muted);font-size:12.5px">Share your collection link with founders: <a href="/share-testimonial.html" target="_blank" style="color:var(--terra)">founderssprint.co/share-testimonial.html</a></div></div></div>'; return; }
+  // Your founder rating — average of ratings on approved testimonials; goes public at 10
+  const rated=myTestimonials.filter(t=>t.status==='approved'&&t.rating>=1&&t.rating<=5);
+  const cnt=rated.length, avg=cnt?rated.reduce((a,t)=>a+t.rating,0)/cnt:0, rnd=Math.round(avg);
+  let summary='';
+  if(cnt){
+    const live=cnt>=10;
+    summary='<div class="card card-top" style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:0">'
+      +'<div style="font-family:var(--display);font-size:40px;line-height:1;color:var(--ink)">'+avg.toFixed(1)+'</div>'
+      +'<div style="min-width:0"><div style="color:#C9923A;font-size:17px;letter-spacing:2px">'+'★'.repeat(rnd)+'<span style="color:var(--border-hi)">'+'★'.repeat(5-rnd)+'</span></div>'
+      +'<div style="font-size:12.5px;color:var(--muted);margin-top:5px">'+cnt+' rating'+(cnt===1?'':'s')+' from approved testimonials · '
+      +(live?'<b style="color:#3D7A4E">live on your public profile</b>':('shows publicly once you reach 10 — <b>'+(10-cnt)+' to go</b>'))+'</div></div></div>';
+  }
   const groups=[['new','Pending your review'],['approved','Live on the wall'],['rejected','Declined'],['revoked','Revoked']];
   let html='';
   for(const g of groups){
     const rows=myTestimonials.filter(t=>t.status===g[0]);
     if(!rows.length) continue;
-    html+='<div class="section-title"'+(html?'':' style="margin-top:0"')+'>'+g[1]+' <span style="color:var(--paper-dim);font-weight:400">('+rows.length+')</span></div>';
+    html+='<div class="section-title"'+(html||summary?'':' style="margin-top:0"')+'>'+g[1]+' <span style="color:var(--paper-dim);font-weight:400">('+rows.length+')</span></div>';
     html+='<div class="card">'+rows.map(tstCard).join('<div style="height:1px;background:var(--border);margin:16px 0"></div>')+'</div>';
   }
-  host.innerHTML=html;
+  host.innerHTML=summary+html;
 }
 async function tstDecide(id,status){
   try{ await _w('PATCH','testimonial_submissions','id=eq.'+encodeURIComponent(id),{status}); }
