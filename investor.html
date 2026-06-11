@@ -11,6 +11,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
   :root{
+  --radius-card: 0 0 24px 0;
     --bg:#EFE7D8; --surface:#E6DCC7; --card:#EFE7D8; --ink:#1A1A1A; --ink-mid:#444; --muted:#5A564F;
     --border:rgba(26,26,26,0.18); --border-hi:rgba(26,26,26,0.35);
     --terra:#C8531F; --terra-deep:#9A3E16; --ochre:#C9923A; --sage:#8AAB5C; --moss:#3D4A2E; --stone:#A59B8C;
@@ -22,7 +23,7 @@
   .geo-line{height:1px;background:var(--border-hi);width:100%;}
   /* login */
   #login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;}
-  .login-card{background:var(--card);border:1px solid var(--border-hi);border-top:2px solid var(--terra);padding:52px 44px 44px;width:380px;}
+  .login-card{background:var(--card);border:1px solid var(--border-hi);border-top:2px solid var(--terra);padding:52px 44px 44px;width:380px; border-radius: var(--radius-card);}
   .login-eyebrow{font-family:var(--sans);font-size:9px;letter-spacing:4px;text-transform:uppercase;color:var(--terra);margin-bottom:4px;opacity:.8;}
   .login-title{font-size:28px;font-weight:700;line-height:1.1;margin-bottom:8px;}
   .login-rule{display:flex;gap:10px;margin:4px 0 32px;}
@@ -58,7 +59,7 @@
   .ro-badge{display:inline-block;font-family:var(--sans);font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 10px;border:1px solid var(--border-hi);color:var(--muted);margin-left:8px;}
   /* deal cards */
   .deal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;}
-  .deal-card{background:var(--card);border:1px solid var(--border);border-top:2px solid var(--terra);padding:20px;cursor:pointer;transition:transform .15s,box-shadow .15s;}
+  .deal-card{background:var(--card);border:1px solid var(--border);border-top:2px solid var(--terra);padding:20px;cursor:pointer;transition:transform .15s,box-shadow .15s; border-radius: var(--radius-card); overflow: hidden;}
   .deal-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.08);}
   .deal-co{font-family:var(--display);font-size:22px;font-weight:600;margin-bottom:2px;}
   .deal-meta{font-size:12px;color:var(--muted);margin-bottom:14px;}
@@ -72,7 +73,7 @@
   .empty-mark{font-family:var(--display);font-size:44px;color:var(--border-hi);margin-bottom:8px;}
   /* detail */
   .back{font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--terra);cursor:pointer;display:inline-block;margin-bottom:18px;}
-  .card{background:var(--card);border:1px solid var(--border);padding:22px 24px;margin-bottom:16px;}
+  .card{background:var(--card);border:1px solid var(--border);padding:22px 24px;margin-bottom:16px; border-radius: var(--radius-card);}
   .card-top{border-top:2px solid var(--terra);}
   .kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;}
   .kv .k{font-family:var(--sans);font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}

@@ -11,7 +11,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
-  :root{--ink:#1A1A1A;--ink-soft:#22242B;--paper:#EFE7D8;--paper-deep:#E6DCC7;--muted:#5A564F;--paper-dim:#A09888;
+  :root{
+  --radius-card: 0 0 24px 0;--ink:#1A1A1A;--ink-soft:#22242B;--paper:#EFE7D8;--paper-deep:#E6DCC7;--muted:#5A564F;--paper-dim:#A09888;
     --terra:#C8531F;--terra-deep:#9A3E16;--ochre:#C9923A;--moss:#3D4A2E;--sage:#8AAB5C;--stone:#777770;
     --border:rgba(26,26,26,0.18);--border-hi:rgba(26,26,26,0.32);--success:#0A8F64;
     --sans:'Josefin Sans',system-ui,sans-serif;--display:'Cormorant Garamond',serif;--font:'Inter',system-ui,sans-serif;}
@@ -25,7 +26,7 @@
   .hero h1{font-family:var(--display);font-size:46px;font-weight:600;line-height:1.04;margin-bottom:14px;}
   .hero p{font-size:15px;color:rgba(239,231,216,.78);max-width:520px;margin:0 auto;line-height:1.6;}
   .wrap{max-width:600px;margin:-34px auto 80px;padding:0 22px;position:relative;}
-  .card{background:var(--paper);border:1px solid var(--border);border-top:2px solid var(--terra);padding:30px 28px 32px;}
+  .card{background:var(--paper);border:1px solid var(--border);border-top:2px solid var(--terra);padding:30px 28px 32px; border-radius: var(--radius-card);}
   .sec{font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin:0 0 16px;}
   .f{display:flex;flex-direction:column;gap:6px;margin-bottom:16px;}
   label{font-family:var(--sans);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#444;}

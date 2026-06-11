@@ -4,6 +4,7 @@
    ============================================================ */
 
 :root {
+  --radius-card: 0 0 24px 0;
   --paper:   #efe7d8;
   --paper-2: #f6f0e3;
   --ink:     #1a1a1a;
@@ -159,7 +160,7 @@ a { color: inherit; text-decoration: none; }
   position: relative;
   background: var(--ink-soft);
   border: 1px solid rgba(239,231,216,0.08);
-  border-radius: 12px;
+  border-radius: var(--radius-card);
   padding: 0;
   overflow: hidden;
   cursor: pointer;
@@ -304,9 +305,11 @@ a { color: inherit; text-decoration: none; }
 .session-card {
   background: var(--ink-soft);
   border: 1px solid rgba(138,171,92,0.25);
-  border-radius: 12px;
+  border-radius: var(--radius-card);
   padding: 32px;
   text-align: center;
+
+  overflow: hidden;
 }
 .session-avatar {
   width: 56px; height: 56px;
@@ -334,8 +337,10 @@ a { color: inherit; text-decoration: none; }
 .form-card {
   background: var(--ink-soft);
   border: 1px solid rgba(239,231,216,0.08);
-  border-radius: 12px;
+  border-radius: var(--radius-card);
   padding: 32px;
+
+  overflow: hidden;
 }
 .selected-tier-badge {
   display: flex; align-items: center; gap: 12px;
@@ -644,8 +649,10 @@ a { color: inherit; text-decoration: none; }
 .review-card {
   background: var(--ink-soft);
   border: 1px solid rgba(239,231,216,0.08);
-  border-radius: 12px;
+  border-radius: var(--radius-card);
   padding: 28px 28px;
+
+  overflow: hidden;
 }
 .review-section { padding: 4px 0; }
 .review-label {

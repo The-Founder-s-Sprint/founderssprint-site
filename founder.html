@@ -13,6 +13,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
   :root {
+  --radius-card: 0 0 24px 0;
     /* FS Design System — core tokens (mirrors dashboard.html) */
     --bg:#EFE7D8; --surface:#E6DCC7; --card:#EFE7D8; --card-hi:#E6DCC7;
     --ink:#1A1A1A; --ink-soft:#2A2826; --ink-mid:#444444; --ink-mute:#5A564F;
@@ -36,7 +37,7 @@
 
   /* ── LOGIN ── */
   #login-screen { display:flex; align-items:center; justify-content:center; min-height:100vh; background:var(--bg); }
-  .login-card { background:var(--card); border:1px solid var(--border-hi); border-top:2px solid var(--terra); padding:52px 44px 44px; width:380px; position:relative; }
+  .login-card { background:var(--card); border:1px solid var(--border-hi); border-top:2px solid var(--terra); padding:52px 44px 44px; width:380px; position:relative;  border-radius: var(--radius-card);}
   .login-eyebrow { font-family:var(--sans); font-size:9px; letter-spacing:4px; text-transform:uppercase; color:var(--terra); margin-bottom:4px; opacity:0.8; }
   .login-title { font-size:28px; font-weight:700; color:var(--text); line-height:1.1; margin-bottom:8px; }
   .login-rule { display:flex; align-items:center; gap:10px; margin-bottom:32px; margin-top:4px; }
@@ -91,7 +92,7 @@
   .stat-value.gold { color:var(--terra); } .stat-value.green { color:var(--success); } .stat-value.orange { color:var(--warning); }
   .stat-sub { font-size:11px; color:var(--muted); margin-top:6px; }
 
-  .card { background:var(--card); border:1px solid var(--border); padding:22px 24px; margin-bottom:16px; }
+  .card { background:var(--card); border:1px solid var(--border); padding:22px 24px; margin-bottom:16px;  border-radius: var(--radius-card);}
   .card-top { border-top:2px solid var(--terra); }
 
   /* ── READINESS RING ── */
@@ -165,12 +166,12 @@
   #toast.success { background:var(--success); } #toast.error { background:var(--danger); } #toast.info { background:var(--ink); }
   .modal { display:none; position:fixed; inset:0; background:rgba(26,26,26,0.45); z-index:1500; align-items:center; justify-content:center; }
   .modal.open { display:flex; }
-  .modal-card { background:var(--card); border-top:2px solid var(--terra); padding:34px 32px; width:380px; }
+  .modal-card { background:var(--card); border-top:2px solid var(--terra); padding:34px 32px; width:380px;  border-radius: var(--radius-card);}
   .modal-card h3 { font-family:var(--display); font-size:22px; font-weight:600; margin-bottom:16px; }
   .skel { background:linear-gradient(90deg, var(--surface) 25%, var(--card) 50%, var(--surface) 75%); background-size:200% 100%; animation:sk 1.2s infinite; color:transparent!important; border-radius:2px; }
   @keyframes sk { from { background-position:200% 0; } to { background-position:-200% 0; } }
   /* ── JOURNEY TIMELINE ── */
-  .timeline-card { background:var(--card); border:1px solid var(--border); border-top:2px solid var(--terra); padding:20px 22px 8px; margin-bottom:18px; }
+  .timeline-card { background:var(--card); border:1px solid var(--border); border-top:2px solid var(--terra); padding:20px 22px 8px; margin-bottom:18px;  border-radius: var(--radius-card); overflow: hidden;}
   .tl-head { display:flex; align-items:baseline; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:4px; }
   .tl-title { font-family:var(--sans); font-size:11px; font-weight:700; letter-spacing:0.16em; text-transform:uppercase; color:var(--ink-mid); }
   .tl-track { font-family:var(--sans); font-size:9px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; padding:4px 10px; border-radius:2px; background:var(--gold-dim); color:var(--terra); }
@@ -211,7 +212,7 @@
   .gate-note { font-size:11px; color:var(--muted); margin-top:6px; }
 
   /* ── DATA ROOM VAULT ── */
-  .cat-card { background:var(--card); border:1px solid var(--border); border-top:2px solid var(--paper-mid,#C0B8A8); padding:16px 20px; margin-bottom:14px; }
+  .cat-card { background:var(--card); border:1px solid var(--border); border-top:2px solid var(--paper-mid,#C0B8A8); padding:16px 20px; margin-bottom:14px;  border-radius: var(--radius-card);}
   .cat-head { display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:6px; }
   .cat-name { font-family:var(--display); font-size:19px; font-weight:600; }
   .cat-meta { font-family:var(--sans); font-size:9px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); }

@@ -9,6 +9,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
   :root {
+  --radius-card: 0 0 24px 0;
     --bg:       #1A1A1A;
     --paper:    #EFE7D8;
     --terra:    #C8531F;
@@ -107,7 +108,7 @@
   .week-card {
     background: rgba(239,231,216,0.03);
     border: 1px solid rgba(239,231,216,0.08);
-    border-radius: 12px; padding: 0; overflow: hidden;
+    border-radius: var(--radius-card); padding: 0; overflow: hidden;
     transition: border-color 200ms;
   }
   .week-card:hover { border-color: rgba(239,231,216,0.18); }

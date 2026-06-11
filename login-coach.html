@@ -11,6 +11,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
   :root{
+  --radius-card: 0 0 24px 0;
     --ink:#1A1A1A; --ink-soft:#2A2826; --paper:#EFE7D8; --paper-deep:#E6DCC7; --paper-dim:#A09888;
     --terra:#C8531F; --terra-deep:#9A3E16; --ochre:#C9923A; --sage:#8AAB5C; --moss:#3D4A2E; --stone:#777770;
     --rule:rgba(26,26,26,0.18);
@@ -50,7 +51,7 @@
   /* ── FLOATING CARD ── */
   .card{width:100%;max-width:392px;background:rgba(239,231,216,0.97);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
     border:1px solid rgba(255,255,255,0.18);border-top:3px solid var(--role-accent);padding:40px 38px 34px;
-    box-shadow:0 30px 80px rgba(0,0,0,0.5);}
+    box-shadow:0 30px 80px rgba(0,0,0,0.5); border-radius: var(--radius-card);}
   .card-eyebrow{font-family:var(--sans);font-size:9px;font-weight:700;letter-spacing:0.34em;text-transform:uppercase;color:var(--role-accent);margin-bottom:6px;}
   .card-title{font-family:var(--display);font-size:36px;font-weight:600;line-height:1.02;margin-bottom:4px;}
   .card-sub{font-size:13px;color:var(--ink-soft);opacity:0.72;margin-bottom:24px;}

@@ -9,6 +9,7 @@
 <style>
 /* ===== TOKENS — matching beta site ===== */
 :root {
+  --radius-card: 0 0 24px 0;
   --paper:   #efe7d8;
   --paper-2: #f6f0e3;
   --ink:     #1a1a1a;
@@ -173,7 +174,7 @@ section, footer, nav { position: relative; z-index: 2; }
   transition: transform .6s cubic-bezier(.25,.46,.45,.94),
               box-shadow .6s cubic-bezier(.25,.46,.45,.94);
   overflow: hidden;
-}
+ border-radius: var(--radius-card); overflow: hidden;}
 .provider-card:hover {
   transform: translateY(-5px);
   box-shadow: 0 12px 40px rgba(26,26,26,0.08), 0 2px 8px rgba(26,26,26,0.04);

@@ -10,7 +10,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
-  :root{--bg:#EFE7D8;--surface:#E6DCC7;--card:#EFE7D8;--ink:#1A1A1A;--ink-mid:#444;--muted:#5A564F;--text:#1A1A1A;
+  :root{
+  --radius-card: 0 0 24px 0;--bg:#EFE7D8;--surface:#E6DCC7;--card:#EFE7D8;--ink:#1A1A1A;--ink-mid:#444;--muted:#5A564F;--text:#1A1A1A;
     --border:rgba(26,26,26,0.18);--border-hi:rgba(26,26,26,0.35);
     --terra:#C8531F;--terra-deep:#9A3E16;--ochre:#C9923A;--sage:#8AAB5C;--moss:#3D4A2E;--stone:#A59B8C;
     --success:#0A8F64;--warning:#C47F08;--paper-mid:#C0B8A8;
@@ -19,7 +20,7 @@
   body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:13px;-webkit-font-smoothing:antialiased;}
   .geo-line{height:1px;background:var(--border-hi);width:100%;}
   #login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;}
-  .login-card{background:var(--card);border:1px solid var(--border-hi);border-top:2px solid var(--terra);padding:52px 44px 44px;width:380px;}
+  .login-card{background:var(--card);border:1px solid var(--border-hi);border-top:2px solid var(--terra);padding:52px 44px 44px;width:380px; border-radius: var(--radius-card);}
   .login-eyebrow{font-family:var(--sans);font-size:9px;letter-spacing:4px;text-transform:uppercase;color:var(--terra);margin-bottom:4px;opacity:.8;}
   .login-title{font-size:28px;font-weight:700;line-height:1.1;margin-bottom:8px;}
   .login-rule{display:flex;gap:10px;margin:4px 0 32px;}
@@ -54,7 +55,7 @@
   .page-title{font-family:var(--display);font-size:30px;font-weight:600;line-height:1.05;margin-bottom:6px;}
   .page-sub{font-size:14px;color:var(--muted);margin-bottom:24px;max-width:680px;line-height:1.5;}
   .section-title{font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-mid);margin:24px 0 12px;}
-  .card{background:var(--card);border:1px solid var(--border);padding:18px 20px;margin-bottom:14px;}
+  .card{background:var(--card);border:1px solid var(--border);padding:18px 20px;margin-bottom:14px; border-radius: var(--radius-card);}
   .card-top{border-top:2px solid var(--terra);}
   .list-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 0;border-top:1px solid var(--border);}
   .list-row:first-child{border-top:none;}
