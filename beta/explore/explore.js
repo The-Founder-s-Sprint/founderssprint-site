@@ -1388,7 +1388,13 @@
   let hoverTimer = null;
   let idleTimer = null;
 
-  let lastQuery = '';   // survives close/reopen within the visit — founders don't start over
+  // Remember once, then forget: the last typed query is restored on the
+  // FIRST reopen only (so an accidental close doesn't lose work). A reopen
+  // where nothing new is typed doesn't re-arm it — the next engagement
+  // starts clean instead of resurrecting stale text forever.
+  let lastQuery = '';
+  let restoreArmed = false;   // armed by typing, spent by one restore
+  let typedThisOpen = false;
   function bumpIdle() {
     clearTimeout(idleTimer);
     if (!searchOpen) return;
@@ -1397,10 +1403,10 @@
   function openSearch() {
     if (searchOpen) return;
     searchOpen = true;
+    typedThisOpen = false;
     searchEl.classList.add('show');
-    // Restore the last search of this visit so re-engaging resumes
-    // where the founder left off.
-    if (!searchInpt.value && lastQuery) {
+    if (!searchInpt.value && restoreArmed && lastQuery) {
+      restoreArmed = false;   // spend the one restore
       searchInpt.value = lastQuery;
       state.searchQuery = lastQuery.trim().toLowerCase();
       renderSearchResults();
@@ -1410,7 +1416,10 @@
   }
   function closeSearch() {
     searchOpen = false;
-    if (searchInpt.value.trim()) lastQuery = searchInpt.value.trim();
+    if (typedThisOpen && searchInpt.value.trim()) {
+      lastQuery = searchInpt.value.trim();
+      restoreArmed = true;   // fresh typing re-arms a single restore
+    }
     searchEl.classList.remove('show');
     searchInpt.value = '';
     state.searchQuery = '';   // clears the match-dim on L3 nodes while closed
@@ -1432,6 +1441,7 @@
   });
   document.getElementById('search-close').addEventListener('click', closeSearch);
   searchInpt.addEventListener('input', () => {
+    typedThisOpen = true;   // fresh typing re-arms the one-shot restore on close
     state.searchQuery = searchInpt.value.trim().toLowerCase();
     renderSearchResults();
     scheduleSearchLog();
