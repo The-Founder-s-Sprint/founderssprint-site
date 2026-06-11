@@ -791,6 +791,36 @@
   const burstFlash = el('circle', { cx: CX, cy: CY, r: 20, fill: 'url(#g-center)', opacity: 0 });
   gBurst.appendChild(burstFlash);
 
+  // ---------- Firecracker burst: fractal spark rays + ember heads ----------
+  // 30 primary rays explode from the mark; ~45% split into two shorter
+  // child sparks mid-flight (one level of branching = the fractal read).
+  // Each ray is a streak whose tail chases its head and burns out, with
+  // a bright ember at the tip that dies just as the nodes land. Intro
+  // only — everything zeroes after load with no per-frame cost.
+  const SPARKS = [];
+  (function buildSparks() {
+    const mk = (angleDeg, len, t0, width, color) => {
+      const ln = el('line', { x1: CX, y1: CY, x2: CX, y2: CY, stroke: color, 'stroke-width': width, 'stroke-linecap': 'round', opacity: 0 });
+      const ember = el('circle', { cx: CX, cy: CY, r: 1.6, fill: color, opacity: 0 });
+      gBurst.appendChild(ln); gBurst.appendChild(ember);
+      SPARKS.push({ ln, ember, angle: angleDeg * Math.PI / 180, len, t0, dur: 0.34 + Math.random() * 0.14 });
+    };
+    const N = 30;
+    for (let i = 0; i < N; i++) {
+      const a = (i / N) * 360 + (Math.random() - 0.5) * 9;
+      const len = 200 + Math.random() * 340;
+      const col = PETAL_COLS[i % PETAL_COLS.length];
+      const t0 = 0.02 + Math.random() * 0.05;
+      mk(a, len, t0, 1 + Math.random() * 0.9, col);
+      if (Math.random() < 0.45) {
+        const spread = 7 + Math.random() * 9;
+        mk(a - spread, len * (0.4 + Math.random() * 0.25), t0 + 0.10, 0.7, col);
+        mk(a + spread, len * (0.4 + Math.random() * 0.25), t0 + 0.10, 0.7, col);
+      }
+    }
+  })();
+  let sparksDone = false;
+
   // ---------- Particle system (star dust — bursts outward on load, then drifts) ----------
   const PARTICLE_COUNT = 84;
   const particles = [];
@@ -1777,15 +1807,37 @@
         p.el.setAttribute('r', breathe.toFixed(2));
       });
     }
-    // Star-burst flash + centre mark reveal
+    // Firecracker burst + centre mark reveal
     if (lp < 1) {
-      const ft = clamp01(lp / 0.5);
-      burstFlash.setAttribute('r', (20 + easeOutCubic(ft) * 680).toFixed(0));
-      burstFlash.setAttribute('opacity', (Math.sin(Math.PI * Math.min(1, ft * 1.25)) * 0.85 * (1 - ft * 0.35)).toFixed(3));
+      // sharp central pop — bright fast, gone fast
+      const ft = clamp01(lp / 0.42);
+      burstFlash.setAttribute('r', (16 + easeOutCubic(ft) * 420).toFixed(0));
+      burstFlash.setAttribute('opacity', (Math.sin(Math.PI * Math.min(1, ft * 1.6)) * 0.9 * (1 - ft * 0.6)).toFixed(3));
+      // fractal spark rays: tails chase heads, embers die as nodes land
+      SPARKS.forEach(s => {
+        const p = clamp01((lp - s.t0) / s.dur);
+        if (p <= 0) return;
+        const head = easeOutCubic(p) * s.len;
+        const tail = easeOutCubic(clamp01((p - 0.22) / 0.78)) * s.len;
+        const ca = Math.cos(s.angle), sa = Math.sin(s.angle) * 0.92;   // slight squash echoes the tilt
+        s.ln.setAttribute('x1', (CX + ca * tail).toFixed(1));
+        s.ln.setAttribute('y1', (CY + sa * tail).toFixed(1));
+        s.ln.setAttribute('x2', (CX + ca * head).toFixed(1));
+        s.ln.setAttribute('y2', (CY + sa * head).toFixed(1));
+        s.ln.setAttribute('opacity', (Math.sin(Math.PI * Math.min(1, p * 1.1)) * 0.8).toFixed(3));
+        s.ember.setAttribute('cx', (CX + ca * head).toFixed(1));
+        s.ember.setAttribute('cy', (CY + sa * head).toFixed(1));
+        s.ember.setAttribute('r', Math.max(0.4, 2 - p * 1.4).toFixed(2));
+        s.ember.setAttribute('opacity', (Math.pow(1 - p, 1.4) * 0.95).toFixed(3));
+      });
       const centerOp = clamp01((lp - 0.10) / 0.40);
       petalsGroup.setAttribute('opacity', easeOutCubic(centerOp));
     } else {
-      if (burstFlash.getAttribute('opacity') !== '0') burstFlash.setAttribute('opacity', 0);
+      if (!sparksDone) {
+        sparksDone = true;
+        burstFlash.setAttribute('opacity', 0);
+        SPARKS.forEach(s => { s.ln.setAttribute('opacity', 0); s.ember.setAttribute('opacity', 0); });
+      }
       petalsGroup.setAttribute('opacity', 1);
     }
     // Rotate center mark slowly (JS instead of CSS animation for Safari compat)
