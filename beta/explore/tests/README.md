@@ -11,3 +11,4 @@ Baseline recorded 10 Jun 2026 (explore.js?v=16): matcher 66/72 top-1, 72/72 top-
     node tests/labels-smoke.js .                     # label NaN + selected-state size variation: 3 checks
     node tests/search-persist-check.js .             # search persistence + 30s idle: 6 checks
     node tests/geo-ui-check.js .                     # geo context UI + expansion contract: 8 checks
+    node tests/spotlight-check.js .                  # search spotlight (label-hide regression): 4 checks

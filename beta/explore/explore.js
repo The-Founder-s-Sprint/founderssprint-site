@@ -1533,6 +1533,7 @@
   // ---- Search-gap logging: capture what founders type so real misses feed the next keyword/node pass ----
   let lastSearchMeta = { count: 0, topScore: 0, topNode: null };
   let lastGeo = null;   // geo context of the current query (set by searchMatches)
+  let searchMatchIds = null;   // node ids of the current ranked results — drives the constellation spotlight
   const SEARCH_LOG = { url: 'https://ivedeivyotwevjxvcuoe.supabase.co', anon: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss' };
   const loggedQueries = new Set();
   let searchLogTimer = null;
@@ -1583,6 +1584,7 @@
 
   function renderSearchResults() {
     const results = searchMatches();
+    searchMatchIds = state.searchQuery ? new Set(results.map(n => n.id)) : null;
     searchList.innerHTML = '';
     if (!state.searchQuery) {
       searchList.innerHTML = `<div class="s-hint">Try "pitch" · "pricing" · "runway" · "brand"</div>`;
@@ -1949,10 +1951,13 @@
           n._tick.setAttribute('y2', dy);
         }
 
-        let matchHide = false;
-        if (state.searchQuery) {
-          const hay = buildSearchHaystack(n);
-          if (!hay.includes(state.searchQuery)) matchHide = true;
+        // While searching, spotlight the ranked matcher's actual results
+        // (old code did a verbatim substring test against the haystack —
+        // multi-word queries matched nothing and hid every label).
+        let matchHide = false, isMatch = false;
+        if (state.searchQuery && searchMatchIds) {
+          if (searchMatchIds.has(n.id)) isMatch = true;
+          else matchHide = true;
         }
         let labelOp;
         if (isActive) labelOp = 1;
@@ -1961,6 +1966,14 @@
         else if (activeNode && isGray) labelOp = 0;  // hide unrelated L3 labels when a node is selected
         else labelOp = Math.max(0, (tNorm - 0.6) * 2.2);  // depth-based fade for idle state
         if (isGray && !activeNode) labelOp *= 0.55;
+        if (isMatch) {
+          // lift matches fully out of the depth fog so every result is
+          // readable wherever the rotation has carried it
+          labelOp = Math.max(labelOp, 0.95);
+          n._group.style.opacity = Math.max(op, 0.92) * introOp;
+          n._glowDot.setAttribute('opacity', 0.35);
+          n._glowDot.setAttribute('r', 9);
+        }
         if (matchHide) { labelOp = 0; n._group.style.opacity = 0.05 * introOp; }
         n._label.setAttribute('opacity', labelOp);
         if (n._tick) n._tick.setAttribute('opacity', labelOp * 0.5);
