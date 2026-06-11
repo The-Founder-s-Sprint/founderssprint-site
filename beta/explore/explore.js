@@ -805,10 +805,10 @@
       gBurst.appendChild(ln); gBurst.appendChild(ember);
       SPARKS.push({ ln, ember, angle: angleDeg * Math.PI / 180, len, t0, dur: 0.34 + Math.random() * 0.14 });
     };
-    const N = 30;
+    const N = 38;   // +25% density
     for (let i = 0; i < N; i++) {
       const a = (i / N) * 360 + (Math.random() - 0.5) * 9;
-      const len = 200 + Math.random() * 340;
+      const len = 100 + Math.random() * 170;   // half length — tighter, punchier burst
       const col = PETAL_COLS[i % PETAL_COLS.length];
       const t0 = 0.02 + Math.random() * 0.05;
       mk(a, len, t0, 1 + Math.random() * 0.9, col);
