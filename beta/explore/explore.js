@@ -14,6 +14,18 @@
   const COL_INK   = '#1a1a1a';
 
   // ============================================================
+  //   MOBILE GATE
+  //   Phones get a separate card-stack discovery model — the
+  //   constellation doesn't initialise while mobile (CLAUDE.md
+  //   "Mobile-First Discovery Engine", DESIGN.md §16). Must stay
+  //   in sync with the matching @media block in explore.css.
+  //   Evaluated LIVE (not once) so resizing across the breakpoint
+  //   boots whichever experience becomes visible — no reload.
+  // ============================================================
+  const MOBILE_MQL = window.matchMedia('(max-width: 768px), (pointer: coarse) and (max-width: 932px)');
+  function isMobileView() { return MOBILE_MQL.matches; }
+
+  // ============================================================
   //   COACHES — independent of taxonomy
   //   Each coach has an id, profile data, and a list of L1/L2/L3
   //   assignments. A coach can cover an entire L1, specific L2s,
@@ -282,7 +294,7 @@
   // ============================================================
   const DISCIPLINE_KEYWORDS = {
     0: "marketing branding brand identity visual voice tone messaging campaign advertising ads promotion publicity pr media press launch storytelling social media website funnel awareness reach engagement audience community distribution customer acquisition leads find customers get clients more sales grow revenue graphic design email marketing influencer growth marketing get noticed visibility online presence digital marketing market my business",
-    1: "finance financial money numbers accounting bookkeeping books model modelling spreadsheet budget profit profitability loss metrics roi accountant cfo audit bank loan debt financing expenses overhead costs am i making money are we profitable manage my finances how much should i charge what to charge",
+    1: "finance financial money numbers accounting bookkeeping books model modelling spreadsheet budget profit profitability loss metrics roi accountant cfo audit bank loan debt financing expenses overhead costs am i making money are we profitable manage my finances",
     2: "investment investor investors raise capital funding angel vc venture capital seed round accelerator incubator demo day cohort investor ready warm intro impact investing get funding need money to grow",
     3: "strategy strategic team people hiring talent staff co-founder culture values mission vision org structure organisation leadership management delegation roles responsibilities competitive competition competitor positioning risk goals metrics operations governance board advisory mentor decision making scaling grow my team build a team",
     4: "product development pricing price charge cost mvp prototype build ship feature roadmap iteration agile sprint pmf product market fit validation testing user testing ux ui design tiers packages subscription saas freemium engineering developer app software what to build how to price",
@@ -949,6 +961,7 @@
       rows.forEach(t => { (TST_BY_COACH[t.for_target] = TST_BY_COACH[t.for_target] || []).push(t); });
     } catch (e) { /* leave empty states in place */ }
     COACHES.forEach(c => { const el = document.getElementById('dirq-'+c.id); if (el) el.innerHTML = getCoachQuotesHTML(c); });
+    refreshMobileQuotes();   // hoisted from the mobile module — updates an open mobile coach card
   }
 
   function buildDirectory() {
@@ -1353,6 +1366,10 @@
 
   function frame(now) {
     const dt = Math.min(64, now - last); last = now;
+    // While the viewport is in mobile mode the hero is display:none —
+    // keep the loop alive (so crossing back resumes instantly) but do
+    // zero render work / battery drain.
+    if (isMobileView()) { requestAnimationFrame(frame); return; }
     frameCount++;
 
     // Load progress
@@ -1784,21 +1801,234 @@
   });
 
   // ============================================================
+  //   MOBILE DISCOVERY — card-stack model (search-first)
+  //   Search input → discipline cards → specialty rows → coach
+  //   card with booking CTA + WhatsApp share. Hash is the source
+  //   of truth: '' = home, '#marketing' = discipline,
+  //   '#marketing/brand-positioning' = specialty (shareable).
+  // ============================================================
+  const L1_TO_HASH = Object.fromEntries(Object.entries(HASH_TO_L1).map(([k, v]) => [v, k]));
+  function slugify(name) { return String(name).toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''); }
+  function nodeBySlug(l1Idx, slug) {
+    return NODES.find(n => n.level === 3 && n.l1Idx === l1Idx && slugify(n.name) === slug) || null;
+  }
+
+  const MOBILE_L1_DESC = [
+    'Position, message, and launch a brand founders remember.',
+    'Models, margins, and runway you can defend line by line.',
+    'Decks, diligence, and the round you are about to raise.',
+    'Strategy, structure, and the team that ships.',
+    'Validate, build, and price what the market wants.',
+  ];
+  const MOBILE_CHIPS = ['Pitch deck', 'Pricing', 'Runway', 'Register my company', 'Mobile money', 'Get customers'];
+
+  const mdEl = document.getElementById('m-discover');
+  const mState = { view: 'l1', l1: null, node: null };
+
+  function mGoHash(hash) {
+    if (('#' + hash) === window.location.hash || (!hash && !window.location.hash)) { renderMobileFromHash(); return; }
+    window.location.hash = hash; // hashchange → handleHash → renderMobileFromHash
+  }
+  function shareURL(n) {
+    const base = window.location.origin + window.location.pathname;
+    return base + '#' + L1_TO_HASH[n.l1Idx] + '/' + slugify(n.name);
+  }
+  function whatsappHref(n, coach) {
+    const msg = (coach ? coach.name + ' coaches ' : '') + n.name +
+      ' on The Founder’s Sprint — find the right coach for your startup: ' + shareURL(n);
+    return 'https://wa.me/?text=' + encodeURIComponent(msg);
+  }
+
+  // ---- view renderers (small DOM, rebuilt per navigation) ----
+  function mHeaderHTML(backHash, eyebrow, title, color) {
+    return '<div class="md-head">' +
+      (backHash != null ? '<button class="md-back" data-back="' + escH(backHash) + '" aria-label="Back">← Back</button>' : '') +
+      '<div class="md-eb"' + (color ? ' style="color:' + color + '"' : '') + '>' + escH(eyebrow) + '</div>' +
+      '<h1 class="md-title">' + title + '</h1></div>';
+  }
+
+  function renderMobileHome() {
+    mState.view = 'l1';
+    let html = mHeaderHTML(null, 'The Constellation', 'Find the right <em>coach.</em>');
+    html += '<div class="md-search"><input id="md-input" type="search" inputmode="search" placeholder="What do you need help with?" autocomplete="off" aria-label="Search coaching topics"><div class="md-results" id="md-results"></div></div>';
+    html += '<div class="md-chips">' + MOBILE_CHIPS.map(c => '<button class="md-chip" data-q="' + escH(c) + '">' + escH(c) + '</button>').join('') + '</div>';
+    html += '<div class="md-section-h">Or browse the five disciplines</div>';
+    html += '<div class="md-cards">';
+    TAXONOMY.forEach((d, i) => {
+      const coach = resolveCoach(i);
+      const specCount = d.l2.reduce((s, sub) => s + sub.l3.length, 0);
+      html += '<button class="md-card" data-l1="' + i + '" style="--md-c:' + d.color + '">' +
+        mAvatarHTML(coach, d.color) +
+        '<span class="md-card-main"><span class="md-card-name">' + escH(d.l1) + '</span>' +
+        '<span class="md-card-desc">' + escH(MOBILE_L1_DESC[i] || '') + '</span>' +
+        '<span class="md-card-meta">' + (coach ? escH(coach.name) + ' · ' : '') + specCount + ' specialties</span></span>' +
+        '<span class="md-card-arrow">→</span></button>';
+    });
+    html += '</div>';
+    mdEl.innerHTML = html;
+    mWireCommon();
+    const input = document.getElementById('md-input');
+    input.addEventListener('input', () => {
+      state.searchQuery = input.value.trim().toLowerCase();
+      renderMobileResults();
+      scheduleSearchLog();
+    });
+    input.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { const first = document.querySelector('#md-results .md-result'); if (first) first.click(); }
+    });
+    mdEl.querySelectorAll('.md-chip').forEach(ch => ch.addEventListener('click', () => {
+      input.value = ch.dataset.q;
+      input.dispatchEvent(new Event('input'));
+      input.focus();
+    }));
+    mdEl.querySelectorAll('.md-card').forEach(c => c.addEventListener('click', () => {
+      mGoHash(L1_TO_HASH[+c.dataset.l1]);
+    }));
+  }
+
+  function renderMobileResults() {
+    const listEl = document.getElementById('md-results');
+    if (!listEl) return;
+    if (!state.searchQuery) { listEl.innerHTML = ''; listEl.classList.remove('has'); return; }
+    const results = searchMatches();
+    if (!results.length) {
+      listEl.innerHTML = '<div class="md-result-empty">No match yet — try fewer words.</div>';
+      listEl.classList.add('has');
+      return;
+    }
+    listEl.innerHTML = results.map(n => {
+      const crumb = n.level === 3 ? n.grandparentName + ' · ' + n.parentName :
+                    n.level === 2 ? n.parentName : 'Discipline';
+      return '<button class="md-result" data-id="' + n.id + '" style="--md-c:' + n.color + '">' +
+        '<span class="md-result-name">' + escH(n.name) + '</span>' +
+        '<span class="md-result-sub">' + escH(crumb) + (n.coach ? ' · ' + escH(n.coach) : '') + '</span></button>';
+    }).join('');
+    listEl.classList.add('has');
+    listEl.querySelectorAll('.md-result').forEach(r => r.addEventListener('click', () => {
+      const n = NODE_MAP.get(r.dataset.id);
+      if (!n) return;
+      const target = n.level === 3 ? n : resolveBestL3(n, state.searchQuery);
+      if (target && target.level === 3) mGoHash(L1_TO_HASH[target.l1Idx] + '/' + slugify(target.name));
+      else mGoHash(L1_TO_HASH[n.l1Idx]);
+    }));
+  }
+
+  function renderMobileDiscipline(l1Idx) {
+    mState.view = 'l2'; mState.l1 = l1Idx;
+    const d = TAXONOMY[l1Idx];
+    const coach = resolveCoach(l1Idx);
+    let html = mHeaderHTML('', escH(d.l1), 'Pick a <em>specialty.</em>', d.color);
+    if (coach) {
+      html += '<div class="md-coach-strip" style="--md-c:' + d.color + '">' + mAvatarHTML(coach, d.color) +
+        '<span><span class="md-cs-name">' + escH(coach.name) + '</span><span class="md-cs-role">' + escH(coach.role) + '</span></span></div>';
+    }
+    html += '<div class="md-cards">';
+    d.l2.forEach((sub, j) => {
+      html += '<div class="md-group" style="--md-c:' + d.color + '"><div class="md-group-h">' + escH(sub.name) + '</div>';
+      sub.l3.forEach((spec) => {
+        html += '<button class="md-row" data-slug="' + slugify(spec) + '">' +
+          '<span>' + escH(spec) + '</span><span class="md-card-arrow">→</span></button>';
+      });
+      html += '</div>';
+    });
+    html += '</div>';
+    mdEl.innerHTML = html;
+    mWireCommon();
+    mdEl.querySelectorAll('.md-row').forEach(r => r.addEventListener('click', () => {
+      mGoHash(L1_TO_HASH[l1Idx] + '/' + r.dataset.slug);
+    }));
+  }
+
+  function renderMobileSpecialty(n) {
+    mState.view = 'l3'; mState.l1 = n.l1Idx; mState.node = n;
+    const coach = n.coachId ? COACH_BY_ID.get(n.coachId) : null;
+    const desc = L3_DESC[n.name] || ('A focused session on ' + n.name + ' within ' + n.parentName + '.');
+    const discKey = L1_TO_HASH[n.l1Idx];
+    let html = mHeaderHTML(L1_TO_HASH[n.l1Idx], n.grandparentName + ' · ' + n.parentName, escH(n.name), n.color);
+    html += '<p class="md-desc">' + escH(desc) + '</p>';
+    if (coach) {
+      html += '<div class="md-coach-card" style="--md-c:' + n.color + '">' +
+        '<div class="md-cc-top">' + mAvatarHTML(coach, n.color) +
+        '<div><div class="md-cc-name">' + escH(coach.name) + '</div><div class="md-cc-role">' + escH(coach.role) + '</div>' +
+        '<div class="md-cc-stats">' + starsHTML(coach.rating) + ' <b>' + coach.rating.toFixed(1) + '</b> · ' + coach.sessions + ' sessions · ' + coach.years + ' yrs</div></div></div>' +
+        '<p class="md-cc-bio">' + escH(coach.bio) + '</p>' +
+        '<div class="md-section-h">What founders say</div>' +
+        '<div class="md-quotes" id="md-quotes">' + getCoachQuotesHTML(coach) + '</div>' +
+        '<a class="md-testify" href="/share-testimonial.html?for=' + escH(coach.id) + '" target="_blank" rel="noopener">Worked with ' + escH(coach.name.split(' ')[0]) + '? Share your story →</a>' +
+        '</div>';
+    }
+    html += '<div class="md-actions" style="--md-c:' + n.color + '">' +
+      '<a class="md-book" href="../book/?tier=single&disc=' + discKey + '">Book a 1:1 Session →</a>' +
+      '<a class="md-cohort" href="../book/?tier=cohort">Reserve a cohort seat →</a>' +
+      '<a class="md-share" href="' + whatsappHref(n, coach) + '" target="_blank" rel="noopener">Share on WhatsApp →</a>' +
+      '</div>';
+    mdEl.innerHTML = html;
+    mWireCommon();
+    window.scrollTo(0, 0);
+  }
+
+  function mAvatarHTML(coach, color) {
+    if (coach && coach.photo) {
+      return '<span class="md-avatar" style="background:url(\'' + coach.photo + '\') center/cover no-repeat;border-color:' + color + '" aria-hidden="true"></span>';
+    }
+    const initials = coach ? coach.name.split(' ').map(s => s[0]).join('').slice(0, 2) : '?';
+    return '<span class="md-avatar" style="color:' + color + ';border-color:' + color + '" aria-hidden="true">' + escH(initials) + '</span>';
+  }
+
+  function mWireCommon() {
+    mdEl.querySelectorAll('.md-back').forEach(b => b.addEventListener('click', () => mGoHash(b.dataset.back)));
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      mdEl.classList.remove('md-enter');
+      void mdEl.offsetWidth;           // restart the slide-in transition
+      mdEl.classList.add('md-enter');
+    }
+  }
+
+  // Re-render live testimonials if the async fetch lands while a coach card is open
+  function refreshMobileQuotes() {
+    if (!isMobileView() || mState.view !== 'l3' || !mState.node) return;
+    const coach = mState.node.coachId ? COACH_BY_ID.get(mState.node.coachId) : null;
+    const q = document.getElementById('md-quotes');
+    if (coach && q) q.innerHTML = getCoachQuotesHTML(coach);
+  }
+
+  function renderMobileFromHash() {
+    const raw = window.location.hash.replace('#', '').toLowerCase();
+    if (!raw) { renderMobileHome(); return; }
+    const [d, slug] = raw.split('/');
+    const l1Idx = HASH_TO_L1[d];
+    if (l1Idx == null) { renderMobileHome(); return; }
+    if (slug) {
+      const n = nodeBySlug(l1Idx, slug);
+      if (n) { renderMobileSpecialty(n); return; }
+    }
+    renderMobileDiscipline(l1Idx);
+  }
+
+  // ============================================================
   //   DEEP LINKING — read hash on load
   // ============================================================
   function handleHash() {
-    const hash = window.location.hash.replace('#', '').toLowerCase();
-    if (hash && HASH_TO_L1[hash] != null) {
-      // Wait for load animation to finish, then focus
-      const waitForLoad = () => {
-        if (state.loadProgress >= 1) {
-          focusOnDiscipline(HASH_TO_L1[hash]);
-        } else {
-          requestAnimationFrame(waitForLoad);
+    if (isMobileView()) { renderMobileFromHash(); return; }
+    const raw = window.location.hash.replace('#', '').toLowerCase();
+    if (!raw) return;
+    const [disc, slug] = raw.split('/');
+    if (HASH_TO_L1[disc] == null) return;
+    const l1Idx = HASH_TO_L1[disc];
+    const target = slug ? nodeBySlug(l1Idx, slug) : null;   // '#marketing/brand-positioning' deep links (WhatsApp shares)
+    // Wait for load animation to finish, then focus
+    const waitForLoad = () => {
+      if (state.loadProgress >= 1) {
+        focusOnDiscipline(l1Idx);
+        if (target) {
+          state.pinnedId = target.id; state.hoveredId = target.id; state.paused = true;
+          setTimeout(() => openDetail(target), 600);
         }
-      };
-      waitForLoad();
-    }
+      } else {
+        requestAnimationFrame(waitForLoad);
+      }
+    };
+    waitForLoad();
   }
   window.addEventListener('hashchange', handleHash);
 
@@ -1815,9 +2045,31 @@
   // ============================================================
   //   GO
   // ============================================================
-  startLoadSequence();
-  requestAnimationFrame(frame);
-  // Process hash after a short delay to let the intro play
-  setTimeout(handleHash, 100);
+  let constellationBooted = false;
+  function bootConstellation() {
+    if (constellationBooted) return;
+    constellationBooted = true;
+    startLoadSequence();
+    requestAnimationFrame(frame);
+    // Process hash after a short delay to let the intro play
+    setTimeout(handleHash, 100);
+  }
+  let mobileBuilt = false;
+  function bootMobile() {
+    mobileBuilt = true;
+    renderMobileFromHash();   // card stack — no intro, no render loop, no constellation CPU on a 3G phone
+  }
+  if (isMobileView()) bootMobile();
+  else bootConstellation();
+
+  // Crossing the breakpoint at runtime (window resize, phone rotate,
+  // split view) boots whichever experience just became visible — the
+  // other keeps its state and resumes when crossed back.
+  const onBreakpointChange = () => {
+    if (isMobileView()) { if (!mobileBuilt) bootMobile(); }
+    else bootConstellation();
+  };
+  if (MOBILE_MQL.addEventListener) MOBILE_MQL.addEventListener('change', onBreakpointChange);
+  else if (MOBILE_MQL.addListener) MOBILE_MQL.addListener(onBreakpointChange);   // older Safari
 
 })();
