@@ -9,7 +9,7 @@ window.eval(fs.readFileSync(path.join(dir,'explore.js'),'utf8'));
 const doc = window.document;
 let midSparks = 0, midEmbers = 0;
 setTimeout(() => {   // sample mid-burst (~lp 0.2): rays + embers must be alight
-  midSparks = Array.from(doc.querySelectorAll('#g-burst line')).filter(l => parseFloat(l.getAttribute('opacity')) > 0.1).length;
+  midSparks = Array.from(doc.querySelectorAll('#g-burst path')).filter(l => parseFloat(l.getAttribute('opacity')) > 0.1).length;
   midEmbers = Array.from(doc.querySelectorAll('#g-burst circle')).filter(c => parseFloat(c.getAttribute('opacity')) > 0.3).length;
 }, 750);
 setTimeout(() => {
@@ -25,11 +25,11 @@ setTimeout(() => {
   if (bad.length) fail++;
   // firecracker burst anatomy: flash + 84 dust + ≥30 ember heads + ≥30 spark rays
   const circles = doc.querySelectorAll('#g-burst circle').length;
-  const rays = doc.querySelectorAll('#g-burst line').length;
-  console.log((circles >= 115 && rays >= 30 ? '✓' : '✗') + ' firecracker anatomy (' + circles + ' circles, ' + rays + ' spark rays)');
+  const rays = doc.querySelectorAll('#g-burst path').length;
+  console.log((circles >= 115 && rays >= 30 ? '✓' : '✗') + ' firecracker anatomy (' + circles + ' circles, ' + rays + ' wavy spark trails)');
   if (!(circles >= 115 && rays >= 30)) fail++;
   // after the intro every spark + ember is zeroed (no lingering glow / cost)
-  const lit = Array.from(doc.querySelectorAll('#g-burst line')).filter(l => parseFloat(l.getAttribute('opacity')) > 0).length;
+  const lit = Array.from(doc.querySelectorAll('#g-burst path')).filter(l => parseFloat(l.getAttribute('opacity')) > 0).length;
   console.log((lit === 0 ? '✓' : '✗') + ' all spark rays extinguished post-intro (' + lit + ' lit)');
   if (lit !== 0) fail++;
   // emphasised L3 labels vary font size when an L2 is pinned

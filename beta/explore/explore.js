@@ -791,19 +791,29 @@
   const burstFlash = el('circle', { cx: CX, cy: CY, r: 20, fill: 'url(#g-center)', opacity: 0 });
   gBurst.appendChild(burstFlash);
 
-  // ---------- Firecracker burst: fractal spark rays + ember heads ----------
-  // 30 primary rays explode from the mark; ~45% split into two shorter
+  // ---------- Firecracker burst: fractal spark trails + ember heads ----------
+  // 38 primary sparks explode from the mark; ~45% split into two shorter
   // child sparks mid-flight (one level of branching = the fractal read).
-  // Each ray is a streak whose tail chases its head and burns out, with
-  // a bright ember at the tip that dies just as the nodes land. Intro
-  // only — everything zeroes after load with no per-frame cost.
+  // Each trail is an ORGANIC WAVE, not a straight ray: every spark gets
+  // its own amplitude, frequency, phase and arc bend, and the wave grows
+  // outward from the centre so trails leave the mark clean and ripple as
+  // they fly. The tail chases the head and burns out, with a bright ember
+  // at the tip that dies just as the nodes land. Intro only — everything
+  // zeroes after load with no per-frame cost.
   const SPARKS = [];
   (function buildSparks() {
     const mk = (angleDeg, len, t0, width, color) => {
-      const ln = el('line', { x1: CX, y1: CY, x2: CX, y2: CY, stroke: color, 'stroke-width': width, 'stroke-linecap': 'round', opacity: 0 });
+      const path = el('path', { d: '', fill: 'none', stroke: color, 'stroke-width': width, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', opacity: 0 });
       const ember = el('circle', { cx: CX, cy: CY, r: 1.6, fill: color, opacity: 0 });
-      gBurst.appendChild(ln); gBurst.appendChild(ember);
-      SPARKS.push({ ln, ember, angle: angleDeg * Math.PI / 180, len, t0, dur: 0.34 + Math.random() * 0.14 });
+      gBurst.appendChild(path); gBurst.appendChild(ember);
+      SPARKS.push({
+        path, ember, angle: angleDeg * Math.PI / 180, len, t0,
+        dur: 0.34 + Math.random() * 0.14,
+        amp: (4 + Math.random() * 10) * (len / 200),       // wave height, scaled to trail length
+        freq: (1.4 + Math.random() * 1.8) * Math.PI * 2,   // 1.4–3.2 waves along the trail
+        ph: Math.random() * Math.PI * 2,
+        bend: (Math.random() - 0.5) * 0.6,                 // gentle arc — no two sparks fly alike
+      });
     };
     const N = 38;   // +25% density
     for (let i = 0; i < N; i++) {
@@ -820,6 +830,16 @@
     }
   })();
   let sparksDone = false;
+  // Sample a wavy trail point at distance d along a spark (squash echoes the tilt)
+  function sparkPoint(s, d) {
+    const frac = d / s.len;
+    const wave = Math.sin(frac * s.freq + s.ph) * s.amp * frac   // ripple grows outward
+               + s.bend * frac * frac * s.len * 0.3;             // plus a gentle arc
+    const ca = Math.cos(s.angle), sa = Math.sin(s.angle);
+    const x = CX + ca * d - sa * wave;
+    const y = CY + (sa * d + ca * wave) * 0.92;
+    return x.toFixed(1) + ' ' + y.toFixed(1);
+  }
 
   // ---------- Particle system (star dust — bursts outward on load, then drifts) ----------
   const PARTICLE_COUNT = 84;
@@ -1813,20 +1833,20 @@
       const ft = clamp01(lp / 0.42);
       burstFlash.setAttribute('r', (16 + easeOutCubic(ft) * 420).toFixed(0));
       burstFlash.setAttribute('opacity', (Math.sin(Math.PI * Math.min(1, ft * 1.6)) * 0.9 * (1 - ft * 0.6)).toFixed(3));
-      // fractal spark rays: tails chase heads, embers die as nodes land
+      // fractal spark trails: wavy tails chase heads, embers die as nodes land
       SPARKS.forEach(s => {
         const p = clamp01((lp - s.t0) / s.dur);
         if (p <= 0) return;
         const head = easeOutCubic(p) * s.len;
         const tail = easeOutCubic(clamp01((p - 0.22) / 0.78)) * s.len;
-        const ca = Math.cos(s.angle), sa = Math.sin(s.angle) * 0.92;   // slight squash echoes the tilt
-        s.ln.setAttribute('x1', (CX + ca * tail).toFixed(1));
-        s.ln.setAttribute('y1', (CY + sa * tail).toFixed(1));
-        s.ln.setAttribute('x2', (CX + ca * head).toFixed(1));
-        s.ln.setAttribute('y2', (CY + sa * head).toFixed(1));
-        s.ln.setAttribute('opacity', (Math.sin(Math.PI * Math.min(1, p * 1.1)) * 0.8).toFixed(3));
-        s.ember.setAttribute('cx', (CX + ca * head).toFixed(1));
-        s.ember.setAttribute('cy', (CY + sa * head).toFixed(1));
+        // build the visible slice of the wavy trail (6 segments)
+        let d = 'M ' + sparkPoint(s, tail);
+        for (let k = 1; k <= 6; k++) d += ' L ' + sparkPoint(s, tail + (head - tail) * k / 6);
+        s.path.setAttribute('d', d);
+        s.path.setAttribute('opacity', (Math.sin(Math.PI * Math.min(1, p * 1.1)) * 0.8).toFixed(3));
+        const headPt = sparkPoint(s, head).split(' ');
+        s.ember.setAttribute('cx', headPt[0]);
+        s.ember.setAttribute('cy', headPt[1]);
         s.ember.setAttribute('r', Math.max(0.4, 2 - p * 1.4).toFixed(2));
         s.ember.setAttribute('opacity', (Math.pow(1 - p, 1.4) * 0.95).toFixed(3));
       });
@@ -1836,7 +1856,7 @@
       if (!sparksDone) {
         sparksDone = true;
         burstFlash.setAttribute('opacity', 0);
-        SPARKS.forEach(s => { s.ln.setAttribute('opacity', 0); s.ember.setAttribute('opacity', 0); });
+        SPARKS.forEach(s => { s.path.setAttribute('opacity', 0); s.ember.setAttribute('opacity', 0); });
       }
       petalsGroup.setAttribute('opacity', 1);
     }
