@@ -380,6 +380,29 @@ section, footer, nav { position: relative; z-index: 2; }
 .basic-sort button:hover { color: var(--ink); }
 .basic-sort button.on { color: var(--terra); border-bottom-color: var(--terra); }
 
+/* Content wrapper — spans the outer auto-fill grid so inner grids lay out full-width */
+.dir-content { grid-column: 1 / -1; }
+
+/* Pager */
+.dir-pager {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 16px; flex-wrap: wrap; margin-top: 28px; padding-top: 18px;
+  border-top: 1px solid var(--line-l);
+}
+.dir-pager-count {
+  font-family: var(--sans); font-size: 11px; letter-spacing: 0.1em;
+  text-transform: uppercase; color: var(--stone);
+}
+.dir-pager-btns { display: flex; gap: 10px; }
+.dir-pg {
+  font-family: var(--sans); font-size: 11px; letter-spacing: 0.08em;
+  text-transform: uppercase; color: var(--ink); background: var(--paper-2);
+  border: 1px solid var(--line-l); border-radius: 6px; padding: 8px 16px;
+  cursor: pointer; transition: background .2s, border-color .2s, color .2s;
+}
+.dir-pg:hover:not([disabled]) { border-color: var(--terra); color: var(--terra); }
+.dir-pg[disabled] { opacity: 0.4; cursor: not-allowed; }
+
 /* Empty state */
 .empty-state { grid-column: 1 / -1; text-align: center; padding: 80px 20px; }
 .empty-state h3 {
@@ -588,7 +611,6 @@ var CATEGORY_LABELS = {
 
 var grid = document.getElementById('directoryGrid');
 var filterBar = document.getElementById('filterBar');
-var allProviders = [];
 var activeFilter = 'all';
 
 /* V6 diamond mark SVG for featured badge */
@@ -671,12 +693,50 @@ function renderBasicCard(p) {
 // Inline sponsor strip removed — handled by sponsors.js scrolling strip above filter bar
 function renderSponsorStrip() { return ''; }
 
+// ===== State =====
+// Verified partners (paid tier) are a small set — loaded once, filtered client-side.
+// Basic listings can grow large — server-paginated via PostgREST Range + count=exact.
+var PAGE_SIZE = 12;
 var basicSortField = 'company_name';
 var basicSortAsc = true;
+var basicPage = 0;     // 0-indexed
+var basicTotal = 0;    // total rows for the active filter
+var basicRows = [];    // current page
+var verifiedCache = [];
+var SELECT = 'company_name,category,description,contact_name,email,phone,website,logo_url,tier,featured,banner_tagline,status';
+var ALLOWED_CATS = ['legal','accounting','design','unbs','banking','insurance','ip','digital'];
 
-function renderProviders(providers) {
-  if (!providers.length) {
-    grid.innerHTML = '<div class="empty-state">' +
+function renderGrid() {
+  var html = '';
+
+  // ── VERIFIED CARDS (loaded once, filtered client-side) ──
+  var verified = activeFilter === 'all'
+    ? verifiedCache
+    : verifiedCache.filter(function(p) { return p.category === activeFilter; });
+  if (verified.length) {
+    html += '<div class="dir-section-label">Verified Partners</div>';
+    html += '<div class="directory-grid">';
+    verified.forEach(function(p) { html += renderProviderCard(p); });
+    html += '</div>';
+  }
+
+  // ── BASIC LISTINGS (server-paginated card grid) ──
+  if (basicTotal > 0) {
+    var arrow = function(f) { return basicSortField === f ? (basicSortAsc ? ' ↑' : ' ↓') : ''; };
+    var on = function(f) { return basicSortField === f ? 'on' : ''; };
+    html += '<div class="dir-section-label">Directory Listings</div>';
+    html += '<div class="basic-sort"><span>Sort</span>';
+    html += '<button class="' + on('company_name') + '" onclick="sortBasic(\'company_name\')">Company' + arrow('company_name') + '</button>';
+    html += '<button class="' + on('category') + '" onclick="sortBasic(\'category\')">Category' + arrow('category') + '</button>';
+    html += '</div>';
+    html += '<div class="basic-grid">';
+    basicRows.forEach(function(p) { html += renderBasicCard(p); });
+    html += '</div>';
+    html += renderPager();
+  }
+
+  if (!verified.length && basicTotal === 0) {
+    html += '<div class="empty-state">' +
       '<h3>No providers listed yet</h3>' +
       '<p>' + (activeFilter === 'all'
         ? 'Be the first to join our curated directory of service providers for East African founders.'
@@ -684,71 +744,95 @@ function renderProviders(providers) {
       '</p>' +
       '<a class="btn-apply" href="apply-directory.html">Apply to be listed &rarr;</a>' +
       '</div>';
-    return;
   }
 
-  // Split by tier — corporate sponsors handled by sponsors.js strip
-  // Corporate/programme/strategic sponsors show ONLY in the scrolling strip — not as cards
-  var verified = providers.filter(function(p) { return p.tier === 'verified'; });
-  var basic = providers.filter(function(p) { return p.tier === 'basic' || (!p.tier); });
+  grid.innerHTML = '<div class="dir-content">' + html + '</div>';
+}
 
-  var html = '';
+function renderPager() {
+  var pages = Math.ceil(basicTotal / PAGE_SIZE);
+  if (pages <= 1) return '';
+  var start = basicPage * PAGE_SIZE;
+  var end = Math.min(start + PAGE_SIZE, basicTotal);
+  var prevDis = basicPage <= 0 ? ' disabled' : '';
+  var nextDis = (basicPage + 1) >= pages ? ' disabled' : '';
+  return '<div class="dir-pager">' +
+    '<span class="dir-pager-count">Showing ' + (start + 1) + '&ndash;' + end + ' of ' + basicTotal + '</span>' +
+    '<div class="dir-pager-btns">' +
+      '<button class="dir-pg"' + prevDis + ' onclick="basicGo(' + (basicPage - 1) + ')">&larr; Prev</button>' +
+      '<button class="dir-pg"' + nextDis + ' onclick="basicGo(' + (basicPage + 1) + ')">Next &rarr;</button>' +
+    '</div></div>';
+}
 
-  // ── VERIFIED CARDS — flat grid, no category grouping ──
-  if (verified.length) {
-    html += '<div class="dir-section-label">Verified Partners</div>';
-    html += '<div class="directory-grid">';
-    verified.sort(function(a, b) { return (a.company_name || '').localeCompare(b.company_name || ''); });
-    verified.forEach(function(p) { html += renderProviderCard(p); });
-    html += '</div>';
+function basicQueryUrl() {
+  var url = SUPABASE_URL + '/rest/v1/directory_providers?select=' + SELECT +
+    '&status=eq.active&or=(tier.eq.basic,tier.is.null)';
+  if (activeFilter !== 'all' && ALLOWED_CATS.indexOf(activeFilter) !== -1) {
+    url += '&category=eq.' + encodeURIComponent(activeFilter);
   }
+  var dir = basicSortAsc ? 'asc' : 'desc';
+  url += basicSortField === 'category'
+    ? '&order=category.' + dir + '.nullslast,company_name.asc'
+    : '&order=company_name.' + dir + '.nullslast';
+  return url;
+}
 
-  // ── BASIC TABLE — full width, sortable ──
-  if (basic.length) {
-    html += '<div class="dir-section-label">Directory Listings</div>';
-
-    // Sort basic providers
-    basic.sort(function(a, b) {
-      var valA = (a[basicSortField] || '').toLowerCase();
-      var valB = (b[basicSortField] || '').toLowerCase();
-      return basicSortAsc ? valA.localeCompare(valB) : valB.localeCompare(valA);
+async function fetchBasic() {
+  var start = basicPage * PAGE_SIZE;
+  var end = start + PAGE_SIZE - 1;
+  try {
+    var res = await fetch(basicQueryUrl(), {
+      headers: {
+        'apikey': SUPABASE_ANON_KEY,
+        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+        'Accept': 'application/json',
+        'Range-Unit': 'items',
+        'Range': start + '-' + end,
+        'Prefer': 'count=exact'
+      }
     });
-
-    var arrow = function(field) { return basicSortField === field ? (basicSortAsc ? ' ↑' : ' ↓') : ''; };
-    var on = function(field) { return basicSortField === field ? ' on' : ''; };
-
-    html += '<div class="basic-sort"><span>Sort</span>';
-    html += '<button class="' + on('company_name').trim() + '" onclick="sortBasic(\'company_name\')">Company' + arrow('company_name') + '</button>';
-    html += '<button class="' + on('category').trim() + '" onclick="sortBasic(\'category\')">Category' + arrow('category') + '</button>';
-    html += '</div>';
-
-    html += '<div class="basic-grid">';
-    basic.forEach(function(p) { html += renderBasicCard(p); });
-    html += '</div>';
+    if (res.status === 416 && basicPage > 0) { basicPage = 0; return fetchBasic(); }
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+    basicRows = await res.json();
+    var cr = res.headers.get('Content-Range') || '';
+    var slash = cr.indexOf('/');
+    basicTotal = slash !== -1 ? (parseInt(cr.slice(slash + 1), 10) || 0) : basicRows.length;
+    renderGrid();
+  } catch (err) {
+    console.error('Failed to load listings:', err);
+    if (!verifiedCache.length) {
+      grid.innerHTML = '<div class="empty-state">' +
+        '<h3>Directory coming soon</h3>' +
+        '<p>We\'re building our curated directory of service providers for East African founders. Apply now to be listed when we launch.</p>' +
+        '<a class="btn-apply" href="apply-directory.html">Apply to be listed &rarr;</a>' +
+        '</div>';
+    } else { renderGrid(); }
   }
+}
 
-  if (!verified.length && !basic.length) {
-    html += '<div class="empty-state"><p>No providers in this category.</p><a class="btn-apply" href="apply-directory.html">Apply to be listed &rarr;</a></div>';
-  }
-
-  grid.innerHTML = html;
+function basicGo(page) {
+  if (page < 0) return;
+  basicPage = page;
+  fetchBasic();
+  var s = document.querySelector('.directory-section');
+  if (s && s.scrollIntoView) s.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function sortBasic(field) {
   if (basicSortField === field) { basicSortAsc = !basicSortAsc; }
   else { basicSortField = field; basicSortAsc = true; }
-  var filtered = activeFilter === 'all' ? allProviders : allProviders.filter(function(p) { return p.category === activeFilter; });
-  renderProviders(filtered);
+  basicPage = 0;
+  fetchBasic();
 }
 
 function applyFilter(cat) {
   activeFilter = cat;
-  var filtered = cat === 'all' ? allProviders : allProviders.filter(function(p) { return p.category === cat; });
-  renderProviders(filtered);
+  basicPage = 0;
   var btns = filterBar.querySelectorAll('.filter-btn');
   for (var i = 0; i < btns.length; i++) {
     btns[i].classList.toggle('active', btns[i].getAttribute('data-cat') === cat);
   }
+  fetchBasic(); // re-renders the whole grid (verified re-filtered client-side)
 }
 
 filterBar.addEventListener('click', function(e) {
@@ -757,24 +841,20 @@ filterBar.addEventListener('click', function(e) {
   applyFilter(btn.getAttribute('data-cat'));
 });
 
-async function loadDirectory() {
+async function loadVerified() {
   try {
-    // Raw fetch — bypasses slow Supabase client init in Safari
-    var url = SUPABASE_URL + '/rest/v1/directory_providers?select=company_name,category,description,contact_name,email,phone,website,logo_url,tier,featured,banner_tagline,status&status=eq.active&order=tier,company_name';
+    var url = SUPABASE_URL + '/rest/v1/directory_providers?select=' + SELECT +
+      '&status=eq.active&tier=eq.verified&order=company_name.asc&limit=100';
     var res = await fetch(url, {
       headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY, 'Accept': 'application/json' }
     });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    allProviders = await res.json();
-    renderProviders(allProviders);
-  } catch (err) {
-    console.error('Failed to load directory:', err);
-    grid.innerHTML = '<div class="empty-state">' +
-      '<h3>Directory coming soon</h3>' +
-      '<p>We\'re building our curated directory of service providers for East African founders. Apply now to be listed when we launch.</p>' +
-      '<a class="btn-apply" href="apply-directory.html">Apply to be listed &rarr;</a>' +
-      '</div>';
-  }
+    if (res.ok) verifiedCache = await res.json();
+  } catch (err) { console.error('Failed to load verified partners:', err); }
+}
+
+async function loadDirectory() {
+  await loadVerified();
+  await fetchBasic();
 }
 
 loadDirectory();
