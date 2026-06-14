@@ -1,0 +1,652 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Pitch Craft · Session 3 · The Pitch Deck Structure · The Founder's Sprint</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1A1A1A; --ink-soft:#2A2826; --ink-mid:#444; --ink-mute:#5A564F;
+  --paper:#EFE7D8; --paper-mid:#C0B8A8; --paper-dim:#A09888; --paper-deep:#E6DCC7;
+  --terra:#C8531F; --ochre:#C9923A; --sage:#8AAB5C; --moss:#3D4A2E; --stone:#777770;
+  --rule:rgba(26,26,26,0.18);
+  --sans:'Josefin Sans',Inter,system-ui,sans-serif;
+  --display:'Cormorant Garamond',Georgia,serif;
+  --body:'Inter',system-ui,sans-serif;
+  --accent:#8AAB5C; --accent-deep:#566E33;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--ink);color:var(--paper);font-family:var(--body);overflow:hidden;}
+.deck{position:fixed;inset:0;}
+.slide{position:absolute;inset:0;display:none;flex-direction:column;padding:clamp(28px,4.4vw,76px) clamp(26px,5vw,96px) clamp(56px,5vw,82px);opacity:0;}
+.slide.active{display:flex;opacity:1;}
+.slide.active .anim{animation:riseIn .52s cubic-bezier(.25,1,.5,1) both;}
+.slide.active .anim:nth-child(1){animation-delay:.06s}.slide.active .anim:nth-child(2){animation-delay:.12s}.slide.active .anim:nth-child(3){animation-delay:.17s}.slide.active .anim:nth-child(4){animation-delay:.22s}.slide.active .anim:nth-child(5){animation-delay:.27s}.slide.active .anim:nth-child(6){animation-delay:.32s}.slide.active .anim:nth-child(7){animation-delay:.37s}.slide.active .anim:nth-child(8){animation-delay:.42s}
+@keyframes riseIn{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
+.s-paper{background:var(--paper);color:var(--ink);}.s-dark{background:var(--ink);color:var(--paper);}
+.s-paper .chip-bar,.s-dark .chip-bar{display:flex;justify-content:space-between;align-items:center;font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.18em;text-transform:uppercase;}
+.s-paper .chip-bar{color:rgba(26,26,26,0.5);}.s-dark .chip-bar{color:rgba(239,231,216,0.5);}
+.accent-top{position:absolute;top:0;left:0;right:0;height:5px;background:var(--accent);}
+.mark-corner{position:absolute;top:clamp(20px,3vw,40px);right:clamp(20px,4vw,64px);width:clamp(34px,3.4vw,52px);height:auto;opacity:.95;z-index:3;}
+.eyebrow{font-family:var(--sans);font-size:clamp(10px,1.05vw,13px);font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:var(--accent-deep);}
+.s-dark .eyebrow{color:var(--ochre);}
+h1.title{font-family:var(--display);font-weight:300;letter-spacing:-0.012em;font-size:clamp(30px,4.6vw,62px);line-height:1.04;margin-top:.32em;}
+.lede{font-family:var(--display);font-style:italic;font-weight:400;font-size:clamp(17px,2.1vw,30px);line-height:1.32;color:var(--ink-mute);margin-top:.5em;max-width:24ch;}
+.s-dark .lede{color:var(--paper-mid);}
+.body-col{margin-top:clamp(14px,2vw,26px);max-width:62ch;}
+p.body{font-size:clamp(14px,1.45vw,20px);line-height:1.55;font-weight:400;color:var(--ink-mid);}
+.s-dark p.body{color:var(--paper-mid);}
+strong{color:var(--accent-deep);font-weight:600;}.s-dark strong{color:var(--ochre);font-weight:500;}
+.slide-body{flex:1;display:flex;flex-direction:column;justify-content:center;min-height:0;}
+.foot{position:absolute;bottom:clamp(16px,2.4vw,30px);left:clamp(26px,5vw,96px);right:clamp(26px,5vw,96px);display:flex;justify-content:space-between;align-items:center;font-family:var(--sans);font-size:clamp(8px,.85vw,11px);letter-spacing:0.22em;text-transform:uppercase;}
+.s-paper .foot{color:rgba(26,26,26,0.4);}.s-dark .foot{color:rgba(239,231,216,0.4);}
+.foot .tag{font-family:var(--display);font-style:italic;letter-spacing:0;text-transform:none;color:var(--accent-deep);opacity:.8;}
+#s-title{padding:0;background:var(--ink);}
+.title-bg{position:absolute;inset:0;overflow:hidden;}
+.title-photo{position:absolute;inset:0;background:#1A1A1A url('assets/title-deck.jpg') center 22%/cover no-repeat;filter:grayscale(1) contrast(1.06) brightness(0.5);}
+.title-tint{position:absolute;inset:0;background:radial-gradient(95% 95% at 22% 16%, rgba(138,171,92,0.42) 0%, transparent 55%),linear-gradient(180deg, rgba(26,26,26,0.42) 0%, rgba(26,26,26,0.30) 40%, rgba(26,26,26,0.88) 100%);}
+.title-grain{position:absolute;inset:0;opacity:.06;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+.title-vignette{position:absolute;inset:0;background:radial-gradient(118% 118% at 50% 42%, transparent 50%, rgba(0,0,0,0.55) 100%);}
+.title-inner{position:relative;z-index:4;height:100%;display:flex;flex-direction:column;padding:clamp(30px,4vw,64px) clamp(30px,5.5vw,104px);}
+.title-top{display:flex;align-items:center;gap:14px;}
+.title-top .mark{width:clamp(34px,3.2vw,46px);height:auto;animation:spin 64s linear infinite;}
+.title-top .wm{font-family:var(--sans);font-size:clamp(10px,1.05vw,13px);font-weight:700;letter-spacing:0.24em;text-transform:uppercase;color:var(--paper);}
+.title-mid{margin-top:auto;margin-bottom:auto;}
+.title-series{display:flex;align-items:stretch;gap:clamp(13px,1.5vw,20px);margin-bottom:clamp(16px,2.2vw,28px);}
+.ts-week{display:flex;flex-direction:column;justify-content:center;padding:clamp(7px,.9vw,11px) clamp(12px,1.4vw,18px);border:1.5px solid rgba(239,231,216,0.28);border-left:3px solid var(--ochre);}
+.ts-wk{font-family:var(--display);font-weight:400;font-size:clamp(18px,2.2vw,29px);line-height:1;color:var(--paper);letter-spacing:-0.01em;}
+.ts-of{font-family:var(--sans);font-size:clamp(8px,.92vw,11px);font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:var(--ochre);margin-top:.45em;}
+.ts-info{display:flex;flex-direction:column;justify-content:center;min-width:0;}
+.ts-disc{font-family:var(--sans);font-size:clamp(11px,1.35vw,16px);font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--paper);line-height:1.15;}
+.ts-coach{font-family:var(--display);font-style:italic;font-size:clamp(13px,1.5vw,19px);color:var(--paper);opacity:.74;margin-top:.32em;line-height:1.1;}
+.ts-coach .ts-dot{margin:0 .5em;opacity:.5;font-style:normal;}
+.title-h{font-family:var(--display);font-weight:300;font-size:clamp(38px,6.6vw,98px);line-height:0.98;letter-spacing:-0.02em;color:var(--paper);}
+.title-h em{font-style:italic;color:var(--ochre);}
+.title-sub{font-family:var(--display);font-style:italic;font-size:clamp(16px,2.1vw,28px);color:var(--paper);opacity:.82;margin-top:.7em;max-width:32ch;text-wrap:balance;}
+.title-foot{margin-top:clamp(20px,3vw,38px);display:flex;flex-wrap:wrap;gap:8px 26px;align-items:baseline;font-family:var(--sans);font-size:clamp(9px,1vw,12px);letter-spacing:0.2em;text-transform:uppercase;color:var(--paper);opacity:.72;}
+.title-foot .dot{color:var(--sage);}
+.title-cta{position:absolute;left:clamp(30px,5.5vw,104px);bottom:clamp(22px,3vw,42px);font-family:var(--sans);font-size:clamp(9px,1vw,11px);letter-spacing:0.18em;text-transform:uppercase;color:var(--paper);opacity:.5;z-index:5;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.s-divider{background:var(--ink);color:var(--paper);overflow:hidden;justify-content:center;}
+.s-divider .div-photo{position:absolute;inset:0;background-position:center 30%;background-size:cover;filter:sepia(.5) saturate(1.05) hue-rotate(38deg) contrast(1.02) brightness(.72);opacity:.5;}
+.s-divider .div-overlay{position:absolute;inset:0;background:linear-gradient(110deg,rgba(26,26,26,0.72) 0%,rgba(26,26,26,0.38) 45%,rgba(26,26,26,0.80) 100%);}
+.s-divider .div-mark{position:absolute;top:clamp(26px,4vw,58px);right:clamp(26px,4.5vw,72px);width:clamp(50px,7vw,105px);height:auto;animation:spin 18s linear infinite;opacity:.85;z-index:2;}
+.div-inner{position:relative;z-index:3;display:flex;flex-direction:column;align-items:flex-start;}
+.div-num{font-family:var(--display);font-weight:300;font-size:clamp(40px,6vw,86px);line-height:1;color:rgba(239,231,216,0.22);letter-spacing:-0.02em;margin-bottom:.18em;}
+.div-eyebrow{font-family:var(--sans);font-size:clamp(10px,1.05vw,13px);font-weight:700;letter-spacing:0.34em;text-transform:uppercase;color:var(--paper);opacity:.4;margin-bottom:.35em;}
+.div-title{font-family:var(--display);font-style:italic;font-weight:300;font-size:clamp(30px,5.4vw,84px);line-height:1.04;color:var(--paper);letter-spacing:-0.01em;}
+.div-meta{margin-top:1em;font-family:var(--display);font-style:italic;font-size:clamp(14px,1.7vw,22px);line-height:1.4;color:var(--sage);opacity:.95;max-width:34ch;text-wrap:pretty;}
+.grid{display:grid;gap:clamp(12px,1.6vw,22px);}
+.g2{grid-template-columns:repeat(2,1fr);}.g3{grid-template-columns:repeat(3,1fr);}.g4{grid-template-columns:repeat(4,1fr);}
+.card{background:var(--paper-deep);border-left:3px solid var(--accent);padding:clamp(14px,1.7vw,24px);}
+.s-dark .card{background:rgba(239,231,216,0.06);border-left-color:var(--ochre);}
+.card h4{font-family:var(--sans);font-size:clamp(11px,1.15vw,15px);font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink);margin-bottom:.45em;}
+.s-dark .card h4{color:var(--paper);}
+.card p{font-size:clamp(12px,1.25vw,16px);line-height:1.5;color:var(--ink-mute);}.s-dark .card p{color:var(--paper-mid);}
+.card .num{font-family:var(--display);font-weight:300;font-size:clamp(26px,3vw,46px);color:var(--accent-deep);line-height:1;}.s-dark .card .num{color:var(--ochre);}
+ul.list{list-style:none;margin-top:.4em;}
+ul.list li{position:relative;padding-left:1.4em;margin-bottom:.55em;font-size:clamp(12px,1.35vw,18px);line-height:1.48;color:var(--ink-mid);}
+.s-dark ul.list li{color:var(--paper-mid);}
+ul.list li::before{content:"";position:absolute;left:0;top:.5em;width:9px;height:9px;background:var(--accent);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);}
+.s-dark ul.list li::before{background:var(--ochre);}
+.pull{font-family:var(--display);font-style:italic;font-weight:300;font-size:clamp(24px,4vw,56px);line-height:1.16;color:var(--paper);letter-spacing:-0.01em;max-width:22ch;text-wrap:balance;}
+.pull .by{display:block;margin-top:.7em;font-family:var(--sans);font-style:normal;font-size:clamp(10px,1.1vw,14px);font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--ochre);}
+.pick-wrap{display:grid;grid-template-columns:0.78fr 1.22fr;gap:clamp(16px,2.5vw,42px);align-items:start;margin-top:clamp(12px,1.8vw,24px);}
+.pick-chips{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.pick-chip{font-family:var(--sans);font-size:clamp(9px,1.05vw,13px);font-weight:600;letter-spacing:0.02em;border:1.5px solid var(--rule);background:var(--paper-deep);color:var(--ink);padding:9px 12px;cursor:pointer;transition:all .2s ease;text-align:left;}
+.pick-chip:hover{border-color:var(--accent);}
+.pick-chip.on{background:var(--accent);color:var(--ink);border-color:var(--accent);}
+.pick-detail{background:var(--paper-deep);border-top:4px solid var(--accent);padding:clamp(16px,2vw,28px);min-height:clamp(190px,23vw,260px);}
+.pick-detail .pk{font-family:var(--sans);font-size:clamp(12px,1.3vw,17px);font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent-deep);margin-bottom:.2em;}
+.pick-detail .ptag{display:inline-block;font-family:var(--display);font-style:italic;font-size:clamp(15px,1.9vw,26px);color:var(--ink);margin-bottom:.4em;}
+.pick-detail .pv{font-size:clamp(13px,1.45vw,19px);line-height:1.55;color:var(--ink-mid);}
+.pick-detail .peg{margin-top:.85em;font-family:var(--display);font-style:italic;font-size:clamp(14px,1.6vw,21px);color:var(--accent-deep);}
+.jrail{position:relative;display:flex;gap:4px;margin-top:clamp(16px,2.4vw,30px);}
+.jrail::before{content:"";position:absolute;top:clamp(21px,2.3vw,28px);left:12%;right:12%;height:2px;background:var(--rule);z-index:0;}
+.jnode{position:relative;z-index:1;flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;text-align:center;cursor:pointer;}
+.jdot{width:clamp(44px,4.6vw,57px);height:clamp(44px,4.6vw,57px);border-radius:50%;background:var(--paper);border:2px solid var(--paper-mid);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:500;font-size:clamp(16px,1.8vw,24px);color:var(--ink-mute);transition:all .25s ease;}
+.jnode:hover .jdot{border-color:var(--accent);color:var(--accent-deep);}
+.jnode.on .jdot{background:var(--accent);border-color:var(--accent);color:var(--ink);transform:scale(1.14);box-shadow:0 8px 20px rgba(138,171,92,0.45);}
+.jname{font-family:var(--display);font-size:clamp(15px,1.7vw,23px);color:var(--ink-mid);margin-top:.55em;line-height:1.06;}
+.jnode.on .jname{color:var(--accent-deep);font-style:italic;}
+.jcap{font-family:var(--sans);font-size:clamp(8px,.92vw,11px);font-weight:600;letter-spacing:0.06em;color:var(--paper-dim);margin-top:.3em;}
+.jnode.on .jcap{color:var(--accent-deep);}
+.step-detail{margin-top:clamp(16px,2.2vw,28px);background:var(--paper-deep);padding:clamp(16px,2vw,28px);border-left:4px solid var(--accent);min-height:clamp(110px,13vw,150px);}
+.step-detail .sd-q{font-family:var(--display);font-style:italic;font-size:clamp(16px,2vw,26px);color:var(--ink);}
+.step-detail .sd-v{font-size:clamp(13px,1.4vw,18px);line-height:1.5;color:var(--ink-mid);margin-top:.55em;}
+.step-detail .sd-v b{color:var(--accent-deep);}
+.dr-wrap{display:grid;grid-template-columns:1.35fr 1fr;gap:clamp(18px,3vw,46px);align-items:start;margin-top:clamp(12px,1.8vw,24px);}
+.dr-list{display:flex;flex-direction:column;gap:clamp(7px,1vw,11px);}
+.dr-item{display:flex;align-items:flex-start;gap:13px;cursor:pointer;background:var(--paper-deep);padding:clamp(11px,1.3vw,16px) clamp(13px,1.5vw,18px);border-left:3px solid var(--rule);transition:all .18s ease;}
+.dr-item:hover{border-left-color:var(--accent);}
+.dr-item.on{border-left-color:var(--accent);background:rgba(138,171,92,0.13);}
+.dr-cb{flex:none;width:clamp(20px,2vw,25px);height:clamp(20px,2vw,25px);border:1.5px solid var(--accent);display:flex;align-items:center;justify-content:center;margin-top:1px;}
+.dr-item.on .dr-cb::after{content:"";width:48%;height:48%;background:var(--accent);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);}
+.dr-tx .dt{font-family:var(--sans);font-size:clamp(11px,1.2vw,15px);font-weight:700;letter-spacing:0.04em;color:var(--ink);text-transform:uppercase;}
+.dr-tx .dd{font-size:clamp(11px,1.2vw,15px);line-height:1.4;color:var(--ink-mute);margin-top:.18em;}
+.dr-out{background:var(--ink);color:var(--paper);padding:clamp(18px,2.2vw,30px);text-align:center;}
+.dr-out .do-k{font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--paper-mid);}
+.dr-out .do-n{font-family:var(--display);font-weight:300;font-size:clamp(40px,6vw,76px);line-height:1;color:var(--paper);margin:.05em 0;}
+.dr-out .do-n small{font-size:.42em;color:var(--paper-mid);}
+.dr-bar{height:8px;background:rgba(239,231,216,0.16);margin:.4em 0 0;}
+.dr-fill{height:100%;width:0;background:var(--sage);transition:width .3s ease;}
+.dr-verdict{margin-top:1em;font-family:var(--sans);font-size:clamp(11px,1.3vw,16px);font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:10px;}
+.dr-verdict.ready{background:rgba(138,171,92,0.22);color:var(--sage);}.dr-verdict.mid{background:rgba(201,146,58,0.2);color:var(--ochre);}.dr-verdict.low{background:rgba(200,83,31,0.2);color:#E27A4A;}
+.box{border:1.5px solid var(--accent);padding:clamp(16px,2.2vw,32px);background:rgba(138,171,92,0.09);}
+.s-dark .box{border-color:var(--ochre);background:rgba(201,146,58,0.08);}
+.box .bk{font-family:var(--sans);font-size:clamp(10px,1.1vw,14px);font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent-deep);margin-bottom:.6em;}.s-dark .box .bk{color:var(--ochre);}
+.cols2{display:grid;grid-template-columns:1fr 1fr;gap:clamp(14px,2.4vw,40px);margin-top:clamp(14px,2vw,28px);}
+.cols2 .ttl{font-family:var(--sans);font-size:clamp(10px,1.1vw,14px);font-weight:700;letter-spacing:0.12em;text-transform:uppercase;margin-bottom:.5em;}
+.cols2 .ttl.good{color:var(--accent-deep);}.cols2 .ttl.bad{color:var(--terra);}
+.cols2 .badlist li::before{background:var(--terra);clip-path:none;border-radius:50%;width:7px;height:7px;}
+.ex-head{display:flex;flex-wrap:wrap;align-items:flex-end;gap:14px 20px;}
+.ex-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(10px,1.3vw,18px);margin-top:clamp(14px,2vw,26px);}
+.ex-card{position:relative;background:var(--paper-deep);border-top:3px solid var(--accent);padding:clamp(15px,1.8vw,24px) clamp(14px,1.5vw,20px) clamp(16px,1.8vw,24px);overflow:hidden;display:flex;flex-direction:column;}
+.ex-card .exn{position:absolute;top:-0.12em;right:8px;font-family:var(--display);font-weight:300;font-size:clamp(60px,7vw,118px);line-height:1;color:rgba(138,171,92,0.16);pointer-events:none;}
+.ex-card .exk{position:relative;font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--accent-deep);}
+.ex-card .ext{position:relative;font-family:var(--display);font-weight:500;font-size:clamp(17px,1.9vw,26px);color:var(--ink);margin:.14em 0 .3em;line-height:1.08;}
+.ex-card .exp{position:relative;font-size:clamp(11px,1.2vw,15px);line-height:1.45;color:var(--ink-mute);}
+.ex-card .exeg{position:relative;margin-top:.6em;padding-left:10px;border-left:2px solid var(--ochre);font-family:var(--display);font-style:italic;font-size:clamp(12px,1.3vw,17px);line-height:1.32;color:var(--accent-deep);}
+.ex-card .exeg b{font-style:normal;font-family:var(--sans);font-weight:700;font-size:.7em;letter-spacing:0.14em;text-transform:uppercase;color:#9A6E1E;display:block;margin-bottom:.2em;}
+.ex-card .write{margin-top:auto;padding-top:1em;}.ex-card .write span{display:block;border-bottom:1.5px dashed var(--paper-dim);height:1.15em;}
+.due-tag{display:inline-flex;align-items:center;gap:8px;font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink);background:var(--ochre);padding:7px 15px;}
+.due-tag .d{width:9px;height:9px;background:var(--ink);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);}
+.hw-grid{display:grid;grid-template-columns:1.12fr .88fr;gap:clamp(20px,3.4vw,56px);align-items:start;margin-top:clamp(14px,2vw,26px);}
+.hw-klbl{font-family:var(--sans);font-size:clamp(10px,1.1vw,13px);font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--ochre);margin-bottom:.4em;}
+.hw-check{list-style:none;}
+.hw-check li{display:flex;gap:14px;align-items:flex-start;padding:clamp(10px,1.3vw,15px) 0;border-bottom:1px solid rgba(239,231,216,0.14);font-size:clamp(13px,1.4vw,18px);line-height:1.45;color:var(--paper-mid);}
+.hw-check li:last-child{border-bottom:none;}
+.hw-check .cbx{flex:none;width:clamp(21px,2vw,27px);height:clamp(21px,2vw,27px);border:1.5px solid var(--ochre);display:flex;align-items:center;justify-content:center;margin-top:1px;}
+.hw-check .cbx::after{content:"";width:46%;height:46%;background:var(--ochre);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);}
+.hw-check b{color:var(--paper);font-weight:600;}
+.hw-quote{background:rgba(138,171,92,0.12);border-left:3px solid var(--sage);padding:clamp(18px,2.3vw,32px) clamp(18px,2.2vw,30px) clamp(20px,2.4vw,30px);}
+.hw-quote .qm{font-family:var(--display);font-size:clamp(52px,6vw,96px);line-height:.4;color:var(--sage);display:block;height:.5em;}
+.hw-quote .qt{font-family:var(--display);font-style:italic;font-weight:300;font-size:clamp(19px,2.3vw,32px);line-height:1.26;color:var(--paper);text-wrap:balance;}
+.hw-quote .qb{font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--sage);margin-top:1em;}
+.hw-bridge{margin-top:clamp(13px,1.7vw,20px);font-size:clamp(13px,1.4vw,18px);line-height:1.55;color:var(--paper-mid);text-wrap:pretty;}
+#s-close{align-items:center;justify-content:center;text-align:center;}
+#s-close .mark{width:clamp(80px,11vw,150px);height:auto;}
+#s-close .cbig{font-family:var(--display);font-weight:300;font-size:clamp(24px,4vw,56px);line-height:1.08;color:var(--paper);margin-top:.4em;letter-spacing:-0.01em;}
+#s-close .cbig em{font-style:italic;color:var(--ochre);}
+#s-close .ct{font-family:var(--display);font-style:italic;font-size:clamp(15px,1.9vw,24px);color:var(--paper-mid);margin-top:.7em;max-width:34ch;}
+#s-close .cc{font-family:var(--sans);font-size:clamp(9px,1vw,12px);letter-spacing:0.24em;text-transform:uppercase;color:var(--paper-dim);margin-top:1.4em;}
+.progress{position:fixed;bottom:0;left:0;height:4px;background:var(--accent);width:0;z-index:41;transition:width .3s ease;}
+.nav{position:fixed;bottom:clamp(14px,2vw,26px);right:clamp(16px,2.5vw,34px);display:flex;gap:8px;z-index:42;}
+.nav button{width:clamp(38px,3.6vw,46px);height:clamp(38px,3.6vw,46px);border:1px solid rgba(239,231,216,0.3);background:rgba(26,26,26,0.55);color:var(--paper);font-size:18px;cursor:pointer;backdrop-filter:blur(4px);transition:all .2s;display:flex;align-items:center;justify-content:center;}
+body.on-paper .nav button{border-color:rgba(26,26,26,0.25);background:rgba(239,231,216,0.7);color:var(--ink);}
+.nav button:hover{border-color:var(--accent);color:var(--accent-deep);}
+.counter{position:fixed;bottom:clamp(16px,2vw,28px);left:clamp(18px,2.5vw,34px);z-index:42;font-family:var(--sans);font-size:clamp(10px,1.1vw,13px);font-weight:600;letter-spacing:0.16em;color:var(--paper-mid);pointer-events:none;}
+body.on-paper .counter{color:var(--ink-mute);}
+.kbd-hint{position:fixed;bottom:clamp(16px,2vw,28px);left:50%;transform:translateX(-50%);z-index:42;font-family:var(--sans);font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--paper-dim);opacity:.7;pointer-events:none;}
+.overview{position:fixed;inset:0;background:rgba(13,16,10,0.96);z-index:60;display:none;padding:clamp(20px,3vw,48px);overflow-y:auto;}
+.overview.show{display:block;}
+.ov-title{font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--ochre);margin-bottom:18px;}
+.ov-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;}
+.ov-item{background:rgba(239,231,216,0.06);border:1px solid rgba(239,231,216,0.14);padding:14px;cursor:pointer;transition:all .2s;}
+.ov-item:hover{border-color:var(--accent);background:rgba(138,171,92,0.2);}
+.ov-item .oi-n{font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:0.16em;color:var(--sage);}
+.ov-item .oi-t{font-family:var(--display);font-size:18px;color:var(--paper);margin-top:4px;line-height:1.15;}
+.pick-hint,.step-hint,.dr-hint,.gen-hint{font-family:var(--sans);font-size:clamp(10px,1.1vw,12px);font-weight:600;letter-spacing:0.16em;text-transform:uppercase;line-height:1.5;margin-top:clamp(12px,1.6vw,20px);color:var(--paper-dim);text-wrap:pretty;}
+.s-paper .pick-hint,.s-paper .step-hint,.s-paper .dr-hint,.s-paper .gen-hint{color:var(--ink-mute);}
+.slide h1,.slide h4,.slide p,.slide li,.lede,.div-meta,.title-sub,.step-detail,.pick-detail .pv{text-wrap:pretty;}
+h1.title,.title-h,.div-title,.lede,.pull,.card h4,.ex-card .ext,.hw-quote .qt,.title-sub{text-wrap:balance;}
+@media (max-width:880px){.ex-grid{grid-template-columns:repeat(2,1fr);}}
+@media (max-width:768px){.grid.g3,.grid.g4{grid-template-columns:repeat(2,1fr);}.pick-wrap,.dr-wrap,.hw-grid,.cols2{grid-template-columns:1fr;}.kbd-hint{display:none;}}
+@media (max-width:560px){.grid.g2,.grid.g3,.grid.g4{grid-template-columns:1fr;}.pick-chips{grid-template-columns:1fr;}}
+@media (max-width:520px){.ex-grid{grid-template-columns:1fr;}}
+@media (prefers-reduced-motion:reduce){.title-top .mark,.s-divider .div-mark{animation:none;}.slide.active .anim{animation:none;}}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<!-- 1 · TITLE -->
+<section class="slide" id="s-title" data-surface="dark" data-title="Title">
+  <div class="title-bg"><div class="title-photo"></div><div class="title-tint"></div><div class="title-grain"></div><div class="title-vignette"></div></div>
+  <div class="title-inner">
+    <div class="title-top">
+      <svg class="mark" viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.82"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.78" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.96" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.8" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.78" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+      <span class="wm">The Founder's Sprint</span>
+    </div>
+    <div class="title-mid">
+      <div class="title-series">
+        <div class="ts-week"><span class="ts-wk">Session 3</span><span class="ts-of">of 3 · Pitch Craft</span></div>
+        <div class="ts-info"><div class="ts-disc">Investment Readiness · Pitch Craft</div><div class="ts-coach">Coach Joseph Kalema<span class="ts-dot">·</span>Growth-stage mentorship</div></div>
+      </div>
+      <h1 class="title-h">The slides that<br>carry the <em>story</em>.</h1>
+      <div class="title-sub">A proven 10–12 slide sequence, with one job per slide. This session: the order investors expect, the five make-or-break slides, and the ask that closes.</div>
+      <div class="title-foot">
+        <span><span class="dot">●</span> The sequence</span>
+        <span><span class="dot">●</span> Make-or-break slides</span>
+        <span><span class="dot">●</span> Design &amp; data</span>
+        <span><span class="dot">●</span> The ask</span>
+      </div>
+    </div>
+    <div class="title-cta">Press &rarr; or Space to begin &nbsp;·&nbsp; O overview &nbsp;·&nbsp; P presenter notes</div>
+  </div>
+</section>
+
+<!-- 2 · AGENDA -->
+<section class="slide s-paper" data-surface="paper" data-title="What we'll cover">
+  <div class="accent-top"></div>
+  <svg class="mark-corner" viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.82"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.78" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.96" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.8" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.78" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#1A1A1A"/><circle cx="50" cy="50" r="2" fill="#EFE7D8"/></svg>
+  <div class="chip-bar anim"><span>Pitch Craft · Session 3</span><span>The Pitch Deck Structure</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">The narrative carries the room, slide by slide</div>
+    <h1 class="title anim">Ten to twelve slides — one clear job each.</h1>
+    <div class="grid g4 anim" style="margin-top:clamp(18px,2.5vw,34px)">
+      <div class="card"><div class="num">01</div><h4>The sequence</h4><p>The slides investors expect, in order.</p></div>
+      <div class="card"><div class="num">02</div><h4>Make-or-break</h4><p>The five that decide the second meeting.</p></div>
+      <div class="card"><div class="num">03</div><h4>Design &amp; data</h4><p>One idea per slide; visual, readable, consistent.</p></div>
+      <div class="card"><div class="num">04</div><h4>The ask</h4><p>Close with a specific request and what it buys.</p></div>
+    </div>
+    <div class="box anim" style="margin-top:clamp(16px,2.2vw,28px)"><div class="bk">Leave with</div><p class="body" style="color:var(--ink)">A <strong>slide-by-slide outline</strong> of your own pitch deck — one headline per slide.</p></div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 3 · DIVIDER 01 -->
+<section class="slide s-divider" data-surface="dark" data-title="01 · The sequence" data-photo="assets/pc3-01.jpg">
+  <div class="div-photo"></div><div class="div-overlay"></div>
+  <svg class="div-mark" viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.82"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.78" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.96" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.8" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.78" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+  <div class="div-inner">
+    <div class="div-num anim">01</div>
+    <div class="div-eyebrow anim">Pitch Craft · The Sequence</div>
+    <div class="div-title anim">The slides investors<br>expect, in order.</div>
+    <div class="div-meta anim">There's a canonical sequence for a reason — it follows the narrative arc. Deviate without cause and you make the investor work.</div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 4 · THE SEQUENCE INTRO -->
+<section class="slide s-paper" data-surface="paper" data-title="One job per slide">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Pitch Craft · Session 3</span><span>One idea, one job, per slide</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">The deck is the narrative, delivered slide by slide</div>
+    <h1 class="title anim" style="font-size:clamp(26px,3.8vw,50px)">If the headlines alone tell the story, the deck will too.</h1>
+    <div class="grid g3 anim" style="margin-top:clamp(16px,2.4vw,32px)">
+      <div class="card"><h4>Same arc</h4><p>Title, problem, solution, why now, traction, ask — it's the five-beat story, expanded.</p></div>
+      <div class="card"><h4>One job each</h4><p>Every slide does exactly one thing; the headline states the takeaway.</p></div>
+      <div class="card"><h4>10–12 for the room</h4><p>Keep it tight. Depth lives in the appendix, pulled up only on request.</p></div>
+    </div>
+    <p class="pick-hint anim">Tap through the full sequence next — and notice how it mirrors the narrative you built in Session 1.</p>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 5 · THE SEQUENCE (interactive) -->
+<section class="slide s-paper" data-surface="paper" data-title="The slide sequence">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Pitch Craft · Session 3</span><span>The canonical deck · tap a slide</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Interactive · eleven slides, one job each</div>
+    <h1 class="title anim" style="font-size:clamp(24px,3.4vw,44px)">The deck investors expect, slide by slide.</h1>
+    <div class="pick-wrap" id="seqWrap">
+      <div class="pick-chips" id="seqChips">
+        <button class="pick-chip on" data-k="s1">01 Title</button>
+        <button class="pick-chip" data-k="s2">02 Problem</button>
+        <button class="pick-chip" data-k="s3">03 Solution</button>
+        <button class="pick-chip" data-k="s4">04 Why now</button>
+        <button class="pick-chip" data-k="s5">05 Market</button>
+        <button class="pick-chip" data-k="s6">06 Product</button>
+        <button class="pick-chip" data-k="s7">07 Traction</button>
+        <button class="pick-chip" data-k="s8">08 Business model</button>
+        <button class="pick-chip" data-k="s9">09 Competition</button>
+        <button class="pick-chip" data-k="s10">10 Team</button>
+        <button class="pick-chip" data-k="s11">11 The ask</button>
+        <button class="pick-chip" data-k="s12">12 Appendix</button>
+      </div>
+      <div class="pick-detail" id="seqDetail"></div>
+    </div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 6 · DIVIDER 02 -->
+<section class="slide s-divider" data-surface="dark" data-title="02 · Make or break" data-photo="assets/pc3-02.jpg">
+  <div class="div-photo"></div><div class="div-overlay"></div>
+  <svg class="div-mark" viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.82"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.78" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.96" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.8" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.78" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+  <div class="div-inner">
+    <div class="div-num anim">02</div>
+    <div class="div-eyebrow anim">Pitch Craft · Make Or Break</div>
+    <div class="div-title anim">Five slides decide<br>the second meeting.</div>
+    <div class="div-meta anim">Investors skim the rest, but they stop on these five. Get them right and you earn the deep-dive.</div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 7 · MAKE OR BREAK INTRO -->
+<section class="slide s-paper" data-surface="paper" data-title="The five that matter">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Pitch Craft · Session 3</span><span>Where the decision is really made</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Most slides inform; five decide</div>
+    <h1 class="title anim" style="font-size:clamp(26px,3.8vw,50px)">Pour your effort into the five that earn the next meeting.</h1>
+    <div class="grid g3 anim" style="margin-top:clamp(16px,2.4vw,32px)">
+      <div class="card"><h4>Problem</h4><p>One painful, specific truth — not a category overview.</p></div>
+      <div class="card"><h4>Traction</h4><p>Your strongest evidence; real metrics and a clear trend.</p></div>
+      <div class="card"><h4>Market</h4><p>Credible sizing — bottom-up beats a giant top-down TAM.</p></div>
+      <div class="card"><h4>Business model</h4><p>How each sale makes money; honest unit economics.</p></div>
+      <div class="card"><h4>The ask</h4><p>Exact amount, instrument, and the milestones it buys.</p></div>
+      <div class="card" style="border-left-color:var(--ink)"><h4>The rest</h4><p>Support these five. Don't let a weak slide drown a strong one.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 8 · MAKE-OR-BREAK SCORER (interactive) -->
+<section class="slide s-paper" data-surface="paper" data-title="Make-or-break scorer">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Pitch Craft · Session 3</span><span>Are your five strong? · tick what's true</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Interactive · score your five make-or-break slides</div>
+    <h1 class="title anim" style="font-size:clamp(24px,3.4vw,46px)">Would these five earn a second meeting?</h1>
+    <div class="dr-wrap anim">
+      <div class="dr-list" id="mobList"></div>
+      <div class="dr-out">
+        <div class="do-k">Second-meeting readiness</div>
+        <div class="do-n"><span id="mobNum">0</span><small> / 5</small></div>
+        <div class="dr-bar"><div class="dr-fill" id="mobFill"></div></div>
+        <div class="dr-verdict low" id="mobVerdict">Not yet — gaps remain</div>
+      </div>
+    </div>
+    <div class="dr-hint anim">A common miss: a giant top-down market number that signals you haven't done the work. <strong>Build it bottom-up.</strong></div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 9 · DIVIDER 03 -->
+<section class="slide s-divider" data-surface="dark" data-title="03 · The ask" data-photo="assets/pc3-03.jpg">
+  <div class="div-photo"></div><div class="div-overlay"></div>
+  <svg class="div-mark" viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.82"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.78" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.96" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.8" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.78" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+  <div class="div-inner">
+    <div class="div-num anim">03</div>
+    <div class="div-eyebrow anim">Pitch Craft · The Ask &amp; Design</div>
+    <div class="div-title anim">Close with a<br>specific request.</div>
+    <div class="div-meta anim">A vague ask leaves the investor unsure what to do. Make the next step obvious — and easy to say yes to.</div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 10 · DESIGN & DATA -->
+<section class="slide s-paper" data-surface="paper" data-title="Design &amp; data">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Pitch Craft · Session 3</span><span>Make the story easy to follow</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">An investor reads your deck from across the room</div>
+    <h1 class="title anim" style="font-size:clamp(24px,3.4vw,44px)">Design principles — and the deck-killers.</h1>
+    <div class="cols2 anim">
+      <div>
+        <div class="ttl good">Design principles</div>
+        <ul class="list">
+          <li>One idea per slide — the headline states the takeaway</li>
+          <li>Show, don't tell — charts, product shots, customer logos</li>
+          <li>Big, readable text — legible across a room</li>
+          <li>Consistent brand; clean, not cluttered</li>
+          <li>10–12 slides for the room — depth in the appendix</li>
+        </ul>
+      </div>
+      <div>
+        <div class="ttl bad">Deck-killers</div>
+        <ul class="list badlist">
+          <li>Tiny fonts and walls of text</li>
+          <li>Facts with no story to string them together</li>
+          <li>Vanity metrics dressed up as traction</li>
+          <li>Numbers that differ from your summary or model</li>
+          <li>No clear ask — or reading every slide aloud</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 11 · THE ASK BUILDER (interactive) -->
+<section class="slide s-paper" data-surface="paper" data-title="The ask builder">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Pitch Craft · Session 3</span><span>A strong ask slide · tap a part</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Interactive · build the ask slide, part by part</div>
+    <h1 class="title anim" style="font-size:clamp(26px,3.8vw,50px)">Make it easy to say &ldquo;how do I get involved?&rdquo;</h1>
+    <div class="jrail anim" id="askRail">
+      <div class="jnode on" data-s="0"><div class="jdot">1</div><div class="jname">Amount</div><div class="jcap">&amp; instrument</div></div>
+      <div class="jnode" data-s="1"><div class="jdot">2</div><div class="jname">Use of funds</div><div class="jcap">The split</div></div>
+      <div class="jnode" data-s="2"><div class="jdot">3</div><div class="jname">The milestone</div><div class="jcap">It de-risks</div></div>
+      <div class="jnode" data-s="3"><div class="jdot">4</div><div class="jname">The yes</div><div class="jcap">Easy step</div></div>
+    </div>
+    <div class="step-detail anim" id="askDetail"></div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 12 · ONE STORY, THREE FORMS -->
+<section class="slide s-dark" data-surface="dark" data-title="One story, three forms">
+  <div class="chip-bar anim"><span>Pitch Craft · Bringing it together</span><span>Same story, three forms</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">A worked example · agri-logistics in Uganda</div>
+    <h1 class="title anim" style="color:var(--paper);font-size:clamp(24px,3.4vw,44px)">One story — hook, summary, title slide.</h1>
+    <div class="grid g3 anim" style="margin-top:clamp(16px,2.4vw,30px)">
+      <div class="card"><h4>As a hook</h4><p>"A third of what Ugandan farmers grow rots before it sells. We get it to market in 24 hours."</p></div>
+      <div class="card"><h4>As a summary opener</h4><p>"[Co] is a cold-chain logistics platform cutting post-harvest losses; 1,200 farmers, UGX Xm GMV, +18%/mo."</p></div>
+      <div class="card"><h4>As a title-slide line</h4><p>"[Co] — fresh produce, from farm to market in 24 hours." Then problem → solution → traction → ask.</p></div>
+    </div>
+    <p class="pick-hint anim" style="color:var(--paper-mid)">Same hook, same numbers, same ask — in three forms. <strong>Consistency is what makes the story believable.</strong></p>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 13 · RECAP -->
+<section class="slide s-dark" data-surface="dark" data-title="Recap">
+  <div class="chip-bar anim"><span>Pitch Craft · Session 3</span><span>What we locked down</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">The through-line</div>
+    <h1 class="title anim" style="color:var(--paper)">The deck carries the story into the room.</h1>
+    <div class="grid g3 anim" style="margin-top:clamp(16px,2.4vw,32px)">
+      <div class="card"><h4>The sequence</h4><p>Eleven slides, one job each, in order.</p></div>
+      <div class="card"><h4>Make-or-break</h4><p>Problem, traction, market, model, ask.</p></div>
+      <div class="card"><h4>Design</h4><p>One idea per slide; show, don't tell.</p></div>
+      <div class="card"><h4>The ask</h4><p>Exact amount, use of funds, milestone.</p></div>
+      <div class="card"><h4>Three forms</h4><p>Same hook, numbers and ask across all.</p></div>
+      <div class="card" style="border-left-color:var(--ochre)"><h4>The capstone</h4><p>All three forms, consistent — you're <em>pitch-ready</em>.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 14 · EXERCISE -->
+<section class="slide s-paper" data-surface="paper" data-title="In-session exercise">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Pitch Craft · Session 3</span><span>Self-guided worksheet · in session</span></div>
+  <div class="slide-body">
+    <div class="ex-head anim">
+      <div>
+        <div class="eyebrow">Self-guided worksheet · do it now</div>
+        <h1 class="title" style="margin-top:.15em">Outline your deck in 4 moves.</h1>
+      </div>
+      <span style="margin-left:auto;margin-bottom:.2em;display:inline-block;font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--paper);background:var(--ink);padding:5px 12px">⏱ 25 min solo · 35 min group</span>
+    </div>
+    <div class="ex-grid anim">
+      <div class="ex-card"><span class="exn">1</span><div class="exk">The headlines</div><div class="ext">Eleven lines</div><div class="exp">Write only the one-line headline for each of the 11 slides.</div><div class="exeg"><b>Example</b>"Traction: 1,200 farmers, +18%/mo and accelerating."</div><div class="write"><span></span></div></div>
+      <div class="ex-card"><span class="exn">2</span><div class="exk">The headline test</div><div class="ext">Read in order</div><div class="exp">Do the headlines alone tell your whole story?</div><div class="exeg"><b>Example</b>"If yes — the deck will work. If not, fix the gap."</div><div class="write"><span></span></div></div>
+      <div class="ex-card"><span class="exn">3</span><div class="exk">Your five</div><div class="ext">Make-or-break</div><div class="exp">Mark the five make-or-break slides; flag the weakest.</div><div class="exeg"><b>Example</b>"Market is weakest — rebuild it bottom-up."</div><div class="write"><span></span></div></div>
+      <div class="ex-card"><span class="exn">4</span><div class="exk">Your ask</div><div class="ext">Be specific</div><div class="exp">Amount, instrument, use of funds, milestone.</div><div class="exeg"><b>Example</b>"USD 400k SAFE → 120 schools, 18-mo runway."</div><div class="write"><span></span></div></div>
+    </div>
+    <p class="pick-hint anim">How we'll review: read your 11 headlines in order. If a stranger can retell the story and the ask from the headlines alone, the deck is ready.</p>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 15 · CAPSTONE -->
+<section class="slide s-dark" data-surface="dark" data-title="Capstone">
+  <div class="chip-bar anim"><span>Pitch Craft · Capstone</span><span>Your deliverable · all three forms</span></div>
+  <div class="slide-body">
+    <div class="anim"><span class="due-tag"><span class="d"></span>The capstone · one story, three forms</span></div>
+    <h1 class="title anim" style="color:var(--paper);margin-top:.5em">Produce all three — and pass the consistency check.</h1>
+    <div class="hw-grid anim">
+      <div>
+        <div class="hw-klbl">Your deliverable</div>
+        <ul class="hw-check">
+          <li><span class="cbx"></span><div><b>A one-line hook + five-beat narrative arc</b> (Session 1).</div></li>
+          <li><span class="cbx"></span><div><b>A one-page summary + five-line teaser email</b> (Session 2).</div></li>
+          <li><span class="cbx"></span><div><b>A slide-by-slide deck outline</b> — one headline per slide, 11 slides.</div></li>
+          <li><span class="cbx"></span><div><b>The consistency check</b> — same hook, same numbers, same ask across all three.</div></li>
+        </ul>
+      </div>
+      <div>
+        <div class="hw-quote">
+          <span class="qm">&ldquo;</span>
+          <div class="qt">Investors don't fund slides or summaries — they fund a story they believe and can retell.</div>
+          <div class="qb">Joseph Kalema · Pitch Craft</div>
+        </div>
+        <p class="hw-bridge">The test isn't a beautiful deck — it's whether a stranger, after the summary alone, can retell the story and state the ask correctly. If they can, <strong>you're pitch-ready</strong>.</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 16 · CLOSER -->
+<section class="slide s-dark" id="s-close" data-surface="dark" data-title="Close">
+  <svg class="mark" viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.82"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.78" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.96" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.8" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.78" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+  <div class="cbig anim">Build the story once.<br>Tell it the same way <em>three times</em>.</div>
+  <div class="ct anim">Narrative is the source · the summary earns the meeting · the deck carries it into the room.</div>
+  <div class="cc anim">The Founder's Sprint · Pitch Craft · Session 3 of 3 · Kampala</div>
+</section>
+
+</div>
+
+<div class="progress" id="progress"></div>
+<div class="counter" id="counter">01 / 16</div>
+<div class="kbd-hint">← → navigate · O overview · P presenter · F fullscreen</div>
+<div class="nav">
+  <button id="presBtn" aria-label="Presenter view" title="Presenter view — private speaker notes (P)"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="13" rx="1.5"/><line x1="8" y1="20" x2="16" y2="20"/></svg></button>
+  <button id="resetBtn" aria-label="Restart from first slide" title="Restart">⟲</button>
+  <button id="prevBtn" aria-label="Previous slide">‹</button>
+  <button id="nextBtn" aria-label="Next slide">›</button>
+</div>
+<div class="overview" id="overview"><div class="ov-title">Slide overview · click to jump · Esc to close</div><div class="ov-grid" id="ovGrid"></div></div>
+
+<script>
+(function(){
+  "use strict";
+  const slides=Array.from(document.querySelectorAll('.slide'));
+  let i=0;
+  const counter=document.getElementById('counter'), progress=document.getElementById('progress');
+  document.querySelectorAll('.s-divider').forEach(s=>{const p=s.getAttribute('data-photo');if(p){const el=s.querySelector('.div-photo');if(el)el.style.backgroundImage="url('"+p+"')";}});
+  function show(n){n=Math.max(0,Math.min(slides.length-1,n));slides[i].classList.remove('active');i=n;const cur=slides[i];cur.classList.add('active');cur.querySelectorAll('.anim').forEach(el=>{el.style.animation='none';void el.offsetWidth;el.style.animation='';});counter.textContent=String(i+1).padStart(2,'0')+' / '+String(slides.length).padStart(2,'0');progress.style.width=((i)/(slides.length-1)*100)+'%';document.body.classList.toggle('on-paper',cur.getAttribute('data-surface')==='paper');presSync();}
+  const next=()=>show(i+1), prev=()=>show(i-1);
+  document.getElementById('nextBtn').addEventListener('click',next);
+  document.getElementById('prevBtn').addEventListener('click',prev);
+  document.getElementById('resetBtn').addEventListener('click',()=>show(0));
+  const overview=document.getElementById('overview'), ovGrid=document.getElementById('ovGrid');
+  slides.forEach((s,idx)=>{const t=s.getAttribute('data-title')||('Slide '+(idx+1));const d=document.createElement('div');d.className='ov-item';d.innerHTML='<div class="oi-n">'+String(idx+1).padStart(2,'0')+'</div><div class="oi-t">'+t+'</div>';d.addEventListener('click',()=>{overview.classList.remove('show');show(idx);});ovGrid.appendChild(d);});
+  const toggleOverview=()=>overview.classList.toggle('show');
+  document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' '){e.preventDefault();next();}else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();prev();}else if(e.key==='Home'){show(0);}else if(e.key==='End'){show(slides.length-1);}else if(e.key==='o'||e.key==='O'){toggleOverview();}else if(e.key==='Escape'){overview.classList.remove('show');}else if((e.key==='p'||e.key==='P')&&!e.metaKey&&!e.ctrlKey){openPresenter();}else if(e.key==='f'||e.key==='F'){if(!document.fullscreenElement){document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();}else{document.exitFullscreen&&document.exitFullscreen();}}});
+  let tx=0,ty=0;document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;ty=e.touches[0].clientY;},{passive:true});
+  document.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-tx,dy=e.changedTouches[0].clientY-ty;if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)){dx<0?next():prev();}},{passive:true});
+
+  // ── The slide sequence ──
+  const seq={
+    s1:{n:'01 Title',v:'Company name and your one-line hook. The investor should know what you do and feel a pull before slide two.'},
+    s2:{n:'02 Problem',v:'The pain, made vivid and specific — one painful truth, not a category overview. This is a make-or-break slide.'},
+    s3:{n:'03 Solution',v:'Your answer, stated simply, and why it is clearly better. Resist the feature list.'},
+    s4:{n:'04 Why now',v:'The shift — technology, regulation, behaviour — that opens the door today. Urgency turns interest into action.'},
+    s5:{n:'05 Market',v:'Size and opportunity, sized credibly. Bottom-up beats a giant top-down TAM. A make-or-break slide.'},
+    s6:{n:'06 Product',v:'How it works — ideally a demo or product shots. Show, don\'t tell.'},
+    s7:{n:'07 Traction',v:'Proof it\'s working — real metrics with a clear trend. Your strongest evidence. A make-or-break slide.'},
+    s8:{n:'08 Business model',v:'How you make money: pricing and honest unit economics, sale by sale. A make-or-break slide.'},
+    s9:{n:'09 Competition',v:'Why you win — your moat and what stops a rival crushing you. Don\'t claim "no competition".'},
+    s10:{n:'10 Team',v:'Why this team, this problem — the experience and insight that make you the ones to build it.'},
+    s11:{n:'11 The ask',v:'The raise and use of funds: exact amount, instrument, and the milestones it buys. A make-or-break slide.'},
+    s12:{n:'12 Appendix',v:'Detail on request only — financials, cohorts, cap table, full team. Pull it up if asked; never present it by default.'}
+  };
+  const seqChips=document.getElementById('seqChips'), seqDetail=document.getElementById('seqDetail');
+  function renderSeq(key){const d=seq[key];seqDetail.innerHTML='<div class="pk">'+d.n+'</div><div class="pv" style="margin-top:.3em">'+d.v+'</div>';seqChips.querySelectorAll('.pick-chip').forEach(c=>c.classList.toggle('on',c.getAttribute('data-k')===key));}
+  if(seqChips){seqChips.addEventListener('click',e=>{const b=e.target.closest('.pick-chip');if(b)renderSeq(b.getAttribute('data-k'));});renderSeq('s1');}
+
+  // ── Make-or-break scorer ──
+  const mobItems=[
+    {t:'Problem',d:'One painful, specific truth — not a vague category overview.'},
+    {t:'Traction',d:'Your strongest evidence: real metrics with a clear trend.'},
+    {t:'Market',d:'Credible sizing, built bottom-up — not a giant top-down TAM.'},
+    {t:'Business model',d:'How each sale makes money; honest unit economics.'},
+    {t:'The ask',d:'Exact amount, instrument, and the milestones it buys.'}
+  ];
+  const mobState=mobItems.map(()=>false);
+  const mobList=document.getElementById('mobList');
+  function buildMob(){mobList.innerHTML=mobItems.map(function(it,ci){return '<div class="dr-item'+(mobState[ci]?' on':'')+'" data-i="'+ci+'"><span class="dr-cb"></span><span class="dr-tx"><span class="dt">'+it.t+'</span><span class="dd">'+it.d+'</span></span></div>';}).join('');}
+  function recomputeMob(){const have=mobState.filter(Boolean).length,pct=Math.round(have/mobItems.length*100);document.getElementById('mobNum').textContent=have;document.getElementById('mobFill').style.width=pct+'%';const v=document.getElementById('mobVerdict');if(have>=5){v.className='dr-verdict ready';v.textContent='Second-meeting ready';}else if(have>=3){v.className='dr-verdict mid';v.textContent='Close — fix the gaps';}else{v.className='dr-verdict low';v.textContent='Not yet — gaps remain';}}
+  if(mobList){buildMob();recomputeMob();mobList.addEventListener('click',function(e){const it=e.target.closest('.dr-item');if(!it)return;const ci=+it.getAttribute('data-i');mobState[ci]=!mobState[ci];buildMob();recomputeMob();});}
+
+  // ── The ask builder ──
+  const ask=[
+    {q:'Amount &amp; instrument',v:'State the exact amount and the instrument — equity, debt, SAFE, revenue-based finance. Precision signals you\'ve done the work. <b>"Raising USD 400k on a SAFE."</b>'},
+    {q:'Use of funds',v:'Show a simple split of where the money goes and the runway it buys. Investors want to see the cash turns into progress, not just survival. <b>A clear pie, not a paragraph.</b>'},
+    {q:'The milestone it de-risks',v:'Tie the raise to the next milestone that makes the following round easier — the proof point this money unlocks. <b>"…to reach 120 schools and prove the sales model."</b>'},
+    {q:'Make the yes easy',v:'End so the investor knows exactly how to act — a clear next step that\'s easy to say yes to. <b>"How do I get involved?" should be the obvious next thought.</b>'}
+  ];
+  const askRail=document.getElementById('askRail'), askDetail=document.getElementById('askDetail');
+  function renderAsk(n){const d=ask[n];askDetail.innerHTML='<div class="sd-q">'+d.q+'</div><div class="sd-v">'+d.v+'</div>';askRail.querySelectorAll('.jnode').forEach((s,idx)=>s.classList.toggle('on',idx===n));}
+  if(askRail){askRail.addEventListener('click',e=>{const s=e.target.closest('.jnode');if(s)renderAsk(+s.getAttribute('data-s'));});renderAsk(0);}
+
+  // ── Presenter View ──
+  var presenterWin = null;
+  const NOTES = [
+    ["Welcome back — Pitch Craft, Session 3 of 3, with Joseph Kalema. The finale.","Recall: Session 1 narrative (source), Session 2 summary (earns the meeting). This session = the deck (carries it into the room).","Frame: ~2 hours; the deliverable is a slide-by-slide deck outline — one headline per slide.","Anchor: 'The deck carries the story, slide by slide.'"],
+    ["Preview the four parts; deliverable = an 11-headline deck outline.","Collect last session's summaries; the deck mirrors them.","~5 minutes."],
+    ["Transition: the slides investors expect, in order."],
+    ["The deck IS the narrative arc, expanded. One job per slide; the headline states the takeaway.","If the headlines alone tell the story, the deck will too.","10–12 for the room; depth in the appendix."],
+    ["Tap through all 11 (+ appendix); flag the make-or-break ones as you go.","Stress it mirrors the Session 1 arc — same story.","Have founders name which slide is currently their weakest."],
+    ["Transition: five slides decide the second meeting."],
+    ["Pour effort into Problem, Traction, Market, Model, Ask.","Don't let a weak slide drown a strong one.","The rest support these five."],
+    ["Have a founder score their five make-or-break slides.","5 = second-meeting ready; under 3 = gaps.","Top-down TAM is the classic miss — push bottom-up sizing."],
+    ["Transition: close with a specific request."],
+    ["Walk design principles vs deck-killers.","One idea per slide; show don't tell; big readable text.","The killers: tiny fonts, vanity metrics, numbers that don't tie out, no ask."],
+    ["Tap the four parts of the ask: amount+instrument, use of funds, milestone, the easy yes.","Tie the raise to the milestone that de-risks the next round.","Make 'how do I get involved?' the obvious next thought."],
+    ["The agri example in three forms — hook, summary, title slide.","Same hook, same numbers, same ask. Consistency = believability.","This is the whole course in one slide."],
+    ["Recall: sequence, make-or-break, design, the ask, three forms.","Repeat: the deck carries the story into the room.","Set up the capstone: all three forms, consistent."],
+    ["25 solo, 35 group — CIRCULATE.","Read 11 headlines in order; can a stranger retell the story + ask?","Reward clarity and consistency over polish."],
+    ["Capstone = hook+arc + summary+teaser + deck outline + the consistency check.","The test: after the summary alone, can a stranger retell the story and the ask?","If yes — they're pitch-ready. That's the whole point."],
+    ["Tagline: Build with direction.","This completes Pitch Craft. Narrative → summary → deck, one story.","Thank them — and point them to the Raising Capital course next."]
+  ];
+  function notesHTML(idx){const a=NOTES[idx]||[];if(!a.length)return '<p class="empty">No speaker notes for this slide yet.</p>';return '<ul>'+a.map(function(b){return '<li>'+b+'</li>';}).join('')+'</ul>';}
+  function presSync(){ if(presenterWin&&!presenterWin.closed){ try{ presenterWin.postMessage({type:'goto',i:i,total:slides.length,title:(slides[i].getAttribute('data-title')||('Slide '+(i+1))),notes:notesHTML(i),next:(slides[i+1]?(slides[i+1].getAttribute('data-title')||''):'')},'*'); }catch(e){} } }
+  const PRESENTER_DOC='<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Presenter · The Founder\'s Sprint</title>'
+    +'<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">'
+    +'<style>:root{--paper:#EFE7D8;--ochre:#C9923A;--sage:#8AAB5C;--mut:#A09888;--sans:\'Josefin Sans\',sans-serif;--disp:\'Cormorant Garamond\',serif;--body:\'Inter\',sans-serif;}'
+    +'*{box-sizing:border-box;margin:0;padding:0;}body{background:#11140E;color:var(--paper);font-family:var(--body);min-height:100vh;display:flex;flex-direction:column;padding:22px 26px;}'
+    +'.top{display:flex;justify-content:space-between;align-items:center;font-family:var(--sans);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mut);border-bottom:1px solid rgba(239,231,216,.14);padding-bottom:12px;gap:12px;}'
+    +'.top .brand{color:var(--sage);font-weight:700;}.pnum{font-weight:700;color:var(--paper);margin-left:auto;}.clock{font-family:var(--disp);font-size:24px;color:var(--ochre);}'
+    +'.eyebrow{font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--sage);margin-top:16px;}'
+    +'.cur{font-family:var(--disp);font-size:30px;line-height:1.12;color:var(--paper);margin:4px 0 0;}'
+    +'.notes{flex:1;overflow:auto;margin-top:16px;}.notes ul{list-style:none;}.notes li{position:relative;padding-left:24px;margin-bottom:15px;font-size:18px;line-height:1.5;color:#EDE6D6;}'
+    +'.notes li::before{content:"";position:absolute;left:0;top:9px;width:9px;height:9px;background:var(--sage);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);}'
+    +'.notes .empty{color:var(--mut);font-style:italic;font-family:var(--disp);font-size:20px;}'
+    +'.next{font-family:var(--sans);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);padding-top:14px;border-top:1px solid rgba(239,231,216,.14);}.next b{color:var(--paper);font-weight:600;}'
+    +'.ctrl{display:flex;gap:10px;margin-top:14px;}.ctrl button{flex:1;background:rgba(239,231,216,.08);border:1px solid rgba(239,231,216,.25);color:var(--paper);font-family:var(--sans);font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:13px;cursor:pointer;transition:.15s;}'
+    +'.ctrl button:hover{border-color:var(--sage);color:var(--sage);}</style></head><body>'
+    +'<div class="top"><span class="brand">The Founder\'s Sprint · Presenter</span><span class="pnum" id="pnum">—</span><span class="clock" id="clock">00:00</span></div>'
+    +'<div class="eyebrow">Now presenting</div><div class="cur" id="cur">—</div><div class="notes" id="notes"></div><div class="next" id="next"></div>'
+    +'<div class="ctrl"><button id="pp">‹ Prev</button><button id="nn">Next ›</button></div>'
+    +'<scr'+'ipt>var t0=Date.now();function pad(n){return String(n).padStart(2,"0");}'
+    +'setInterval(function(){var s=Math.floor((Date.now()-t0)/1000);document.getElementById("clock").textContent=pad(Math.floor(s/60))+":"+pad(s%60);},500);'
+    +'function nav(d){if(window.opener&&!window.opener.closed){window.opener.postMessage({type:"fs-nav",dir:d},"*");}}'
+    +'document.getElementById("pp").onclick=function(){nav(-1);};document.getElementById("nn").onclick=function(){nav(1);};'
+    +'window.addEventListener("keydown",function(e){if(e.key==="ArrowRight"||e.key===" "||e.key==="PageDown"){e.preventDefault();nav(1);}else if(e.key==="ArrowLeft"||e.key==="PageUp"){e.preventDefault();nav(-1);}});'
+    +'window.addEventListener("message",function(e){var m=e.data||{};if(m.type==="goto"){document.getElementById("pnum").textContent=(m.i+1)+" / "+m.total;document.getElementById("cur").textContent=m.title;document.getElementById("notes").innerHTML=m.notes||"";document.getElementById("next").innerHTML=m.next?("Next &rarr; <b>"+m.next+"</b>"):"End of deck";}});'
+    +'if(window.opener&&!window.opener.closed){window.opener.postMessage({type:"fs-ready"},"*");}'
+    +'<\/scr'+'ipt></body></html>';
+  function openPresenter(){if(presenterWin&&!presenterWin.closed){presenterWin.focus();presSync();return;}presenterWin=window.open('','fsPresenter','width=760,height=860');if(!presenterWin){alert('Please allow pop-ups for this page to open Presenter View.');return;}presenterWin.document.open();presenterWin.document.write(PRESENTER_DOC);presenterWin.document.close();setTimeout(presSync,350);}
+  window.addEventListener('message',function(e){const m=e.data||{};if(m.type==='fs-nav'){m.dir>0?next():prev();}else if(m.type==='fs-ready'){presSync();}});
+  var _pBtn=document.getElementById('presBtn'); if(_pBtn) _pBtn.addEventListener('click',openPresenter);
+  show(0);
+})();
+</script>
+<script src="/decks/_sponsors.js?v=1"></script>
+</body>
+</html>

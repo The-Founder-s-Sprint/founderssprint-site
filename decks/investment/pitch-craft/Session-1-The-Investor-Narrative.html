@@ -1,0 +1,602 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Pitch Craft · Session 1 · The Investor Narrative · The Founder's Sprint</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1A1A1A; --ink-soft:#2A2826; --ink-mid:#444; --ink-mute:#5A564F;
+  --paper:#EFE7D8; --paper-mid:#C0B8A8; --paper-dim:#A09888; --paper-deep:#E6DCC7;
+  --terra:#C8531F; --ochre:#C9923A; --sage:#8AAB5C; --moss:#3D4A2E; --stone:#777770;
+  --rule:rgba(26,26,26,0.18);
+  --sans:'Josefin Sans',Inter,system-ui,sans-serif;
+  --display:'Cormorant Garamond',Georgia,serif;
+  --body:'Inter',system-ui,sans-serif;
+  --accent:#8AAB5C; --accent-deep:#566E33;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--ink);color:var(--paper);font-family:var(--body);overflow:hidden;}
+.deck{position:fixed;inset:0;}
+.slide{position:absolute;inset:0;display:none;flex-direction:column;padding:clamp(28px,4.4vw,76px) clamp(26px,5vw,96px) clamp(56px,5vw,82px);opacity:0;}
+.slide.active{display:flex;opacity:1;}
+.slide.active .anim{animation:riseIn .52s cubic-bezier(.25,1,.5,1) both;}
+.slide.active .anim:nth-child(1){animation-delay:.06s}.slide.active .anim:nth-child(2){animation-delay:.12s}.slide.active .anim:nth-child(3){animation-delay:.17s}.slide.active .anim:nth-child(4){animation-delay:.22s}.slide.active .anim:nth-child(5){animation-delay:.27s}.slide.active .anim:nth-child(6){animation-delay:.32s}.slide.active .anim:nth-child(7){animation-delay:.37s}.slide.active .anim:nth-child(8){animation-delay:.42s}
+@keyframes riseIn{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
+.s-paper{background:var(--paper);color:var(--ink);}.s-dark{background:var(--ink);color:var(--paper);}
+.s-paper .chip-bar,.s-dark .chip-bar{display:flex;justify-content:space-between;align-items:center;font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.18em;text-transform:uppercase;}
+.s-paper .chip-bar{color:rgba(26,26,26,0.5);}.s-dark .chip-bar{color:rgba(239,231,216,0.5);}
+.accent-top{position:absolute;top:0;left:0;right:0;height:5px;background:var(--accent);}
+.mark-corner{position:absolute;top:clamp(20px,3vw,40px);right:clamp(20px,4vw,64px);width:clamp(34px,3.4vw,52px);height:auto;opacity:.95;z-index:3;}
+.eyebrow{font-family:var(--sans);font-size:clamp(10px,1.05vw,13px);font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:var(--accent-deep);}
+.s-dark .eyebrow{color:var(--ochre);}
+h1.title{font-family:var(--display);font-weight:300;letter-spacing:-0.012em;font-size:clamp(30px,4.6vw,62px);line-height:1.04;margin-top:.32em;}
+.lede{font-family:var(--display);font-style:italic;font-weight:400;font-size:clamp(17px,2.1vw,30px);line-height:1.32;color:var(--ink-mute);margin-top:.5em;max-width:24ch;}
+.s-dark .lede{color:var(--paper-mid);}
+.body-col{margin-top:clamp(14px,2vw,26px);max-width:62ch;}
+p.body{font-size:clamp(14px,1.45vw,20px);line-height:1.55;font-weight:400;color:var(--ink-mid);}
+.s-dark p.body{color:var(--paper-mid);}
+strong{color:var(--accent-deep);font-weight:600;}.s-dark strong{color:var(--ochre);font-weight:500;}
+.slide-body{flex:1;display:flex;flex-direction:column;justify-content:center;min-height:0;}
+.foot{position:absolute;bottom:clamp(16px,2.4vw,30px);left:clamp(26px,5vw,96px);right:clamp(26px,5vw,96px);display:flex;justify-content:space-between;align-items:center;font-family:var(--sans);font-size:clamp(8px,.85vw,11px);letter-spacing:0.22em;text-transform:uppercase;}
+.s-paper .foot{color:rgba(26,26,26,0.4);}.s-dark .foot{color:rgba(239,231,216,0.4);}
+.foot .tag{font-family:var(--display);font-style:italic;letter-spacing:0;text-transform:none;color:var(--accent-deep);opacity:.8;}
+#s-title{padding:0;background:var(--ink);}
+.title-bg{position:absolute;inset:0;overflow:hidden;}
+.title-photo{position:absolute;inset:0;background:#1A1A1A url('assets/title-narrative.jpg') center 22%/cover no-repeat;filter:grayscale(1) contrast(1.06) brightness(0.5);}
+.title-tint{position:absolute;inset:0;background:radial-gradient(95% 95% at 22% 16%, rgba(138,171,92,0.42) 0%, transparent 55%),linear-gradient(180deg, rgba(26,26,26,0.42) 0%, rgba(26,26,26,0.30) 40%, rgba(26,26,26,0.88) 100%);}
+.title-grain{position:absolute;inset:0;opacity:.06;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+.title-vignette{position:absolute;inset:0;background:radial-gradient(118% 118% at 50% 42%, transparent 50%, rgba(0,0,0,0.55) 100%);}
+.title-inner{position:relative;z-index:4;height:100%;display:flex;flex-direction:column;padding:clamp(30px,4vw,64px) clamp(30px,5.5vw,104px);}
+.title-top{display:flex;align-items:center;gap:14px;}
+.title-top .mark{width:clamp(34px,3.2vw,46px);height:auto;animation:spin 64s linear infinite;}
+.title-top .wm{font-family:var(--sans);font-size:clamp(10px,1.05vw,13px);font-weight:700;letter-spacing:0.24em;text-transform:uppercase;color:var(--paper);}
+.title-mid{margin-top:auto;margin-bottom:auto;}
+.title-series{display:flex;align-items:stretch;gap:clamp(13px,1.5vw,20px);margin-bottom:clamp(16px,2.2vw,28px);}
+.ts-week{display:flex;flex-direction:column;justify-content:center;padding:clamp(7px,.9vw,11px) clamp(12px,1.4vw,18px);border:1.5px solid rgba(239,231,216,0.28);border-left:3px solid var(--ochre);}
+.ts-wk{font-family:var(--display);font-weight:400;font-size:clamp(18px,2.2vw,29px);line-height:1;color:var(--paper);letter-spacing:-0.01em;}
+.ts-of{font-family:var(--sans);font-size:clamp(8px,.92vw,11px);font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:var(--ochre);margin-top:.45em;}
+.ts-info{display:flex;flex-direction:column;justify-content:center;min-width:0;}
+.ts-disc{font-family:var(--sans);font-size:clamp(11px,1.35vw,16px);font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--paper);line-height:1.15;}
+.ts-coach{font-family:var(--display);font-style:italic;font-size:clamp(13px,1.5vw,19px);color:var(--paper);opacity:.74;margin-top:.32em;line-height:1.1;}
+.ts-coach .ts-dot{margin:0 .5em;opacity:.5;font-style:normal;}
+.title-h{font-family:var(--display);font-weight:300;font-size:clamp(38px,6.6vw,98px);line-height:0.98;letter-spacing:-0.02em;color:var(--paper);}
+.title-h em{font-style:italic;color:var(--ochre);}
+.title-sub{font-family:var(--display);font-style:italic;font-size:clamp(16px,2.1vw,28px);color:var(--paper);opacity:.82;margin-top:.7em;max-width:32ch;text-wrap:balance;}
+.title-foot{margin-top:clamp(20px,3vw,38px);display:flex;flex-wrap:wrap;gap:8px 26px;align-items:baseline;font-family:var(--sans);font-size:clamp(9px,1vw,12px);letter-spacing:0.2em;text-transform:uppercase;color:var(--paper);opacity:.72;}
+.title-foot .dot{color:var(--sage);}
+.title-cta{position:absolute;left:clamp(30px,5.5vw,104px);bottom:clamp(22px,3vw,42px);font-family:var(--sans);font-size:clamp(9px,1vw,11px);letter-spacing:0.18em;text-transform:uppercase;color:var(--paper);opacity:.5;z-index:5;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.s-divider{background:var(--ink);color:var(--paper);overflow:hidden;justify-content:center;}
+.s-divider .div-photo{position:absolute;inset:0;background-position:center 30%;background-size:cover;filter:sepia(.5) saturate(1.05) hue-rotate(38deg) contrast(1.02) brightness(.72);opacity:.5;}
+.s-divider .div-overlay{position:absolute;inset:0;background:linear-gradient(110deg,rgba(26,26,26,0.72) 0%,rgba(26,26,26,0.38) 45%,rgba(26,26,26,0.80) 100%);}
+.s-divider .div-mark{position:absolute;top:clamp(26px,4vw,58px);right:clamp(26px,4.5vw,72px);width:clamp(50px,7vw,105px);height:auto;animation:spin 18s linear infinite;opacity:.85;z-index:2;}
+.div-inner{position:relative;z-index:3;display:flex;flex-direction:column;align-items:flex-start;}
+.div-num{font-family:var(--display);font-weight:300;font-size:clamp(40px,6vw,86px);line-height:1;color:rgba(239,231,216,0.22);letter-spacing:-0.02em;margin-bottom:.18em;}
+.div-eyebrow{font-family:var(--sans);font-size:clamp(10px,1.05vw,13px);font-weight:700;letter-spacing:0.34em;text-transform:uppercase;color:var(--paper);opacity:.4;margin-bottom:.35em;}
+.div-title{font-family:var(--display);font-style:italic;font-weight:300;font-size:clamp(30px,5.4vw,84px);line-height:1.04;color:var(--paper);letter-spacing:-0.01em;}
+.div-meta{margin-top:1em;font-family:var(--display);font-style:italic;font-size:clamp(14px,1.7vw,22px);line-height:1.4;color:var(--sage);opacity:.95;max-width:34ch;text-wrap:pretty;}
+.grid{display:grid;gap:clamp(12px,1.6vw,22px);}
+.g2{grid-template-columns:repeat(2,1fr);}.g3{grid-template-columns:repeat(3,1fr);}.g4{grid-template-columns:repeat(4,1fr);}
+.card{background:var(--paper-deep);border-left:3px solid var(--accent);padding:clamp(14px,1.7vw,24px);}
+.s-dark .card{background:rgba(239,231,216,0.06);border-left-color:var(--ochre);}
+.card h4{font-family:var(--sans);font-size:clamp(11px,1.15vw,15px);font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink);margin-bottom:.45em;}
+.s-dark .card h4{color:var(--paper);}
+.card p{font-size:clamp(12px,1.25vw,16px);line-height:1.5;color:var(--ink-mute);}.s-dark .card p{color:var(--paper-mid);}
+.card .num{font-family:var(--display);font-weight:300;font-size:clamp(26px,3vw,46px);color:var(--accent-deep);line-height:1;}.s-dark .card .num{color:var(--ochre);}
+ul.list{list-style:none;margin-top:.4em;}
+ul.list li{position:relative;padding-left:1.4em;margin-bottom:.55em;font-size:clamp(12px,1.35vw,18px);line-height:1.48;color:var(--ink-mid);}
+.s-dark ul.list li{color:var(--paper-mid);}
+ul.list li::before{content:"";position:absolute;left:0;top:.5em;width:9px;height:9px;background:var(--accent);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);}
+.s-dark ul.list li::before{background:var(--ochre);}
+.pull{font-family:var(--display);font-style:italic;font-weight:300;font-size:clamp(24px,4vw,56px);line-height:1.16;color:var(--paper);letter-spacing:-0.01em;max-width:20ch;text-wrap:balance;}
+.pull .by{display:block;margin-top:.7em;font-family:var(--sans);font-style:normal;font-size:clamp(10px,1.1vw,14px);font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--ochre);}
+.pick-wrap{display:grid;grid-template-columns:0.85fr 1.15fr;gap:clamp(16px,2.5vw,42px);align-items:start;margin-top:clamp(14px,2vw,28px);}
+.pick-chips{display:flex;flex-direction:column;gap:8px;}
+.pick-chip{font-family:var(--sans);font-size:clamp(10px,1.15vw,14px);font-weight:600;letter-spacing:0.04em;border:1.5px solid var(--rule);background:var(--paper-deep);color:var(--ink);padding:12px 16px;cursor:pointer;transition:all .2s ease;text-align:left;}
+.pick-chip:hover{border-color:var(--accent);}
+.pick-chip.on{background:var(--accent);color:var(--ink);border-color:var(--accent);}
+.pick-detail{background:var(--paper-deep);border-top:4px solid var(--accent);padding:clamp(16px,2vw,28px);min-height:clamp(190px,23vw,260px);}
+.pick-detail .pk{font-family:var(--sans);font-size:clamp(12px,1.3vw,17px);font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent-deep);margin-bottom:.2em;}
+.pick-detail .ptag{display:inline-block;font-family:var(--display);font-style:italic;font-size:clamp(15px,1.9vw,26px);color:var(--ink);margin-bottom:.4em;}
+.pick-detail .pv{font-size:clamp(13px,1.45vw,19px);line-height:1.55;color:var(--ink-mid);}
+.pick-detail .peg{margin-top:.85em;font-family:var(--display);font-style:italic;font-size:clamp(14px,1.6vw,21px);color:var(--accent-deep);}
+.jrail{position:relative;display:flex;gap:4px;margin-top:clamp(16px,2.4vw,30px);}
+.jrail::before{content:"";position:absolute;top:clamp(21px,2.3vw,28px);left:10%;right:10%;height:2px;background:var(--rule);z-index:0;}
+.jnode{position:relative;z-index:1;flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;text-align:center;cursor:pointer;}
+.jdot{width:clamp(42px,4.4vw,55px);height:clamp(42px,4.4vw,55px);border-radius:50%;background:var(--paper);border:2px solid var(--paper-mid);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:500;font-size:clamp(15px,1.7vw,22px);color:var(--ink-mute);transition:all .25s ease;}
+.jnode:hover .jdot{border-color:var(--accent);color:var(--accent-deep);}
+.jnode.on .jdot{background:var(--accent);border-color:var(--accent);color:var(--ink);transform:scale(1.14);box-shadow:0 8px 20px rgba(138,171,92,0.45);}
+.jname{font-family:var(--display);font-size:clamp(14px,1.6vw,22px);color:var(--ink-mid);margin-top:.5em;line-height:1.05;}
+.jnode.on .jname{color:var(--accent-deep);font-style:italic;}
+.jcap{font-family:var(--sans);font-size:clamp(8px,.9vw,11px);font-weight:600;letter-spacing:0.05em;color:var(--paper-dim);margin-top:.28em;}
+.jnode.on .jcap{color:var(--accent-deep);}
+.step-detail{margin-top:clamp(16px,2.2vw,28px);background:var(--paper-deep);padding:clamp(16px,2vw,28px);border-left:4px solid var(--accent);min-height:clamp(112px,14vw,158px);}
+.step-detail .sd-q{font-family:var(--display);font-style:italic;font-size:clamp(16px,2vw,26px);color:var(--ink);}
+.step-detail .sd-v{font-size:clamp(13px,1.4vw,18px);line-height:1.5;color:var(--ink-mid);margin-top:.55em;}
+.step-detail .sd-v b{color:var(--accent-deep);}
+.step-detail .sd-trap{margin-top:.6em;font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--terra);}
+.dr-wrap{display:grid;grid-template-columns:1.35fr 1fr;gap:clamp(18px,3vw,46px);align-items:start;margin-top:clamp(12px,1.8vw,24px);}
+.dr-list{display:flex;flex-direction:column;gap:clamp(7px,1vw,11px);}
+.dr-item{display:flex;align-items:flex-start;gap:13px;cursor:pointer;background:var(--paper-deep);padding:clamp(11px,1.3vw,16px) clamp(13px,1.5vw,18px);border-left:3px solid var(--rule);transition:all .18s ease;}
+.dr-item:hover{border-left-color:var(--accent);}
+.dr-item.on{border-left-color:var(--accent);background:rgba(138,171,92,0.13);}
+.dr-cb{flex:none;width:clamp(20px,2vw,25px);height:clamp(20px,2vw,25px);border:1.5px solid var(--accent);display:flex;align-items:center;justify-content:center;margin-top:1px;}
+.dr-item.on .dr-cb::after{content:"";width:48%;height:48%;background:var(--accent);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);}
+.dr-tx .dt{font-family:var(--sans);font-size:clamp(11px,1.2vw,15px);font-weight:700;letter-spacing:0.04em;color:var(--ink);text-transform:uppercase;}
+.dr-tx .dd{font-size:clamp(11px,1.2vw,15px);line-height:1.4;color:var(--ink-mute);margin-top:.18em;}
+.dr-out{background:var(--ink);color:var(--paper);padding:clamp(18px,2.2vw,30px);text-align:center;}
+.dr-out .do-k{font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--paper-mid);}
+.dr-out .do-n{font-family:var(--display);font-weight:300;font-size:clamp(40px,6vw,76px);line-height:1;color:var(--paper);margin:.05em 0;}
+.dr-out .do-n small{font-size:.42em;color:var(--paper-mid);}
+.dr-bar{height:8px;background:rgba(239,231,216,0.16);margin:.4em 0 0;}
+.dr-fill{height:100%;width:0;background:var(--sage);transition:width .3s ease;}
+.dr-verdict{margin-top:1em;font-family:var(--sans);font-size:clamp(11px,1.3vw,16px);font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:10px;}
+.dr-verdict.ready{background:rgba(138,171,92,0.22);color:var(--sage);}.dr-verdict.mid{background:rgba(201,146,58,0.2);color:var(--ochre);}.dr-verdict.low{background:rgba(200,83,31,0.2);color:#E27A4A;}
+.box{border:1.5px solid var(--accent);padding:clamp(16px,2.2vw,32px);background:rgba(138,171,92,0.09);}
+.s-dark .box{border-color:var(--ochre);background:rgba(201,146,58,0.08);}
+.box .bk{font-family:var(--sans);font-size:clamp(10px,1.1vw,14px);font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent-deep);margin-bottom:.6em;}.s-dark .box .bk{color:var(--ochre);}
+.matrix{width:100%;border-collapse:collapse;margin-top:clamp(12px,1.6vw,20px);font-size:clamp(11px,1.25vw,16px);}
+.matrix th,.matrix td{text-align:left;padding:clamp(8px,1.05vw,13px) clamp(8px,1.2vw,16px);border-bottom:1px solid var(--rule);vertical-align:top;}
+.matrix th{font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent-deep);}
+.matrix td{color:var(--ink-mid);}
+.matrix td:first-child{font-weight:600;color:var(--ink);font-family:var(--sans);font-size:clamp(11px,1.2vw,15px);text-transform:uppercase;letter-spacing:0.04em;}
+.matrix .trap{color:var(--terra);font-style:italic;font-family:var(--display);font-size:clamp(12px,1.35vw,17px);}
+.ex-head{display:flex;flex-wrap:wrap;align-items:flex-end;gap:14px 20px;}
+.ex-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(10px,1.3vw,18px);margin-top:clamp(14px,2vw,26px);}
+.ex-card{position:relative;background:var(--paper-deep);border-top:3px solid var(--accent);padding:clamp(15px,1.8vw,24px) clamp(14px,1.5vw,20px) clamp(16px,1.8vw,24px);overflow:hidden;display:flex;flex-direction:column;}
+.ex-card .exn{position:absolute;top:-0.12em;right:8px;font-family:var(--display);font-weight:300;font-size:clamp(60px,7vw,118px);line-height:1;color:rgba(138,171,92,0.16);pointer-events:none;}
+.ex-card .exk{position:relative;font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--accent-deep);}
+.ex-card .ext{position:relative;font-family:var(--display);font-weight:500;font-size:clamp(17px,1.9vw,26px);color:var(--ink);margin:.14em 0 .3em;line-height:1.08;}
+.ex-card .exp{position:relative;font-size:clamp(11px,1.2vw,15px);line-height:1.45;color:var(--ink-mute);}
+.ex-card .exeg{position:relative;margin-top:.6em;padding-left:10px;border-left:2px solid var(--ochre);font-family:var(--display);font-style:italic;font-size:clamp(12px,1.3vw,17px);line-height:1.32;color:var(--accent-deep);}
+.ex-card .exeg b{font-style:normal;font-family:var(--sans);font-weight:700;font-size:.7em;letter-spacing:0.14em;text-transform:uppercase;color:#9A6E1E;display:block;margin-bottom:.2em;}
+.ex-card .write{margin-top:auto;padding-top:1em;}.ex-card .write span{display:block;border-bottom:1.5px dashed var(--paper-dim);height:1.15em;}
+.due-tag{display:inline-flex;align-items:center;gap:8px;font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink);background:var(--ochre);padding:7px 15px;}
+.due-tag .d{width:9px;height:9px;background:var(--ink);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);}
+.hw-grid{display:grid;grid-template-columns:1.12fr .88fr;gap:clamp(20px,3.4vw,56px);align-items:start;margin-top:clamp(14px,2vw,26px);}
+.hw-klbl{font-family:var(--sans);font-size:clamp(10px,1.1vw,13px);font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--ochre);margin-bottom:.4em;}
+.hw-check{list-style:none;}
+.hw-check li{display:flex;gap:14px;align-items:flex-start;padding:clamp(10px,1.3vw,15px) 0;border-bottom:1px solid rgba(239,231,216,0.14);font-size:clamp(13px,1.4vw,18px);line-height:1.45;color:var(--paper-mid);}
+.hw-check li:last-child{border-bottom:none;}
+.hw-check .cbx{flex:none;width:clamp(21px,2vw,27px);height:clamp(21px,2vw,27px);border:1.5px solid var(--ochre);display:flex;align-items:center;justify-content:center;margin-top:1px;}
+.hw-check .cbx::after{content:"";width:46%;height:46%;background:var(--ochre);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);}
+.hw-check b{color:var(--paper);font-weight:600;}
+.hw-quote{background:rgba(138,171,92,0.12);border-left:3px solid var(--sage);padding:clamp(18px,2.3vw,32px) clamp(18px,2.2vw,30px) clamp(20px,2.4vw,30px);}
+.hw-quote .qm{font-family:var(--display);font-size:clamp(52px,6vw,96px);line-height:.4;color:var(--sage);display:block;height:.5em;}
+.hw-quote .qt{font-family:var(--display);font-style:italic;font-weight:300;font-size:clamp(19px,2.3vw,32px);line-height:1.26;color:var(--paper);text-wrap:balance;}
+.hw-quote .qb{font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--sage);margin-top:1em;}
+.hw-bridge{margin-top:clamp(13px,1.7vw,20px);font-size:clamp(13px,1.4vw,18px);line-height:1.55;color:var(--paper-mid);text-wrap:pretty;}
+#s-close{align-items:center;justify-content:center;text-align:center;}
+#s-close .mark{width:clamp(90px,13vw,180px);height:auto;}
+#s-close .ct{font-family:var(--display);font-style:italic;font-weight:300;font-size:clamp(22px,3.2vw,44px);color:var(--paper);margin-top:.6em;}
+#s-close .cc{font-family:var(--sans);font-size:clamp(9px,1vw,12px);letter-spacing:0.24em;text-transform:uppercase;color:var(--paper-mid);margin-top:1.4em;}
+.progress{position:fixed;bottom:0;left:0;height:4px;background:var(--accent);width:0;z-index:41;transition:width .3s ease;}
+.nav{position:fixed;bottom:clamp(14px,2vw,26px);right:clamp(16px,2.5vw,34px);display:flex;gap:8px;z-index:42;}
+.nav button{width:clamp(38px,3.6vw,46px);height:clamp(38px,3.6vw,46px);border:1px solid rgba(239,231,216,0.3);background:rgba(26,26,26,0.55);color:var(--paper);font-size:18px;cursor:pointer;backdrop-filter:blur(4px);transition:all .2s;display:flex;align-items:center;justify-content:center;}
+body.on-paper .nav button{border-color:rgba(26,26,26,0.25);background:rgba(239,231,216,0.7);color:var(--ink);}
+.nav button:hover{border-color:var(--accent);color:var(--accent-deep);}
+.counter{position:fixed;bottom:clamp(16px,2vw,28px);left:clamp(18px,2.5vw,34px);z-index:42;font-family:var(--sans);font-size:clamp(10px,1.1vw,13px);font-weight:600;letter-spacing:0.16em;color:var(--paper-mid);pointer-events:none;}
+body.on-paper .counter{color:var(--ink-mute);}
+.kbd-hint{position:fixed;bottom:clamp(16px,2vw,28px);left:50%;transform:translateX(-50%);z-index:42;font-family:var(--sans);font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--paper-dim);opacity:.7;pointer-events:none;}
+.overview{position:fixed;inset:0;background:rgba(13,16,10,0.96);z-index:60;display:none;padding:clamp(20px,3vw,48px);overflow-y:auto;}
+.overview.show{display:block;}
+.ov-title{font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--ochre);margin-bottom:18px;}
+.ov-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;}
+.ov-item{background:rgba(239,231,216,0.06);border:1px solid rgba(239,231,216,0.14);padding:14px;cursor:pointer;transition:all .2s;}
+.ov-item:hover{border-color:var(--accent);background:rgba(138,171,92,0.2);}
+.ov-item .oi-n{font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:0.16em;color:var(--sage);}
+.ov-item .oi-t{font-family:var(--display);font-size:18px;color:var(--paper);margin-top:4px;line-height:1.15;}
+.pick-hint,.step-hint,.dr-hint,.gen-hint{font-family:var(--sans);font-size:clamp(10px,1.1vw,12px);font-weight:600;letter-spacing:0.16em;text-transform:uppercase;line-height:1.5;margin-top:clamp(12px,1.6vw,20px);color:var(--paper-dim);text-wrap:pretty;}
+.s-paper .pick-hint,.s-paper .step-hint,.s-paper .dr-hint,.s-paper .gen-hint{color:var(--ink-mute);}
+.slide h1,.slide h4,.slide p,.slide li,.lede,.div-meta,.title-sub,.step-detail,.pick-detail .pv{text-wrap:pretty;}
+h1.title,.title-h,.div-title,.lede,.pull,.card h4,.ex-card .ext,.hw-quote .qt,.title-sub{text-wrap:balance;}
+@media (max-width:880px){.ex-grid{grid-template-columns:repeat(2,1fr);}}
+@media (max-width:768px){.grid.g3,.grid.g4{grid-template-columns:repeat(2,1fr);}.pick-wrap,.dr-wrap,.hw-grid{grid-template-columns:1fr;}.kbd-hint{display:none;}}
+@media (max-width:560px){.grid.g2,.grid.g3,.grid.g4{grid-template-columns:1fr;}}
+@media (max-width:520px){.ex-grid{grid-template-columns:1fr;}}
+@media (prefers-reduced-motion:reduce){.title-top .mark,.s-divider .div-mark{animation:none;}.slide.active .anim{animation:none;}}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<!-- 1 · TITLE -->
+<section class="slide" id="s-title" data-surface="dark" data-title="Title">
+  <div class="title-bg"><div class="title-photo"></div><div class="title-tint"></div><div class="title-grain"></div><div class="title-vignette"></div></div>
+  <div class="title-inner">
+    <div class="title-top">
+      <svg class="mark" viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.82"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.78" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.96" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.8" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.78" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+      <span class="wm">The Founder's Sprint</span>
+    </div>
+    <div class="title-mid">
+      <div class="title-series">
+        <div class="ts-week"><span class="ts-wk">Session 1</span><span class="ts-of">of 3 · Pitch Craft</span></div>
+        <div class="ts-info"><div class="ts-disc">Investment Readiness · Pitch Craft</div><div class="ts-coach">Coach Joseph Kalema<span class="ts-dot">·</span>Growth-stage mentorship</div></div>
+      </div>
+      <h1 class="title-h">The story<br>they can <em>retell</em>.</h1>
+      <div class="title-sub">Investors fund stories they believe and can repeat to their committee. This session: why narrative wins, the hook that earns the first 30 seconds, and the five-beat arc.</div>
+      <div class="title-foot">
+        <span><span class="dot">●</span> Why narrative wins</span>
+        <span><span class="dot">●</span> The hook</span>
+        <span><span class="dot">●</span> The five-beat arc</span>
+        <span><span class="dot">●</span> Crafting the beats</span>
+      </div>
+    </div>
+    <div class="title-cta">Press &rarr; or Space to begin &nbsp;·&nbsp; O overview &nbsp;·&nbsp; P presenter notes</div>
+  </div>
+</section>
+
+<!-- 2 · AGENDA -->
+<section class="slide s-paper" data-surface="paper" data-title="What we'll cover">
+  <div class="accent-top"></div>
+  <svg class="mark-corner" viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.82"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.78" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.96" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.8" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.78" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#1A1A1A"/><circle cx="50" cy="50" r="2" fill="#EFE7D8"/></svg>
+  <div class="chip-bar anim"><span>Pitch Craft · Session 1</span><span>The Investor Narrative</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Same story, told three ways · narrative → summary → deck</div>
+    <h1 class="title anim">Build the story once — the summary and deck will carry it.</h1>
+    <div class="grid g4 anim" style="margin-top:clamp(18px,2.5vw,34px)">
+      <div class="card"><div class="num">01</div><h4>Why narrative wins</h4><p>Investors remember stories, not feature lists.</p></div>
+      <div class="card"><div class="num">02</div><h4>The hook</h4><p>Earn the first 30 seconds before attention drifts.</p></div>
+      <div class="card"><div class="num">03</div><h4>The arc</h4><p>The five beats every memorable pitch moves through.</p></div>
+      <div class="card"><div class="num">04</div><h4>Crafting beats</h4><p>What each must make the investor feel — and the trap.</p></div>
+    </div>
+    <div class="box anim" style="margin-top:clamp(16px,2.2vw,28px)"><div class="bk">Leave with</div><p class="body" style="color:var(--ink)">Your one-line <strong>hook</strong> and a <strong>five-beat story arc</strong> for your own venture.</p></div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 3 · DIVIDER 01 -->
+<section class="slide s-divider" data-surface="dark" data-title="01 · Why narrative wins" data-photo="assets/pc1-01.jpg">
+  <div class="div-photo"></div><div class="div-overlay"></div>
+  <svg class="div-mark" viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.82"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.78" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.96" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.8" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.78" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+  <div class="div-inner">
+    <div class="div-num anim">01</div>
+    <div class="div-eyebrow anim">Pitch Craft · The Investor Narrative</div>
+    <div class="div-title anim">People invest in a<br>story about the future.</div>
+    <div class="div-meta anim">An investor has to re-pitch you to their committee. Give them a story simple and vivid enough to retell, accurately, a week later.</div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 4 · WHY STORY BEATS SPECS -->
+<section class="slide s-paper" data-surface="paper" data-title="Story beats specs">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Pitch Craft · Session 1</span><span>Why story beats a spec sheet</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">A great pitch is felt before it is analysed</div>
+    <h1 class="title anim" style="font-size:clamp(26px,3.8vw,50px)">Facts support the story — they don't replace it.</h1>
+    <div class="grid g3 anim" style="margin-top:clamp(16px,2.4vw,32px)">
+      <div class="card"><h4>Memorable</h4><p>Investors hear hundreds of pitches. They remember narratives, not features.</p></div>
+      <div class="card"><h4>Meaningful</h4><p>Story turns data into meaning — numbers prove, narrative persuades.</p></div>
+      <div class="card"><h4>A signal</h4><p>A clear story signals a clear thinker — and a founder who can sell.</p></div>
+    </div>
+    <p class="pick-hint anim">Investors back a future they believe you can build. The narrative is <strong>what makes that future feel real</strong> — long enough to survive the committee meeting you're not in.</p>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 5 · THE FIVE-BEAT ARC (interactive) -->
+<section class="slide s-paper" data-surface="paper" data-title="The five-beat arc">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Pitch Craft · Session 1</span><span>The narrative arc · tap a beat</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Interactive · five beats, each setting up the next</div>
+    <h1 class="title anim" style="font-size:clamp(26px,3.8vw,50px)">Every great pitch moves through five beats.</h1>
+    <div class="jrail anim" id="arcRail">
+      <div class="jnode on" data-s="0"><div class="jdot">1</div><div class="jname">Problem</div><div class="jcap">The pain</div></div>
+      <div class="jnode" data-s="1"><div class="jdot">2</div><div class="jname">Why now</div><div class="jcap">The shift</div></div>
+      <div class="jnode" data-s="2"><div class="jdot">3</div><div class="jname">Solution</div><div class="jcap">Your answer</div></div>
+      <div class="jnode" data-s="3"><div class="jdot">4</div><div class="jname">Traction</div><div class="jcap">The proof</div></div>
+      <div class="jnode" data-s="4"><div class="jdot">5</div><div class="jname">Vision</div><div class="jcap">The prize</div></div>
+    </div>
+    <div class="step-detail anim" id="arcDetail"></div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 6 · DIVIDER 02 -->
+<section class="slide s-divider" data-surface="dark" data-title="02 · The hook" data-photo="assets/pc1-02.jpg">
+  <div class="div-photo"></div><div class="div-overlay"></div>
+  <svg class="div-mark" viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.82"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.78" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.96" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.8" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.78" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+  <div class="div-inner">
+    <div class="div-num anim">02</div>
+    <div class="div-eyebrow anim">Pitch Craft · The Hook</div>
+    <div class="div-title anim">Win the first<br>thirty seconds.</div>
+    <div class="div-meta anim">An investor decides to lean in — or check their phone — fast. Earn the lean-in with one sharp opening line.</div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 7 · THE HOOK INTRO -->
+<section class="slide s-paper" data-surface="paper" data-title="Open with a hook">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Pitch Craft · Session 1</span><span>Open with a hook, not your history</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">The opening line does the heavy lifting</div>
+    <h1 class="title anim" style="font-size:clamp(26px,3.8vw,50px)">The first sentence earns the right to the second.</h1>
+    <div class="grid g2 anim" style="align-items:center;gap:clamp(20px,4vw,56px);margin-top:clamp(14px,2vw,26px)">
+      <p class="body">Don't open with company history, founder bios, or a dictionary definition of the market — you lose the room before the story starts. Open with something that makes the investor <strong>need to hear the next line</strong>.</p>
+      <div class="box"><div class="bk">Watch-out</div><p class="body" style="color:var(--ink);font-family:var(--display);font-style:italic;font-size:clamp(16px,2vw,26px)">"Founded in 2021, our company is a platform that..." — you've already lost them.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 8 · HOOK BUILDER (interactive) -->
+<section class="slide s-paper" data-surface="paper" data-title="Hook builder">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Pitch Craft · Session 1</span><span>Three ways to hook · tap one</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Interactive · three openings that earn the lean-in</div>
+    <h1 class="title anim" style="font-size:clamp(26px,3.8vw,50px)">Pick the hook that fits your story.</h1>
+    <div class="pick-wrap" id="hookWrap">
+      <div class="pick-chips" id="hookChips">
+        <button class="pick-chip on" data-k="stat">The startling stat</button>
+        <button class="pick-chip" data-k="moment">The vivid moment</button>
+        <button class="pick-chip" data-k="oneliner">The crisp one-liner</button>
+      </div>
+      <div class="pick-detail" id="hookDetail"></div>
+    </div>
+    <p class="pick-hint anim">Exercise: write one opening line stating the problem's size or absurdity in <strong>under 15 words</strong>. Read three aloud; the room votes on which earns the lean-in.</p>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 9 · DIVIDER 03 -->
+<section class="slide s-divider" data-surface="dark" data-title="03 · Crafting the beats" data-photo="assets/pc1-03.jpg">
+  <div class="div-photo"></div><div class="div-overlay"></div>
+  <svg class="div-mark" viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.82"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.78" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.96" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.8" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.78" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+  <div class="div-inner">
+    <div class="div-num anim">03</div>
+    <div class="div-eyebrow anim">Pitch Craft · Crafting the Beats</div>
+    <div class="div-title anim">Each beat must make<br>them feel something.</div>
+    <div class="div-meta anim">A beat that doesn't land an emotion is a beat that wastes the investor's attention — and there isn't much of it.</div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 10 · WHAT EACH BEAT FEELS -->
+<section class="slide s-paper" data-surface="paper" data-title="What each beat feels like">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Pitch Craft · Session 1</span><span>The feel — and the common trap</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">What each beat must make the investor feel</div>
+    <h1 class="title anim" style="font-size:clamp(24px,3.4vw,44px)">Make them feel it — and dodge the trap.</h1>
+    <table class="matrix anim">
+      <thead><tr><th>Beat</th><th>Make them feel…</th><th>Common trap</th></tr></thead>
+      <tbody>
+        <tr><td>Problem</td><td>"This is urgent and widespread"</td><td class="trap">Vague, or too niche to matter</td></tr>
+        <tr><td>Why now</td><td>"The timing is perfect"</td><td class="trap">No urgency — why not five years ago?</td></tr>
+        <tr><td>Solution</td><td>"This is the obvious answer"</td><td class="trap">Feature list and jargon, no clarity</td></tr>
+        <tr><td>Traction</td><td>"This is genuinely working"</td><td class="trap">Vanity metrics with no trend</td></tr>
+        <tr><td>Vision</td><td>"This could be huge"</td><td class="trap">Grandiosity with no path to get there</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 11 · NARRATIVE HEALTH (interactive) -->
+<section class="slide s-paper" data-surface="paper" data-title="Narrative health check">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Pitch Craft · Session 1</span><span>The four narrative killers · tick what's true</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Interactive · score your narrative against the four killers</div>
+    <h1 class="title anim" style="font-size:clamp(24px,3.4vw,46px)">Is your story built to survive the room?</h1>
+    <div class="dr-wrap anim">
+      <div class="dr-list" id="narList"></div>
+      <div class="dr-out">
+        <div class="do-k">Narrative strength</div>
+        <div class="do-n"><span id="narNum">0</span><small> / 4</small></div>
+        <div class="dr-bar"><div class="dr-fill" id="narFill"></div></div>
+        <div class="dr-verdict low" id="narVerdict">At risk — a killer is loose</div>
+      </div>
+    </div>
+    <div class="dr-hint anim">The four narrative killers: leading with the product, too many messages with no throughline, all features and no stakes, and a vision with no evidence.</div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 12 · RECAP -->
+<section class="slide s-dark" data-surface="dark" data-title="Recap">
+  <div class="chip-bar anim"><span>Pitch Craft · Session 1</span><span>What we locked down</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">The through-line</div>
+    <h1 class="title anim" style="color:var(--paper)">Build a story they believe — and can retell.</h1>
+    <div class="grid g3 anim" style="margin-top:clamp(16px,2.4vw,32px)">
+      <div class="card"><h4>Narrative wins</h4><p>Investors remember stories, not features.</p></div>
+      <div class="card"><h4>The hook</h4><p>One line that earns the first 30 seconds.</p></div>
+      <div class="card"><h4>The arc</h4><p>Problem, why now, solution, traction, vision.</p></div>
+      <div class="card"><h4>Make them feel</h4><p>Each beat lands an emotion, dodges its trap.</p></div>
+      <div class="card"><h4>Avoid the killers</h4><p>Product-first, no throughline, no stakes, no evidence.</p></div>
+      <div class="card" style="border-left-color:var(--ochre)"><h4>Next session</h4><p>Distil it to one page: <em>the executive summary</em>.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 13 · EXERCISE -->
+<section class="slide s-paper" data-surface="paper" data-title="In-session exercise">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Pitch Craft · Session 1</span><span>Self-guided worksheet · in session</span></div>
+  <div class="slide-body">
+    <div class="ex-head anim">
+      <div>
+        <div class="eyebrow">Self-guided worksheet · do it now</div>
+        <h1 class="title" style="margin-top:.15em">Draft your narrative in 4 moves.</h1>
+      </div>
+      <span style="margin-left:auto;margin-bottom:.2em;display:inline-block;font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--paper);background:var(--ink);padding:5px 12px">⏱ 25 min solo · 35 min group</span>
+    </div>
+    <div class="ex-grid anim">
+      <div class="ex-card"><span class="exn">1</span><div class="exk">Your hook</div><div class="ext">Under 15 words</div><div class="exp">One opening line — the problem's size or absurdity.</div><div class="exeg"><b>Example</b>"A third of what Ugandan farmers grow rots before it sells."</div><div class="write"><span></span></div></div>
+      <div class="ex-card"><span class="exn">2</span><div class="exk">Your arc</div><div class="ext">Five beats</div><div class="exp">One line each: problem, why now, solution, traction, vision.</div><div class="exeg"><b>Example</b>"We get it to market in 24 hours…"</div><div class="write"><span></span></div></div>
+      <div class="ex-card"><span class="exn">3</span><div class="exk">The feeling</div><div class="ext">Per beat</div><div class="exp">What should each beat make the investor feel?</div><div class="exeg"><b>Example</b>"Problem → 'this is urgent and widespread.'"</div><div class="write"><span></span></div></div>
+      <div class="ex-card"><span class="exn">4</span><div class="exk">The killer check</div><div class="ext">Self-audit</div><div class="exp">Which narrative killer is your story most at risk of?</div><div class="exeg"><b>Example</b>"Leading with the product — fix: open on the pain."</div><div class="write"><span></span></div></div>
+    </div>
+    <p class="pick-hint anim">How we'll review: read three hooks aloud — the room votes on which earns the lean-in — then one founder tells the full five-beat arc in 90 seconds.</p>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 14 · LEAVE WITH -->
+<section class="slide s-dark" data-surface="dark" data-title="Leave with">
+  <div class="chip-bar anim"><span>Pitch Craft · Session 1</span><span>Your deliverable · before Session 2</span></div>
+  <div class="slide-body">
+    <div class="anim"><span class="due-tag"><span class="d"></span>Before Session 2 · The Executive Summary</span></div>
+    <h1 class="title anim" style="color:var(--paper);margin-top:.5em">Lock your hook and your five-beat arc.</h1>
+    <div class="hw-grid anim">
+      <div>
+        <div class="hw-klbl">Three deliverables</div>
+        <ul class="hw-check">
+          <li><span class="cbx"></span><div><b>A one-line hook</b> — under 15 words, tested aloud on three people.</div></li>
+          <li><span class="cbx"></span><div><b>A five-beat arc</b> — one sentence per beat, in order, that flows.</div></li>
+          <li><span class="cbx"></span><div><b>A killer check</b> — name the one narrative trap you'll guard against.</div></li>
+        </ul>
+      </div>
+      <div>
+        <div class="hw-quote">
+          <span class="qm">&ldquo;</span>
+          <div class="qt">A great pitch is felt before it is analysed. Facts support the story; they don't replace it.</div>
+          <div class="qb">Joseph Kalema · Pitch Craft</div>
+        </div>
+        <p class="hw-bridge">Next session we distil this narrative into the one page an investor actually reads first — <strong>the executive summary</strong>. Bring your hook and arc; we build the trailer from them.</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 15 · CLOSER -->
+<section class="slide s-dark" id="s-close" data-surface="dark" data-title="Close">
+  <svg class="mark" viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.82"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.78" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.96" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.8" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.78" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+  <div class="ct anim">Build with direction.</div>
+  <div class="cc anim">The Founder's Sprint · Pitch Craft · Session 1 of 3 · Kampala</div>
+</section>
+
+</div>
+
+<div class="progress" id="progress"></div>
+<div class="counter" id="counter">01 / 15</div>
+<div class="kbd-hint">← → navigate · O overview · P presenter · F fullscreen</div>
+<div class="nav">
+  <button id="presBtn" aria-label="Presenter view" title="Presenter view — private speaker notes (P)"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="13" rx="1.5"/><line x1="8" y1="20" x2="16" y2="20"/></svg></button>
+  <button id="resetBtn" aria-label="Restart from first slide" title="Restart">⟲</button>
+  <button id="prevBtn" aria-label="Previous slide">‹</button>
+  <button id="nextBtn" aria-label="Next slide">›</button>
+</div>
+<div class="overview" id="overview"><div class="ov-title">Slide overview · click to jump · Esc to close</div><div class="ov-grid" id="ovGrid"></div></div>
+
+<script>
+(function(){
+  "use strict";
+  const slides=Array.from(document.querySelectorAll('.slide'));
+  let i=0;
+  const counter=document.getElementById('counter'), progress=document.getElementById('progress');
+  document.querySelectorAll('.s-divider').forEach(s=>{const p=s.getAttribute('data-photo');if(p){const el=s.querySelector('.div-photo');if(el)el.style.backgroundImage="url('"+p+"')";}});
+  function show(n){n=Math.max(0,Math.min(slides.length-1,n));slides[i].classList.remove('active');i=n;const cur=slides[i];cur.classList.add('active');cur.querySelectorAll('.anim').forEach(el=>{el.style.animation='none';void el.offsetWidth;el.style.animation='';});counter.textContent=String(i+1).padStart(2,'0')+' / '+String(slides.length).padStart(2,'0');progress.style.width=((i)/(slides.length-1)*100)+'%';document.body.classList.toggle('on-paper',cur.getAttribute('data-surface')==='paper');presSync();}
+  const next=()=>show(i+1), prev=()=>show(i-1);
+  document.getElementById('nextBtn').addEventListener('click',next);
+  document.getElementById('prevBtn').addEventListener('click',prev);
+  document.getElementById('resetBtn').addEventListener('click',()=>show(0));
+  const overview=document.getElementById('overview'), ovGrid=document.getElementById('ovGrid');
+  slides.forEach((s,idx)=>{const t=s.getAttribute('data-title')||('Slide '+(idx+1));const d=document.createElement('div');d.className='ov-item';d.innerHTML='<div class="oi-n">'+String(idx+1).padStart(2,'0')+'</div><div class="oi-t">'+t+'</div>';d.addEventListener('click',()=>{overview.classList.remove('show');show(idx);});ovGrid.appendChild(d);});
+  const toggleOverview=()=>overview.classList.toggle('show');
+  document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' '){e.preventDefault();next();}else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();prev();}else if(e.key==='Home'){show(0);}else if(e.key==='End'){show(slides.length-1);}else if(e.key==='o'||e.key==='O'){toggleOverview();}else if(e.key==='Escape'){overview.classList.remove('show');}else if((e.key==='p'||e.key==='P')&&!e.metaKey&&!e.ctrlKey){openPresenter();}else if(e.key==='f'||e.key==='F'){if(!document.fullscreenElement){document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();}else{document.exitFullscreen&&document.exitFullscreen();}}});
+  let tx=0,ty=0;document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;ty=e.touches[0].clientY;},{passive:true});
+  document.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-tx,dy=e.changedTouches[0].clientY-ty;if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)){dx<0?next():prev();}},{passive:true});
+
+  // ── The five-beat arc ──
+  const arc=[
+    {q:'Problem — a real, urgent pain',v:'Open on a pain that is real, urgent and widespread — made vivid, not abstract. The problem creates the tension the rest of the story resolves.',trap:'Trap: vague, or too niche to matter'},
+    {q:'Why now — the shift that opens the door',v:'Name the change — in technology, regulation, behaviour or market — that makes this the moment. Urgency is what turns interest into action.',trap:'Trap: no urgency — why not five years ago?'},
+    {q:'Solution — your answer, simply',v:'State your answer in plain language, and why it is 10× better, not 10% better. Clarity here is what makes the investor feel it\'s the obvious answer.',trap:'Trap: a feature list and jargon, no clarity'},
+    {q:'Traction — evidence it\'s working',v:'Show the proof that customers want this — real metrics with a clear trend. Traction is what turns a good story into a credible one.',trap:'Trap: vanity metrics with no trend'},
+    {q:'Vision — the big future if it works',v:'Close on the prize: the large future this unlocks. Vision is what makes the investor feel this could be huge — but it must rest on the evidence you just showed.',trap:'Trap: grandiosity with no path to get there'}
+  ];
+  const arcRail=document.getElementById('arcRail'), arcDetail=document.getElementById('arcDetail');
+  function renderArc(n){const d=arc[n];arcDetail.innerHTML='<div class="sd-q">'+d.q+'</div><div class="sd-v">'+d.v+'</div><div class="sd-trap">'+d.trap+'</div>';arcRail.querySelectorAll('.jnode').forEach((s,idx)=>s.classList.toggle('on',idx===n));}
+  if(arcRail){arcRail.addEventListener('click',e=>{const s=e.target.closest('.jnode');if(s)renderArc(+s.getAttribute('data-s'));});renderArc(0);}
+
+  // ── Hook builder ──
+  const hook={
+    stat:{k:'The startling stat',tag:'Make the scale undeniable',v:'Open with a number that quantifies the pain so starkly the investor can\'t look away. It frames the problem as big and real in one line.',eg:'"Every year, X businesses lose Y to Z."'},
+    moment:{k:'The vivid moment',tag:'Make the pain concrete',v:'Drop the investor into a single, specific customer moment that makes the problem human and tangible — one scene they\'ll remember.',eg:'"At 6am, a trader watches yesterday\'s stock spoil in the heat."'},
+    oneliner:{k:'The crisp one-liner',tag:'Make it instantly clear',v:'State exactly what you do in one clean sentence — who, what outcome, how. Clarity itself is a hook when everyone else is vague.',eg:'"We help [who] [outcome] by [how]."'}
+  };
+  const hookChips=document.getElementById('hookChips'), hookDetail=document.getElementById('hookDetail');
+  function renderHook(key){const d=hook[key];hookDetail.innerHTML='<div class="pk">'+d.k+'</div><div class="ptag">'+d.tag+'</div><div class="pv">'+d.v+'</div><div class="peg">'+d.eg+'</div>';hookChips.querySelectorAll('.pick-chip').forEach(c=>c.classList.toggle('on',c.getAttribute('data-k')===key));}
+  if(hookChips){hookChips.addEventListener('click',e=>{const b=e.target.closest('.pick-chip');if(b)renderHook(b.getAttribute('data-k'));});renderHook('stat');}
+
+  // ── Narrative health ──
+  const narItems=[
+    {t:'Leads with the problem',d:'You open on the pain, not the product or the company history.'},
+    {t:'One clear throughline',d:'A single story runs through it — not many competing messages.'},
+    {t:'Stakes, not just features',d:'There is tension and consequence, not only a list of capabilities.'},
+    {t:'Vision backed by evidence',d:'The big future rests on real traction — not grandiosity alone.'}
+  ];
+  const narState=narItems.map(()=>false);
+  const narList=document.getElementById('narList');
+  function buildNar(){narList.innerHTML=narItems.map(function(it,ci){return '<div class="dr-item'+(narState[ci]?' on':'')+'" data-i="'+ci+'"><span class="dr-cb"></span><span class="dr-tx"><span class="dt">'+it.t+'</span><span class="dd">'+it.d+'</span></span></div>';}).join('');}
+  function recomputeNar(){const have=narState.filter(Boolean).length,pct=Math.round(have/narItems.length*100);document.getElementById('narNum').textContent=have;document.getElementById('narFill').style.width=pct+'%';const v=document.getElementById('narVerdict');if(have>=4){v.className='dr-verdict ready';v.textContent='Strong — no killers loose';}else if(have>=2){v.className='dr-verdict mid';v.textContent='Close — one or two to fix';}else{v.className='dr-verdict low';v.textContent='At risk — a killer is loose';}}
+  if(narList){buildNar();recomputeNar();narList.addEventListener('click',function(e){const it=e.target.closest('.dr-item');if(!it)return;const ci=+it.getAttribute('data-i');narState[ci]=!narState[ci];buildNar();recomputeNar();});}
+
+  // ── Presenter View ──
+  var presenterWin = null;
+  const NOTES = [
+    ["Welcome to Pitch Craft, Session 1 of 3, with Joseph Kalema — part of Investment Readiness.","The big idea: same story told three ways — narrative, summary, deck. Session 1 builds the SOURCE (narrative).","Frame: ~2 hours; protect the activity time — application is where it lands.","Anchor: 'Investors fund a story they believe and can retell.'"],
+    ["Preview the four parts; the deliverable is a hook + a five-beat arc.","Open by asking: who has tried to raise, and what stopped you? Let it surface.","~10 minutes."],
+    ["Transition: people invest in a story about the future."],
+    ["Story beats specs because investors must RE-PITCH you to a committee.","Facts support the story; numbers prove, narrative persuades.","A clear story signals a clear thinker who can sell."],
+    ["Tap each beat; stress how each sets up the next — skip one and the story wobbles.","Have a founder tell their five beats in 90 seconds.","Note the feel + trap that surface in the next slides."],
+    ["Transition: win the first thirty seconds."],
+    ["Open with a hook, never history or a market definition.","Read the bad opener aloud — let the room feel it die.","The first sentence earns the right to the second."],
+    ["Tap the three hook types; each suits a different story.","Run the exercise: one opening line under 15 words.","Three read aloud; the room votes on the lean-in."],
+    ["Transition: each beat must make them feel something."],
+    ["Walk the feel/trap table beat by beat.","The four narrative killers preview the self-check next.","Push: which feeling is each founder's weakest beat missing?"],
+    ["Have a founder score their narrative against the four killers.","4 = strong; under 2 = a killer is loose.","The most common killer is leading with the product — watch for it."],
+    ["Recall: narrative wins, the hook, the arc, make-them-feel, avoid the killers.","Repeat: build a story they believe and can retell.","Tease Session 2: the executive summary — the one page they read first."],
+    ["25 solo, 35 group — CIRCULATE.","Read three hooks; vote on the lean-in. One founder tells the full arc.","Reward clarity over polish."],
+    ["Hook (under 15 words, tested) + five-beat arc + a killer check.","Bring the hook and arc to Session 2 — we build the summary from them.","Same story, three forms — consistency starts here."],
+    ["Tagline: Build with direction.","Next session = The Executive Summary.","Thank them."]
+  ];
+  function notesHTML(idx){const a=NOTES[idx]||[];if(!a.length)return '<p class="empty">No speaker notes for this slide yet.</p>';return '<ul>'+a.map(function(b){return '<li>'+b+'</li>';}).join('')+'</ul>';}
+  function presSync(){ if(presenterWin&&!presenterWin.closed){ try{ presenterWin.postMessage({type:'goto',i:i,total:slides.length,title:(slides[i].getAttribute('data-title')||('Slide '+(i+1))),notes:notesHTML(i),next:(slides[i+1]?(slides[i+1].getAttribute('data-title')||''):'')},'*'); }catch(e){} } }
+  const PRESENTER_DOC='<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Presenter · The Founder\'s Sprint</title>'
+    +'<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">'
+    +'<style>:root{--paper:#EFE7D8;--ochre:#C9923A;--sage:#8AAB5C;--mut:#A09888;--sans:\'Josefin Sans\',sans-serif;--disp:\'Cormorant Garamond\',serif;--body:\'Inter\',sans-serif;}'
+    +'*{box-sizing:border-box;margin:0;padding:0;}body{background:#11140E;color:var(--paper);font-family:var(--body);min-height:100vh;display:flex;flex-direction:column;padding:22px 26px;}'
+    +'.top{display:flex;justify-content:space-between;align-items:center;font-family:var(--sans);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mut);border-bottom:1px solid rgba(239,231,216,.14);padding-bottom:12px;gap:12px;}'
+    +'.top .brand{color:var(--sage);font-weight:700;}.pnum{font-weight:700;color:var(--paper);margin-left:auto;}.clock{font-family:var(--disp);font-size:24px;color:var(--ochre);}'
+    +'.eyebrow{font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--sage);margin-top:16px;}'
+    +'.cur{font-family:var(--disp);font-size:30px;line-height:1.12;color:var(--paper);margin:4px 0 0;}'
+    +'.notes{flex:1;overflow:auto;margin-top:16px;}.notes ul{list-style:none;}.notes li{position:relative;padding-left:24px;margin-bottom:15px;font-size:18px;line-height:1.5;color:#EDE6D6;}'
+    +'.notes li::before{content:"";position:absolute;left:0;top:9px;width:9px;height:9px;background:var(--sage);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);}'
+    +'.notes .empty{color:var(--mut);font-style:italic;font-family:var(--disp);font-size:20px;}'
+    +'.next{font-family:var(--sans);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);padding-top:14px;border-top:1px solid rgba(239,231,216,.14);}.next b{color:var(--paper);font-weight:600;}'
+    +'.ctrl{display:flex;gap:10px;margin-top:14px;}.ctrl button{flex:1;background:rgba(239,231,216,.08);border:1px solid rgba(239,231,216,.25);color:var(--paper);font-family:var(--sans);font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:13px;cursor:pointer;transition:.15s;}'
+    +'.ctrl button:hover{border-color:var(--sage);color:var(--sage);}</style></head><body>'
+    +'<div class="top"><span class="brand">The Founder\'s Sprint · Presenter</span><span class="pnum" id="pnum">—</span><span class="clock" id="clock">00:00</span></div>'
+    +'<div class="eyebrow">Now presenting</div><div class="cur" id="cur">—</div><div class="notes" id="notes"></div><div class="next" id="next"></div>'
+    +'<div class="ctrl"><button id="pp">‹ Prev</button><button id="nn">Next ›</button></div>'
+    +'<scr'+'ipt>var t0=Date.now();function pad(n){return String(n).padStart(2,"0");}'
+    +'setInterval(function(){var s=Math.floor((Date.now()-t0)/1000);document.getElementById("clock").textContent=pad(Math.floor(s/60))+":"+pad(s%60);},500);'
+    +'function nav(d){if(window.opener&&!window.opener.closed){window.opener.postMessage({type:"fs-nav",dir:d},"*");}}'
+    +'document.getElementById("pp").onclick=function(){nav(-1);};document.getElementById("nn").onclick=function(){nav(1);};'
+    +'window.addEventListener("keydown",function(e){if(e.key==="ArrowRight"||e.key===" "||e.key==="PageDown"){e.preventDefault();nav(1);}else if(e.key==="ArrowLeft"||e.key==="PageUp"){e.preventDefault();nav(-1);}});'
+    +'window.addEventListener("message",function(e){var m=e.data||{};if(m.type==="goto"){document.getElementById("pnum").textContent=(m.i+1)+" / "+m.total;document.getElementById("cur").textContent=m.title;document.getElementById("notes").innerHTML=m.notes||"";document.getElementById("next").innerHTML=m.next?("Next &rarr; <b>"+m.next+"</b>"):"End of deck";}});'
+    +'if(window.opener&&!window.opener.closed){window.opener.postMessage({type:"fs-ready"},"*");}'
+    +'<\/scr'+'ipt></body></html>';
+  function openPresenter(){if(presenterWin&&!presenterWin.closed){presenterWin.focus();presSync();return;}presenterWin=window.open('','fsPresenter','width=760,height=860');if(!presenterWin){alert('Please allow pop-ups for this page to open Presenter View.');return;}presenterWin.document.open();presenterWin.document.write(PRESENTER_DOC);presenterWin.document.close();setTimeout(presSync,350);}
+  window.addEventListener('message',function(e){const m=e.data||{};if(m.type==='fs-nav'){m.dir>0?next():prev();}else if(m.type==='fs-ready'){presSync();}});
+  var _pBtn=document.getElementById('presBtn'); if(_pBtn) _pBtn.addEventListener('click',openPresenter);
+  show(0);
+})();
+</script>
+<script src="/decks/_sponsors.js?v=1"></script>
+</body>
+</html>
