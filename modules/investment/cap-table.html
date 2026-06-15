@@ -8,6 +8,7 @@
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="/ui-dialogs.js?v=2"></script>
 <style>
   :root{--ink:#1A1A1A;--paper:#EFE7D8;--paper-deep:#E6DCC7;--muted:#5A564F;--paper-dim:#9a917f;
     --terra:#C8531F;--terra-deep:#9A3E16;--ochre:#C9923A;--moss:#3D4A2E;--sage:#8AAB5C;--stone:#777770;
@@ -209,7 +210,7 @@
   var SB_URL='https://ivedeivyotwevjxvcuoe.supabase.co';
   var SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss';
   var sbc=(window.supabase&&window.supabase.createClient)?window.supabase.createClient(SB_URL,SB_ANON):null;
-  var COMPANY=null;
+  var COMPANY=null, PAID=false;
   function collect(){
     var h=window._capH||{};
     return {key:'cap-table', title:'Cap table & dilution',
@@ -228,15 +229,21 @@
       document.getElementById('loggedOut').style.display='none';
       if(cos&&cos.length){
         COMPANY=cos[0];
-        var paid=false; try{ var pr=await sbc.rpc('founder_is_paid'); paid=!!(pr&&pr.data); }catch(e){}
-        if(paid){ document.getElementById('saveBtn').style.display='inline-block'; }
-        else { document.getElementById('saveMsg').innerHTML='Play freely here — saving a run to your data room unlocks when you book your first course. <a href="/beta/book/?tier=single" style="color:var(--terra-deep);font-weight:600">Book a course →</a>'; }
+        try{ var pr=await sbc.rpc('founder_is_paid'); PAID=!!(pr&&pr.data); }catch(e){ PAID=false; }
+        document.getElementById('saveBtn').style.display='inline-block';
       }
       else { document.getElementById('saveMsg').textContent='Add your company in the dashboard to save this.'; }
     }catch(e){}
   }
   window.saveRun=async function(){
     if(!sbc||!COMPANY) return;
+    if(!PAID){
+      var go = window.fsConfirm
+        ? await fsConfirm('Saving this to your data room is part of a paid course — your Workbench results become your investor-ready vault. Book your first course to unlock saving.',{title:'Unlock your data room',okText:'Book a course',cancelText:'Keep exploring'})
+        : true;
+      if(go){ (window.top||window).location.href='/beta/book/?tier=single'; }
+      return;
+    }
     var btn=document.getElementById('saveBtn'), msg=document.getElementById('saveMsg');
     btn.disabled=true; msg.textContent='Saving…';
     var c=collect();
