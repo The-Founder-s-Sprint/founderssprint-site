@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Channel Mix Explorer · The Founder's Sprint</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+  :root{--ink:#1A1A1A;--paper:#EFE7D8;--paper-deep:#E6DCC7;--muted:#5A564F;--paper-dim:#9a917f;
+    --terra:#C8531F;--terra-deep:#9A3E16;--ochre:#C9923A;--moss:#3D4A2E;--sage:#8AAB5C;
+    --border:rgba(26,26,26,0.16);--sans:'Josefin Sans',sans-serif;--display:'Cormorant Garamond',serif;--font:'Inter',sans-serif;}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--paper);color:var(--ink);font-family:var(--font);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;}
+  .bar{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;background:var(--ink);}
+  .brand{display:flex;align-items:center;gap:10px;text-decoration:none;}
+  .brand svg{width:22px;height:22px;} .brand .wm{font-family:var(--sans);font-weight:700;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--paper);}
+  .bar .disc{font-family:var(--sans);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--terra);}
+  .wrap{max-width:920px;margin:0 auto;padding:34px 22px 70px;}
+  .eyebrow{font-family:var(--sans);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--terra-deep);font-weight:600;margin-bottom:10px;}
+  h1{font-family:var(--display);font-size:42px;font-weight:600;line-height:1.05;margin-bottom:10px;}
+  .lede{font-size:15px;color:var(--muted);max-width:620px;line-height:1.6;margin-bottom:8px;}
+  .pamphlet{font-size:12px;color:var(--paper-dim);font-style:italic;margin-bottom:26px;}
+  .panel{background:var(--paper-deep);border:1px solid var(--border);padding:22px;border-radius:0 0 22px 0;overflow:hidden;margin-bottom:22px;}
+  .panel h2{font-family:var(--display);font-size:23px;font-weight:600;margin-bottom:4px;}
+  .panel .sub{font-size:12.5px;color:var(--muted);margin-bottom:18px;}
+  .seg{display:inline-flex;border:1px solid var(--border);overflow:hidden;}
+  .seg button{background:rgba(255,255,255,.4);border:none;padding:7px 13px;font-family:var(--sans);font-weight:600;font-size:11px;letter-spacing:.08em;cursor:pointer;color:var(--muted);}
+  .seg button.on{background:var(--ink);color:var(--paper);}
+  .budget-row{display:grid;grid-template-columns:1fr 160px;gap:12px;align-items:center;padding:8px 0 16px;border-bottom:1px solid var(--border);margin-bottom:8px;}
+  input[type=number]{width:100%;background:rgba(255,255,255,.45);border:1px solid var(--border);padding:9px 10px;font-size:15px;font-family:var(--font);color:var(--ink);text-align:right;}
+  input:focus{outline:none;border-color:var(--terra);}
+  table{width:100%;border-collapse:collapse;}
+  th{font-family:var(--sans);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:right;padding:8px 6px;border-bottom:1px solid var(--border);}
+  th:first-child{text-align:left;}
+  td{padding:8px 6px;border-bottom:1px solid var(--border);text-align:right;font-size:13.5px;}
+  td:first-child{text-align:left;font-weight:500;}
+  td input{width:84px;}
+  .out{font-family:var(--display);font-size:16px;font-weight:600;}
+  .alloc-note{font-size:12px;margin-top:10px;font-weight:500;}
+  .alloc-ok{color:var(--moss);} .alloc-bad{color:var(--terra-deep);}
+  .chosen{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin-top:18px;}
+  .stat{background:rgba(255,255,255,.4);border:1px solid var(--border);padding:13px 14px;border-radius:0 0 16px 0;overflow:hidden;}
+  .stat .k{font-family:var(--sans);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
+  .stat .v{font-family:var(--display);font-size:24px;font-weight:600;}
+  .stat .x{font-size:11px;color:var(--muted);margin-top:2px;}
+  .mix{display:flex;height:22px;margin:18px 0 4px;overflow:hidden;border:1px solid var(--border);}
+  .mseg{height:100%;}
+  .mleg{display:flex;flex-wrap:wrap;gap:12px;font-size:11px;color:var(--muted);}
+  .mleg span i{display:inline-block;width:9px;height:9px;margin-right:4px;}
+  .interp{background:rgba(200,83,31,.07);border-left:3px solid var(--terra);padding:13px 15px;font-size:13.5px;line-height:1.55;margin-top:14px;}
+  .interp strong{color:var(--terra-deep);}
+  .canvas label{font-family:var(--sans);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#444;display:block;margin:14px 0 5px;}
+  textarea{width:100%;background:rgba(255,255,255,.45);border:1px solid var(--border);padding:11px;font-size:15px;font-family:var(--font);line-height:1.5;resize:vertical;min-height:54px;color:var(--ink);}
+  textarea:focus{outline:none;border-color:var(--terra);}
+  .gap{background:var(--ink);color:var(--paper);padding:24px 22px;border-radius:0 0 22px 0;overflow:hidden;margin-top:26px;}
+  .gap .e{font-family:var(--sans);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--ochre);margin-bottom:8px;}
+  .gap h3{font-family:var(--display);font-size:25px;font-weight:600;margin-bottom:8px;line-height:1.15;}
+  .gap p{font-size:13.5px;color:rgba(239,231,216,.8);line-height:1.6;max-width:560px;margin-bottom:16px;}
+  .gap .btns{display:flex;gap:10px;flex-wrap:wrap;}
+  .gap a{font-family:var(--sans);font-weight:700;font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:12px 20px;text-decoration:none;}
+  .gap a.primary{background:var(--terra);color:#fff;} .gap a.primary:hover{background:var(--terra-deep);}
+  .gap a.ghost{border:1px solid rgba(239,231,216,.35);color:var(--paper);}
+  .save{font-size:12px;color:var(--muted);margin-top:14px;text-align:center;}
+  .save a{color:var(--terra-deep);font-weight:600;}
+  .savebtn{background:var(--ochre);color:var(--ink);border:none;padding:11px 20px;font-family:var(--sans);font-weight:700;font-size:11px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;}
+  .savebtn:hover{background:#b8842f;} .savebtn:disabled{opacity:.55;}
+  #saveMsg{display:block;margin-top:8px;color:var(--sage);}
+  @media(max-width:600px){h1{font-size:32px;}.budget-row{grid-template-columns:1fr 120px;}td input{width:62px;}th,td{padding:7px 3px;font-size:12px;}}
+</style>
+</head>
+<body>
+<div class="bar">
+  <a class="brand" href="/index.html">
+    <svg viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.85"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.8" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.78" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.82" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+    <span class="wm">The Founder's Sprint</span>
+  </a>
+  <span class="disc">Marketing & Branding · Self-guided</span>
+</div>
+
+<div class="wrap">
+  <div class="eyebrow">Channel Mix</div>
+  <h1>Where should your marketing money go?</h1>
+  <p class="lede">Spread a budget across the ways you reach customers, set what each costs to convert, and see which channels actually buy you growth — and which just burn cash.</p>
+  <p class="pamphlet">The pamphlet version. Your Marketing coach helps you read real channel data and build the plan.</p>
+
+  <div class="panel">
+    <h2>Your budget &amp; channels</h2>
+    <div class="sub">Set a monthly budget, then split it and estimate the cost to win one customer through each channel.</div>
+    <div style="margin-bottom:6px"><span style="font-size:12px;color:var(--muted);margin-right:8px">Currency</span>
+      <span class="seg" id="cur"><button data-c="UGX" class="on">UGX</button><button data-c="USD">USD</button><button data-c="KES">KES</button></span>
+    </div>
+    <div class="budget-row"><div><div style="font-weight:500">Monthly marketing budget</div><div style="font-size:11.5px;color:var(--paper-dim)">Total you can spend acquiring customers each month.</div></div><input type="number" id="budget" value="5000000" min="0"></div>
+    <table>
+      <thead><tr><th>Channel</th><th>% budget</th><th>CAC</th><th>Spend</th><th>Customers</th></tr></thead>
+      <tbody id="chan-body"></tbody>
+    </table>
+    <div class="alloc-note" id="allocNote"></div>
+
+    <div class="chosen">
+      <div class="stat"><div class="k">Customers / month</div><div class="v" id="sCust">—</div><div class="x">across all channels</div></div>
+      <div class="stat"><div class="k">Blended CAC</div><div class="v" id="sBlend">—</div><div class="x">avg cost per customer</div></div>
+      <div class="stat"><div class="k">Most efficient</div><div class="v" id="sBest" style="font-size:18px">—</div><div class="x" id="sBestX"></div></div>
+    </div>
+    <div class="mix" id="mix"></div>
+    <div class="mleg" id="mleg"></div>
+    <div class="interp" id="interp"></div>
+  </div>
+
+  <div class="panel canvas">
+    <h2>Show your assumptions</h2>
+    <div class="sub">A channel plan is a set of bets. Name them.</div>
+    <label>Which channel's CAC are you least sure about — and how would you test it cheaply?</label>
+    <textarea id="aCac" placeholder="e.g. Paid social CAC is a guess — we'd run a UGX 500k test for two weeks before committing."></textarea>
+    <label>What's your most efficient channel today, and can it actually scale?</label>
+    <textarea id="aScale" placeholder="e.g. Referral is cheapest but caps out fast — it can't carry growth alone."></textarea>
+    <label>What happens to CAC as you pour more into your best channel (does it saturate)?</label>
+    <textarea id="aSat" placeholder="e.g. WhatsApp works at small scale; beyond ~200 customers/mo we'd exhaust our warm network."></textarea>
+  </div>
+
+  <div class="gap">
+    <div class="e">This is the napkin version</div>
+    <h3>Now build the real plan.</h3>
+    <p>Channel strategy, positioning, the message that makes any channel convert, and how to test and scale without burning budget — that's what you build with Teddy in <strong>Marketing &amp; Branding</strong>. The mix shows the maths; the coach makes it land.</p>
+    <div class="btns">
+      <a class="primary" href="/index.html#pricing">Book a Marketing session →</a>
+      <a class="ghost" href="/mentors.html">Or talk to an operator</a>
+    </div>
+    <div class="save">
+      <button id="saveBtn" class="savebtn" style="display:none" onclick="saveRun()">Save to my data room</button>
+      <span id="saveMsg"></span>
+      <span id="loggedOut">Want to save this and build it into your data room? <a href="/login-founder.html">Create a free account →</a></span>
+    </div>
+  </div>
+</div>
+
+<script>
+  var CUR='UGX', SYM={UGX:'UGX ',USD:'$',KES:'KES '};
+  var CHANNELS=[
+    {k:'whatsapp',name:'WhatsApp / direct',alloc:25,cac:80000,color:'#3D4A2E'},
+    {k:'social',name:'Paid social',alloc:30,cac:250000,color:'#C8531F'},
+    {k:'search',name:'Search',alloc:20,cac:200000,color:'#C9923A'},
+    {k:'field',name:'Field / events',alloc:15,cac:400000,color:'#8AAB5C'},
+    {k:'referral',name:'Referral',alloc:10,cac:50000,color:'#777770'}
+  ];
+  function $(id){return document.getElementById(id);}
+  function compact(n){ if(!isFinite(n))return '—'; n=Math.round(n);
+    if(Math.abs(n)>=1e9)return SYM[CUR]+(n/1e9).toFixed(1).replace(/\.0$/,'')+'B';
+    if(Math.abs(n)>=1e6)return SYM[CUR]+(n/1e6).toFixed(1).replace(/\.0$/,'')+'M';
+    if(Math.abs(n)>=1e3)return SYM[CUR]+(n/1e3).toFixed(0)+'K';
+    return SYM[CUR]+n.toLocaleString('en-US'); }
+  function buildRows(){
+    $('chan-body').innerHTML=CHANNELS.map(function(c){
+      return '<tr><td><span style="display:inline-block;width:9px;height:9px;background:'+c.color+';margin-right:7px"></span>'+c.name+'</td>'
+        +'<td><input type="number" id="al-'+c.k+'" value="'+c.alloc+'" min="0" max="100"></td>'
+        +'<td><input type="number" id="cac-'+c.k+'" value="'+c.cac+'" min="0"></td>'
+        +'<td class="out" id="sp-'+c.k+'">—</td>'
+        +'<td class="out" id="cu-'+c.k+'">—</td></tr>';
+    }).join('');
+    CHANNELS.forEach(function(c){ ['al-','cac-'].forEach(function(p){ $(p+c.k).addEventListener('input',calc); }); });
+  }
+  function calc(){
+    var budget=parseFloat($('budget').value)||0, totalAlloc=0, totalCust=0, totalSpend=0, best=null;
+    var data=CHANNELS.map(function(c){
+      var al=parseFloat($('al-'+c.k).value)||0, cac=parseFloat($('cac-'+c.k).value)||0;
+      var spend=budget*al/100, cust=cac>0?spend/cac:0;
+      totalAlloc+=al; totalCust+=cust; totalSpend+=spend;
+      $('sp-'+c.k).textContent=compact(spend); $('cu-'+c.k).textContent=cust?Math.round(cust).toLocaleString():'—';
+      if(al>0 && cac>0 && (!best||cac<best.cac)) best={name:c.name,cac:cac};
+      return {c:c,al:al,cac:cac,spend:spend,cust:cust};
+    });
+    $('sCust').textContent=Math.round(totalCust).toLocaleString();
+    var blended=totalCust>0?totalSpend/totalCust:0;
+    $('sBlend').textContent=compact(blended);
+    $('sBest').textContent=best?best.name:'—'; $('sBestX').textContent=best?(compact(best.cac)+' / customer'):'';
+    var note=$('allocNote');
+    if(Math.abs(totalAlloc-100)<0.5){ note.textContent='Allocated 100% of budget.'; note.className='alloc-note alloc-ok'; }
+    else if(totalAlloc<100){ note.textContent='Only '+Math.round(totalAlloc)+'% allocated — '+(100-Math.round(totalAlloc))+'% of your budget is unassigned.'; note.className='alloc-note alloc-bad'; }
+    else { note.textContent='Over-allocated: '+Math.round(totalAlloc)+'% (more than your budget).'; note.className='alloc-note alloc-bad'; }
+    // mix bar by customer contribution
+    var mix=$('mix'), leg=$('mleg');
+    if(totalCust>0){
+      mix.innerHTML=data.map(function(d){ var w=d.cust/totalCust*100; return w>0?'<div class="mseg" style="width:'+w+'%;background:'+d.c.color+'"></div>':''; }).join('');
+      leg.innerHTML=data.filter(d=>d.cust>0).map(function(d){ return '<span><i style="background:'+d.c.color+'"></i>'+d.c.name+' '+Math.round(d.cust/totalCust*100)+'%</span>'; }).join('');
+    } else { mix.innerHTML=''; leg.innerHTML=''; }
+    var msg='At this mix you win <strong>'+Math.round(totalCust).toLocaleString()+'</strong> customers a month at a blended <strong>'+compact(blended)+'</strong> each.';
+    if(best) msg+=' Your cheapest channel is <strong>'+best.name+'</strong> ('+compact(best.cac)+') — worth testing whether it scales before you lean on pricier ones.';
+    $('interp').innerHTML=msg;
+    window._cmData=data; window._cmTotals={cust:totalCust,blended:blended,alloc:totalAlloc};
+  }
+  document.querySelectorAll('#cur button').forEach(function(b){ b.addEventListener('click',function(){
+    document.querySelectorAll('#cur button').forEach(function(x){x.classList.remove('on');});
+    b.classList.add('on'); CUR=b.dataset.c; calc(); }); });
+  $('budget').addEventListener('input',calc);
+  buildRows(); calc();
+
+  /* ---- Save to data room ---- */
+  var SB_URL='https://ivedeivyotwevjxvcuoe.supabase.co';
+  var SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss';
+  var sbc=(window.supabase&&window.supabase.createClient)?window.supabase.createClient(SB_URL,SB_ANON):null;
+  var COMPANY=null;
+  function collect(){
+    var chans=CHANNELS.map(function(c){ return {k:c.k,alloc:parseFloat($('al-'+c.k).value)||0,cac:parseFloat($('cac-'+c.k).value)||0}; });
+    var t=window._cmTotals||{};
+    return {key:'channel-mix', title:'Channel mix',
+      inputs:{currency:CUR,budget:parseFloat($('budget').value)||0,channels:chans,
+        assumptions:{cac:$('aCac').value,scale:$('aScale').value,saturation:$('aSat').value}},
+      outputs:{customers:Math.round(t.cust||0),blendedCac:Math.round(t.blended||0),allocated:Math.round(t.alloc||0)}};
+  }
+  async function initSave(){
+    if(!sbc) return;
+    try{
+      var s=await sbc.auth.getSession(); var session=s&&s.data&&s.data.session;
+      if(!session) return;
+      var r=await sbc.from('companies').select('id,name,is_primary').order('is_primary',{ascending:false}).limit(1);
+      var cos=r&&r.data;
+      document.getElementById('loggedOut').style.display='none';
+      if(cos&&cos.length){
+        COMPANY=cos[0];
+        var paid=false; try{ var pr=await sbc.rpc('founder_is_paid'); paid=!!(pr&&pr.data); }catch(e){}
+        if(paid){ document.getElementById('saveBtn').style.display='inline-block'; }
+        else { document.getElementById('saveMsg').innerHTML='Play freely here — saving a run to your data room unlocks when you book your first course. <a href="/beta/book/?tier=single" style="color:var(--terra-deep);font-weight:600">Book a course →</a>'; }
+      }
+      else { document.getElementById('saveMsg').textContent='Add your company in the dashboard to save this.'; }
+    }catch(e){}
+  }
+  window.saveRun=async function(){
+    if(!sbc||!COMPANY) return;
+    var btn=document.getElementById('saveBtn'), msg=document.getElementById('saveMsg');
+    btn.disabled=true; msg.textContent='Saving…';
+    var c=collect();
+    var res=await sbc.from('module_runs').upsert(
+      {company_id:COMPANY.id,module_key:c.key,title:c.title,inputs:c.inputs,outputs:c.outputs},
+      {onConflict:'company_id,module_key'});
+    if(res&&res.error){ msg.textContent='Could not save — '+res.error.message; btn.disabled=false; }
+    else { msg.textContent='Saved to your data room ✓'; btn.disabled=false; }
+  };
+  initSave();
+</script>
+</body>
+</html>

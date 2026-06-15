@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Market Sizer (TAM · SAM · SOM) · The Founder's Sprint</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+  :root{--ink:#1A1A1A;--paper:#EFE7D8;--paper-deep:#E6DCC7;--muted:#5A564F;--paper-dim:#9a917f;
+    --terra:#C8531F;--terra-deep:#9A3E16;--ochre:#C9923A;--moss:#3D4A2E;--sage:#8AAB5C;
+    --border:rgba(26,26,26,0.16);--sans:'Josefin Sans',sans-serif;--display:'Cormorant Garamond',serif;--font:'Inter',sans-serif;}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--paper);color:var(--ink);font-family:var(--font);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;}
+  .bar{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;background:var(--ink);}
+  .brand{display:flex;align-items:center;gap:10px;text-decoration:none;}
+  .brand svg{width:22px;height:22px;} .brand .wm{font-family:var(--sans);font-weight:700;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--paper);}
+  .bar .disc{font-family:var(--sans);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--sage);}
+  .wrap{max-width:920px;margin:0 auto;padding:34px 22px 70px;}
+  .eyebrow{font-family:var(--sans);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--terra-deep);font-weight:600;margin-bottom:10px;}
+  h1{font-family:var(--display);font-size:42px;font-weight:600;line-height:1.05;margin-bottom:10px;}
+  .lede{font-size:15px;color:var(--muted);max-width:620px;line-height:1.6;margin-bottom:8px;}
+  .pamphlet{font-size:12px;color:var(--paper-dim);font-style:italic;margin-bottom:26px;}
+  .defs{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:28px;}
+  .def{background:var(--paper-deep);border:1px solid var(--border);border-top:3px solid var(--moss);padding:13px 14px;border-radius:0 0 18px 0;overflow:hidden;}
+  .def:nth-child(2){border-top-color:var(--ochre);} .def:nth-child(3){border-top-color:var(--terra);}
+  .def b{font-family:var(--sans);font-size:12px;letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:4px;}
+  .def span{font-size:12px;color:var(--muted);line-height:1.45;}
+  .panel{background:var(--paper-deep);border:1px solid var(--border);padding:22px;border-radius:0 0 22px 0;overflow:hidden;margin-bottom:22px;}
+  .panel h2{font-family:var(--display);font-size:23px;font-weight:600;margin-bottom:4px;}
+  .panel .sub{font-size:12.5px;color:var(--muted);margin-bottom:18px;}
+  .row{display:grid;grid-template-columns:1fr 132px;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid var(--border);}
+  .row:last-child{border-bottom:none;}
+  .row .lbl{font-size:13.5px;font-weight:500;}
+  .row .hint{font-size:11.5px;color:var(--paper-dim);margin-top:2px;line-height:1.4;}
+  input[type=number],input[type=text]{width:100%;background:rgba(255,255,255,.45);border:1px solid var(--border);padding:10px 11px;font-size:16px;font-family:var(--font);color:var(--ink);text-align:right;}
+  input:focus{outline:none;border-color:var(--terra);}
+  .pct::after{content:'%';}
+  .seg{display:inline-flex;border:1px solid var(--border);overflow:hidden;}
+  .seg button{background:rgba(255,255,255,.4);border:none;padding:7px 13px;font-family:var(--sans);font-weight:600;font-size:11px;letter-spacing:.08em;cursor:pointer;color:var(--muted);}
+  .seg button.on{background:var(--ink);color:var(--paper);}
+  .results{margin-top:6px;}
+  .funnel{display:flex;flex-direction:column;gap:10px;margin:6px 0 14px;}
+  .frow{}
+  .fhead{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:4px;}
+  .fhead .nm{font-family:var(--sans);font-size:11px;letter-spacing:.12em;text-transform:uppercase;}
+  .fhead .vl{font-family:var(--display);font-size:22px;font-weight:600;}
+  .track{height:14px;background:rgba(26,26,26,.06);overflow:hidden;}
+  .fill{height:100%;transition:width 350ms ease;}
+  .fill.tam{background:var(--moss);} .fill.sam{background:var(--ochre);} .fill.som{background:var(--terra);}
+  .fsub{font-size:11px;color:var(--muted);margin-top:3px;}
+  .interp{background:rgba(200,83,31,.07);border-left:3px solid var(--terra);padding:13px 15px;font-size:13.5px;line-height:1.55;margin-top:10px;}
+  .interp strong{color:var(--terra-deep);}
+  .flag{background:rgba(201,146,58,.13);border-left:3px solid var(--ochre);padding:11px 14px;font-size:12.5px;line-height:1.5;margin-top:10px;display:none;}
+  .flag.show{display:block;}
+  .canvas label{font-family:var(--sans);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#444;display:block;margin:14px 0 5px;}
+  textarea{width:100%;background:rgba(255,255,255,.45);border:1px solid var(--border);padding:11px;font-size:15px;font-family:var(--font);line-height:1.5;resize:vertical;min-height:54px;color:var(--ink);}
+  textarea:focus{outline:none;border-color:var(--terra);}
+  .gap{background:var(--ink);color:var(--paper);padding:24px 22px;border-radius:0 0 22px 0;overflow:hidden;margin-top:26px;}
+  .gap .e{font-family:var(--sans);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--ochre);margin-bottom:8px;}
+  .gap h3{font-family:var(--display);font-size:25px;font-weight:600;margin-bottom:8px;line-height:1.15;}
+  .gap p{font-size:13.5px;color:rgba(239,231,216,.8);line-height:1.6;max-width:560px;margin-bottom:16px;}
+  .gap .btns{display:flex;gap:10px;flex-wrap:wrap;}
+  .gap a{font-family:var(--sans);font-weight:700;font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:12px 20px;text-decoration:none;}
+  .gap a.primary{background:var(--terra);color:#fff;} .gap a.primary:hover{background:var(--terra-deep);}
+  .gap a.ghost{border:1px solid rgba(239,231,216,.35);color:var(--paper);}
+  .save{font-size:12px;color:var(--muted);margin-top:14px;text-align:center;}
+  .save a{color:var(--terra-deep);font-weight:600;}
+  .savebtn{background:var(--ochre);color:var(--ink);border:none;padding:11px 20px;font-family:var(--sans);font-weight:700;font-size:11px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;}
+  .savebtn:hover{background:#b8842f;} .savebtn:disabled{opacity:.55;}
+  #saveMsg{display:block;margin-top:8px;color:var(--sage);}
+  @media(max-width:600px){h1{font-size:32px;}.defs{grid-template-columns:1fr;}.row{grid-template-columns:1fr 108px;}}
+</style>
+</head>
+<body>
+<div class="bar">
+  <a class="brand" href="/index.html">
+    <svg viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.85"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.8" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.78" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.82" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+    <span class="wm">The Founder's Sprint</span>
+  </a>
+  <span class="disc">Strategy & Team · Self-guided</span>
+</div>
+
+<div class="wrap">
+  <div class="eyebrow">Market Sizer</div>
+  <h1>How big is your market, really?</h1>
+  <p class="lede">Three numbers every investor asks for — and most founders guess. Put real assumptions behind them and see your revenue ceiling.</p>
+  <p class="pamphlet">This is the pamphlet, not the textbook. It gets you thinking; your Strategy coach helps you build the defensible version.</p>
+
+  <div class="defs">
+    <div class="def"><b>TAM</b><span>Total Addressable Market — everyone who could ever buy, if you had no limits.</span></div>
+    <div class="def"><b>SAM</b><span>Serviceable Available Market — the slice you can actually reach (your geography, your segment).</span></div>
+    <div class="def"><b>SOM</b><span>Serviceable Obtainable Market — what you can realistically win in the next 1–3 years.</span></div>
+  </div>
+
+  <div class="panel">
+    <h2>Top-down</h2>
+    <div class="sub">Start from the whole market and narrow down. Every number needs a reason.</div>
+    <div style="margin-bottom:14px"><span style="font-size:12px;color:var(--muted);margin-right:8px">Currency</span>
+      <span class="seg" id="cur"><button data-c="UGX" class="on">UGX</button><button data-c="USD">USD</button><button data-c="KES">KES</button></span>
+    </div>
+    <div class="row"><div><div class="lbl">Annual value per customer</div><div class="hint">What one customer pays you per year (your ARPU / contract value).</div></div><input type="number" id="arpu" value="600000" min="0"></div>
+    <div class="row"><div><div class="lbl">TAM — total potential customers</div><div class="hint">Everyone who has this problem, anywhere you could serve.</div></div><input type="number" id="tamN" value="500000" min="0"></div>
+    <div class="row"><div><div class="lbl">SAM — % you can actually serve</div><div class="hint">Filter to your real geography & segment (language, regulation, channel).</div></div><input type="number" id="samPct" value="20" min="0" max="100"></div>
+    <div class="row"><div><div class="lbl">SOM — % of that you can win in 3 years</div><div class="hint">Be honest. New entrants rarely take more than a few percent early.</div></div><input type="number" id="somPct" value="5" min="0" max="100"></div>
+
+    <div class="results" style="margin-top:18px">
+      <div class="funnel">
+        <div class="frow"><div class="fhead"><span class="nm" style="color:var(--moss)">TAM</span><span class="vl" id="tamV">—</span></div><div class="track"><div class="fill tam" id="tamBar" style="width:100%"></div></div><div class="fsub" id="tamSub"></div></div>
+        <div class="frow"><div class="fhead"><span class="nm" style="color:#a9802a">SAM</span><span class="vl" id="samV">—</span></div><div class="track"><div class="fill sam" id="samBar"></div></div><div class="fsub" id="samSub"></div></div>
+        <div class="frow"><div class="fhead"><span class="nm" style="color:var(--terra-deep)">SOM</span><span class="vl" id="somV">—</span></div><div class="track"><div class="fill som" id="somBar"></div></div><div class="fsub" id="somSub"></div></div>
+      </div>
+      <div class="interp" id="interp"></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Bottom-up reality check</h2>
+    <div class="sub">Build SOM the other way — from customers you can actually land. If the two don't agree, your top-down % is a guess.</div>
+    <div class="row"><div><div class="lbl">Customers you can realistically land in year 1</div><div class="hint">Based on your channels, team, and sales capacity — not hope.</div></div><input type="number" id="y1N" value="400" min="0"></div>
+    <div class="row"><div><div class="lbl">Annual growth in customers (×) for 3 years</div><div class="hint">2 = doubling each year. Aggressive but common early.</div></div><input type="number" id="growth" value="2" min="1" step="0.1"></div>
+    <div class="results" style="margin-top:14px">
+      <div class="frow"><div class="fhead"><span class="nm" style="color:var(--ink)">Bottom-up SOM (year 3)</span><span class="vl" id="buV">—</span></div></div>
+      <div class="flag" id="flag"></div>
+    </div>
+  </div>
+
+  <div class="panel canvas">
+    <h2>Show your assumptions</h2>
+    <div class="sub">An investor will challenge every number above. Write the reason now, while you're thinking about it.</div>
+    <label>Why is your SAM that share of the total market?</label>
+    <textarea id="aSam" placeholder="e.g. We can only serve Uganda at launch — ~20% of the regional total; the rest needs local payment + language support we don't have yet."></textarea>
+    <label>What makes the SOM % achievable — what's your unfair advantage?</label>
+    <textarea id="aSom" placeholder="e.g. Existing distribution via X gives us a warm channel to ~5% of the serviceable market in year one."></textarea>
+    <label>What would have to be true for this to be wrong by 10×?</label>
+    <textarea id="aRisk" placeholder="e.g. If our 'problem' isn't actually painful enough to pay for, TAM collapses."></textarea>
+  </div>
+
+  <div class="gap">
+    <div class="e">This is the napkin version</div>
+    <h3>Now make it defensible.</h3>
+    <p>Real market sizing — segmentation, the right methodology, assumptions that survive due diligence, and the story that connects your SOM to your raise — is what you build with Moses in <strong>Strategy &amp; Team Building</strong>. The number above is where the conversation starts, not where it ends.</p>
+    <div class="btns">
+      <a class="primary" href="/index.html#pricing">Book a Strategy session →</a>
+      <a class="ghost" href="/mentors.html">Or talk to an operator</a>
+    </div>
+    <div class="save">
+      <button id="saveBtn" class="savebtn" style="display:none" onclick="saveRun()">Save to my data room</button>
+      <span id="saveMsg"></span>
+      <span id="loggedOut">Want to save this and build it into your data room? <a href="/login-founder.html">Create a free account →</a></span>
+    </div>
+  </div>
+</div>
+
+<script>
+  var CUR='UGX', SYM={UGX:'UGX ',USD:'$',KES:'KES '};
+  function $(id){return document.getElementById(id);}
+  function num(id){var v=parseFloat($(id).value);return isFinite(v)?v:0;}
+  function fmt(n){ if(!isFinite(n)) n=0; n=Math.round(n);
+    return SYM[CUR]+n.toLocaleString('en-US'); }
+  function compact(n){ n=Math.round(n);
+    if(n>=1e9)return SYM[CUR]+(n/1e9).toFixed(1).replace(/\.0$/,'')+'B';
+    if(n>=1e6)return SYM[CUR]+(n/1e6).toFixed(1).replace(/\.0$/,'')+'M';
+    if(n>=1e3)return SYM[CUR]+(n/1e3).toFixed(0)+'K';
+    return SYM[CUR]+n.toLocaleString('en-US'); }
+  function calc(){
+    var arpu=num('arpu'), tamN=num('tamN'), samPct=Math.min(num('samPct'),100), somPct=Math.min(num('somPct'),100);
+    var tamV=tamN*arpu, samN=tamN*samPct/100, samV=samN*arpu, somN=samN*somPct/100, somV=somN*arpu;
+    $('tamV').textContent=compact(tamV); $('samV').textContent=compact(samV); $('somV').textContent=compact(somV);
+    $('tamSub').textContent=Math.round(tamN).toLocaleString()+' customers';
+    $('samSub').textContent=Math.round(samN).toLocaleString()+' customers · '+samPct+'% of TAM';
+    $('somSub').textContent=Math.round(somN).toLocaleString()+' customers · '+somPct+'% of SAM';
+    $('samBar').style.width=(tamV?Math.max(samV/tamV*100,0.5):0)+'%';
+    $('somBar').style.width=(tamV?Math.max(somV/tamV*100,0.5):0)+'%';
+    $('interp').innerHTML='Your obtainable market in three years is <strong>'+fmt(somV)+'</strong> a year — about '
+      +Math.round(somN).toLocaleString()+' customers. That’s the revenue ceiling you’re really pitching, not the '+compact(tamV)+' headline.';
+    // bottom-up
+    var y1=num('y1N'), g=Math.max(num('growth'),0), y3=y1*g*g, buV=y3*arpu;
+    $('buV').textContent=compact(buV)+'  ('+Math.round(y3).toLocaleString()+' customers)';
+    var flag=$('flag');
+    if(somV>0 && buV>0){
+      var ratio=buV/somV;
+      if(ratio>1.5){ flag.className='flag show';
+        flag.innerHTML='Your bottom-up build (<strong>'+compact(buV)+'</strong>) is well <em>above</em> your top-down SOM (<strong>'+compact(somV)+'</strong>). Either your SOM % is too conservative, or your growth assumption is optimistic. Pick the one you can defend.'; }
+      else if(ratio<0.5){ flag.className='flag show';
+        flag.innerHTML='Your bottom-up build (<strong>'+compact(buV)+'</strong>) is well <em>below</em> your top-down SOM (<strong>'+compact(somV)+'</strong>). The 5%-of-SAM story may be hand-waving — your real reachable customers say smaller. Investors trust bottom-up.'; }
+      else{ flag.className='flag show';
+        flag.innerHTML='Your two methods roughly agree (within ~1.5×). That’s the sign of a number you can <strong>defend</strong> — keep both in your deck.'; }
+    } else { flag.className='flag'; }
+  }
+  document.querySelectorAll('#cur button').forEach(function(b){ b.addEventListener('click',function(){
+    document.querySelectorAll('#cur button').forEach(function(x){x.classList.remove('on');});
+    b.classList.add('on'); CUR=b.dataset.c; calc(); }); });
+  document.querySelectorAll('input[type=number]').forEach(function(i){ i.addEventListener('input',calc); });
+  calc();
+
+  /* ---- Save to data room (free-account-first) ---- */
+  var SB_URL='https://ivedeivyotwevjxvcuoe.supabase.co';
+  var SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss';
+  var sbc=(window.supabase&&window.supabase.createClient)?window.supabase.createClient(SB_URL,SB_ANON):null;
+  var COMPANY=null;
+  function collect(){
+    var arpu=num('arpu'),tamN=num('tamN'),samPct=Math.min(num('samPct'),100),somPct=Math.min(num('somPct'),100);
+    var tamV=tamN*arpu, samV=tamV*samPct/100, somV=samV*somPct/100;
+    return {key:'tam-sam-som', title:'Market size — TAM / SAM / SOM',
+      inputs:{currency:CUR,arpu:arpu,tamN:tamN,samPct:samPct,somPct:somPct,y1N:num('y1N'),growth:num('growth'),
+        assumptions:{sam:$('aSam').value,som:$('aSom').value,risk:$('aRisk').value}},
+      outputs:{tam:tamV,sam:samV,som:somV}};
+  }
+  async function initSave(){
+    if(!sbc) return;
+    try{
+      var s=await sbc.auth.getSession(); var session=s&&s.data&&s.data.session;
+      if(!session) return; // logged out → keep create-account link
+      var r=await sbc.from('companies').select('id,name,is_primary').order('is_primary',{ascending:false}).limit(1);
+      var cos=r&&r.data;
+      document.getElementById('loggedOut').style.display='none';
+      if(cos&&cos.length){
+        COMPANY=cos[0];
+        var paid=false; try{ var pr=await sbc.rpc('founder_is_paid'); paid=!!(pr&&pr.data); }catch(e){}
+        if(paid){ document.getElementById('saveBtn').style.display='inline-block'; }
+        else { document.getElementById('saveMsg').innerHTML='Play freely here — saving a run to your data room unlocks when you book your first course. <a href="/beta/book/?tier=single" style="color:var(--terra-deep);font-weight:600">Book a course →</a>'; }
+      }
+      else { document.getElementById('saveMsg').textContent='Add your company in the dashboard to save this.'; }
+    }catch(e){}
+  }
+  window.saveRun=async function(){
+    if(!sbc||!COMPANY) return;
+    var btn=document.getElementById('saveBtn'), msg=document.getElementById('saveMsg');
+    btn.disabled=true; msg.textContent='Saving…';
+    var c=collect();
+    var res=await sbc.from('module_runs').upsert(
+      {company_id:COMPANY.id,module_key:c.key,title:c.title,inputs:c.inputs,outputs:c.outputs},
+      {onConflict:'company_id,module_key'});
+    if(res&&res.error){ msg.textContent='Could not save — '+res.error.message; btn.disabled=false; }
+    else { msg.textContent='Saved to your data room ✓'; btn.disabled=false; }
+  };
+  initSave();
+</script>
+</body>
+</html>

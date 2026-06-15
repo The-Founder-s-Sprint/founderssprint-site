@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cap Table & Dilution · The Founder's Sprint</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+  :root{--ink:#1A1A1A;--paper:#EFE7D8;--paper-deep:#E6DCC7;--muted:#5A564F;--paper-dim:#9a917f;
+    --terra:#C8531F;--terra-deep:#9A3E16;--ochre:#C9923A;--moss:#3D4A2E;--sage:#8AAB5C;--stone:#777770;
+    --border:rgba(26,26,26,0.16);--sans:'Josefin Sans',sans-serif;--display:'Cormorant Garamond',serif;--font:'Inter',sans-serif;}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--paper);color:var(--ink);font-family:var(--font);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;}
+  .bar{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;background:var(--ink);}
+  .brand{display:flex;align-items:center;gap:10px;text-decoration:none;}
+  .brand svg{width:22px;height:22px;} .brand .wm{font-family:var(--sans);font-weight:700;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--paper);}
+  .bar .disc{font-family:var(--sans);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--sage);}
+  .wrap{max-width:920px;margin:0 auto;padding:34px 22px 70px;}
+  .eyebrow{font-family:var(--sans);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--terra-deep);font-weight:600;margin-bottom:10px;}
+  h1{font-family:var(--display);font-size:42px;font-weight:600;line-height:1.05;margin-bottom:10px;}
+  .lede{font-size:15px;color:var(--muted);max-width:620px;line-height:1.6;margin-bottom:8px;}
+  .pamphlet{font-size:12px;color:var(--paper-dim);font-style:italic;margin-bottom:26px;}
+  .panel{background:var(--paper-deep);border:1px solid var(--border);padding:22px;border-radius:0 0 22px 0;overflow:hidden;margin-bottom:22px;}
+  .panel h2{font-family:var(--display);font-size:23px;font-weight:600;margin-bottom:4px;}
+  .panel .sub{font-size:12.5px;color:var(--muted);margin-bottom:18px;}
+  .row{display:grid;grid-template-columns:1fr 132px;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid var(--border);}
+  .row:last-child{border-bottom:none;}
+  .row .lbl{font-size:13.5px;font-weight:500;}
+  .row .hint{font-size:11.5px;color:var(--paper-dim);margin-top:2px;line-height:1.4;}
+  input[type=number]{width:100%;background:rgba(255,255,255,.45);border:1px solid var(--border);padding:10px 11px;font-size:16px;font-family:var(--font);color:var(--ink);text-align:right;}
+  input:focus{outline:none;border-color:var(--terra);}
+  .seg{display:inline-flex;border:1px solid var(--border);overflow:hidden;}
+  .seg button{background:rgba(255,255,255,.4);border:none;padding:7px 13px;font-family:var(--sans);font-weight:600;font-size:11px;letter-spacing:.08em;cursor:pointer;color:var(--muted);}
+  .seg button.on{background:var(--ink);color:var(--paper);}
+  .round{border-top:1px solid var(--border);padding-top:6px;margin-top:6px;}
+  .round h3{font-family:var(--sans);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--moss);margin:12px 0 2px;}
+  .chosen{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:14px;margin-top:6px;}
+  .stat{background:rgba(255,255,255,.4);border:1px solid var(--border);padding:13px 14px;border-radius:0 0 16px 0;overflow:hidden;}
+  .stat .k{font-family:var(--sans);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
+  .stat .v{font-family:var(--display);font-size:24px;font-weight:600;}
+  .stat .x{font-size:11px;color:var(--muted);margin-top:2px;}
+  .stack{display:flex;height:26px;margin:18px 0 6px;overflow:hidden;border:1px solid var(--border);}
+  .sseg{height:100%;}
+  .sleg{display:flex;flex-wrap:wrap;gap:12px;font-size:11.5px;color:var(--muted);}
+  .sleg span i{display:inline-block;width:9px;height:9px;margin-right:4px;}
+  table{width:100%;border-collapse:collapse;margin-top:16px;}
+  th{font-family:var(--sans);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:right;padding:8px 6px;border-bottom:1px solid var(--border);}
+  th:first-child{text-align:left;}
+  td{padding:7px 6px;border-bottom:1px solid var(--border);text-align:right;font-size:13px;}
+  td:first-child{text-align:left;}
+  .interp{background:rgba(200,83,31,.07);border-left:3px solid var(--terra);padding:13px 15px;font-size:13.5px;line-height:1.55;margin-top:14px;}
+  .interp strong{color:var(--terra-deep);}
+  .canvas label{font-family:var(--sans);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#444;display:block;margin:14px 0 5px;}
+  textarea{width:100%;background:rgba(255,255,255,.45);border:1px solid var(--border);padding:11px;font-size:15px;font-family:var(--font);line-height:1.5;resize:vertical;min-height:54px;color:var(--ink);}
+  textarea:focus{outline:none;border-color:var(--terra);}
+  .gap{background:var(--ink);color:var(--paper);padding:24px 22px;border-radius:0 0 22px 0;overflow:hidden;margin-top:26px;}
+  .gap .e{font-family:var(--sans);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--ochre);margin-bottom:8px;}
+  .gap h3{font-family:var(--display);font-size:25px;font-weight:600;margin-bottom:8px;line-height:1.15;}
+  .gap p{font-size:13.5px;color:rgba(239,231,216,.8);line-height:1.6;max-width:560px;margin-bottom:16px;}
+  .gap .btns{display:flex;gap:10px;flex-wrap:wrap;}
+  .gap a{font-family:var(--sans);font-weight:700;font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:12px 20px;text-decoration:none;}
+  .gap a.primary{background:var(--terra);color:#fff;} .gap a.primary:hover{background:var(--terra-deep);}
+  .gap a.ghost{border:1px solid rgba(239,231,216,.35);color:var(--paper);}
+  .save{font-size:12px;color:var(--muted);margin-top:14px;text-align:center;}
+  .save a{color:var(--terra-deep);font-weight:600;}
+  .savebtn{background:var(--ochre);color:var(--ink);border:none;padding:11px 20px;font-family:var(--sans);font-weight:700;font-size:11px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;}
+  .savebtn:hover{background:#b8842f;} .savebtn:disabled{opacity:.55;}
+  #saveMsg{display:block;margin-top:8px;color:var(--sage);}
+  @media(max-width:600px){h1{font-size:32px;}.row{grid-template-columns:1fr 108px;}}
+</style>
+</head>
+<body>
+<div class="bar">
+  <a class="brand" href="/index.html">
+    <svg viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.85"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.8" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.78" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.82" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+    <span class="wm">The Founder's Sprint</span>
+  </a>
+  <span class="disc">Investment Readiness · Self-guided</span>
+</div>
+
+<div class="wrap">
+  <div class="eyebrow">Cap Table &amp; Dilution</div>
+  <h1>How much will you still own?</h1>
+  <p class="lede">Every option pool and funding round hands a slice of your company to someone else. Walk through the rounds and watch what's left for the founders.</p>
+  <p class="pamphlet">The pamphlet version. Your Investment Readiness coach helps you structure rounds to raise what you need and keep what matters.</p>
+
+  <div class="panel">
+    <h2>Set up your rounds</h2>
+    <div class="sub">Founders start at 100%. Add an option pool and up to two rounds. Each round's investor stake = investment ÷ post-money valuation.</div>
+    <div style="margin-bottom:6px"><span style="font-size:12px;color:var(--muted);margin-right:8px">Currency</span>
+      <span class="seg" id="cur"><button data-c="USD" class="on">USD</button><button data-c="UGX">UGX</button><button data-c="KES">KES</button></span>
+    </div>
+
+    <div class="round">
+      <h3>Employee option pool (ESOP)</h3>
+      <div class="row"><div><div class="lbl">Pool size %</div><div class="hint">Shares set aside for future hires — created now, dilutes the founders.</div></div><input type="number" id="pool" value="10" min="0" max="90"></div>
+    </div>
+    <div class="round">
+      <h3>Round 1 · Seed</h3>
+      <div class="row"><div><div class="lbl">Investment raised</div><div class="hint">New money coming in. Set 0 to skip this round.</div></div><input type="number" id="r1inv" value="200000" min="0"></div>
+      <div class="row"><div><div class="lbl">Pre-money valuation</div><div class="hint">What the company is valued at before the money goes in.</div></div><input type="number" id="r1pre" value="800000" min="0"></div>
+    </div>
+    <div class="round">
+      <h3>Round 2 · Series A</h3>
+      <div class="row"><div><div class="lbl">Investment raised</div><div class="hint">Set 0 to skip.</div></div><input type="number" id="r2inv" value="1500000" min="0"></div>
+      <div class="row"><div><div class="lbl">Pre-money valuation</div><div class="hint">Before this round's money.</div></div><input type="number" id="r2pre" value="6000000" min="0"></div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Where the ownership lands</h2>
+    <div class="chosen">
+      <div class="stat"><div class="k">Founders keep</div><div class="v" id="sFound">—</div><div class="x">after all rounds</div></div>
+      <div class="stat"><div class="k">Total raised</div><div class="v" id="sRaised">—</div><div class="x">across rounds</div></div>
+      <div class="stat"><div class="k">Founders' stake worth</div><div class="v" id="sWorth">—</div><div class="x">at last post-money</div></div>
+    </div>
+    <div class="stack" id="stack"></div>
+    <div class="sleg" id="sleg"></div>
+    <table><thead><tr><th>Holder</th><th>After pool</th><th>After Seed</th><th>After Series A</th></tr></thead><tbody id="capbody"></tbody></table>
+    <div class="interp" id="interp"></div>
+  </div>
+
+  <div class="panel canvas">
+    <h2>Show your assumptions</h2>
+    <div class="sub">Dilution is a choice, not just an outcome. Think it through.</div>
+    <label>Is each pre-money valuation a real market comparable, or a hope?</label>
+    <textarea id="aVal" placeholder="e.g. Seed pre-money is benchmarked against two comparable East African raises; Series A is aspirational."></textarea>
+    <label>Do you actually need this much capital, or could you raise less and keep more?</label>
+    <textarea id="aNeed" placeholder="e.g. We could halve the seed if we delay the second hire — worth ~6% more ownership."></textarea>
+    <label>What ownership do you want to protect through to exit, and why?</label>
+    <textarea id="aProtect" placeholder="e.g. We want the founding team above 50% through Series A to keep board control."></textarea>
+  </div>
+
+  <div class="gap">
+    <div class="e">This is the napkin version</div>
+    <h3>Now structure it properly.</h3>
+    <p>Round sizing, valuation, option-pool timing, the terms beyond price, and a fundraising plan that keeps you in control — that's what you build with Joseph in <strong>Investment Readiness</strong>. The simulator shows the dilution; the coach helps you negotiate it.</p>
+    <div class="btns">
+      <a class="primary" href="/index.html#pricing">Book an Investment Readiness session →</a>
+      <a class="ghost" href="/mentors.html">Or talk to an operator</a>
+    </div>
+    <div class="save">
+      <button id="saveBtn" class="savebtn" style="display:none" onclick="saveRun()">Save to my data room</button>
+      <span id="saveMsg"></span>
+      <span id="loggedOut">Want to save this and build it into your data room? <a href="/login-founder.html">Create a free account →</a></span>
+    </div>
+  </div>
+</div>
+
+<script>
+  var CUR='USD', SYM={UGX:'UGX ',USD:'$',KES:'KES '};
+  function $(id){return document.getElementById(id);}
+  function num(id){var v=parseFloat($(id).value);return isFinite(v)?v:0;}
+  function compact(n){ if(!isFinite(n))return '—'; n=Math.round(n);
+    if(Math.abs(n)>=1e9)return SYM[CUR]+(n/1e9).toFixed(2).replace(/\.00$/,'')+'B';
+    if(Math.abs(n)>=1e6)return SYM[CUR]+(n/1e6).toFixed(2).replace(/\.00$/,'')+'M';
+    if(Math.abs(n)>=1e3)return SYM[CUR]+(n/1e3).toFixed(0)+'K';
+    return SYM[CUR]+n.toLocaleString('en-US'); }
+  var COLORS={founders:'#3D4A2E',pool:'#C9923A',seed:'#8AAB5C',seriesA:'#C8531F'};
+  function compute(){
+    // holdings as percentages
+    var h={founders:100,pool:0,seed:0,seriesA:0};
+    var snap={start:Object.assign({},h)};
+    // option pool
+    var pool=Math.min(num('pool'),90);
+    if(pool>0){ var f=(100-pool)/100; h.founders*=f; h.pool=pool; }
+    snap.pool=Object.assign({},h);
+    // seed
+    var r1inv=num('r1inv'), r1pre=num('r1pre'), raised=0;
+    if(r1inv>0 && r1pre>0){ var post=r1pre+r1inv, stake=r1inv/post*100, sc=(100-stake)/100;
+      h.founders*=sc; h.pool*=sc; h.seed=h.seed*sc+stake; raised+=r1inv; }
+    snap.seed=Object.assign({},h);
+    // series A
+    var r2inv=num('r2inv'), r2pre=num('r2pre'), lastPost=r1pre+r1inv;
+    if(r2inv>0 && r2pre>0){ var post2=r2pre+r2inv, stake2=r2inv/post2*100, sc2=(100-stake2)/100;
+      h.founders*=sc2; h.pool*=sc2; h.seed*=sc2; h.seriesA=h.seriesA*sc2+stake2; raised+=r2inv; lastPost=post2; }
+    snap.seriesA=Object.assign({},h);
+    return {h:h,snap:snap,raised:raised,lastPost:lastPost};
+  }
+  function calc(){
+    var r=compute(), h=r.h;
+    $('sFound').textContent=h.founders.toFixed(1)+'%';
+    $('sRaised').textContent=compact(r.raised);
+    $('sWorth').textContent=compact(h.founders/100*r.lastPost);
+    var order=[['founders','Founders'],['pool','Option pool'],['seed','Seed'],['seriesA','Series A']];
+    $('stack').innerHTML=order.map(function(o){ var w=h[o[0]]; return w>0.1?'<div class="sseg" style="width:'+w+'%;background:'+COLORS[o[0]]+'"></div>':''; }).join('');
+    $('sleg').innerHTML=order.filter(o=>h[o[0]]>0.1).map(function(o){ return '<span><i style="background:'+COLORS[o[0]]+'"></i>'+o[1]+' '+h[o[0]].toFixed(1)+'%</span>'; }).join('');
+    function cell(v){ return v>0.05?v.toFixed(1)+'%':'—'; }
+    $('capbody').innerHTML=order.map(function(o){
+      return '<tr><td><span style="display:inline-block;width:9px;height:9px;background:'+COLORS[o[0]]+';margin-right:7px"></span>'+o[1]+'</td>'
+        +'<td>'+cell(r.snap.pool[o[0]])+'</td><td>'+cell(r.snap.seed[o[0]])+'</td><td>'+cell(r.snap.seriesA[o[0]])+'</td></tr>';
+    }).join('');
+    var msg='After both rounds the founders hold <strong>'+h.founders.toFixed(1)+'%</strong>, worth <strong>'+compact(h.founders/100*r.lastPost)+'</strong> at the last post-money.';
+    if(h.founders<50 && (num('r2inv')>0)) msg+=' You’ve dropped <strong>below 50%</strong> — past this point control depends on your board and share terms, not just ownership.';
+    else if(h.founders>=50) msg+=' You’re still above 50% — but each future round dilutes further, so plan the next one before you need it.';
+    $('interp').innerHTML=msg;
+    window._capH=h; window._capRaised=r.raised; window._capLast=r.lastPost;
+  }
+  document.querySelectorAll('#cur button').forEach(function(b){ b.addEventListener('click',function(){
+    document.querySelectorAll('#cur button').forEach(function(x){x.classList.remove('on');});
+    b.classList.add('on'); CUR=b.dataset.c; calc(); }); });
+  document.querySelectorAll('input[type=number]').forEach(function(i){ i.addEventListener('input',calc); });
+  calc();
+
+  /* ---- Save to data room ---- */
+  var SB_URL='https://ivedeivyotwevjxvcuoe.supabase.co';
+  var SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss';
+  var sbc=(window.supabase&&window.supabase.createClient)?window.supabase.createClient(SB_URL,SB_ANON):null;
+  var COMPANY=null;
+  function collect(){
+    var h=window._capH||{};
+    return {key:'cap-table', title:'Cap table & dilution',
+      inputs:{currency:CUR,pool:num('pool'),seed:{inv:num('r1inv'),pre:num('r1pre')},seriesA:{inv:num('r2inv'),pre:num('r2pre')},
+        assumptions:{valuation:$('aVal').value,need:$('aNeed').value,protect:$('aProtect').value}},
+      outputs:{foundersPct:+(h.founders||0).toFixed(1),poolPct:+(h.pool||0).toFixed(1),seedPct:+(h.seed||0).toFixed(1),seriesAPct:+(h.seriesA||0).toFixed(1),
+        raised:window._capRaised||0,lastPostMoney:window._capLast||0}};
+  }
+  async function initSave(){
+    if(!sbc) return;
+    try{
+      var s=await sbc.auth.getSession(); var session=s&&s.data&&s.data.session;
+      if(!session) return;
+      var r=await sbc.from('companies').select('id,name,is_primary').order('is_primary',{ascending:false}).limit(1);
+      var cos=r&&r.data;
+      document.getElementById('loggedOut').style.display='none';
+      if(cos&&cos.length){
+        COMPANY=cos[0];
+        var paid=false; try{ var pr=await sbc.rpc('founder_is_paid'); paid=!!(pr&&pr.data); }catch(e){}
+        if(paid){ document.getElementById('saveBtn').style.display='inline-block'; }
+        else { document.getElementById('saveMsg').innerHTML='Play freely here — saving a run to your data room unlocks when you book your first course. <a href="/beta/book/?tier=single" style="color:var(--terra-deep);font-weight:600">Book a course →</a>'; }
+      }
+      else { document.getElementById('saveMsg').textContent='Add your company in the dashboard to save this.'; }
+    }catch(e){}
+  }
+  window.saveRun=async function(){
+    if(!sbc||!COMPANY) return;
+    var btn=document.getElementById('saveBtn'), msg=document.getElementById('saveMsg');
+    btn.disabled=true; msg.textContent='Saving…';
+    var c=collect();
+    var res=await sbc.from('module_runs').upsert(
+      {company_id:COMPANY.id,module_key:c.key,title:c.title,inputs:c.inputs,outputs:c.outputs},
+      {onConflict:'company_id,module_key'});
+    if(res&&res.error){ msg.textContent='Could not save — '+res.error.message; btn.disabled=false; }
+    else { msg.textContent='Saved to your data room ✓'; btn.disabled=false; }
+  };
+  initSave();
+</script>
+</body>
+</html>

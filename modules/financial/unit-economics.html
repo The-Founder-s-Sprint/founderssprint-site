@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Unit Economics (LTV · CAC) · The Founder's Sprint</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+  :root{--ink:#1A1A1A;--paper:#EFE7D8;--paper-deep:#E6DCC7;--muted:#5A564F;--paper-dim:#9a917f;
+    --terra:#C8531F;--terra-deep:#9A3E16;--ochre:#C9923A;--ochre-deep:#a9802a;--moss:#3D4A2E;--sage:#8AAB5C;
+    --border:rgba(26,26,26,0.16);--sans:'Josefin Sans',sans-serif;--display:'Cormorant Garamond',serif;--font:'Inter',sans-serif;}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--paper);color:var(--ink);font-family:var(--font);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;}
+  .bar{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;background:var(--ink);}
+  .brand{display:flex;align-items:center;gap:10px;text-decoration:none;}
+  .brand svg{width:22px;height:22px;} .brand .wm{font-family:var(--sans);font-weight:700;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--paper);}
+  .bar .disc{font-family:var(--sans);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ochre);}
+  .wrap{max-width:920px;margin:0 auto;padding:34px 22px 70px;}
+  .eyebrow{font-family:var(--sans);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--terra-deep);font-weight:600;margin-bottom:10px;}
+  h1{font-family:var(--display);font-size:42px;font-weight:600;line-height:1.05;margin-bottom:10px;}
+  .lede{font-size:15px;color:var(--muted);max-width:620px;line-height:1.6;margin-bottom:8px;}
+  .pamphlet{font-size:12px;color:var(--paper-dim);font-style:italic;margin-bottom:26px;}
+  .defs{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:28px;}
+  .def{background:var(--paper-deep);border:1px solid var(--border);border-top:3px solid var(--ochre);padding:13px 14px;border-radius:0 0 18px 0;overflow:hidden;}
+  .def:nth-child(2){border-top-color:var(--moss);} .def:nth-child(3){border-top-color:var(--terra);}
+  .def b{font-family:var(--sans);font-size:12px;letter-spacing:.1em;text-transform:uppercase;display:block;margin-bottom:4px;}
+  .def span{font-size:12px;color:var(--muted);line-height:1.45;}
+  .panel{background:var(--paper-deep);border:1px solid var(--border);padding:22px;border-radius:0 0 22px 0;overflow:hidden;margin-bottom:22px;}
+  .panel h2{font-family:var(--display);font-size:23px;font-weight:600;margin-bottom:4px;}
+  .panel .sub{font-size:12.5px;color:var(--muted);margin-bottom:18px;}
+  .row{display:grid;grid-template-columns:1fr 132px;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid var(--border);}
+  .row:last-child{border-bottom:none;}
+  .row .lbl{font-size:13.5px;font-weight:500;}
+  .row .hint{font-size:11.5px;color:var(--paper-dim);margin-top:2px;line-height:1.4;}
+  input[type=number]{width:100%;background:rgba(255,255,255,.45);border:1px solid var(--border);padding:10px 11px;font-size:16px;font-family:var(--font);color:var(--ink);text-align:right;}
+  input:focus{outline:none;border-color:var(--terra);}
+  .seg{display:inline-flex;border:1px solid var(--border);overflow:hidden;}
+  .seg button{background:rgba(255,255,255,.4);border:none;padding:7px 13px;font-family:var(--sans);font-weight:600;font-size:11px;letter-spacing:.08em;cursor:pointer;color:var(--muted);}
+  .seg button.on{background:var(--ink);color:var(--paper);}
+  .chosen{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:14px;margin-top:6px;}
+  .stat{background:rgba(255,255,255,.4);border:1px solid var(--border);padding:13px 14px;border-radius:0 0 16px 0;overflow:hidden;}
+  .stat .k{font-family:var(--sans);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
+  .stat .v{font-family:var(--display);font-size:24px;font-weight:600;}
+  .stat .x{font-size:11px;color:var(--muted);margin-top:2px;}
+  .cmp{margin:18px 0 6px;}
+  .cmp .crow{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+  .cmp .cl{font-family:var(--sans);font-size:11px;letter-spacing:.1em;text-transform:uppercase;width:42px;}
+  .cmp .track{flex:1;height:16px;background:rgba(26,26,26,.06);overflow:hidden;}
+  .cmp .fill{height:100%;transition:width 320ms ease;}
+  .cmp .fill.ltv{background:var(--moss);} .cmp .fill.cac{background:var(--terra);}
+  .cmp .cv{font-family:var(--display);font-size:16px;font-weight:600;width:96px;text-align:right;}
+  .interp{background:rgba(200,83,31,.07);border-left:3px solid var(--terra);padding:13px 15px;font-size:13.5px;line-height:1.55;margin-top:12px;}
+  .interp strong{color:var(--terra-deep);}
+  .canvas label{font-family:var(--sans);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#444;display:block;margin:14px 0 5px;}
+  textarea{width:100%;background:rgba(255,255,255,.45);border:1px solid var(--border);padding:11px;font-size:15px;font-family:var(--font);line-height:1.5;resize:vertical;min-height:54px;color:var(--ink);}
+  textarea:focus{outline:none;border-color:var(--terra);}
+  .gap{background:var(--ink);color:var(--paper);padding:24px 22px;border-radius:0 0 22px 0;overflow:hidden;margin-top:26px;}
+  .gap .e{font-family:var(--sans);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--ochre);margin-bottom:8px;}
+  .gap h3{font-family:var(--display);font-size:25px;font-weight:600;margin-bottom:8px;line-height:1.15;}
+  .gap p{font-size:13.5px;color:rgba(239,231,216,.8);line-height:1.6;max-width:560px;margin-bottom:16px;}
+  .gap .btns{display:flex;gap:10px;flex-wrap:wrap;}
+  .gap a{font-family:var(--sans);font-weight:700;font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:12px 20px;text-decoration:none;}
+  .gap a.primary{background:var(--terra);color:#fff;} .gap a.primary:hover{background:var(--terra-deep);}
+  .gap a.ghost{border:1px solid rgba(239,231,216,.35);color:var(--paper);}
+  .save{font-size:12px;color:var(--muted);margin-top:14px;text-align:center;}
+  .save a{color:var(--terra-deep);font-weight:600;}
+  .savebtn{background:var(--ochre);color:var(--ink);border:none;padding:11px 20px;font-family:var(--sans);font-weight:700;font-size:11px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;}
+  .savebtn:hover{background:var(--ochre-deep);} .savebtn:disabled{opacity:.55;}
+  #saveMsg{display:block;margin-top:8px;color:var(--sage);}
+  @media(max-width:600px){h1{font-size:32px;}.defs{grid-template-columns:1fr;}.row{grid-template-columns:1fr 108px;}}
+</style>
+</head>
+<body>
+<div class="bar">
+  <a class="brand" href="/index.html">
+    <svg viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.85"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.8" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.78" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.82" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+    <span class="wm">The Founder's Sprint</span>
+  </a>
+  <span class="disc">Financial Modelling · Self-guided</span>
+</div>
+
+<div class="wrap">
+  <div class="eyebrow">Unit Economics</div>
+  <h1>Do you make money on each customer?</h1>
+  <p class="lede">Before you scale, the maths on a single customer has to work. See your lifetime value, what it costs to win a customer, and how long until they pay you back.</p>
+  <p class="pamphlet">The pamphlet version. Your Financial Modelling coach helps you build these from real cohort data, not estimates.</p>
+
+  <div class="defs">
+    <div class="def"><b>LTV</b><span>Lifetime Value — the gross profit one customer brings over the whole time they stay.</span></div>
+    <div class="def"><b>CAC</b><span>Customer Acquisition Cost — all sales &amp; marketing spend ÷ new customers won.</span></div>
+    <div class="def"><b>Payback</b><span>How many months of margin it takes to earn back what you spent to acquire them.</span></div>
+  </div>
+
+  <div class="panel">
+    <h2>Your numbers</h2>
+    <div class="sub">Five inputs. Use real figures where you have them.</div>
+    <div style="margin-bottom:14px"><span style="font-size:12px;color:var(--muted);margin-right:8px">Currency</span>
+      <span class="seg" id="cur"><button data-c="UGX" class="on">UGX</button><button data-c="USD">USD</button><button data-c="KES">KES</button></span>
+    </div>
+    <div class="row"><div><div class="lbl">Average revenue per customer / month</div><div class="hint">What one customer pays you in a typical month (ARPU).</div></div><input type="number" id="arpu" value="150000" min="0"></div>
+    <div class="row"><div><div class="lbl">Gross margin %</div><div class="hint">What's left after the cost to serve them (hosting, support, delivery). Not your price markup.</div></div><input type="number" id="gm" value="70" min="0" max="100"></div>
+    <div class="row"><div><div class="lbl">Monthly churn %</div><div class="hint">Share of customers who leave each month. 5% ≈ a 20-month average lifetime.</div></div><input type="number" id="churn" value="5" min="0" max="100" step="0.1"></div>
+    <div class="row"><div><div class="lbl">Cost to acquire one customer (CAC)</div><div class="hint">All sales + marketing spend ÷ customers won — include salaries, not just ad spend.</div></div><input type="number" id="cac" value="300000" min="0"></div>
+
+    <div class="chosen" style="margin-top:18px">
+      <div class="stat"><div class="k">Lifetime value</div><div class="v" id="sLtv">—</div><div class="x" id="sLife"></div></div>
+      <div class="stat"><div class="k">LTV : CAC</div><div class="v" id="sRatio">—</div><div class="x" id="sRatioX"></div></div>
+      <div class="stat"><div class="k">CAC payback</div><div class="v" id="sPay">—</div><div class="x">months to recover CAC</div></div>
+    </div>
+    <div class="cmp">
+      <div class="crow"><span class="cl">LTV</span><span class="track"><span class="fill ltv" id="barLtv"></span></span><span class="cv" id="cvLtv">—</span></div>
+      <div class="crow"><span class="cl">CAC</span><span class="track"><span class="fill cac" id="barCac"></span></span><span class="cv" id="cvCac">—</span></div>
+    </div>
+    <div class="interp" id="interp"></div>
+  </div>
+
+  <div class="panel canvas">
+    <h2>Show your assumptions</h2>
+    <div class="sub">These numbers are only as honest as their inputs. Pin yours down.</div>
+    <label>How did you calculate CAC — does it include sales salaries, tools and time, not just ad spend?</label>
+    <textarea id="aCac" placeholder="e.g. CAC = (ad spend + half of one salesperson's salary) ÷ new customers last quarter."></textarea>
+    <label>Is your churn from real cohort data, or a guess? How confident are you?</label>
+    <textarea id="aChurn" placeholder="e.g. Early guess — only 3 months of data. Could be much higher once novelty fades."></textarea>
+    <label>Which single lever — price, margin, churn, or CAC — most improves these numbers?</label>
+    <textarea id="aLever" placeholder="e.g. Cutting churn from 5% to 3% nearly doubles LTV — retention is the unlock."></textarea>
+  </div>
+
+  <div class="gap">
+    <div class="e">This is the napkin version</div>
+    <h3>Now build it from real data.</h3>
+    <p>Cohort-based churn, blended vs paid CAC, contribution margin, and how these feed a financial model investors trust — that's what you build with Barry in <strong>Financial Modelling</strong>. The ratios above tell you where to look; the model tells the story.</p>
+    <div class="btns">
+      <a class="primary" href="/index.html#pricing">Book a Financial Modelling session →</a>
+      <a class="ghost" href="/mentors.html">Or talk to an operator</a>
+    </div>
+    <div class="save">
+      <button id="saveBtn" class="savebtn" style="display:none" onclick="saveRun()">Save to my data room</button>
+      <span id="saveMsg"></span>
+      <span id="loggedOut">Want to save this and build it into your data room? <a href="/login-founder.html">Create a free account →</a></span>
+    </div>
+  </div>
+</div>
+
+<script>
+  var CUR='UGX', SYM={UGX:'UGX ',USD:'$',KES:'KES '};
+  function $(id){return document.getElementById(id);}
+  function num(id){var v=parseFloat($(id).value);return isFinite(v)?v:0;}
+  function compact(n){ if(!isFinite(n))return '∞'; n=Math.round(n);
+    if(Math.abs(n)>=1e9)return SYM[CUR]+(n/1e9).toFixed(1).replace(/\.0$/,'')+'B';
+    if(Math.abs(n)>=1e6)return SYM[CUR]+(n/1e6).toFixed(1).replace(/\.0$/,'')+'M';
+    if(Math.abs(n)>=1e3)return SYM[CUR]+(n/1e3).toFixed(0)+'K';
+    return SYM[CUR]+n.toLocaleString('en-US'); }
+  function metrics(){
+    var arpu=num('arpu'), gm=Math.min(num('gm'),100)/100, churn=num('churn')/100, cac=num('cac');
+    var monthlyGM=arpu*gm;
+    var life=churn>0?1/churn:600; // months; cap runaway
+    var ltv=monthlyGM*life;
+    var ratio=cac>0?ltv/cac:0;
+    var payback=monthlyGM>0?cac/monthlyGM:Infinity;
+    return {arpu:arpu,gm:gm,churn:churn,cac:cac,monthlyGM:monthlyGM,life:life,ltv:ltv,ratio:ratio,payback:payback};
+  }
+  function calc(){
+    var m=metrics();
+    $('sLtv').textContent=compact(m.ltv);
+    $('sLife').textContent=(m.churn>0?Math.round(m.life)+' months avg lifetime':'set a churn % for lifetime');
+    $('sRatio').textContent=(m.ratio?m.ratio.toFixed(1):'—')+(m.ratio?'×':'');
+    $('sRatioX').textContent=m.ratio>=3?'healthy':(m.ratio>=1?'thin':(m.ratio>0?'underwater':''));
+    $('sPay').textContent=isFinite(m.payback)?(Math.round(m.payback)+' mo'):'—';
+    var maxv=Math.max(m.ltv,m.cac,1);
+    $('barLtv').style.width=(m.ltv/maxv*100)+'%'; $('cvLtv').textContent=compact(m.ltv);
+    $('barCac').style.width=(m.cac/maxv*100)+'%'; $('cvCac').textContent=compact(m.cac);
+    var msg;
+    if(m.monthlyGM<=0){ msg='Your gross margin per customer is zero — every customer costs you money to serve. Fix margin before anything else.'; }
+    else if(m.ratio>=3){ msg='Strong unit economics: each customer is worth <strong>'+m.ratio.toFixed(1)+'×</strong> what you pay to acquire them, paid back in <strong>'+Math.round(m.payback)+' months</strong>. This is a business you can pour fuel on.'; }
+    else if(m.ratio>=1){ msg='Workable but thin: LTV is only <strong>'+m.ratio.toFixed(1)+'×</strong> CAC (investors look for 3×). Acquisition barely pays for itself — raise LTV (cut churn / lift margin) or lower CAC before scaling.'; }
+    else if(m.ratio>0){ msg='Underwater: you spend <strong>'+compact(m.cac)+'</strong> to win a customer worth only <strong>'+compact(m.ltv)+'</strong>. Growing faster loses money faster. This must change before you scale.'; }
+    else { msg='Enter a CAC to see whether acquisition pays back.'; }
+    if(isFinite(m.payback) && m.payback>18 && m.monthlyGM>0) msg+=' Your <strong>'+Math.round(m.payback)+'-month payback</strong> is long — you’ll need a lot of cash to fund growth.';
+    $('interp').innerHTML=msg;
+  }
+  document.querySelectorAll('#cur button').forEach(function(b){ b.addEventListener('click',function(){
+    document.querySelectorAll('#cur button').forEach(function(x){x.classList.remove('on');});
+    b.classList.add('on'); CUR=b.dataset.c; calc(); }); });
+  document.querySelectorAll('input[type=number]').forEach(function(i){ i.addEventListener('input',calc); });
+  calc();
+
+  /* ---- Save to data room (free-account-first) ---- */
+  var SB_URL='https://ivedeivyotwevjxvcuoe.supabase.co';
+  var SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss';
+  var sbc=(window.supabase&&window.supabase.createClient)?window.supabase.createClient(SB_URL,SB_ANON):null;
+  var COMPANY=null;
+  function collect(){
+    var m=metrics();
+    return {key:'unit-economics', title:'Unit economics — LTV / CAC',
+      inputs:{currency:CUR,arpu:num('arpu'),gm:num('gm'),churn:num('churn'),cac:num('cac'),
+        assumptions:{cac:$('aCac').value,churn:$('aChurn').value,lever:$('aLever').value}},
+      outputs:{ltv:Math.round(m.ltv),ratio:+m.ratio.toFixed(2),payback:isFinite(m.payback)?Math.round(m.payback):null,lifetime:Math.round(m.life)}};
+  }
+  async function initSave(){
+    if(!sbc) return;
+    try{
+      var s=await sbc.auth.getSession(); var session=s&&s.data&&s.data.session;
+      if(!session) return;
+      var r=await sbc.from('companies').select('id,name,is_primary').order('is_primary',{ascending:false}).limit(1);
+      var cos=r&&r.data;
+      document.getElementById('loggedOut').style.display='none';
+      if(cos&&cos.length){
+        COMPANY=cos[0];
+        var paid=false; try{ var pr=await sbc.rpc('founder_is_paid'); paid=!!(pr&&pr.data); }catch(e){}
+        if(paid){ document.getElementById('saveBtn').style.display='inline-block'; }
+        else { document.getElementById('saveMsg').innerHTML='Play freely here — saving a run to your data room unlocks when you book your first course. <a href="/beta/book/?tier=single" style="color:var(--terra-deep);font-weight:600">Book a course →</a>'; }
+      }
+      else { document.getElementById('saveMsg').textContent='Add your company in the dashboard to save this.'; }
+    }catch(e){}
+  }
+  window.saveRun=async function(){
+    if(!sbc||!COMPANY) return;
+    var btn=document.getElementById('saveBtn'), msg=document.getElementById('saveMsg');
+    btn.disabled=true; msg.textContent='Saving…';
+    var c=collect();
+    var res=await sbc.from('module_runs').upsert(
+      {company_id:COMPANY.id,module_key:c.key,title:c.title,inputs:c.inputs,outputs:c.outputs},
+      {onConflict:'company_id,module_key'});
+    if(res&&res.error){ msg.textContent='Could not save — '+res.error.message; btn.disabled=false; }
+    else { msg.textContent='Saved to your data room ✓'; btn.disabled=false; }
+  };
+  initSave();
+</script>
+</body>
+</html>

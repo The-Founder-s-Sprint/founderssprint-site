@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pricing Playground · The Founder's Sprint</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+  :root{--ink:#1A1A1A;--paper:#EFE7D8;--paper-deep:#E6DCC7;--muted:#5A564F;--paper-dim:#9a917f;
+    --terra:#C8531F;--terra-deep:#9A3E16;--ochre:#C9923A;--moss:#3D4A2E;--sage:#8AAB5C;
+    --border:rgba(26,26,26,0.16);--sans:'Josefin Sans',sans-serif;--display:'Cormorant Garamond',serif;--font:'Inter',sans-serif;}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--paper);color:var(--ink);font-family:var(--font);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;}
+  .bar{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;background:var(--ink);}
+  .brand{display:flex;align-items:center;gap:10px;text-decoration:none;}
+  .brand svg{width:22px;height:22px;} .brand .wm{font-family:var(--sans);font-weight:700;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--paper);}
+  .bar .disc{font-family:var(--sans);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--terra);}
+  .wrap{max-width:920px;margin:0 auto;padding:34px 22px 70px;}
+  .eyebrow{font-family:var(--sans);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--terra-deep);font-weight:600;margin-bottom:10px;}
+  h1{font-family:var(--display);font-size:42px;font-weight:600;line-height:1.05;margin-bottom:10px;}
+  .lede{font-size:15px;color:var(--muted);max-width:620px;line-height:1.6;margin-bottom:8px;}
+  .pamphlet{font-size:12px;color:var(--paper-dim);font-style:italic;margin-bottom:26px;}
+  .panel{background:var(--paper-deep);border:1px solid var(--border);padding:22px;border-radius:0 0 22px 0;overflow:hidden;margin-bottom:22px;}
+  .panel h2{font-family:var(--display);font-size:23px;font-weight:600;margin-bottom:4px;}
+  .panel .sub{font-size:12.5px;color:var(--muted);margin-bottom:18px;}
+  .row{display:grid;grid-template-columns:1fr 132px;gap:12px;align-items:center;padding:11px 0;border-bottom:1px solid var(--border);}
+  .row:last-child{border-bottom:none;}
+  .row .lbl{font-size:13.5px;font-weight:500;}
+  .row .hint{font-size:11.5px;color:var(--paper-dim);margin-top:2px;line-height:1.4;}
+  input[type=number]{width:100%;background:rgba(255,255,255,.45);border:1px solid var(--border);padding:10px 11px;font-size:16px;font-family:var(--font);color:var(--ink);text-align:right;}
+  input:focus{outline:none;border-color:var(--terra);}
+  .seg{display:inline-flex;border:1px solid var(--border);overflow:hidden;}
+  .seg button{background:rgba(255,255,255,.4);border:none;padding:7px 13px;font-family:var(--sans);font-weight:600;font-size:11px;letter-spacing:.08em;cursor:pointer;color:var(--muted);}
+  .seg button.on{background:var(--ink);color:var(--paper);}
+  .methods{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+  .meth{background:rgba(255,255,255,.4);border:1px solid var(--border);border-top:3px solid var(--moss);padding:14px;border-radius:0 0 18px 0;overflow:hidden;display:flex;flex-direction:column;}
+  .meth:nth-child(2){border-top-color:var(--ochre);} .meth:nth-child(3){border-top-color:var(--terra);}
+  .meth b{font-family:var(--sans);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;}
+  .meth .d{font-size:11.5px;color:var(--muted);line-height:1.45;margin:5px 0 10px;}
+  .meth .mi{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;}
+  .meth .mi label{font-size:11px;color:var(--muted);} .meth .mi input{width:78px;padding:7px 8px;font-size:14px;}
+  .meth .pr{font-family:var(--display);font-size:25px;font-weight:600;margin-top:auto;}
+  .meth .pm{font-size:11px;color:var(--muted);}
+  .meth button{margin-top:10px;background:none;border:1px solid var(--border);padding:8px;font-family:var(--sans);font-weight:700;font-size:10px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;color:var(--terra-deep);}
+  .meth button:hover{background:rgba(200,83,31,.08);}
+  .chosen{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:14px;margin-top:6px;}
+  .stat{background:rgba(255,255,255,.4);border:1px solid var(--border);padding:13px 14px;border-radius:0 0 16px 0;overflow:hidden;}
+  .stat .k{font-family:var(--sans);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
+  .stat .v{font-family:var(--display);font-size:24px;font-weight:600;}
+  .stat .x{font-size:11px;color:var(--muted);margin-top:2px;}
+  .interp{background:rgba(200,83,31,.07);border-left:3px solid var(--terra);padding:13px 15px;font-size:13.5px;line-height:1.55;margin-top:16px;}
+  .interp strong{color:var(--terra-deep);}
+  .pos{height:30px;background:linear-gradient(90deg,var(--sage),var(--ochre),var(--terra));position:relative;margin:16px 0 6px;border-radius:2px;}
+  .pos .mark{position:absolute;top:-6px;width:3px;height:42px;background:var(--ink);transition:left 300ms ease;}
+  .poslbl{display:flex;justify-content:space-between;font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-family:var(--sans);}
+  .canvas label{font-family:var(--sans);font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#444;display:block;margin:14px 0 5px;}
+  textarea{width:100%;background:rgba(255,255,255,.45);border:1px solid var(--border);padding:11px;font-size:15px;font-family:var(--font);line-height:1.5;resize:vertical;min-height:54px;color:var(--ink);}
+  textarea:focus{outline:none;border-color:var(--terra);}
+  .gap{background:var(--ink);color:var(--paper);padding:24px 22px;border-radius:0 0 22px 0;overflow:hidden;margin-top:26px;}
+  .gap .e{font-family:var(--sans);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--ochre);margin-bottom:8px;}
+  .gap h3{font-family:var(--display);font-size:25px;font-weight:600;margin-bottom:8px;line-height:1.15;}
+  .gap p{font-size:13.5px;color:rgba(239,231,216,.8);line-height:1.6;max-width:560px;margin-bottom:16px;}
+  .gap .btns{display:flex;gap:10px;flex-wrap:wrap;}
+  .gap a{font-family:var(--sans);font-weight:700;font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:12px 20px;text-decoration:none;}
+  .gap a.primary{background:var(--terra);color:#fff;} .gap a.primary:hover{background:var(--terra-deep);}
+  .gap a.ghost{border:1px solid rgba(239,231,216,.35);color:var(--paper);}
+  .save{font-size:12px;color:var(--muted);margin-top:14px;text-align:center;}
+  .save a{color:var(--terra-deep);font-weight:600;}
+  .savebtn{background:var(--ochre);color:var(--ink);border:none;padding:11px 20px;font-family:var(--sans);font-weight:700;font-size:11px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;}
+  .savebtn:hover{background:#b8842f;} .savebtn:disabled{opacity:.55;}
+  #saveMsg{display:block;margin-top:8px;color:var(--sage);}
+  @media(max-width:600px){h1{font-size:32px;}.methods{grid-template-columns:1fr;}.row{grid-template-columns:1fr 108px;}}
+</style>
+</head>
+<body>
+<div class="bar">
+  <a class="brand" href="/index.html">
+    <svg viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.85"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.8" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.78" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.82" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+    <span class="wm">The Founder's Sprint</span>
+  </a>
+  <span class="disc">Product Dev & Pricing · Self-guided</span>
+</div>
+
+<div class="wrap">
+  <div class="eyebrow">Pricing Playground</div>
+  <h1>What should you charge?</h1>
+  <p class="lede">Pricing is a strategy decision, not a markup on cost. See what three different lenses say your price should be — then sanity-check the margin and break-even.</p>
+  <p class="pamphlet">The pamphlet version. Your Pricing coach helps you choose the lens that fits your market and defend it.</p>
+
+  <div class="panel">
+    <h2>Your economics</h2>
+    <div class="sub">Two numbers everything else hangs off.</div>
+    <div style="margin-bottom:14px"><span style="font-size:12px;color:var(--muted);margin-right:8px">Currency</span>
+      <span class="seg" id="cur"><button data-c="UGX" class="on">UGX</button><button data-c="USD">USD</button><button data-c="KES">KES</button></span>
+    </div>
+    <div class="row"><div><div class="lbl">Cost to deliver one unit / customer</div><div class="hint">Your variable cost per sale (COGS) — materials, hosting, fulfilment, support.</div></div><input type="number" id="cost" value="120000" min="0"></div>
+    <div class="row"><div><div class="lbl">Monthly fixed costs</div><div class="hint">Rent, salaries, tools — what you pay whether you sell 1 or 1,000. Used for break-even.</div></div><input type="number" id="fixed" value="8000000" min="0"></div>
+  </div>
+
+  <div class="panel">
+    <h2>Three lenses on price</h2>
+    <div class="sub">The same product prices very differently depending on how you reason about it. Try each — then pick one.</div>
+    <div class="methods">
+      <div class="meth">
+        <b>Cost-plus</b>
+        <div class="d">Add a markup to your cost. Simple, but ignores what the customer would actually pay.</div>
+        <div class="mi"><label>Markup</label><input type="number" id="markup" value="60" min="0">%</div>
+        <div class="pr" id="cpPr">—</div><div class="pm" id="cpPm"></div>
+        <button onclick="use('cp')">Use this price</button>
+      </div>
+      <div class="meth">
+        <b>Value-based</b>
+        <div class="d">Price off the value you create for the customer, and capture a share of it.</div>
+        <div class="mi"><label>Value created /yr</label><input type="number" id="value" value="2000000" min="0"></div>
+        <div class="mi"><label>You capture</label><input type="number" id="capture" value="25" min="0">%</div>
+        <div class="pr" id="vbPr">—</div><div class="pm" id="vbPm"></div>
+        <button onclick="use('vb')">Use this price</button>
+      </div>
+      <div class="meth">
+        <b>Competitor-anchored</b>
+        <div class="d">Start from the going market rate and position above or below it.</div>
+        <div class="mi"><label>Market price</label><input type="number" id="comp" value="450000" min="0"></div>
+        <div class="mi"><label>Position</label><input type="number" id="position" value="10">%</div>
+        <div class="pr" id="caPr">—</div><div class="pm" id="caPm"></div>
+        <button onclick="use('ca')">Use this price</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel">
+    <h2>Your price</h2>
+    <div class="sub">Set a price and see what it means for the business.</div>
+    <div class="row"><div><div class="lbl">Price per unit / customer</div><div class="hint">Type your own, or click “Use this price” on a lens above.</div></div><input type="number" id="price" value="300000" min="0"></div>
+    <div class="chosen" style="margin-top:16px">
+      <div class="stat"><div class="k">Gross margin</div><div class="v" id="sMargin">—</div><div class="x" id="sMarginX"></div></div>
+      <div class="stat"><div class="k">Contribution / sale</div><div class="v" id="sContr">—</div><div class="x">price − cost</div></div>
+      <div class="stat"><div class="k">Break-even volume</div><div class="v" id="sBe">—</div><div class="x">sales/month to cover fixed</div></div>
+    </div>
+    <div class="poslbl" style="margin-top:18px"><span>Budget</span><span>At market</span><span>Premium</span></div>
+    <div class="pos"><div class="mark" id="posMark" style="left:50%"></div></div>
+    <div class="interp" id="interp"></div>
+  </div>
+
+  <div class="panel canvas">
+    <h2>Show your assumptions</h2>
+    <div class="sub">Price is a story about value. Write yours before someone asks.</div>
+    <label>What is the #1 reason a customer pays you instead of the cheaper option?</label>
+    <textarea id="aWhy" placeholder="e.g. We save them 10 hours a week — the price is a rounding error against that."></textarea>
+    <label>If you raised the price 20%, who walks — and would you miss them?</label>
+    <textarea id="aRaise" placeholder="e.g. The bargain-hunters leave; our best customers don't notice. Good trade."></textarea>
+    <label>What does this price say about your brand?</label>
+    <textarea id="aBrand" placeholder="e.g. Premium and dependable — not the cheapest, the one that works."></textarea>
+  </div>
+
+  <div class="gap">
+    <div class="e">This is the napkin version</div>
+    <h3>Now pick the lens that wins.</h3>
+    <p>Which pricing model fits <em>your</em> market, how to package and tier it, when to raise, and how price signals brand — that’s what you work through with Patrick in <strong>Product Development &amp; Pricing</strong>. The playground shows the trade-offs; the coach helps you commit.</p>
+    <div class="btns">
+      <a class="primary" href="/index.html#pricing">Book a Pricing session →</a>
+      <a class="ghost" href="/mentors.html">Or talk to an operator</a>
+    </div>
+    <div class="save">
+      <button id="saveBtn" class="savebtn" style="display:none" onclick="saveRun()">Save to my data room</button>
+      <span id="saveMsg"></span>
+      <span id="loggedOut">Want to save this and build it into your data room? <a href="/login-founder.html">Create a free account →</a></span>
+    </div>
+  </div>
+</div>
+
+<script>
+  var CUR='UGX', SYM={UGX:'UGX ',USD:'$',KES:'KES '};
+  function $(id){return document.getElementById(id);}
+  function num(id){var v=parseFloat($(id).value);return isFinite(v)?v:0;}
+  function compact(n){ n=Math.round(n);
+    if(Math.abs(n)>=1e9)return SYM[CUR]+(n/1e9).toFixed(1).replace(/\.0$/,'')+'B';
+    if(Math.abs(n)>=1e6)return SYM[CUR]+(n/1e6).toFixed(1).replace(/\.0$/,'')+'M';
+    if(Math.abs(n)>=1e3)return SYM[CUR]+(n/1e3).toFixed(0)+'K';
+    return SYM[CUR]+n.toLocaleString('en-US'); }
+  function marginOf(price){ var c=num('cost'); return price>0?(price-c)/price*100:0; }
+  function calc(){
+    var cost=num('cost'), fixed=num('fixed');
+    // lenses
+    var cp=cost*(1+num('markup')/100);
+    var vb=num('value')*num('capture')/100;
+    var comp=num('comp'), ca=comp*(1+num('position')/100);
+    $('cpPr').textContent=compact(cp); $('cpPm').textContent=Math.round(marginOf(cp))+'% margin';
+    $('vbPr').textContent=compact(vb); $('vbPm').textContent=Math.round(marginOf(vb))+'% margin';
+    $('caPr').textContent=compact(ca); $('caPm').textContent=Math.round(marginOf(ca))+'% margin';
+    window._lens={cp:cp,vb:vb,ca:ca};
+    // chosen
+    var price=num('price'), contr=price-cost, margin=marginOf(price);
+    $('sMargin').textContent=Math.round(margin)+'%';
+    $('sMarginX').textContent=margin<0?'losing money per sale':(margin<40?'thin — watch costs':(margin<70?'healthy':'strong'));
+    $('sContr').textContent=compact(contr);
+    $('sBe').textContent=contr>0?Math.ceil(fixed/contr).toLocaleString()+' /mo':'—';
+    // positioning vs market price
+    var pos=50;
+    if(comp>0){ var r=price/comp; pos=Math.max(2,Math.min(98, 50*r )); }
+    $('posMark').style.left=pos+'%';
+    // interpretation
+    var tag = comp>0 ? (price>comp*1.1?'priced as a <strong>premium</strong> product':(price<comp*0.9?'priced as the <strong>budget</strong> option':'priced <strong>at market</strong>')) : 'set without a market anchor';
+    var msg='At '+compact(price)+' you keep <strong>'+compact(contr)+'</strong> per sale ('+Math.round(margin)+'% margin) and need <strong>'
+      +(contr>0?Math.ceil(fixed/contr).toLocaleString():'∞')+'</strong> sales a month to cover fixed costs. You’re '+tag+'.';
+    if(contr<=0) msg='Your price is at or below cost — every sale loses money. Raise the price or cut the cost before anything else.';
+    $('interp').innerHTML=msg;
+  }
+  window.use=function(k){ var v=window._lens&&window._lens[k]; if(v){ $('price').value=Math.round(v); calc(); $('price').scrollIntoView({behavior:'smooth',block:'center'}); } };
+  document.querySelectorAll('#cur button').forEach(function(b){ b.addEventListener('click',function(){
+    document.querySelectorAll('#cur button').forEach(function(x){x.classList.remove('on');});
+    b.classList.add('on'); CUR=b.dataset.c; calc(); }); });
+  document.querySelectorAll('input[type=number]').forEach(function(i){ i.addEventListener('input',calc); });
+  calc();
+
+  /* ---- Save to data room (free-account-first) ---- */
+  var SB_URL='https://ivedeivyotwevjxvcuoe.supabase.co';
+  var SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss';
+  var sbc=(window.supabase&&window.supabase.createClient)?window.supabase.createClient(SB_URL,SB_ANON):null;
+  var COMPANY=null;
+  function collect(){
+    var cost=num('cost'),fixed=num('fixed'),price=num('price'),contr=price-cost,margin=price>0?(price-cost)/price*100:0;
+    return {key:'pricing-playground', title:'Pricing — lens & margin',
+      inputs:{currency:CUR,cost:cost,fixed:fixed,markup:num('markup'),value:num('value'),capture:num('capture'),
+        comp:num('comp'),position:num('position'),price:price,
+        assumptions:{why:$('aWhy').value,raise:$('aRaise').value,brand:$('aBrand').value}},
+      outputs:{price:price,margin:Math.round(margin),contribution:contr,breakeven:contr>0?Math.ceil(fixed/contr):null}};
+  }
+  async function initSave(){
+    if(!sbc) return;
+    try{
+      var s=await sbc.auth.getSession(); var session=s&&s.data&&s.data.session;
+      if(!session) return;
+      var r=await sbc.from('companies').select('id,name,is_primary').order('is_primary',{ascending:false}).limit(1);
+      var cos=r&&r.data;
+      document.getElementById('loggedOut').style.display='none';
+      if(cos&&cos.length){
+        COMPANY=cos[0];
+        var paid=false; try{ var pr=await sbc.rpc('founder_is_paid'); paid=!!(pr&&pr.data); }catch(e){}
+        if(paid){ document.getElementById('saveBtn').style.display='inline-block'; }
+        else { document.getElementById('saveMsg').innerHTML='Play freely here — saving a run to your data room unlocks when you book your first course. <a href="/beta/book/?tier=single" style="color:var(--terra-deep);font-weight:600">Book a course →</a>'; }
+      }
+      else { document.getElementById('saveMsg').textContent='Add your company in the dashboard to save this.'; }
+    }catch(e){}
+  }
+  window.saveRun=async function(){
+    if(!sbc||!COMPANY) return;
+    var btn=document.getElementById('saveBtn'), msg=document.getElementById('saveMsg');
+    btn.disabled=true; msg.textContent='Saving…';
+    var c=collect();
+    var res=await sbc.from('module_runs').upsert(
+      {company_id:COMPANY.id,module_key:c.key,title:c.title,inputs:c.inputs,outputs:c.outputs},
+      {onConflict:'company_id,module_key'});
+    if(res&&res.error){ msg.textContent='Could not save — '+res.error.message; btn.disabled=false; }
+    else { msg.textContent='Saved to your data room ✓'; btn.disabled=false; }
+  };
+  initSave();
+</script>
+</body>
+</html>
