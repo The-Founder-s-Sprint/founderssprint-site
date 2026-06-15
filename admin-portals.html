@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://ivedeivyotwevjxvcuoe.supabase.co" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="ui-dialogs.js?v=2"></script>
 <style>
   :root{
   --radius-card: 0 0 24px 0;
@@ -231,7 +232,7 @@ let active='founders', coachSub='roster';
 const PAGE=25;
 let fState={page:0,total:0}, fStatCounts=null;          // founders
 let iState={page:0,total:0}, iStatCounts=null;          // investor firms
-let portalCounts={founders:0,coaches:0,investors:0,admins:0};
+let portalCounts={founders:0,coaches:0,investors:0,mentors:0,admins:0};
 let _searchTimer=null;
 function onSearchInput(){ clearTimeout(_searchTimer); _searchTimer=setTimeout(()=>{ fState.page=0; iState.page=0; renderActive(); }, 300); }
 async function pagedFetch(table, params){
@@ -284,6 +285,7 @@ function canSeePortal(k){
   if(k==='founders')  return hasR('founder_support')||hasR('finance');
   if(k==='coaches')   return hasR('coach_support')||hasR('finance');
   if(k==='investors') return hasR('investor_support')||hasR('finance');
+  if(k==='mentors')   return hasR('founder_support')||hasR('finance');
   if(k==='testimonials') return hasR('founder_support')||hasR('coach_support');
   if(k==='admins')    return false; // super-admin only
   return false;
@@ -296,6 +298,7 @@ const PORTALS=[
   {key:'founders',  label:'Founders'},
   {key:'coaches',   label:'Coaches'},
   {key:'investors', label:'Investors'},
+  {key:'mentors',   label:'Mentors'},
   {key:'testimonials', label:'Testimonials'},
   {key:'admins',    label:'Admin & Ops'}
 ];
@@ -303,6 +306,7 @@ const PORTAL_SUB={
   founders:'Everyone with a founder account — their venture(s), enrolment, payment state and data-room sharing.',
   coaches:'The single home for coach management — roster by discipline, the application pipeline (lead vets suitability → admin vets due-diligence), and all teaching materials.',
   investors:'Approved and pending investor accounts with read access to opted-in data rooms.',
+  mentors:'The Mentors pillar — captains of industry bookable for a coffee or Zoom. Work the incoming session requests and manage the mentor roster and their per-format fees.',
   testimonials:'Incoming testimonials. Group testimonials are yours to approve; coach-specific ones are approved by each coach — you keep oversight and can moderate any of them.',
   admins:'Privileged roles — platform admins and hub partners. This is who can see across every portal.'
 };
@@ -348,6 +352,7 @@ async function boot(user){
     portalCounts.coaches   = coaches.length;
     portalCounts.admins    = await countOnly('user_roles',"role=in.(admin,hub_partner)");
     portalCounts.testimonials = await countOnly('testimonial_submissions','status=eq.new');
+    portalCounts.mentors = await countOnly('mentor_session_requests','status=eq.new');
     const firstPortal=PORTALS.find(p=>canSeePortal(p.key));
     renderTabs(); switchPortal(firstPortal?firstPortal.key:'founders');
     startPresence();   // heartbeat + who's-online polling (staff only)
@@ -376,8 +381,199 @@ function renderActive(){
   if(active==='founders')  loadFounders();
   else if(active==='coaches')  renderCoaches(q);
   else if(active==='investors') loadInvestors();
+  else if(active==='mentors') loadMentors();
   else if(active==='testimonials'){ tstLoaded?renderTestimonials():loadTestimonials(); }
   else renderAdmins(q);
+}
+
+// ── Mentors portal: booking-request queue + roster (per-format fees) ──
+let mentorsList=[], mentorReqs=[], mentorApps=[];
+const MREQ_STATUS=['new','contacted','scheduled','completed','declined'];
+function mMoney(n){ return n? 'UGX '+Number(n).toLocaleString('en-US') : '—'; }
+function mName(id){ const m=mentorsList.find(x=>x.id===id); return m?(m.name||m.title||'—'):'—'; }
+function mSlugify(s){ return String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,''); }
+async function loadMentors(){
+  const roster=document.getElementById('roster'); roster.innerHTML='<div class="empty">Loading…</div>';
+  try{
+    const [ms,rs]=await Promise.all([
+      _q('mentors','select=*&order=sort_order&limit=200'),
+      _q('mentor_session_requests','select=*&order=created_at.desc&limit=200')
+    ]);
+    mentorsList=ms||[]; mentorReqs=rs||[];
+    // applications carry payout PII → super/finance only (RLS enforces; gate the fetch too)
+    mentorApps = canDD() ? (await _q('mentor_applications','select=*&order=created_at.desc&limit=200').catch(()=>[])) : [];
+    portalCounts.mentors = mentorReqs.filter(r=>r.status==='new').length || mentorsList.length;
+    renderTabs(); renderMentors();
+  }catch(e){ roster.innerHTML='<div class="empty">Could not load — '+esc(e.message)+'</div>'; }
+}
+function renderMentors(){
+  const q=searchVal().toLowerCase(); const su=isSuper();
+  stats([
+    {v:mentorsList.length,l:'Mentors'},
+    {v:mentorsList.filter(m=>m.status==='active').length,l:'Active'},
+    {v:mentorReqs.filter(r=>r.status==='new').length,l:'New requests'},
+    {v:mentorReqs.filter(r=>r.status==='completed').length,l:'Completed'}
+  ]);
+  const pill=s=>'<span style="display:inline-block;font-family:var(--sans);font-size:9px;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border:1px solid var(--border-hi);color:var(--ink-mid)">'+esc(s||'')+'</span>';
+  // request queue
+  const reqs=mentorReqs.filter(r=>!q||[r.founder_name,r.founder_email,mName(r.mentor_id)].some(x=>String(x||'').toLowerCase().includes(q)));
+  const reqRows=reqs.map(r=>{
+    const ctrl = su
+      ? '<select class="btn-sm" style="padding:5px 8px" onchange="setReqStatus(\''+r.id+'\',this.value)">'+MREQ_STATUS.map(s=>'<option value="'+s+'"'+(s===r.status?' selected':'')+'>'+s+'</option>').join('')+'</select>'
+      : pill(r.status);
+    return '<tr><td>'+esc(r.founder_name||'—')+'<div class="sub">'+esc(r.founder_email||'')+(r.founder_phone?(' · '+esc(r.founder_phone)):'')+(r.founder_company?('<br>'+esc(r.founder_company)):'')+'</div></td>'
+      +'<td>'+esc(mName(r.mentor_id))+'</td>'
+      +'<td>'+esc(r.format||'—')+'</td>'
+      +'<td>'+mMoney(r.quoted_fee)+'</td>'
+      +(r.message?'<td class="sub" style="max-width:240px">'+esc(r.message)+'</td>':'<td class="sub">—</td>')
+      +'<td>'+ctrl+'</td>'
+      +'<td class="sub">'+ago(r.created_at)+'</td></tr>';
+  });
+  // roster
+  const mq=mentorsList.filter(m=>!q||[m.name,m.title,m.company].some(x=>String(x||'').toLowerCase().includes(q)));
+  const mRows=mq.map(m=>{
+    const fees=m.fees||{};
+    const act = su ? '<button class="btn-sm" style="background:none;border:1px solid var(--border-hi);color:var(--ink-mid);padding:5px 10px" onclick="editMentor(\''+m.id+'\')">Edit</button> '
+      +'<button class="btn-sm" style="background:none;border:1px solid var(--border-hi);color:var(--ink-mid);padding:5px 10px" onclick="toggleMentor(\''+m.id+'\',\''+(m.status==='active'?'inactive':'active')+'\')">'+(m.status==='active'?'Deactivate':'Activate')+'</button>' : '';
+    return '<tr><td>'+esc(m.name||'—')+'<div class="sub">'+esc(m.title||'')+(m.company?(' · '+esc(m.company)):'')+'</div></td>'
+      +'<td>'+esc((m.formats||[]).join(', '))+'</td>'
+      +'<td>'+mMoney(fees.coffee)+'</td><td>'+mMoney(fees.zoom)+'</td>'
+      +'<td>'+pill(m.status)+'</td>'
+      +'<td style="white-space:nowrap">'+act+'</td></tr>';
+  });
+  const addBtn = su ? '<button class="btn-sm" style="background:var(--terra);border:none;color:#fff;padding:7px 14px" onclick="editMentor(null)">+ Add mentor</button>' : '';
+  const H='font-family:var(--display);font-size:19px;font-weight:600;margin:0';
+
+  // ── Invite + Applications (super/finance only — payout PII) ──
+  let onboard='';
+  if(canDD()){
+    const invite='<div class="app-card" style="margin-bottom:14px"><div style="font-family:var(--display);font-size:18px;font-weight:600;margin-bottom:4px">Invite a mentor</div>'
+      +'<div class="sub" style="margin-bottom:10px">Generates a private onboarding link the mentor fills in themselves (bio, fees, payout, consent).</div>'
+      +'<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">'
+      +'<input id="mi-email" placeholder="mentor@email.com" style="flex:1;min-width:180px;padding:9px 11px;border:1px solid var(--border-hi);background:rgba(255,255,255,.5)">'
+      +'<input id="mi-name" placeholder="Name (optional)" style="flex:1;min-width:140px;padding:9px 11px;border:1px solid var(--border-hi);background:rgba(255,255,255,.5)">'
+      +'<button class="btn-sm" style="background:var(--terra);border:none;color:#fff;padding:9px 16px" onclick="inviteMentor()">Generate link</button></div>'
+      +'<div id="mi-out" style="margin-top:10px"></div></div>';
+    const pending = mentorApps.filter(a=>a.status==='submitted'||a.status==='changes_requested');
+    const invited = mentorApps.filter(a=>a.status==='invited');
+    const appCards = pending.length ? pending.map(a=>{
+      const fees=a.proposed_fees||{}; const pay=a.payout||{};
+      return '<div class="app-card" style="margin-bottom:12px">'
+        +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">'
+        +'<div><div style="font-family:var(--display);font-size:18px;font-weight:600">'+esc(a.name||'—')+(a.title?(' <span class="sub">· '+esc(a.title)+'</span>'):'')+'</div>'
+        +'<div class="sub">'+esc(a.email||'')+(a.phone?(' · '+esc(a.phone)):'')+(a.company?(' · '+esc(a.company)):'')+'</div></div>'
+        +pill(a.status)+'</div>'
+        +(a.bio?'<div style="font-size:13px;margin:8px 0;color:var(--ink-mid)">'+esc(a.bio)+'</div>':'')
+        +'<div class="sub" style="margin:6px 0">Expertise: '+esc((a.expertise||[]).join(', ')||'—')+'</div>'
+        +'<div class="sub">Fees — ☕ '+mMoney(fees.coffee)+' · 🎥 '+mMoney(fees.zoom)+' &nbsp;|&nbsp; Formats: '+esc((a.formats||[]).join(', '))+'</div>'
+        +'<div class="sub" style="margin-top:4px">Payout: '+esc(pay.method||'—')+(pay.account_no?(' · '+esc(pay.account_name||'')+' '+esc(pay.account_no)):'')+'</div>'
+        +'<div class="sub" style="margin-top:4px">TIN: '+esc(a.tin||'—')+(a.id_doc_path?(' &nbsp;·&nbsp; <a href="#" onclick="openMentorId(\''+esc(a.id_doc_path)+'\');return false" style="color:var(--terra);font-weight:600">Open ID ↗</a>'):' · <span style="color:#C0392B">no ID on file</span>')+'</div>'
+        +'<div class="sub" style="margin-top:4px">Consent: '+(a.consent_agreed?('✓ '+esc(a.consent_version||'')+(a.consent_at?(' · '+ago(a.consent_at)):'')):'✗ not given')+'</div>'
+        +(a.admin_notes?'<div class="sub" style="margin-top:4px;color:#9a6">Note to mentor: '+esc(a.admin_notes)+'</div>':'')
+        +'<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">'
+        +'<button class="btn-sm" style="background:var(--terra);border:none;color:#fff;padding:7px 14px" onclick="approveMentorApp(\''+a.id+'\')">Approve &amp; list</button>'
+        +'<button class="btn-sm" style="background:none;border:1px solid var(--border-hi);color:var(--ink-mid);padding:7px 12px" onclick="changesMentorApp(\''+a.id+'\')">Request changes</button>'
+        +'<button class="btn-sm" style="background:none;border:1px solid var(--border-hi);color:#C0392B;padding:7px 12px" onclick="declineMentorApp(\''+a.id+'\')">Decline</button>'
+        +'</div></div>';
+    }).join('') : '<div class="sub" style="margin-bottom:8px">No applications awaiting review.</div>';
+    const invitedNote = invited.length ? '<div class="sub" style="margin:4px 0 14px">'+invited.length+' invite(s) sent, awaiting the mentor to fill in their profile.</div>' : '';
+    onboard = invite
+      + '<h3 style="'+H+';margin:22px 0 10px">Applications</h3>' + invitedNote + appCards;
+  }
+
+  document.getElementById('roster').innerHTML =
+    '<div id="mentor-form"></div>'
+    + onboard
+    + '<h3 style="'+H+';margin:24px 0 10px">Booking requests</h3>'
+    + tbl(['Founder','Mentor','Format','Quoted fee','Message','Status','When'], reqRows)
+    + '<div style="display:flex;align-items:center;justify-content:space-between;margin:26px 0 10px"><h3 style="'+H+'">Mentor roster</h3>'+addBtn+'</div>'
+    + tbl(['Mentor','Formats','Coffee','Zoom','Status','Actions'], mRows);
+}
+async function inviteMentor(){
+  const email=(document.getElementById('mi-email').value||'').trim();
+  const name=(document.getElementById('mi-name').value||'').trim();
+  if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ showToast('Enter a valid email','error'); return; }
+  try{
+    const tok=await _rpc('create_mentor_invite',{p_email:email,p_name:name});
+    const link=location.origin+'/beta/mentor-onboarding.html?token='+tok;
+    document.getElementById('mi-out').innerHTML='<div class="sub" style="margin-bottom:5px">Send this private link to the mentor (expires in 21 days):</div>'
+      +'<input readonly value="'+esc(link)+'" onclick="this.select()" style="width:100%;padding:9px 11px;border:1px solid var(--terra);background:rgba(200,83,31,.05);font-family:monospace;font-size:12px">';
+    showToast('Invite link generated','success'); loadMentors();
+  }catch(e){ showToast('Failed — '+e.message,'error'); }
+}
+async function approveMentorApp(id){
+  try{ await _rpc('provision_mentor_from_application',{p_app:id}); showToast('Mentor approved & listed','success'); loadMentors(); }
+  catch(e){ showToast('Approve failed — '+e.message,'error'); }
+}
+async function changesMentorApp(id){
+  const note=await fsPrompt('What should the mentor change? (sent as a note; their link stays valid)',{title:'Request changes',okText:'Send note'}); if(note===null) return;
+  try{ await _w('PATCH','mentor_applications','id=eq.'+id,{status:'changes_requested',admin_notes:note}); showToast('Changes requested','success'); loadMentors(); }
+  catch(e){ showToast('Failed — '+e.message,'error'); }
+}
+async function declineMentorApp(id){
+  if(!(await fsConfirm('Decline this mentor application?',{title:'Decline application',okText:'Decline',danger:true}))) return;
+  try{ await _w('PATCH','mentor_applications','id=eq.'+id,{status:'declined'}); showToast('Application declined','success'); loadMentors(); }
+  catch(e){ showToast('Failed — '+e.message,'error'); }
+}
+async function openMentorId(path){
+  try{ const { data, error }=await sb.storage.from('mentor-documents').createSignedUrl(path, 600); if(error) throw error; window.open(data.signedUrl,'_blank'); }
+  catch(e){ showToast('Could not open ID — '+e.message,'error'); }
+}
+async function setReqStatus(id,status){
+  try{ await _w('PATCH','mentor_session_requests','id=eq.'+id,{status});
+    const r=mentorReqs.find(x=>x.id===id); if(r) r.status=status;
+    showToast('Request marked “'+status+'”'+(status==='completed'?' — rating link follows once the ratings build ships':''),'success'); renderMentors();
+  }catch(e){ showToast('Update failed — '+e.message,'error'); }
+}
+async function toggleMentor(id,status){
+  try{ await _w('PATCH','mentors','id=eq.'+id,{status}); const m=mentorsList.find(x=>x.id===id); if(m) m.status=status;
+    showToast('Mentor '+status,'success'); renderMentors();
+  }catch(e){ showToast('Failed — '+e.message,'error'); }
+}
+function _mfInput(id,ph,val,extra){ return '<input id="'+id+'" placeholder="'+ph+'" value="'+esc(val==null?'':String(val))+'" style="width:100%;padding:9px 10px;border:1px solid var(--border-hi);background:rgba(255,255,255,.5);font-family:inherit;font-size:14px" '+(extra||'')+'>'; }
+function editMentor(id){
+  const m = id ? (mentorsList.find(x=>x.id===id)||{}) : {}; const fees=m.fees||{};
+  const lbl=t=>'<div class="sub" style="margin:10px 0 4px">'+t+'</div>';
+  const fmts=m.formats||['coffee','zoom'];
+  const html='<div class="app-card" style="margin-bottom:20px">'
+    +'<div style="font-family:var(--display);font-size:19px;font-weight:600;margin-bottom:6px">'+(id?'Edit mentor':'Add a mentor')+'</div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'
+    +'<div>'+lbl('Name / placeholder')+_mfInput('mf-name','e.g. [Mobility Operator] or real name',m.name)+'</div>'
+    +'<div>'+lbl('Headline / title')+_mfInput('mf-title','Founder & former CEO',m.title)+'</div>'
+    +'<div>'+lbl('Company / credential')+_mfInput('mf-company','Scaled a pan-African ride-hailing co.',m.company)+'</div>'
+    +'<div>'+lbl('Location')+_mfInput('mf-location','Kampala',m.location)+'</div>'
+    +'<div>'+lbl('Coffee fee (UGX)')+_mfInput('mf-coffee','2000000',fees.coffee,'type="number"')+'</div>'
+    +'<div>'+lbl('Zoom fee (UGX)')+_mfInput('mf-zoom','1400000',fees.zoom,'type="number"')+'</div>'
+    +'</div>'
+    +lbl('Expertise (comma-separated)')+_mfInput('mf-expertise','Fundraising, Unit economics, Scaling',(m.expertise||[]).join(', '))
+    +lbl('Bio')+'<textarea id="mf-bio" style="width:100%;padding:9px 10px;border:1px solid var(--border-hi);background:rgba(255,255,255,.5);font-family:inherit;font-size:14px;min-height:64px">'+esc(m.bio||'')+'</textarea>'
+    +'<div style="display:flex;gap:18px;align-items:center;margin-top:12px;flex-wrap:wrap">'
+    +'<label class="sub"><input type="checkbox" id="mf-fmt-coffee" '+(fmts.includes('coffee')?'checked':'')+'> Coffee</label>'
+    +'<label class="sub"><input type="checkbox" id="mf-fmt-zoom" '+(fmts.includes('zoom')?'checked':'')+'> Zoom</label>'
+    +'<label class="sub"><input type="checkbox" id="mf-featured" '+(m.featured?'checked':'')+'> Featured</label>'
+    +'<label class="sub">Status <select id="mf-status" class="btn-sm" style="padding:5px 8px">'+['active','pending','inactive'].map(s=>'<option value="'+s+'"'+((m.status||'active')===s?' selected':'')+'>'+s+'</option>').join('')+'</select></label>'
+    +'</div>'
+    +'<div style="margin-top:16px"><button class="btn-sm" style="background:var(--terra);border:none;color:#fff;padding:8px 16px" onclick="saveMentor('+(id?('\''+m.id+'\''):'null')+')">Save</button> '
+    +'<button class="btn-sm" style="background:none;border:1px solid var(--border-hi);color:var(--ink-mid);padding:8px 16px" onclick="document.getElementById(\'mentor-form\').innerHTML=\'\'">Cancel</button></div>'
+    +'</div>';
+  document.getElementById('mentor-form').innerHTML=html; window.scrollTo(0,0);
+}
+async function saveMentor(id){
+  const val=x=>{const e=document.getElementById(x);return e?e.value.trim():'';};
+  const name=val('mf-name'); if(!name){ showToast('Name required','error'); return; }
+  const coffee=parseInt(val('mf-coffee')||'0',10)||null, zoom=parseInt(val('mf-zoom')||'0',10)||null;
+  const formats=[]; if(document.getElementById('mf-fmt-coffee').checked)formats.push('coffee'); if(document.getElementById('mf-fmt-zoom').checked)formats.push('zoom');
+  const expertise=val('mf-expertise').split(',').map(s=>s.trim()).filter(Boolean);
+  const body={ name, title:val('mf-title')||null, company:val('mf-company')||null, bio:val('mf-bio')||null,
+    expertise, location:val('mf-location')||null, formats:formats.length?formats:['coffee','zoom'],
+    fees:{coffee:coffee,zoom:zoom}, session_fee:coffee||zoom||null,
+    status:val('mf-status')||'active', featured:document.getElementById('mf-featured').checked };
+  if(!id) body.slug=mSlugify(name);
+  try{
+    if(id) await _w('PATCH','mentors','id=eq.'+id,body);
+    else   await _w('POST','mentors','',body);
+    showToast('Mentor saved','success'); document.getElementById('mentor-form').innerHTML=''; loadMentors();
+  }catch(e){ showToast('Save failed — '+e.message,'error'); }
 }
 
 function companiesOf(fid){ return pageCompanies.filter(c=>c.founder_id===fid); }
@@ -542,7 +738,7 @@ async function saveCoach(cid,key){
   }catch(e){ showToast('Could not save — '+e.message,'error'); }
 }
 async function removeCoachFromDiscipline(cid,key){
-  if(!confirm('Remove this coach from '+(DISC_LABEL[key]||key)+'? Their coverage of this discipline is removed (the coach account stays).'))return;
+  if(!(await fsConfirm('Remove this coach from '+(DISC_LABEL[key]||key)+'? Their coverage of this discipline is removed (the coach account stays).',{title:'Remove from discipline',okText:'Remove',danger:true})))return;
   try{ await _w('DELETE','coach_topics','coach_id=eq.'+cid+'&discipline_key=eq.'+key);
     topics=topics.filter(t=>!(t.coach_id===cid&&t.discipline_key===key));
     showToast('Removed from discipline','success'); renderCoaches(document.getElementById('search').value);
@@ -616,7 +812,7 @@ async function openCoachDoc(path){
   }catch(e){ showToast('Could not open document','error'); }
 }
 async function adminRequestChanges(id){
-  const note=prompt('What does the applicant need to change or provide? (recorded on the application)');
+  const note=await fsPrompt('What does the applicant need to change or provide? (recorded on the application)',{title:'Request changes',okText:'Send note'});
   if(note==null) return;
   try{ await _w('PATCH','coach_applications','id=eq.'+id,{review_stage:'changes_requested',admin_notes:note,reviewed_at:new Date().toISOString()});
     const a=applications.find(x=>x.id===id); if(a){a.review_stage='changes_requested';a.admin_notes=note;}
@@ -624,7 +820,7 @@ async function adminRequestChanges(id){
   }catch(e){ showToast('Could not update — '+e.message,'error'); }
 }
 async function adminApprove(id){
-  if(!confirm('Approve and list this coach? This creates their coach profile + discipline coverage and makes them visible to founders.'))return;
+  if(!(await fsConfirm('Approve and list this coach? This creates their coach profile + discipline coverage and makes them visible to founders.',{title:'Approve coach',okText:'Approve & list'})))return;
   try{
     await _rpc('provision_coach_from_application',{p_app:id});   // creates coaches row + coach_topics, lists the app
     const a=applications.find(x=>x.id===id); if(a){a.review_stage='listed';a.status='approved';}
@@ -637,7 +833,7 @@ async function adminApprove(id){
   }catch(e){ showToast('Could not approve — '+e.message,'error'); }
 }
 async function adminReject(id){
-  const reason=prompt('Reason for rejection (optional):')||null;
+  const reason=(await fsPrompt('Reason for rejection (optional):',{title:'Reject application',okText:'Reject'}))||null;
   try{ await _w('PATCH','coach_applications','id=eq.'+id,{review_stage:'rejected',status:'rejected',rejection_reason:reason,reviewed_at:new Date().toISOString()});
     const a=applications.find(x=>x.id===id); if(a){a.review_stage='rejected';a.status='rejected';}
     showToast('Application rejected','success'); renderCoaches(document.getElementById('search').value);
@@ -715,7 +911,7 @@ async function saveMaterial(){
   }catch(e){ showToast('Could not save — '+e.message,'error'); } finally{ btn.disabled=false; }
 }
 async function deleteMaterial(tbl,id){
-  if(!confirm('Delete this material?'))return;
+  if(!(await fsConfirm('Delete this material?',{title:'Delete material',okText:'Delete',danger:true})))return;
   try{ await _w('DELETE',tbl,'id=eq.'+id);
     if(tbl==='course_materials') materials=materials.filter(m=>String(m.id)!==String(id)); else presentations=presentations.filter(p=>String(p.id)!==String(id));
     showToast('Deleted','success'); renderCoaches(document.getElementById('search').value);
@@ -793,13 +989,13 @@ function firmCard(f){
     +actions+'</div>';
 }
 async function approveFirm(id){
-  if(!confirm('Approve this investor firm and publish their profile to unlocked founders?'))return;
+  if(!(await fsConfirm('Approve this investor firm and publish their profile to unlocked founders?',{title:'Approve firm',okText:'Approve & publish'})))return;
   try{ await _rpc('approve_investor_firm',{p_firm:id,p_public:true});
     iStatCounts=null; showToast('Firm approved & published','success'); loadInvestors();
   }catch(e){ showToast('Could not approve — '+(e.message||'').replace(/^RPC \d+: /,''),'error'); }
 }
 async function rejectFirm(id){
-  const note=prompt('Reason (optional):')||null;
+  const note=(await fsPrompt('Reason (optional):',{title:'Reject firm',okText:'Reject'}))||null;
   try{ await _w('PATCH','investor_firms','id=eq.'+id,{status:'rejected',public:false,admin_notes:note,updated_at:new Date().toISOString()});
     iStatCounts=null; showToast('Firm rejected','success'); loadInvestors();
   }catch(e){ showToast('Could not reject — '+e.message,'error'); }
@@ -872,7 +1068,7 @@ async function tstDecide(id,status){
   loadTestimonials();
 }
 async function tstDelete(id){
-  if(!confirm('Permanently delete this testimonial submission?')) return;
+  if(!(await fsConfirm('Permanently delete this testimonial submission?',{title:'Delete testimonial',okText:'Delete',danger:true}))) return;
   try{ await _w('DELETE','testimonial_submissions','id=eq.'+encodeURIComponent(id)); }
   catch(e){ showToast('Delete failed — '+e.message,'error'); return; }
   showToast('Deleted','success'); loadTestimonials();
@@ -960,7 +1156,7 @@ async function inviteStaff(){
   finally{ const b=document.getElementById('gr-btn'); if(b){ b.disabled=false; b.textContent='Invite & grant'; } }
 }
 async function disableStaff(uid,email){
-  if(!confirm('Disable '+(email||'this account')+'?\nThis revokes all roles and bans the login. Reversible by re-inviting.'))return;
+  if(!(await fsConfirm('Disable '+(email||'this account')+'?\nThis revokes all roles and bans the login. Reversible by re-inviting.',{title:'Disable account',okText:'Disable',danger:true})))return;
   try{
     const t=await _token();
     const r=await fetch(API_BASE+'/api/staff/disable',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+t},body:JSON.stringify({user_id:uid})});
@@ -1000,7 +1196,7 @@ function startPresence(){
   pollPresence(); if(_presTimer) clearInterval(_presTimer); _presTimer=setInterval(pollPresence,25000);
 }
 async function revokeRole(uid,role){
-  if(!confirm('Revoke '+(ROLE_LABEL[role]||role)+'?'))return;
+  if(!(await fsConfirm('Revoke '+(ROLE_LABEL[role]||role)+'?',{title:'Revoke role',okText:'Revoke',danger:true})))return;
   try{ await _rpc('admin_revoke_role',{p_user:uid,p_role:role}); showToast('Role revoked','success'); staffDir=null; renderAdmins(''); }
   catch(e){ showToast('Could not revoke — '+(e.message||'').replace(/^RPC \d+: /,''),'error'); }
 }

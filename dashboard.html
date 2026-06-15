@@ -11,6 +11,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600;1,700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<script src="ui-dialogs.js?v=2"></script>
 <style>
   :root {
     /* FS Design System — core tokens */
@@ -2316,7 +2317,7 @@ function iotecPayment(regId, paymentType) {
 async function sendIotecRequest(regId, paymentType) {
   const r = regRows.find(r => r.id === regId);
   if (!r || !r.phone) { showToast('No phone number on file for this registration.', 'error'); return; }
-  const phone = prompt(`Send ${paymentType} request to phone:\n(pre-filled from registration)`, r.phone);
+  const phone = await fsPrompt(`Send ${paymentType} request to phone:\n(pre-filled from registration)`, { title:'Send payment request', okText:'Send request', defaultValue: r.phone });
   if (!phone) return;
   try {
     const res = await fetch(`${API_BASE}/api/payment-request`, {
@@ -3084,7 +3085,7 @@ async function openDoc(path) {
 }
 
 async function deleteDoc(id, path) {
-  if (!confirm('Delete this document? This cannot be undone.')) return;
+  if (!(await fsConfirm('Delete this document? This cannot be undone.',{title:'Delete document',okText:'Delete',danger:true}))) return;
   await sb.storage.from(STORAGE_BUCKET).remove([path]);
   await sb.from('documents').delete().eq('id', id);
   allDocs = allDocs.filter(d => d.id !== id);
@@ -3787,7 +3788,7 @@ async function approveApplication(id) {
 }
 
 async function rejectApplication(id) {
-  if (!confirm('Reject this application?')) return;
+  if (!(await fsConfirm('Reject this application?',{title:'Reject application',okText:'Reject',danger:true}))) return;
   try {
     const token = await _getValidToken();
     const res = await fetch(SUPABASE_URL + '/rest/v1/directory_applications?id=eq.' + id, {
@@ -3969,7 +3970,7 @@ async function toggleProviderStatus(id, newStatus) {
 }
 
 async function removeProvider(id) {
-  if (!confirm('Remove this provider? This cannot be undone.')) return;
+  if (!(await fsConfirm('Remove this provider? This cannot be undone.',{title:'Remove provider',okText:'Remove',danger:true}))) return;
   const { error } = await sb.from('directory_providers').delete().eq('id', id);
   if (error) { showToast('Failed: ' + error.message, 'error'); return; }
   showToast('Provider removed', 'info');
@@ -4235,7 +4236,7 @@ async function castVote(id, vote) {
   const name = app ? `${app.first_name} ${app.last_name}` : 'this applicant';
 
   if (vote === 'approve') {
-    if (!confirm(`Cast your APPROVE vote for ${name}?\n\nThe application needs ${app?.required_approvals || 4} total approvals from the team.`)) return;
+    if (!(await fsConfirm(`Cast your APPROVE vote for ${name}?\n\nThe application needs ${app?.required_approvals || 4} total approvals from the team.`,{title:'Approve vote',okText:'Cast approve'}))) return;
   }
 
   let reason = null;
@@ -4245,7 +4246,7 @@ async function castVote(id, vote) {
       showToast('Please provide a reason for your rejection vote', 'warning');
       return;
     }
-    if (!confirm(`Cast your REJECT vote for ${name}? This will immediately reject the application.`)) return;
+    if (!(await fsConfirm(`Cast your REJECT vote for ${name}? This will immediately reject the application.`,{title:'Reject vote',okText:'Cast reject',danger:true}))) return;
   }
 
   try {
@@ -4416,7 +4417,7 @@ async function savePresentationLink(coachId) {
 }
 
 async function unlinkPresentation(presId, coachId) {
-  if (!confirm('Remove this presentation from the coach profile?')) return;
+  if (!(await fsConfirm('Remove this presentation from the coach profile?',{title:'Remove presentation',okText:'Remove',danger:true}))) return;
 
   try {
     const { error } = await sb
@@ -4580,7 +4581,7 @@ async function createSession() {
 }
 
 async function cancelSession(id) {
-  if (!confirm('Cancel this session? This will also cancel the Google Calendar event.')) return;
+  if (!(await fsConfirm('Cancel this session? This will also cancel the Google Calendar event.',{title:'Cancel session',okText:'Cancel session',cancelText:'Keep it',danger:true}))) return;
   try {
     const headers = await getAuthHeaders();
     const res = await fetch(`${API_BASE}/api/sessions/${id}`, {
@@ -4595,7 +4596,7 @@ async function cancelSession(id) {
 }
 
 async function completeSession(id) {
-  if (!confirm('Mark this session as completed?')) return;
+  if (!(await fsConfirm('Mark this session as completed?',{title:'Complete session',okText:'Mark completed'}))) return;
   try {
     const headers = await getAuthHeaders();
     const res = await fetch(`${API_BASE}/api/sessions/${id}`, {
@@ -4735,7 +4736,7 @@ async function createPresentation() {
 }
 
 async function deactivatePresentation(id) {
-  if (!confirm('Deactivate this presentation?')) return;
+  if (!(await fsConfirm('Deactivate this presentation?',{title:'Deactivate presentation',okText:'Deactivate',danger:true}))) return;
   try {
     const headers = await getAuthHeaders();
     const res = await fetch(`${API_BASE}/api/presentations/${id}`, {
@@ -4861,7 +4862,7 @@ async function createCohort() {
 }
 
 async function closeCohort(id) {
-  if (!confirm('Close this cohort? Registration will be blocked.')) return;
+  if (!(await fsConfirm('Close this cohort? Registration will be blocked.',{title:'Close cohort',okText:'Close cohort',danger:true}))) return;
   try {
     const { error } = await sb.from('cohorts').update({ status: 'closed' }).eq('id', id);
     if (error) throw error;

@@ -11,6 +11,7 @@
 <link rel="dns-prefetch" href="https://ivedeivyotwevjxvcuoe.supabase.co">
 <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600;1,700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="ui-dialogs.js?v=2"></script>
 <style>
   :root {
   --radius-card: 0 0 24px 0;
@@ -76,6 +77,14 @@
   .main { max-width:1080px; margin:0 auto; padding:32px 28px 80px; }
   .tab-panel { display:none; }
   .tab-panel.active { display:block; animation:fade 0.25s ease; }
+  .wb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-top:18px;}
+  .wb-card{background:var(--paper-deep,#E6DCC7);border:1px solid var(--border);border-top:3px solid var(--terra);padding:18px 18px 16px;border-radius:0 0 20px 0;overflow:hidden;display:flex;flex-direction:column;}
+  .wb-disc{font-family:var(--sans);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--moss,#3D4A2E);margin-bottom:6px;}
+  .wb-title{font-family:var(--display,'Cormorant Garamond',serif);font-size:21px;font-weight:600;line-height:1.15;}
+  .wb-badge{display:inline-block;font-family:var(--sans);font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:var(--moss,#3D4A2E);border:1px solid rgba(61,74,46,.35);padding:2px 7px;border-radius:2px;vertical-align:middle;margin-left:6px;}
+  .wb-desc{font-size:12.5px;color:var(--ink-mid,#5A564F);line-height:1.5;margin:7px 0 14px;}
+  .wb-open{margin-top:auto;align-self:flex-start;font-family:var(--sans);font-weight:700;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#fff;background:var(--terra);padding:9px 16px;text-decoration:none;}
+  .wb-open:hover{background:var(--terra-deep,#9A3E16);}
   @keyframes fade { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:none; } }
 
   /* ── HEADINGS ── */
@@ -295,6 +304,7 @@
   <div class="tabs-wrap">
     <button class="tab active" onclick="switchTab('overview')">Overview</button>
     <button class="tab" onclick="switchTab('dataroom')">Data Room</button>
+    <button class="tab" onclick="switchTab('workbench')">Workbench</button>
     <button class="tab" onclick="switchTab('sessions')">Sessions</button>
     <button class="tab" onclick="switchTab('payments')">Payments</button>
     <button class="tab" onclick="switchTab('investors')">Investors</button>
@@ -434,6 +444,13 @@
     </div>
 
     <!-- ── INVESTORS (marketplace) ── -->
+    <div class="tab-panel" id="panel-workbench">
+      <div class="page-eyebrow">Self-guided</div>
+      <div class="page-title">Workbench</div>
+      <div class="page-sub">The pamphlet, not the textbook. Interactive tools to explore your business — size your market, test your pricing — at your own pace. Play freely; save a run and it lands in your data room. Your coach is how you turn these into the defensible version.</div>
+      <div class="wb-grid" id="workbench-list"></div>
+    </div>
+
     <div class="tab-panel" id="panel-investors">
       <div class="page-eyebrow">Marketplace</div>
       <div class="page-title">Investors</div>
@@ -1350,7 +1367,7 @@ function renderPayments(){
 }
 async function payBalance(regId){
   const r = myRegs.find(x => x.id === regId); if(!r) return;
-  const phone = prompt('Enter the MTN/Airtel mobile money number to receive the payment prompt:', (profile.phone||profile.whatsapp||'').trim());
+  const phone = await fsPrompt('Enter the MTN/Airtel mobile money number to receive the payment prompt:', { title:'Pay balance', okText:'Send prompt', defaultValue:(profile.phone||profile.whatsapp||'').trim(), placeholder:'+256…' });
   if(!phone) return;
   try {
     const res = await fetch(API_BASE+'/api/payment-request', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ registrationId:r.id, paymentType:'balance', phone:phone.trim() }) });
@@ -1433,7 +1450,32 @@ function switchTab(name){
   document.querySelectorAll('.tab').forEach(b=>{ const m=(b.getAttribute('onclick')||'').match(/switchTab\('([^']+)'\)/); b.classList.toggle('active', !!m && m[1]===name); });
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active', p.id==='panel-'+name));
   if(name==='investors') renderInvestorDir();
+  if(name==='workbench') renderWorkbench();
   window.scrollTo(0,0);
+}
+
+// ── Workbench: self-guided interactive modules ("the pamphlet") ──
+const WB_MODULES=[
+  {disc:'Marketing & Branding', key:'channel-mix', title:'Channel Mix', desc:'Split a marketing budget across channels and see which ones actually buy you growth — and your blended CAC.', url:'/modules/marketing/channel-mix.html'},
+  {disc:'Financial Modelling', key:'unit-economics', title:'Unit Economics', desc:'Do you make money on each customer? See LTV, LTV:CAC and how long until a customer pays back.', url:'/modules/financial/unit-economics.html'},
+  {disc:'Investment Readiness', key:'cap-table', title:'Cap Table & Dilution', desc:'Add an option pool and funding rounds, and watch how much of the company the founders keep.', url:'/modules/investment/cap-table.html'},
+  {disc:'Strategy & Team Building', key:'tam-sam-som', title:'Market Sizer', desc:'Size your market — TAM, SAM, SOM — top-down and bottom-up, with the assumptions an investor will challenge.', url:'/modules/strategy/tam-sam-som.html'},
+  {disc:'Product Development & Pricing', key:'pricing-playground', title:'Pricing Playground', desc:'See what cost-plus, value-based and competitor-anchored pricing each say — then check the margin and break-even.', url:'/modules/product/pricing-playground.html'}
+];
+let wbRendered=false;
+async function renderWorkbench(){
+  const el=document.getElementById('workbench-list'); if(!el) return;
+  let saved={};
+  if(company){ try{ const runs=await _pgQuery('module_runs','company_id=eq.'+company.id+'&select=module_key,updated_at'); (runs||[]).forEach(r=>saved[r.module_key]=r.updated_at); }catch(e){} }
+  el.innerHTML = WB_MODULES.map(m=>{
+    const s=saved[m.key];
+    const badge = s ? '<span class="wb-badge">Saved · '+fmtDate(s)+'</span>' : '';
+    return '<div class="wb-card"><div class="wb-disc">'+esc(m.disc)+'</div>'
+      +'<div class="wb-title">'+esc(m.title)+badge+'</div>'
+      +'<div class="wb-desc">'+esc(m.desc)+'</div>'
+      +'<a class="wb-open" href="'+m.url+'" target="_blank" rel="noopener">Open module →</a></div>';
+  }).join('');
+  wbRendered=true;
 }
 // ── Investor marketplace directory (gated to founders who've unlocked investor visibility) ──
 let investorFirms=null;

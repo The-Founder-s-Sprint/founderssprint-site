@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://ivedeivyotwevjxvcuoe.supabase.co" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="ui-dialogs.js?v=2"></script>
 <style>
   :root{
   --radius-card: 0 0 24px 0;--bg:#EFE7D8;--surface:#E6DCC7;--card:#EFE7D8;--ink:#1A1A1A;--ink-mid:#444;--muted:#5A564F;--text:#1A1A1A;
@@ -462,7 +463,7 @@ function renderSessions(){
 }
 
 async function setGroupMeet(){
-  const v=prompt('Paste the Google Meet link for your weekly group cohort session:', coach.group_meet_link||'https://meet.google.com/');
+  const v=await fsPrompt('Paste the Google Meet link for your weekly group cohort session:', { title:'Group session link', okText:'Save link', defaultValue: coach.group_meet_link||'https://meet.google.com/' });
   if(v===null) return;
   const link=v.trim()==='https://meet.google.com/'?'':v.trim();
   try{ await _w('PATCH','coaches','id=eq.'+coach.id,{group_meet_link:link||null}); coach.group_meet_link=link||null; renderSessions(); showToast('Group session link saved','success'); }
@@ -598,7 +599,7 @@ function renderLeadApps(){
 }
 async function leadDecide(id,decision){
   let notes=null;
-  if(decision==='rejected'){ notes=prompt('Reason (optional):')||null; }
+  if(decision==='rejected'){ notes=(await fsPrompt('Reason (optional):',{title:'Decline application',okText:'Decline'}))||null; }
   try{
     await _rpc('lead_decide',{p_app:id,p_decision:decision,p_notes:notes});
     showToast(decision==='approved'?'Approved — sent to admin for due-diligence':'Declined','success');
