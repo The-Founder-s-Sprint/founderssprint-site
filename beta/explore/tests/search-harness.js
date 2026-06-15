@@ -31,10 +31,24 @@ function extractBlock(name) {
 
 const ctx = {};
 vm.createContext(ctx);
-for (const name of ['COACHES', 'TAXONOMY', 'L3_DESC', 'DISCIPLINE_KEYWORDS', 'L3_KEYWORDS', 'INTENT_RULES', 'GEO_COUNTRIES', 'GEO_BLOC_TERMS', 'GEO_BLOC_LABEL']) {
+// TAXONOMY now sources from the shared file at runtime; the harness mirrors
+// that — preferring beta/taxonomy.js, else the in-file TAXONOMY_FALLBACK.
+for (const name of ['COACHES', 'TAXONOMY_FALLBACK', 'L3_DESC', 'DISCIPLINE_KEYWORDS', 'L3_KEYWORDS', 'INTENT_RULES', 'GEO_COUNTRIES', 'GEO_BLOC_TERMS', 'GEO_BLOC_LABEL']) {
   vm.runInContext(extractBlock(name).replace('const ', 'globalThis.'), ctx);
 }
-const { COACHES, TAXONOMY, L3_DESC, DISCIPLINE_KEYWORDS, L3_KEYWORDS, INTENT_RULES, GEO_COUNTRIES, GEO_BLOC_TERMS, GEO_BLOC_LABEL } = ctx;
+const { COACHES, L3_DESC, DISCIPLINE_KEYWORDS, L3_KEYWORDS, INTENT_RULES, GEO_COUNTRIES, GEO_BLOC_TERMS, GEO_BLOC_LABEL } = ctx;
+let TAXONOMY = ctx.TAXONOMY_FALLBACK;
+try {
+  const path = require('path');
+  const shared = { window: {} };
+  vm.createContext(shared);
+  vm.runInContext(fs.readFileSync(path.join(path.dirname(srcPath), '..', 'taxonomy.js'), 'utf8'), shared);
+  const T = shared.window.FS_TAXONOMY;
+  if (T && T.disciplines && T.disciplines.length === 5) {
+    TAXONOMY = T.disciplines.map(d => ({ l1: d.label, color: d.color,
+      l2: d.l2.map(m => ({ name: m.name, l3: m.l3.slice() })) }));
+  }
+} catch (e) { /* fall back to the in-file array */ }
 
 // ---- Replicate the GEO context layer (keep in sync with explore.js) ----
 const GEO_TERM_MAP = new Map();

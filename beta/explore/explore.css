@@ -361,6 +361,11 @@ body {
   color: rgba(239,231,216,0.78);
   margin-top: 20px;
 }
+.detail .d-spec-note {
+  font-family: var(--body); font-size: 12px; line-height: 1.5;
+  color: rgba(239,231,216,0.50); margin-top: 12px;
+}
+.detail .d-spec-note b { color: var(--detail-color, var(--terra)); font-weight: 600; }
 .detail .d-rule { border-top: 1px solid rgba(239,231,216,0.10); margin: 36px 0 24px; }
 .detail .d-section-h {
   font-family: var(--sans); font-size: 10px; font-weight: 700;
@@ -1185,7 +1190,9 @@ footer a { text-decoration: none; }
   }
 
   /* ── Specialty view (L3 → coach card) ── */
-  .md-desc { font-family: var(--body); font-size: 15px; line-height: 1.55; color: rgba(239,231,216,0.78); margin: 4px 0 22px; }
+  .md-desc { font-family: var(--body); font-size: 15px; line-height: 1.55; color: rgba(239,231,216,0.78); margin: 4px 0 14px; }
+  .md-spec-note { font-family: var(--body); font-size: 12.5px; line-height: 1.5; color: rgba(239,231,216,0.55); margin: 0 0 22px; }
+  .md-spec-note b { color: var(--md-c, var(--terra)); font-weight: 700; }
   .md-coach-card {
     padding: 18px 16px; margin-bottom: 22px;
     background: rgba(239,231,216,0.04);

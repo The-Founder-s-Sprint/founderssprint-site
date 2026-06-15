@@ -174,9 +174,34 @@
   }
 
   // ============================================================
-  //   TAXONOMY
+  //   TAXONOMY — sourced from the shared single source of truth
+  //   (beta/taxonomy.js → window.FS_TAXONOMY). The hardcoded array
+  //   below is a byte-faithful FALLBACK kept only for when the
+  //   include hasn't loaded; a parity test guards that it mirrors
+  //   the shared contract exactly. L3 NAMES are the booking
+  //   contract (slugs derive from them) — do not rename here.
   // ============================================================
-  const TAXONOMY = [
+  // l1Short is explorer-only presentation (two-line node label) and
+  // isn't carried in the shared file — mapped by discipline key.
+  const L1_SHORT = {
+    marketing:  ["MARKETING","& BRANDING"],
+    finance:    ["FINANCIAL","MODELLING"],
+    investment: ["INVESTMENT","READINESS"],
+    strategy:   ["STRATEGY","& TEAM"],
+    product:    ["PRODUCT DEV","& PRICING"],
+  };
+  function buildTaxonomyFromShared(T) {
+    return T.disciplines.map(function (d) {
+      return {
+        l1: d.label,
+        l1Short: L1_SHORT[d.key] || [String(d.label).toUpperCase(), ''],
+        color: d.color,
+        key: d.key,
+        l2: d.l2.map(function (m) { return { name: m.name, l3: m.l3.slice() }; }),
+      };
+    });
+  }
+  const TAXONOMY_FALLBACK = [
     {
       l1: "Marketing & Branding",   l1Short: ["MARKETING","& BRANDING"],
       color: '#c8531f',
@@ -223,6 +248,22 @@
       ]
     },
   ];
+
+  // Live taxonomy: build from the shared file when present (5 disciplines),
+  // else use the local fallback. Node ids/colours/coach coverage are unchanged.
+  const SHARED_TAX = (window.FS_TAXONOMY &&
+    Array.isArray(window.FS_TAXONOMY.disciplines) &&
+    window.FS_TAXONOMY.disciplines.length === 5) ? window.FS_TAXONOMY : null;
+  const TAXONOMY = SHARED_TAX ? buildTaxonomyFromShared(SHARED_TAX) : TAXONOMY_FALLBACK;
+
+  // L3 → booking slug. Prefer the shared slugify so explorer and booking
+  // can never drift; fall back to the identical deterministic rule.
+  const specSlug = (SHARED_TAX && SHARED_TAX.slugify) ? SHARED_TAX.slugify : function (name) {
+    return String(name).toLowerCase()
+      .replace(/&/g, ' and ')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  };
 
   // ============================================================
   //   AVAILABILITY DATA (placeholder — will come from API)
@@ -1149,6 +1190,9 @@
     detailEl.querySelector('.d-path').innerHTML =
       `<span>${n.grandparentName}</span><span class="sep">/</span><span>${n.parentName}</span>`;
     detailEl.querySelector('.d-desc').textContent = desc;
+    // L3 = the bookable unit; L2 = a track; cohort = the whole discipline / all 49
+    detailEl.querySelector('.d-spec-note').innerHTML =
+      `One 2-hour 1:1 deep-dive — the unit you book. Part of the <b>${escH(n.parentName)}</b> track; take all of <b>${escH(n.grandparentName)}</b> only in the full cohort.`;
 
     // Coach card — uses the resolved coach for this node
     const coach = n.coachId ? COACH_BY_ID.get(n.coachId) : null;
@@ -1205,20 +1249,15 @@
       }
     });
   });
-  // Map L1 discipline names → booking URL keys
-  const DISC_URL_KEY = {
-    'Marketing & Branding': 'marketing',
-    'Financial Modelling': 'finance',
-    'Investment Readiness': 'investment',
-    'Strategy & Team Building': 'strategy',
-    'Product Dev & Pricing': 'product',
-  };
 
+  // Discovery → booking at the L3 specialty. A specialty IS the bookable
+  // unit (one 2-hour 1:1 deep-dive): single books exactly this L3; the
+  // cohort format books the whole programme (all 49). Booking reads
+  // ?tier + ?spec=<slug> — no discipline selection.
   detailEl.querySelector('.d-book').addEventListener('click', () => {
     if (!detailSelectedSlot) return;
-    const n = detailCurrentNode;
-    const discKey = DISC_URL_KEY[n.grandparentName] || DISC_URL_KEY[n.parentName] || 'marketing';
-    window.location.href = '../book/?tier=single&disc=' + discKey;
+    if (detailSelectedFormat === 'cohort') { window.location.href = '../book/?tier=cohort'; return; }
+    window.location.href = '../book/?tier=single&spec=' + specSlug(detailCurrentNode.name);
   });
 
   // ============================================================
@@ -1323,11 +1362,9 @@
         </div></div>
       `;
 
-      // Map L1 index → booking disc key
-      const DIR_DISC_KEYS = ['marketing', 'finance', 'investment', 'strategy', 'product'];
-      const coachDiscKey = l1Idx != null ? DIR_DISC_KEYS[l1Idx] : 'marketing';
-
-      // Populate availability
+      // Directory = a coach roster, not a specialty picker. Booking selects
+      // the L3 specialty (one 2-hour deep-dive) in its own accordion, so a
+      // coach card opens the single-session picker with no discipline preset.
       const list1to1 = item.querySelector('.dir-1to1');
       ONETOONE_SLOTS.forEach(s => {
         const row = document.createElement('button');
@@ -1335,7 +1372,7 @@
         row.innerHTML = `<div><div class="da-date">${s.date}</div><div class="da-time">${s.time}</div></div><div class="da-cta">Book →</div>`;
         row.addEventListener('click', (e) => {
           e.stopPropagation();
-          window.location.href = '../book/?tier=single&disc=' + coachDiscKey;
+          window.location.href = '../book/?tier=single';
         });
         list1to1.appendChild(row);
       });
@@ -1358,7 +1395,7 @@
       // Main "Book Session →" button in directory card
       item.querySelector('.dir-book').addEventListener('click', (e) => {
         e.stopPropagation();
-        window.location.href = '../book/?tier=single&disc=' + coachDiscKey;
+        window.location.href = '../book/?tier=single';
       });
 
       // Toggle
@@ -2398,9 +2435,9 @@
     mState.view = 'l3'; mState.l1 = n.l1Idx; mState.node = n;
     const coach = n.coachId ? COACH_BY_ID.get(n.coachId) : null;
     const desc = L3_DESC[n.name] || ('A focused session on ' + n.name + ' within ' + n.parentName + '.');
-    const discKey = L1_TO_HASH[n.l1Idx];
     let html = mHeaderHTML(L1_TO_HASH[n.l1Idx], n.grandparentName + ' · ' + n.parentName, escH(n.name), n.color);
     html += '<p class="md-desc">' + escH(desc) + '</p>';
+    html += '<p class="md-spec-note" style="--md-c:' + n.color + '">One 2-hour 1:1 deep-dive — the bookable unit. Part of the <b>' + escH(n.parentName) + '</b> track; take the whole discipline only in the cohort.</p>';
     if (coach) {
       html += '<div class="md-coach-card" style="--md-c:' + n.color + '">' +
         '<div class="md-cc-top">' + mAvatarHTML(coach, n.color) +
@@ -2413,8 +2450,8 @@
         '</div>';
     }
     html += '<div class="md-actions" style="--md-c:' + n.color + '">' +
-      '<a class="md-book" href="../book/?tier=single&disc=' + discKey + '">Book a 1:1 Session →</a>' +
-      '<a class="md-cohort" href="../book/?tier=cohort">Reserve a cohort seat →</a>' +
+      '<a class="md-book" href="../book/?tier=single&spec=' + specSlug(n.name) + '">Book this 1:1 deep-dive →</a>' +
+      '<a class="md-cohort" href="../book/?tier=cohort">Get all 49 — join a cohort →</a>' +
       '<a class="md-share" href="' + whatsappHref(n, coach) + '" target="_blank" rel="noopener">Share on WhatsApp →</a>' +
       '</div>';
     mdEl.innerHTML = html;

@@ -8,7 +8,7 @@
 <link rel="canonical" href="https://founderssprint.co/explore">
 <!-- Web fonts are desktop-only (CLAUDE.md mobile rules: system font stack on phones, saves ~200-400KB on 3G) -->
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Josefin+Sans:wght@300;400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="(min-width: 769px)">
-<link rel="stylesheet" href="explore.css?v=17">
+<link rel="stylesheet" href="explore.css?v=18">
 </head>
 <body>
 
@@ -137,6 +137,7 @@
     <div class="d-name">—</div>
     <div class="d-path"></div>
     <p class="d-desc">—</p>
+    <p class="d-spec-note"></p>
     <div class="d-rule"></div>
     <div class="d-section-h">Your coach</div>
     <div class="coach-card" role="button" tabindex="0">
@@ -157,15 +158,15 @@
       <label>
         <input type="radio" name="d-format" value="1:1" checked>
         <span class="fmt-inner">
-          <span class="fmt-h">1:1 Session</span>
-          <span class="fmt-d">2 hr · live · private</span>
+          <span class="fmt-h">This specialty · 1:1</span>
+          <span class="fmt-d">one 2-hour deep-dive · private</span>
         </span>
       </label>
       <label>
         <input type="radio" name="d-format" value="cohort">
         <span class="fmt-inner">
-          <span class="fmt-h">Cohort Track</span>
-          <span class="fmt-d">5 weeks · group · curated</span>
+          <span class="fmt-h">Full Cohort</span>
+          <span class="fmt-d">all 49 specialties · group</span>
         </span>
       </label>
     </div>
@@ -347,8 +348,9 @@
   </div>
 </footer>
 
+<script src="../taxonomy.js?v=1"></script>
 <script src="../testimonials.js?v=2"></script>
-<script src="explore.js?v=25"></script>
+<script src="explore.js?v=26"></script>
 <script src="../sponsors.js?v=2"></script>
 <script src="../auth-nav.js?v=1"></script>
 </body>

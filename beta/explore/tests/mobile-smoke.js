@@ -54,7 +54,7 @@ window.dispatchEvent(new window.Event('hashchange'));
 check('specialty: hash deep link is #strategy/legal-registration', window.location.hash === '#strategy/legal-registration');
 check('specialty: title + desc rendered', /Legal & Registration/.test(md.querySelector('.md-title').textContent) && /URSB/.test(md.querySelector('.md-desc').textContent));
 check('specialty: resolved coach card (Moses via L1 coverage)', /Moses Engwau Okudu/.test(md.querySelector('.md-cc-name').textContent));
-check('specialty: book CTA → ../book/?tier=single&disc=strategy', md.querySelector('.md-book').getAttribute('href') === '../book/?tier=single&disc=strategy');
+check('specialty: book CTA → L3 spec ../book/?tier=single&spec=legal-and-registration', md.querySelector('.md-book').getAttribute('href') === '../book/?tier=single&spec=legal-and-registration');
 check('specialty: cohort CTA present', !!md.querySelector('.md-cohort'));
 const wa = md.querySelector('.md-share').getAttribute('href');
 check('specialty: WhatsApp share carries deep link', wa.startsWith('https://wa.me/?text=') && decodeURIComponent(wa).includes('#strategy/legal-registration'));
