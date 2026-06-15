@@ -83,8 +83,16 @@
   .wb-title{font-family:var(--display,'Cormorant Garamond',serif);font-size:21px;font-weight:600;line-height:1.15;}
   .wb-badge{display:inline-block;font-family:var(--sans);font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:var(--moss,#3D4A2E);border:1px solid rgba(61,74,46,.35);padding:2px 7px;border-radius:2px;vertical-align:middle;margin-left:6px;}
   .wb-desc{font-size:12.5px;color:var(--ink-mid,#5A564F);line-height:1.5;margin:7px 0 14px;}
-  .wb-open{margin-top:auto;align-self:flex-start;font-family:var(--sans);font-weight:700;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#fff;background:var(--terra);padding:9px 16px;text-decoration:none;}
-  .wb-open:hover{background:var(--terra-deep,#9A3E16);}
+  .wb-open{margin-top:auto;align-self:flex-start;font-family:var(--sans);font-weight:700;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:#EFE7D8;background:var(--terra-deep,#9A3E16);padding:9px 16px;border:none;cursor:pointer;text-decoration:none;}
+  .wb-open:hover{opacity:.9;}
+  /* Embedded module viewer — modules live inside the dashboard */
+  .wb-viewer-bar{display:flex;align-items:center;gap:14px;padding:2px 0 12px;flex-wrap:wrap;}
+  .wb-back{font-family:var(--sans);font-weight:700;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--ink);background:none;border:1px solid var(--border);padding:9px 15px;cursor:pointer;}
+  .wb-back:hover{border-color:var(--ink);background:rgba(26,26,26,0.04);}
+  .wb-viewer-title{font-family:var(--display,'Cormorant Garamond',serif);font-size:21px;font-weight:600;line-height:1.1;}
+  .wb-viewer-ext{margin-left:auto;font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-mute,#5A564F);text-decoration:none;}
+  .wb-viewer-ext:hover{color:var(--terra);}
+  .wb-frame{width:100%;height:calc(100vh - 240px);min-height:520px;border:1px solid var(--border);background:#fff;display:block;}
   @keyframes fade { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:none; } }
 
   /* ── HEADINGS ── */
@@ -445,10 +453,20 @@
 
     <!-- ── INVESTORS (marketplace) ── -->
     <div class="tab-panel" id="panel-workbench">
-      <div class="page-eyebrow">Self-guided</div>
-      <div class="page-title">Workbench</div>
-      <div class="page-sub">The pamphlet, not the textbook. Interactive tools to explore your business — size your market, test your pricing — at your own pace. Play freely; save a run and it lands in your data room. Your coach is how you turn these into the defensible version.</div>
-      <div class="wb-grid" id="workbench-list"></div>
+      <div id="wb-browse">
+        <div class="page-eyebrow">Self-guided</div>
+        <div class="page-title">Workbench</div>
+        <div class="page-sub">The pamphlet, not the textbook. Interactive tools to explore your business — size your market, test your pricing — at your own pace. Play freely; save a run and it lands in your data room. Your coach is how you turn these into the defensible version.</div>
+        <div class="wb-grid" id="workbench-list"></div>
+      </div>
+      <div id="wb-viewer" style="display:none">
+        <div class="wb-viewer-bar">
+          <button class="wb-back" id="wb-back" type="button" onclick="closeModule()">&larr; Back to Workbench</button>
+          <span class="wb-viewer-title" id="wb-viewer-title"></span>
+          <a class="wb-viewer-ext" id="wb-viewer-ext" href="#" target="_blank" rel="noopener" title="Open in a new tab">Open full ↗</a>
+        </div>
+        <iframe class="wb-frame" id="wb-frame" title="Interactive module" referrerpolicy="no-referrer"></iframe>
+      </div>
     </div>
 
     <div class="tab-panel" id="panel-investors">
@@ -1464,6 +1482,7 @@ const WB_MODULES=[
 ];
 let wbRendered=false;
 async function renderWorkbench(){
+  closeModule(true);  // always land on the gallery when (re)entering the tab
   const el=document.getElementById('workbench-list'); if(!el) return;
   let saved={};
   if(company){ try{ const runs=await _pgQuery('module_runs','company_id=eq.'+company.id+'&select=module_key,updated_at'); (runs||[]).forEach(r=>saved[r.module_key]=r.updated_at); }catch(e){} }
@@ -1473,10 +1492,39 @@ async function renderWorkbench(){
     return '<div class="wb-card"><div class="wb-disc">'+esc(m.disc)+'</div>'
       +'<div class="wb-title">'+esc(m.title)+badge+'</div>'
       +'<div class="wb-desc">'+esc(m.desc)+'</div>'
-      +'<a class="wb-open" href="'+m.url+'" target="_blank" rel="noopener">Open module →</a></div>';
+      +'<button class="wb-open" type="button" onclick="openModule(\''+m.key+'\')">Open module →</button></div>';
   }).join('');
   wbRendered=true;
 }
+
+// ── In-dashboard module viewer — modules live here, not in a new tab ──
+let wbOpen=false;
+function moduleByKey(key){ return WB_MODULES.find(m=>m.key===key); }
+
+function openModule(key){
+  const m=moduleByKey(key); if(!m) return;
+  document.getElementById('wb-viewer-title').textContent=m.title;
+  document.getElementById('wb-viewer-ext').href=m.url;
+  document.getElementById('wb-frame').src=m.url;
+  document.getElementById('wb-browse').style.display='none';
+  document.getElementById('wb-viewer').style.display='block';
+  if(!wbOpen){ try{ history.pushState({wbModule:key},''); }catch(e){} }
+  wbOpen=true;
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// silent=true skips the history.back() (used on tab re-entry / browser back)
+function closeModule(silent){
+  const v=document.getElementById('wb-viewer'); if(!v) return;
+  const wasOpen=wbOpen; wbOpen=false;
+  v.style.display='none';
+  const b=document.getElementById('wb-browse'); if(b) b.style.display='';
+  const f=document.getElementById('wb-frame'); if(f) f.src='about:blank';  // stop the module
+  if(wasOpen && !silent && history.state && history.state.wbModule){ try{ history.back(); }catch(e){} }
+}
+
+// Browser / OS back gesture closes the embedded module first (instead of leaving the dashboard)
+window.addEventListener('popstate', function(){ if(wbOpen) closeModule(true); });
 // ── Investor marketplace directory (gated to founders who've unlocked investor visibility) ──
 let investorFirms=null;
 function founderUnlocked(){ return !!(profile && profile.investor_visible) || (companies||[]).some(c=>c.investor_visible) || isShared(); }
