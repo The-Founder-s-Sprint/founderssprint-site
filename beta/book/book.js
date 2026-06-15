@@ -6,6 +6,12 @@
 (function () {
   'use strict';
 
+  // ── Supabase (session detection so logged-in founders skip the login step) ──
+  var SB_URL = 'https://ivedeivyotwevjxvcuoe.supabase.co';
+  var SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss';
+  var sb = (window.supabase && window.supabase.createClient) ? window.supabase.createClient(SB_URL, SB_ANON) : null;
+  var LOGGED_IN = false;
+
   // ── State ──────────────────────────────────────────────────
   const state = {
     step: 1,
@@ -116,9 +122,17 @@
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
     // Step-specific setup
+    if (n === 2) setupStep2();
     if (n === 3) setupStep3();
     if (n === 4) setupStep4();
     if (n === 5) startPaymentProcessing();
+  }
+
+  // After choosing a tier: skip the login step entirely if already signed in.
+  function proceedFromTier() {
+    if (!state.tier) return;
+    updateStep2Badge();
+    goToStep(LOGGED_IN ? 3 : 2);
   }
 
   // ── Step 1: Tier selection ─────────────────────────────────
@@ -142,19 +156,14 @@
     btn.addEventListener('click', (e) => {
       e.stopPropagation();
       selectTier(btn.dataset.tier);
-      // Move to step 2
-      updateStep2Badge();
-      goToStep(2);
+      proceedFromTier();
     });
   });
 
   // Also allow clicking the card itself to proceed (double-click or if already selected)
   $$('.tier-card').forEach(card => {
     card.addEventListener('dblclick', () => {
-      if (state.tier) {
-        updateStep2Badge();
-        goToStep(2);
-      }
+      proceedFromTier();
     });
   });
 
@@ -270,44 +279,51 @@
   // "Continue as [name]" card instead of create/login forms.
   // Phase 1: stub that checks for a prototype flag.
   // Phase 2: real Supabase session check.
-  function checkExistingSession() {
-    // TODO: Replace with real Supabase check:
-    // const { data: { session } } = await supabase.auth.getSession();
-    // if (session) { ... }
-    const proto = new URLSearchParams(window.location.search).get('session');
-    if (!proto) return false;
+  async function checkExistingSession() {
+    if (!sb) return false;
+    try {
+      const s = await sb.auth.getSession();
+      const session = s && s.data && s.data.session;
+      if (!session || !session.user) return false;
+      state.email = session.user.email || state.email;
+      // Name + phone from the founder's profile (best-effort; RLS scopes to own row)
+      try {
+        const pr = await sb.from('founder_profiles').select('first_name,last_name,phone,whatsapp').limit(1);
+        const p = pr && pr.data && pr.data[0];
+        if (p) {
+          const nm = ((p.first_name || '') + ' ' + (p.last_name || '')).trim();
+          if (nm) state.name = nm;
+          const ph = (p.phone || p.whatsapp || '').trim();
+          if (ph) { state.phone = ph; state.phoneCode = ''; }
+        }
+      } catch (e) {}
+      LOGGED_IN = true;
+      return true;
+    } catch (e) { return false; }
+  }
 
-    // Simulate a logged-in user (prototype)
-    const userData = {
-      name: 'Sarah Nakamya',
-      email: 'sarah@example.com',
-      phone: '7XX XXX XXX',
-      phoneCode: '+256',
-    };
+  function populateSessionCard() {
+    const nm = state.name || (state.email ? state.email.split('@')[0] : 'Your account');
+    const initials = (state.name || state.email || '?').replace(/@.*/, '').split(/[ .]/).filter(Boolean)
+      .map(x => x[0]).join('').slice(0, 2).toUpperCase() || '?';
+    const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+    set('session-avatar', initials);
+    set('session-name', nm);
+    set('session-email', state.email || '');
+    set('session-first-name', (state.name || 'there').split(' ')[0]);
+  }
 
-    state.name = userData.name;
-    state.email = userData.email;
-    state.phone = userData.phone;
-    state.phoneCode = userData.phoneCode;
-
-    // Show session card, hide forms
-    $('#auth-toggle').style.display = 'none';
-    $('#form-create').style.display = 'none';
-    $('#form-login').style.display = 'none';
-    $('#session-active').style.display = 'block';
-
-    // Populate
-    const initials = userData.name.split(' ').map(n => n[0]).join('').toUpperCase();
-    $('#session-avatar').textContent = initials;
-    $('#session-name').textContent = userData.name;
-    $('#session-email').textContent = userData.email;
-    $('#session-first-name').textContent = userData.name.split(' ')[0];
-
-    // Update header
+  // Step 2: signed-in founders see "Continue as…", everyone else sees the auth forms.
+  function setupStep2() {
+    updateStep2Badge();
+    if (!LOGGED_IN) return;
+    populateSessionCard();
+    ['auth-toggle', 'form-create', 'form-login', 'magic-sent'].forEach(id => {
+      const el = document.getElementById(id); if (el) el.style.display = 'none';
+    });
+    const sa = document.getElementById('session-active'); if (sa) sa.style.display = 'block';
     $('#step2-title').textContent = 'Welcome back';
-    $('#step2-sub').textContent = "You're already signed in. Continue to configure your coaching sessions.";
-
-    return true;
+    $('#step2-sub').textContent = "You're signed in. Continue to configure your sessions.";
   }
 
   // Continue as logged-in user
@@ -319,8 +335,9 @@
   // Switch account
   const btnSwitch = $('#btn-switch-account');
   if (btnSwitch) {
-    btnSwitch.addEventListener('click', () => {
-      // TODO: Phase 2 — supabase.auth.signOut()
+    btnSwitch.addEventListener('click', async () => {
+      try { if (sb) await sb.auth.signOut(); } catch (e) {}
+      LOGGED_IN = false;
       $('#session-active').style.display = 'none';
       $('#auth-toggle').style.display = 'flex';
       $('#form-login').style.display = 'block';
@@ -634,11 +651,12 @@
   });
 
   // ── Init ───────────────────────────────────────────────────
-  readEntryParams();
-  const hasSession = checkExistingSession();
-  if (state.tier) {
-    // If tier was pre-selected via URL, we can still show step 1
-    // with the tier highlighted
-  }
-  goToStep(1);
+  (async function init() {
+    readEntryParams();
+    await checkExistingSession();
+    // Deep-link with a tier (e.g. a module's "Book a course") + already signed in
+    // → skip the login step, go straight to choosing specialties.
+    if (state.tier && LOGGED_IN) { updateStep2Badge(); goToStep(3); }
+    else { goToStep(1); }
+  })();
 })();
