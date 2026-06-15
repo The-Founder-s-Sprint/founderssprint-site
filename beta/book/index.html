@@ -6,7 +6,7 @@
 <title>Book — The Founder's Sprint</title>
 <link rel="icon" href="../favicon.svg" type="image/svg+xml">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Josefin+Sans:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="book.css?v=2">
+<link rel="stylesheet" href="book.css?v=3">
 </head>
 <body>
 
@@ -273,70 +273,10 @@
     <!-- PICK 3: pick 3 disciplines -->
     <!-- COHORT: pick cohort dates -->
 
-    <!-- Discipline picker (single + pick3) -->
+    <!-- Specialty picker (single + pick3) — discipline → module → specialty, built from taxonomy.js -->
     <div class="config-panel" id="config-disciplines">
-      <div class="disc-grid" id="disc-grid">
-
-        <div class="disc-card" data-disc="marketing">
-          <div class="disc-dot" style="background:var(--terra)"></div>
-          <div class="disc-info">
-            <div class="disc-name">Marketing &amp; Branding</div>
-            <div class="disc-coach">Teddy Ruge</div>
-            <div class="disc-deliv">Deliverable: Go-to-market strategy</div>
-          </div>
-          <div class="disc-check">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 10L9 14L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </div>
-        </div>
-
-        <div class="disc-card" data-disc="finance">
-          <div class="disc-dot" style="background:var(--ochre)"></div>
-          <div class="disc-info">
-            <div class="disc-name">Financial Modelling</div>
-            <div class="disc-coach">Barry Wojega</div>
-            <div class="disc-deliv">Deliverable: Financial model &amp; unit economics</div>
-          </div>
-          <div class="disc-check">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 10L9 14L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </div>
-        </div>
-
-        <div class="disc-card" data-disc="investment">
-          <div class="disc-dot" style="background:var(--sage)"></div>
-          <div class="disc-info">
-            <div class="disc-name">Investment Readiness</div>
-            <div class="disc-coach">Joseph Kalema</div>
-            <div class="disc-deliv">Deliverable: Pitch deck &amp; fundraising strategy</div>
-          </div>
-          <div class="disc-check">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 10L9 14L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </div>
-        </div>
-
-        <div class="disc-card" data-disc="strategy">
-          <div class="disc-dot" style="background:var(--moss)"></div>
-          <div class="disc-info">
-            <div class="disc-name">Strategy &amp; Team Building</div>
-            <div class="disc-coach">Moses Engwau</div>
-            <div class="disc-deliv">Deliverable: Competitive analysis &amp; team plan</div>
-          </div>
-          <div class="disc-check">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 10L9 14L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </div>
-        </div>
-
-        <div class="disc-card" data-disc="product">
-          <div class="disc-dot" style="background:var(--stone)"></div>
-          <div class="disc-info">
-            <div class="disc-name">Product Dev &amp; Pricing</div>
-            <div class="disc-coach">Patrick Ngolobe</div>
-            <div class="disc-deliv">Deliverable: Product roadmap &amp; pricing model</div>
-          </div>
-          <div class="disc-check">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 10L9 14L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </div>
-        </div>
-
+      <div class="spec-picker" id="disc-grid">
+        <!-- Populated by JS from window.FS_TAXONOMY -->
       </div>
       <div class="disc-counter">
         <span id="disc-count">0</span> / <span id="disc-max">3</span> selected
@@ -417,6 +357,7 @@
         <div class="review-disciplines" id="review-disciplines">
           <!-- Populated by JS -->
         </div>
+        <div class="review-track-hint" id="review-track-hint" style="display:none"></div>
       </div>
 
       <div class="review-divider"></div>
@@ -582,6 +523,7 @@
   </div>
 </footer>
 
-<script src="book.js?v=2"></script>
+<script src="../taxonomy.js?v=1"></script>
+<script src="book.js?v=3"></script>
 </body>
 </html>

@@ -10,7 +10,8 @@
   const state = {
     step: 1,
     tier: null,           // 'single' | 'pick3' | 'cohort'
-    disciplines: [],      // selected disc keys
+    specialties: [],      // selected L3 slugs — the atomic bookable unit
+    disciplines: [],      // derived: distinct parent disciplines of the selected L3s
     cohort: 'july-2026',
     plan: 'full',         // 'full' | '2x' | '3x'
     provider: 'mtn',      // 'mtn' | 'airtel'
@@ -21,19 +22,50 @@
     company: '',
   };
 
+  // Single source of truth for the L1/L2/L3 taxonomy (see ../taxonomy.js).
+  const TAX = window.FS_TAXONOMY;
+  const ALL_SPECS = TAX ? TAX.specialties.map(function (s) { return s.slug; }) : [];
+
+  // `max` = number of L3 specialties this tier includes.
+  // single = 1 · pick3 = 3 · cohort = every L3 (the whole programme).
   const TIER_DATA = {
-    single: { name: 'One-on-One Coaching',  price: 500000,   priceLabel: 'UGX 500,000', maxDisc: 1, shortPrice: 'UGX 500K' },
-    pick3:  { name: 'Pick 3 Bundle',        price: 1000000,  priceLabel: 'UGX 1,000,000', maxDisc: 3, shortPrice: 'UGX 1M' },
-    cohort: { name: 'Full Cohort',          price: 2500000,  priceLabel: 'UGX 2,500,000', maxDisc: 5, shortPrice: 'UGX 2.5M' },
+    single: { name: 'One-on-One Coaching',  price: 500000,   priceLabel: 'UGX 500,000',   max: 1,               shortPrice: 'UGX 500K' },
+    pick3:  { name: 'Pick 3 Bundle',        price: 1000000,  priceLabel: 'UGX 1,000,000', max: 3,               shortPrice: 'UGX 1M' },
+    cohort: { name: 'Full Cohort',          price: 2500000,  priceLabel: 'UGX 2,500,000', max: ALL_SPECS.length, shortPrice: 'UGX 2.5M' },
   };
 
   const DISC_NAMES = {
     marketing:  'Marketing & Branding',
     finance:    'Financial Modelling',
     investment: 'Investment Readiness',
-    strategy:   'Strategy & Team',
-    product:    'Product & Pricing',
+    strategy:   'Strategy & Team Building',
+    product:    'Product Dev & Pricing',
   };
+
+  // Keep state.disciplines in sync with the selected L3 specialties.
+  function syncDisciplines() {
+    const seen = [];
+    state.specialties.forEach(function (slug) {
+      const s = TAX && TAX.get(slug);
+      if (s && seen.indexOf(s.disciplineKey) === -1) seen.push(s.disciplineKey);
+    });
+    state.disciplines = seen;
+  }
+
+  // L2 modules whose every L3 is currently selected (e.g. the full Pitch Craft track).
+  function completedTracks() {
+    if (!TAX) return [];
+    const out = [];
+    TAX.disciplines.forEach(function (d) {
+      d.l2.forEach(function (m) {
+        const slugs = m.l3.map(function (n) { return TAX.slugify(n); });
+        if (slugs.length && slugs.every(function (sl) { return state.specialties.indexOf(sl) >= 0; })) {
+          out.push(m.name);
+        }
+      });
+    });
+    return out;
+  }
 
   // ── Elements ───────────────────────────────────────────────
   const $  = (s, p) => (p || document).querySelector(s);
@@ -47,16 +79,17 @@
   function readEntryParams() {
     const params = new URLSearchParams(window.location.search);
     const tier = params.get('tier');
-    const disc = params.get('disc');
     if (tier && TIER_DATA[tier]) {
       selectTier(tier);
     }
-    if (disc) {
-      // e.g. ?disc=marketing or ?disc=marketing,finance,investment
-      const discs = disc.split(',').filter(d => DISC_NAMES[d]);
-      if (discs.length) {
-        state.disciplines = discs;
-      }
+    // Deep-link from discovery: ?spec=slug or ?spec=slug,slug,slug (L3 slugs).
+    const spec = params.get('spec');
+    if (spec && TAX) {
+      const max = state.tier ? TIER_DATA[state.tier].max : 3;
+      const picked = spec.split(',').map(function (x) { return x.trim(); })
+        .filter(function (sl) { return TAX.get(sl); });
+      state.specialties = picked.slice(0, max);
+      syncDisciplines();
     }
   }
 
@@ -91,6 +124,7 @@
   // ── Step 1: Tier selection ─────────────────────────────────
   function selectTier(tier) {
     state.tier = tier;
+    state.specialties = [];
     state.disciplines = [];
 
     $$('.tier-card').forEach(c => {
@@ -311,52 +345,104 @@
       discPanel.style.display = 'none';
       cohortPanel.style.display = 'block';
       $('#config-title').textContent = 'Choose your cohort';
-      $('#config-sub').textContent = 'Select a cohort start date. All 5 disciplines are included.';
-      state.disciplines = ['marketing', 'finance', 'investment', 'strategy', 'product'];
+      $('#config-sub').textContent = 'Select a cohort start date. Every specialty across all 5 disciplines is included.';
+      state.specialties = ALL_SPECS.slice();
+      syncDisciplines();
       updateStep3Button();
     } else {
       discPanel.style.display = 'block';
       cohortPanel.style.display = 'none';
-      const max = TIER_DATA[tier].maxDisc;
+      const max = TIER_DATA[tier].max;
       $('#disc-max').textContent = max;
       if (tier === 'single') {
-        $('#config-title').textContent = 'Choose your discipline';
-        $('#config-sub').textContent = 'Which area do you need expert coaching on?';
+        $('#config-title').textContent = 'Choose your specialty';
+        $('#config-sub').textContent = 'Pick the one 2-hour deep-dive you need most. Open a discipline to see its specialties.';
       } else {
-        $('#config-title').textContent = 'Choose your 3 disciplines';
-        $('#config-sub').textContent = 'Select the 3 coaching disciplines you want to focus on.';
+        $('#config-title').textContent = 'Pick your 3 specialties';
+        $('#config-sub').textContent = 'Any 3 two-hour deep-dives — mix across disciplines, or take all three of one track.';
       }
-      renderDiscSelection();
+      buildSpecPicker();
+      renderSpecSelection();
     }
   }
 
-  function renderDiscSelection() {
-    const max = TIER_DATA[state.tier].maxDisc;
-    $$('.disc-card').forEach(card => {
-      const d = card.dataset.disc;
-      const sel = state.disciplines.includes(d);
-      card.classList.toggle('selected', sel);
-      // Disable if at max and not selected
-      card.classList.toggle('disabled', !sel && state.disciplines.length >= max);
+  // Build the discipline → L2 → L3 accordion once (idempotent).
+  function buildSpecPicker() {
+    const grid = $('#disc-grid');
+    if (!grid || grid.dataset.built === '1' || !TAX) return;
+    let html = '';
+    TAX.disciplines.forEach(function (d) {
+      html += '<div class="spec-disc" data-disc="' + d.key + '">';
+      html += '<button type="button" class="spec-disc-head">'
+        + '<span class="spec-dot" style="background:' + d.color + '"></span>'
+        + '<span class="spec-disc-name">' + d.label + '</span>'
+        + '<span class="spec-disc-meta"><span class="spec-disc-count" data-disc-count="' + d.key + '"></span>'
+        + '<svg class="spec-chev" width="16" height="16" viewBox="0 0 20 20" fill="none"><path d="M6 8l4 4 4-4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>'
+        + '</button>';
+      html += '<div class="spec-disc-body">';
+      d.l2.forEach(function (m) {
+        html += '<div class="spec-l2">' + m.name + '</div>';
+        m.l3.forEach(function (name) {
+          const slug = TAX.slugify(name);
+          html += '<button type="button" class="spec-row" data-spec="' + slug + '">'
+            + '<span class="spec-row-name">' + name + '</span>'
+            + '<span class="spec-check"><svg width="18" height="18" viewBox="0 0 20 20" fill="none"><path d="M5 10L9 14L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></span>'
+            + '</button>';
+        });
+      });
+      html += '</div></div>';
     });
-    $('#disc-count').textContent = state.disciplines.length;
-    updateStep3Button();
+    grid.innerHTML = html;
+    grid.dataset.built = '1';
+
+    // Accordion expand/collapse
+    $$('.spec-disc-head', grid).forEach(function (head) {
+      head.addEventListener('click', function () {
+        head.parentElement.classList.toggle('open');
+      });
+    });
+    // Specialty toggle (delegated)
+    grid.addEventListener('click', function (e) {
+      const row = e.target.closest('.spec-row');
+      if (!row) return;
+      toggleSpec(row.dataset.spec);
+    });
   }
 
-  $$('.disc-card').forEach(card => {
-    card.addEventListener('click', () => {
-      const d = card.dataset.disc;
-      const max = TIER_DATA[state.tier].maxDisc;
-      const idx = state.disciplines.indexOf(d);
+  function toggleSpec(slug) {
+    const max = TIER_DATA[state.tier].max;
+    const idx = state.specialties.indexOf(slug);
+    if (idx >= 0) {
+      state.specialties.splice(idx, 1);
+    } else if (state.specialties.length < max) {
+      state.specialties.push(slug);
+    }
+    syncDisciplines();
+    renderSpecSelection();
+  }
 
-      if (idx >= 0) {
-        state.disciplines.splice(idx, 1);
-      } else if (state.disciplines.length < max) {
-        state.disciplines.push(d);
-      }
-      renderDiscSelection();
+  function renderSpecSelection() {
+    const grid = $('#disc-grid');
+    if (!grid) return;
+    const max = TIER_DATA[state.tier].max;
+    const atMax = state.specialties.length >= max;
+
+    $$('.spec-row', grid).forEach(function (row) {
+      const sel = state.specialties.indexOf(row.dataset.spec) >= 0;
+      row.classList.toggle('selected', sel);
+      row.classList.toggle('disabled', !sel && atMax);
     });
-  });
+    // Per-discipline selected counts
+    TAX.disciplines.forEach(function (d) {
+      const n = state.specialties.filter(function (sl) {
+        const s = TAX.get(sl); return s && s.disciplineKey === d.key;
+      }).length;
+      const el = grid.querySelector('[data-disc-count="' + d.key + '"]');
+      if (el) el.textContent = n ? (n + ' selected') : '';
+    });
+    $('#disc-count').textContent = state.specialties.length;
+    updateStep3Button();
+  }
 
   // Cohort selection
   $$('.cohort-card').forEach(card => {
@@ -380,8 +466,8 @@
     if (state.tier === 'cohort') {
       btn.disabled = !state.cohort;
     } else {
-      const max = TIER_DATA[state.tier].maxDisc;
-      btn.disabled = state.disciplines.length < max;
+      const max = TIER_DATA[state.tier].max;
+      btn.disabled = state.specialties.length < max;
     }
   }
 
@@ -399,15 +485,34 @@
     $('.review-tier-name').textContent = t.name;
     $('.review-tier-price').textContent = t.shortPrice;
 
-    // Disciplines
+    // Specialties (the bookable L3 units)
     const discContainer = $('#review-disciplines');
     discContainer.innerHTML = '';
-    state.disciplines.forEach(d => {
+    if (state.tier === 'cohort') {
       const tag = document.createElement('span');
       tag.className = 'review-disc-tag';
-      tag.textContent = DISC_NAMES[d];
+      tag.textContent = 'All ' + ALL_SPECS.length + ' specialties · 5 disciplines';
       discContainer.appendChild(tag);
-    });
+    } else {
+      state.specialties.forEach(slug => {
+        const s = TAX && TAX.get(slug);
+        const tag = document.createElement('span');
+        tag.className = 'review-disc-tag';
+        tag.textContent = s ? s.name : slug;
+        discContainer.appendChild(tag);
+      });
+      // "You've completed a full track" nudge (e.g. all 3 Pitch Craft L3s)
+      const hint = $('#review-track-hint');
+      if (hint) {
+        const tracks = completedTracks();
+        if (tracks.length) {
+          hint.textContent = '✓ That\'s the complete ' + tracks.join(' & ') + ' track.';
+          hint.style.display = 'block';
+        } else {
+          hint.style.display = 'none';
+        }
+      }
+    }
 
     // Account info
     $('#review-name').textContent = state.name;
