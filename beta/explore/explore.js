@@ -1190,7 +1190,7 @@
     detailEl.querySelector('.d-path').innerHTML =
       `<span>${n.grandparentName}</span><span class="sep">/</span><span>${n.parentName}</span>`;
     detailEl.querySelector('.d-desc').textContent = desc;
-    // L3 = the bookable unit; L2 = a track; cohort = the whole discipline / all 49
+    // L3 = the bookable unit; L2 = a track; cohort = the whole discipline / every L3
     detailEl.querySelector('.d-spec-note').innerHTML =
       `One 2-hour 1:1 deep-dive — the unit you book. Part of the <b>${escH(n.parentName)}</b> track; take all of <b>${escH(n.grandparentName)}</b> only in the full cohort.`;
 
@@ -1252,7 +1252,7 @@
 
   // Discovery → booking at the L3 specialty. A specialty IS the bookable
   // unit (one 2-hour 1:1 deep-dive): single books exactly this L3; the
-  // cohort format books the whole programme (all 49). Booking reads
+  // cohort format books the whole programme (every L3). Booking reads
   // ?tier + ?spec=<slug> — no discipline selection.
   detailEl.querySelector('.d-book').addEventListener('click', () => {
     if (!detailSelectedSlot) return;
@@ -2451,7 +2451,7 @@
     }
     html += '<div class="md-actions" style="--md-c:' + n.color + '">' +
       '<a class="md-book" href="../book/?tier=single&spec=' + specSlug(n.name) + '">Book this 1:1 deep-dive →</a>' +
-      '<a class="md-cohort" href="../book/?tier=cohort">Get all 49 — join a cohort →</a>' +
+      '<a class="md-cohort" href="../book/?tier=cohort">Get all 50 — join a cohort →</a>' +
       '<a class="md-share" href="' + whatsappHref(n, coach) + '" target="_blank" rel="noopener">Share on WhatsApp →</a>' +
       '</div>';
     mdEl.innerHTML = html;

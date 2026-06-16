@@ -14,7 +14,7 @@ check('desktop: 69 constellation nodes built', doc.querySelectorAll('#g-nodes .n
 check('desktop: connection lines built', doc.querySelectorAll('#g-conns line').length > 60);
 check('desktop: mobile section stays empty', doc.getElementById('m-discover').innerHTML === '');
 check('desktop: coach directory built (5 items)', doc.querySelectorAll('.dir-item').length === 5);
-check('desktop: legend says 49', /49 coaching areas/.test(doc.body.textContent));
+check('desktop: legend says 50', /50 coaching areas/.test(doc.body.textContent));
 // let the intro + deep link play out (LOAD_DURATION_MS=3600 + openDetail delay)
 setTimeout(() => {
   const detail = doc.getElementById('detail');
