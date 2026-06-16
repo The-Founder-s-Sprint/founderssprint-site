@@ -44,18 +44,21 @@
   .bar-row{display:grid;grid-template-columns:120px 1fr 84px;align-items:center;gap:14px;margin:11px 0;}
   .bar-row .lab{font-family:var(--sans);font-size:13px;font-weight:500;color:rgba(239,231,216,.9);text-align:right;}
   .bar-track{height:24px;background:rgba(239,231,216,.05);position:relative;}
-  .bar-fill{display:block;height:100%;background:var(--sage);transform:scaleX(0);transform-origin:left;animation:barGrow 1.05s cubic-bezier(.2,.75,.25,1) both;}
-  .bar-row:nth-child(1) .bar-fill{animation-delay:.1s;}
-  .bar-row:nth-child(2) .bar-fill{animation-delay:.22s;}
-  .bar-row:nth-child(3) .bar-fill{animation-delay:.34s;}
-  .bar-row:nth-child(4) .bar-fill{animation-delay:.46s;}
-  .bar-row.ug .bar-fill{background:var(--terra);box-shadow:0 0 16px 1px rgba(200,83,31,.55);animation:barGrow 1.05s cubic-bezier(.2,.75,.25,1) .8s both, ugGlow 2.4s ease-in-out 2.1s infinite;}
+  /* default = visible (no-JS fallback). The grow/glow play when JS adds .animate on scroll-in. */
+  .bar-fill{display:block;height:100%;background:var(--sage);transform:scaleX(1);transform-origin:left;}
+  .bar-row.ug .bar-fill{background:var(--terra);box-shadow:0 0 16px 1px rgba(200,83,31,.55);}
+  .chart.animate .bar-fill{transform:scaleX(0);animation:barGrow 1.05s cubic-bezier(.2,.75,.25,1) both;}
+  .chart.animate .bar-row:nth-child(1) .bar-fill{animation-delay:.05s;}
+  .chart.animate .bar-row:nth-child(2) .bar-fill{animation-delay:.17s;}
+  .chart.animate .bar-row:nth-child(3) .bar-fill{animation-delay:.29s;}
+  .chart.animate .bar-row:nth-child(4) .bar-fill{animation-delay:.41s;}
+  .chart.animate .bar-row.ug .bar-fill{animation:barGrow 1.05s cubic-bezier(.2,.75,.25,1) .75s both, ugGlow 2.4s ease-in-out 2s infinite;}
   .bar-row.ug .lab{color:var(--terra);font-weight:700;}
   .bar-row .val{font-family:var(--mono);font-size:12px;color:rgba(239,231,216,.8);}
   .bar-row.ug .val{color:var(--terra);font-weight:700;}
-  @keyframes barGrow{to{transform:scaleX(1);}}
+  @keyframes barGrow{from{transform:scaleX(0);}to{transform:scaleX(1);}}
   @keyframes ugGlow{0%,100%{box-shadow:0 0 14px 1px rgba(200,83,31,.5);}50%{box-shadow:0 0 24px 3px rgba(200,83,31,.92);}}
-  @media (prefers-reduced-motion:reduce){.bar-fill{transform:none;animation:none!important;}}
+  @media (prefers-reduced-motion:reduce){.bar-fill,.chart.animate .bar-fill{transform:scaleX(1)!important;animation:none!important;}}
   .src{font-family:var(--mono);font-size:10.5px;letter-spacing:.04em;color:rgba(239,231,216,.45);margin-top:20px;}
   .src a{color:rgba(239,231,216,.6);}
   .data .takeaway{font-family:var(--display);font-size:22px;font-style:italic;line-height:1.5;color:var(--paper);max-width:720px;margin-top:30px;border-left:2px solid var(--disc);padding-left:20px;}
@@ -310,6 +313,18 @@
 </section>
 
 <div id="fs-footer"></div>
+<script>
+  (function(){
+    var chart=document.querySelector('.chart');
+    if(!chart) return;
+    if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches) return;
+    if(!('IntersectionObserver' in window)){ chart.classList.add('animate'); return; }
+    var io=new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ if(e.isIntersecting){ chart.classList.add('animate'); io.disconnect(); } });
+    },{threshold:0.35});
+    io.observe(chart);
+  })();
+</script>
 <script src="/site-chrome.js?v=7" defer></script>
 </body>
 </html>
