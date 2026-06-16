@@ -77,11 +77,21 @@
   .go:hover{opacity:.9;}
 
   /* visual column: image + partial constellation */
-  .ph-img{width:100%;aspect-ratio:4/5;background:var(--paper-deep) center/cover no-repeat;border-radius:var(--radius-card);position:relative;overflow:hidden;box-shadow:0 24px 50px -28px rgba(26,26,26,.45);}
-  .ph-img::after{content:attr(data-ph);position:absolute;left:16px;bottom:14px;font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:rgba(26,26,26,.32);}
-  .ph-img .bar{position:absolute;top:0;left:0;right:0;height:4px;background:var(--terra);}
-  .constel{margin-top:18px;}
-  .constel svg{width:100%;height:auto;display:block;}
+  /* Photograph, course-material treatment, edges feathered into the paper background */
+  .ph-img{width:100%;aspect-ratio:4/5;position:relative;
+    background-color:var(--paper-deep);background-position:center;background-size:cover;background-repeat:no-repeat;
+    filter:grayscale(1) contrast(1.06) brightness(.98) sepia(.10);
+    -webkit-mask-image:radial-gradient(ellipse 80% 82% at 50% 47%,#000 50%,rgba(0,0,0,.4) 74%,transparent 100%);
+    mask-image:radial-gradient(ellipse 80% 82% at 50% 47%,#000 50%,rgba(0,0,0,.4) 74%,transparent 100%);}
+  .ph-img .bar{display:none;}
+  /* Rotating constellation, refined diamond nodes */
+  .constel{margin-top:6px;max-width:300px;margin-left:auto;margin-right:auto;}
+  .constel svg{width:100%;height:auto;display:block;overflow:visible;}
+  .constel svg.orbit{animation:constelSpin 52s linear infinite;transform-origin:50% 50%;}
+  .constel .glow{animation:constelPulse 4.5s ease-in-out infinite;}
+  @keyframes constelSpin{to{transform:rotate(360deg);}}
+  @keyframes constelPulse{0%,100%{opacity:.10;}50%{opacity:.22;}}
+  @media (prefers-reduced-motion:reduce){.constel svg.orbit,.constel .glow{animation:none;}}
 
   /* ===== PARALLAX DIVIDERS ===== */
   .parallax{position:relative;min-height:340px;display:flex;align-items:center;justify-content:center;text-align:center;
@@ -193,11 +203,8 @@
     <div class="visual">
       <div class="ph-img" data-ph="img: brand strategy" style="background-image:url('/beta/method/img/mk-brand.jpg')"><span class="bar"></span></div>
       <div class="constel" aria-hidden="true">
-        <svg viewBox="0 0 320 150"><g fill="none" stroke="#C8531F" stroke-width="1" opacity=".5"><line x1="160" y1="75" x2="60" y2="40"/><line x1="160" y1="75" x2="60" y2="110"/><line x1="160" y1="75" x2="270" y2="75"/></g>
-        <circle cx="160" cy="75" r="6" fill="#C8531F"/><text x="160" y="98" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#9A3E16">BRAND STRATEGY</text>
-        <g font-family="Josefin Sans" font-size="10" fill="#33302b"><circle cx="60" cy="40" r="3.5" fill="#C9923A"/><text x="60" y="30" text-anchor="middle">Positioning</text>
-        <circle cx="60" cy="110" r="3.5" fill="#C9923A"/><text x="60" y="128" text-anchor="middle">Messaging</text>
-        <circle cx="270" cy="75" r="3.5" fill="#C9923A"/><text x="270" y="62" text-anchor="middle">Visual Identity</text></g></svg>
+        <svg class="orbit" viewBox="0 0 260 260" aria-hidden="true"><g fill="#C9923A" opacity=".55"><circle cx="40" cy="60" r="1.4"/><circle cx="225" cy="55" r="1.6"/><circle cx="210" cy="205" r="1.4"/><circle cx="55" cy="210" r="1.5"/><circle cx="135" cy="22" r="1.2"/><circle cx="28" cy="135" r="1.2"/><circle cx="236" cy="140" r="1.3"/></g><g stroke="#C8531F" stroke-width="1.1" opacity=".45" fill="none"><line x1="130" y1="130" x2="130" y2="48"/><line x1="130" y1="130" x2="201" y2="171"/><line x1="130" y1="130" x2="59" y2="171"/></g><g class="glow" fill="#C8531F"><circle cx="130" cy="48" r="17"/><circle cx="201" cy="171" r="17"/><circle cx="59" cy="171" r="17"/><circle cx="130" cy="130" r="22"/></g><g fill="#C8531F"><polygon points="130,40 138,48 130,56 122,48"/><polygon points="201,163 209,171 201,179 193,171"/><polygon points="59,163 67,171 59,179 51,171"/></g><polygon points="130,116 144,130 130,144 116,130" fill="#C9923A"/><circle cx="130" cy="130" r="2.4" fill="#0f0d0a"/></svg>
+
       </div>
     </div>
   </div>
@@ -223,11 +230,8 @@
     <div class="visual">
       <div class="ph-img" data-ph="img: go-to-market" style="background-image:url('/beta/method/img/mk-gtm.jpg')"><span class="bar"></span></div>
       <div class="constel" aria-hidden="true">
-        <svg viewBox="0 0 320 150"><g fill="none" stroke="#C8531F" stroke-width="1" opacity=".5"><line x1="160" y1="75" x2="60" y2="40"/><line x1="160" y1="75" x2="60" y2="110"/><line x1="160" y1="75" x2="270" y2="75"/></g>
-        <circle cx="160" cy="75" r="6" fill="#C8531F"/><text x="160" y="98" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#9A3E16">GO-TO-MARKET</text>
-        <g font-family="Josefin Sans" font-size="10" fill="#33302b"><circle cx="60" cy="40" r="3.5" fill="#C9923A"/><text x="60" y="30" text-anchor="middle">Market Entry</text>
-        <circle cx="60" cy="110" r="3.5" fill="#C9923A"/><text x="60" y="128" text-anchor="middle">Channel Mix</text>
-        <circle cx="270" cy="75" r="3.5" fill="#C9923A"/><text x="270" y="62" text-anchor="middle">Launch Seq.</text></g></svg>
+        <svg class="orbit" viewBox="0 0 260 260" aria-hidden="true"><g fill="#C9923A" opacity=".55"><circle cx="40" cy="60" r="1.4"/><circle cx="225" cy="55" r="1.6"/><circle cx="210" cy="205" r="1.4"/><circle cx="55" cy="210" r="1.5"/><circle cx="135" cy="22" r="1.2"/><circle cx="28" cy="135" r="1.2"/><circle cx="236" cy="140" r="1.3"/></g><g stroke="#C8531F" stroke-width="1.1" opacity=".45" fill="none"><line x1="130" y1="130" x2="130" y2="48"/><line x1="130" y1="130" x2="201" y2="171"/><line x1="130" y1="130" x2="59" y2="171"/></g><g class="glow" fill="#C8531F"><circle cx="130" cy="48" r="17"/><circle cx="201" cy="171" r="17"/><circle cx="59" cy="171" r="17"/><circle cx="130" cy="130" r="22"/></g><g fill="#C8531F"><polygon points="130,40 138,48 130,56 122,48"/><polygon points="201,163 209,171 201,179 193,171"/><polygon points="59,163 67,171 59,179 51,171"/></g><polygon points="130,116 144,130 130,144 116,130" fill="#C9923A"/><circle cx="130" cy="130" r="2.4" fill="#0f0d0a"/></svg>
+
       </div>
     </div>
   </div>
@@ -253,11 +257,8 @@
     <div class="visual">
       <div class="ph-img" data-ph="img: growth &amp; discovery" style="background-image:url('/beta/method/img/mk-growth.jpg')"><span class="bar"></span></div>
       <div class="constel" aria-hidden="true">
-        <svg viewBox="0 0 320 150"><g fill="none" stroke="#C8531F" stroke-width="1" opacity=".5"><line x1="160" y1="75" x2="60" y2="40"/><line x1="160" y1="75" x2="60" y2="110"/><line x1="160" y1="75" x2="270" y2="75"/></g>
-        <circle cx="160" cy="75" r="6" fill="#C8531F"/><text x="160" y="98" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="#9A3E16">GROWTH &amp; DISCOVERY</text>
-        <g font-family="Josefin Sans" font-size="10" fill="#33302b"><circle cx="60" cy="40" r="3.5" fill="#C9923A"/><text x="60" y="30" text-anchor="middle">Content</text>
-        <circle cx="60" cy="110" r="3.5" fill="#C9923A"/><text x="60" y="128" text-anchor="middle">SEO</text>
-        <circle cx="270" cy="75" r="3.5" fill="#C9923A"/><text x="270" y="62" text-anchor="middle">Cust. Research</text></g></svg>
+        <svg class="orbit" viewBox="0 0 260 260" aria-hidden="true"><g fill="#C9923A" opacity=".55"><circle cx="40" cy="60" r="1.4"/><circle cx="225" cy="55" r="1.6"/><circle cx="210" cy="205" r="1.4"/><circle cx="55" cy="210" r="1.5"/><circle cx="135" cy="22" r="1.2"/><circle cx="28" cy="135" r="1.2"/><circle cx="236" cy="140" r="1.3"/></g><g stroke="#C8531F" stroke-width="1.1" opacity=".45" fill="none"><line x1="130" y1="130" x2="130" y2="48"/><line x1="130" y1="130" x2="201" y2="171"/><line x1="130" y1="130" x2="59" y2="171"/></g><g class="glow" fill="#C8531F"><circle cx="130" cy="48" r="17"/><circle cx="201" cy="171" r="17"/><circle cx="59" cy="171" r="17"/><circle cx="130" cy="130" r="22"/></g><g fill="#C8531F"><polygon points="130,40 138,48 130,56 122,48"/><polygon points="201,163 209,171 201,179 193,171"/><polygon points="59,163 67,171 59,179 51,171"/></g><polygon points="130,116 144,130 130,144 116,130" fill="#C9923A"/><circle cx="130" cy="130" r="2.4" fill="#0f0d0a"/></svg>
+
       </div>
     </div>
   </div>
