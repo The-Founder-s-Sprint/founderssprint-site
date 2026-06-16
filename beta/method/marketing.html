@@ -39,14 +39,23 @@
   .data h2{font-family:var(--sans);font-weight:400;font-size:clamp(26px,3.6vw,38px);letter-spacing:-.022em;margin:10px 0 6px;}
   .data .sub{color:rgba(239,231,216,.66);max-width:660px;}
   .chart{margin:34px 0 10px;}
-  .bar-row{display:grid;grid-template-columns:120px 1fr 84px;align-items:center;gap:14px;margin:10px 0;}
+  .bar-row{display:grid;grid-template-columns:120px 1fr 84px;align-items:center;gap:14px;margin:11px 0;}
   .bar-row .lab{font-family:var(--sans);font-size:13px;font-weight:500;color:rgba(239,231,216,.9);text-align:right;}
-  .bar-track{height:22px;background:rgba(239,231,216,.06);position:relative;overflow:hidden;}
-  .bar-fill{height:100%;background:rgba(239,231,216,.28);}
-  .bar-row.ug .bar-fill{background:var(--terra);}
+  .bar-track{height:24px;background:rgba(239,231,216,.05);position:relative;}
+  .bar-fill{height:100%;background:var(--ochre);transform:scaleX(0);transform-origin:left;}
+  .chart.in .bar-fill{animation:barGrow 1.05s cubic-bezier(.2,.75,.25,1) forwards;}
+  .chart.in .bar-row:nth-child(1) .bar-fill{animation-delay:.05s;}
+  .chart.in .bar-row:nth-child(2) .bar-fill{animation-delay:.17s;}
+  .chart.in .bar-row:nth-child(3) .bar-fill{animation-delay:.29s;}
+  .chart.in .bar-row:nth-child(4) .bar-fill{animation-delay:.41s;}
+  .bar-row.ug .bar-fill{background:var(--terra);box-shadow:0 0 16px 1px rgba(200,83,31,.55);}
+  .chart.in .bar-row.ug .bar-fill{animation:barGrow 1.05s cubic-bezier(.2,.75,.25,1) .74s forwards, ugGlow 2.4s ease-in-out 2s infinite;}
   .bar-row.ug .lab{color:var(--terra);font-weight:700;}
   .bar-row .val{font-family:var(--mono);font-size:12px;color:rgba(239,231,216,.8);}
-  .bar-row.ug .val{color:var(--terra);font-weight:600;}
+  .bar-row.ug .val{color:var(--terra);font-weight:700;}
+  @keyframes barGrow{to{transform:scaleX(1);}}
+  @keyframes ugGlow{0%,100%{box-shadow:0 0 14px 1px rgba(200,83,31,.5);}50%{box-shadow:0 0 24px 3px rgba(200,83,31,.92);}}
+  @media (prefers-reduced-motion:reduce){.bar-fill{transform:none;animation:none!important;}}
   .src{font-family:var(--mono);font-size:10.5px;letter-spacing:.04em;color:rgba(239,231,216,.45);margin-top:20px;}
   .src a{color:rgba(239,231,216,.6);}
   .data .takeaway{font-family:var(--display);font-size:22px;font-style:italic;line-height:1.5;color:var(--paper);max-width:720px;margin-top:30px;border-left:2px solid var(--terra);padding-left:20px;}
@@ -301,6 +310,17 @@
 </section>
 
 <div id="fs-footer"></div>
+<script>
+  // Grow the funding-gap bars when the chart scrolls into view
+  (function(){
+    var c=document.querySelector('.chart'); if(!c) return;
+    if(!('IntersectionObserver' in window)){ c.classList.add('in'); return; }
+    var io=new IntersectionObserver(function(es){
+      es.forEach(function(e){ if(e.isIntersecting){ c.classList.add('in'); io.disconnect(); } });
+    },{threshold:0.4});
+    io.observe(c);
+  })();
+</script>
 <script src="/site-chrome.js?v=7" defer></script>
 </body>
 </html>
