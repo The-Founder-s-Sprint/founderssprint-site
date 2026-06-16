@@ -1,0 +1,378 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>document.documentElement.classList.add('has-js');</script>
+<title>Strategy &amp; Team Building · The Method · The Founder's Sprint</title>
+<meta name="description" content="The discipline of building a company that lasts. A practitioner's breakdown of the eleven strategy-and-team specialties every Ugandan founder needs — competitive strategy, team architecture, operational systems — and why they decide who survives.">
+<link rel="icon" href="/beta/favicon.svg" type="image/svg+xml">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Josefin+Sans:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1A1A1A; --ink-2:#0f0d0a; --paper:#EFE7D8; --paper-2:#F6F0E3; --paper-deep:#E6DCC7;
+    --terra:#C8531F; --terra-deep:#9A3E16; --ochre:#C9923A; --moss:#3D4A2E; --sage:#8AAB5C; --stone:#777770;
+    --muted:#5A564F; --line:rgba(26,26,26,0.12);
+    --sans:'Josefin Sans',system-ui,sans-serif; --display:'Cormorant Garamond',Georgia,serif;
+    --body:'Inter',system-ui,sans-serif; --mono:'JetBrains Mono',monospace;
+    --disc:#5F7A45;       /* discipline accent — Strategy & Team = moss green */
+    --disc-deep:#33421E;  /* deep moss — light-bg accents, buttons, borders */
+    --radius-card:0 0 24px 0;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased;}
+  .shell{max-width:1120px;margin:0 auto;padding:0 24px;}
+  em{font-style:italic;}
+
+  /* ===== HERO ===== */
+  section.fsx-hero .section-eb{color:var(--disc);}
+  .fsx-hero .hero-photo{position:absolute;inset:0;z-index:0;background-position:center;background-size:cover;background-repeat:no-repeat;filter:grayscale(1) contrast(1.04) brightness(.62);opacity:.72;}
+  .fsx-hero .hero-scrim{position:absolute;inset:0;z-index:0;background:linear-gradient(180deg,rgba(15,13,10,.42),rgba(15,13,10,.58) 60%,rgba(15,13,10,.9)),linear-gradient(90deg,rgba(15,13,10,.78),rgba(15,13,10,.24) 55%,transparent);}
+
+  /* ===== INTRO ===== */
+  .intro{padding:84px 0 40px;}
+  .intro .lede{font-family:var(--display);font-size:clamp(24px,3.4vw,34px);line-height:1.4;font-weight:300;max-width:880px;}
+  .intro .lede em{color:var(--disc-deep);font-style:italic;}
+  .intro .by{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:22px;}
+  .intro p.body{max-width:760px;margin-top:18px;color:#2a2824;}
+
+  /* ===== DATA / FUNDING CHART ===== */
+  .data{background:var(--ink-2);color:var(--paper);padding:64px 0;margin-top:56px;}
+  .data .eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--disc);}
+  .data h2{font-family:var(--sans);font-weight:400;font-size:clamp(26px,3.6vw,38px);letter-spacing:-.022em;margin:10px 0 6px;}
+  .data .sub{color:rgba(239,231,216,.66);max-width:660px;}
+  .chart{margin:34px 0 10px;}
+  .bar-row{display:grid;grid-template-columns:120px 1fr 84px;align-items:center;gap:14px;margin:11px 0;}
+  .bar-row .lab{font-family:var(--sans);font-size:13px;font-weight:500;color:rgba(239,231,216,.9);text-align:right;}
+  .bar-track{height:24px;background:rgba(239,231,216,.05);position:relative;}
+  .bar-fill{display:block;height:100%;background:var(--disc);transform:scaleX(1);transform-origin:left;}
+  .bar-row.ug .bar-fill{background:var(--terra);box-shadow:0 0 16px 1px rgba(200,83,31,.55);}
+  .chart.animate .bar-fill{transform:scaleX(0);animation:barGrow 1.05s cubic-bezier(.2,.75,.25,1) both;}
+  .chart.animate .bar-row:nth-child(1) .bar-fill{animation-delay:.05s;}
+  .chart.animate .bar-row:nth-child(2) .bar-fill{animation-delay:.17s;}
+  .chart.animate .bar-row:nth-child(3) .bar-fill{animation-delay:.29s;}
+  .chart.animate .bar-row:nth-child(4) .bar-fill{animation-delay:.41s;}
+  .chart.animate .bar-row.ug .bar-fill{animation:barGrow 1.05s cubic-bezier(.2,.75,.25,1) .75s both, ugGlow 2.4s ease-in-out 2s infinite;}
+  .bar-row.ug .lab{color:var(--terra);font-weight:700;}
+  .bar-row .val{font-family:var(--mono);font-size:12px;color:rgba(239,231,216,.8);}
+  .bar-row.ug .val{color:var(--terra);font-weight:700;}
+  @keyframes barGrow{from{transform:scaleX(0);}to{transform:scaleX(1);}}
+  @keyframes ugGlow{0%,100%{box-shadow:0 0 14px 1px rgba(200,83,31,.5);}50%{box-shadow:0 0 24px 3px rgba(200,83,31,.92);}}
+  @media (prefers-reduced-motion:reduce){.bar-fill,.chart.animate .bar-fill{transform:scaleX(1)!important;animation:none!important;}}
+  .src{font-family:var(--mono);font-size:10.5px;letter-spacing:.04em;color:rgba(239,231,216,.45);margin-top:20px;}
+  .src a{color:rgba(239,231,216,.6);}
+  .data .takeaway{font-family:var(--display);font-size:22px;font-style:italic;line-height:1.5;color:var(--paper);max-width:720px;margin-top:30px;border-left:2px solid var(--disc);padding-left:20px;}
+
+  /* ===== STAT STRIP ===== */
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin:56px 0 8px;}
+  .stat{background:var(--paper-2);padding:26px 22px;}
+  .stat .n{font-family:var(--display);font-size:38px;font-weight:400;color:var(--disc-deep);line-height:1;min-height:104px;display:flex;align-items:center;}
+  .stat .k{font-family:var(--sans);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:10px;}
+  .stat .d{font-size:13px;color:#2a2824;margin-top:6px;line-height:1.5;}
+  .pie{position:relative;width:104px;height:104px;}
+  .pie svg{width:100%;height:100%;display:block;transform:rotate(-90deg);}
+  .pie .trk{fill:none;stroke:rgba(26,26,26,.10);stroke-width:9;}
+  .pie .arc{fill:none;stroke:var(--disc);stroke-width:9;stroke-linecap:round;stroke-dasharray:264;stroke-dashoffset:var(--off);}
+  .pie .pn{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:30px;font-weight:400;color:var(--disc-deep);}
+  .has-js .stats .stat{opacity:0;transform:translateY(14px);transition:opacity .6s ease,transform .6s ease;}
+  .has-js .pie .arc{stroke-dashoffset:264;}
+  .stats.animate .stat{opacity:1;transform:none;}
+  .stats.animate .stat:nth-child(2){transition-delay:.12s;}
+  .stats.animate .stat:nth-child(3){transition-delay:.24s;}
+  .animate .pie .arc{stroke-dashoffset:var(--off);transition:stroke-dashoffset 1.15s cubic-bezier(.2,.75,.25,1);}
+  .pie-sm{width:66px;height:66px;flex-shrink:0;}
+  .pie-sm .pn{font-size:17px;}
+  .mstat{display:flex;align-items:center;gap:16px;margin:2px 0 24px;padding:14px 18px;background:var(--paper-2);border-left:3px solid var(--disc);border-radius:0;}
+  .mstat .mbig{font-family:var(--display);font-size:32px;font-weight:400;color:var(--disc-deep);line-height:1;flex-shrink:0;white-space:nowrap;}
+  .mstat .mtxt{font-size:13.5px;color:#33302b;line-height:1.5;}
+  .mstat .msrc{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.04em;color:var(--muted);margin-top:3px;}
+  .has-js .mstat{opacity:0;transform:translateY(10px);transition:opacity .6s ease,transform .6s ease;}
+  .mstat.animate{opacity:1;transform:none;}
+  @media (prefers-reduced-motion:reduce){
+    .has-js .stats .stat,.has-js .mstat{opacity:1;transform:none;}
+    .has-js .pie .arc{stroke-dashoffset:var(--off);}
+  }
+
+  /* ===== SUB-CATEGORY SECTIONS ===== */
+  .disc-sec{padding:78px 0;}
+  .disc-sec .inner{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;}
+  .disc-sec.alt .inner{grid-template-columns:.95fr 1.05fr;}
+  .disc-sec.alt .copy{order:2;}
+  .disc-sec.alt .visual{order:1;}
+  .sec-eb{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--disc-deep);}
+  .sec-eb .num{color:var(--stone);}
+  .disc-sec h3{font-family:var(--sans);font-weight:400;font-size:clamp(25px,3.4vw,36px);letter-spacing:-.022em;margin:10px 0 0;line-height:1.14;}
+  .disc-sec .stand{font-family:var(--display);font-style:italic;font-size:19px;color:var(--muted);margin:8px 0 22px;max-width:46ch;}
+  .spec{padding:18px 0;border-top:1px solid var(--line);}
+  .spec:first-of-type{border-top:none;}
+  .spec .sn{font-family:var(--sans);font-weight:600;font-size:16px;letter-spacing:.01em;display:flex;align-items:baseline;gap:10px;}
+  .spec .sn::before{content:"";width:7px;height:7px;background:var(--disc);border-radius:0 0 4px 0;flex-shrink:0;transform:translateY(-1px);}
+  .spec p{margin:7px 0 0 17px;font-size:14.5px;color:#33302b;line-height:1.6;}
+  .go{display:inline-flex;align-items:center;gap:8px;margin-top:26px;font-family:var(--sans);font-weight:700;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--paper);background:var(--disc-deep);padding:13px 22px;text-decoration:none;border-radius:0 0 14px 0;transition:opacity .2s;}
+  .go:hover{opacity:.9;}
+
+  .ph-img{width:100%;aspect-ratio:4/5;position:relative;
+    background-color:var(--paper-deep);background-position:center;background-size:cover;background-repeat:no-repeat;
+    filter:grayscale(1) contrast(1.06) brightness(.98) sepia(.10);
+    -webkit-mask-image:radial-gradient(ellipse 80% 82% at 50% 47%,#000 50%,rgba(0,0,0,.4) 74%,transparent 100%);
+    mask-image:radial-gradient(ellipse 80% 82% at 50% 47%,#000 50%,rgba(0,0,0,.4) 74%,transparent 100%);}
+  .constel{position:relative;margin:14px auto 0;max-width:300px;perspective:850px;}
+  .constel svg{width:100%;height:auto;display:block;overflow:visible;}
+  .constel .orbit{transform:rotateX(52deg);transform-origin:50% 50%;}
+  .constel .spin{animation:constelSpin 60s linear infinite;transform-box:fill-box;transform-origin:center;}
+  .constel .lbl{animation:constelLbl 60s linear infinite;transform-box:fill-box;transform-origin:center;}
+  .constel .glow{animation:constelPulse 5s ease-in-out infinite;}
+  @keyframes constelSpin{to{transform:rotate(360deg);}}
+  @keyframes constelLbl{to{transform:rotate(-360deg);}}
+  @keyframes constelPulse{0%,100%{opacity:.12;}50%{opacity:.22;}}
+  @media (prefers-reduced-motion:reduce){.constel .spin,.constel .lbl,.constel .glow{animation:none;}}
+
+  /* ===== PARALLAX ===== */
+  .parallax{position:relative;min-height:340px;display:flex;align-items:center;justify-content:center;text-align:center;
+    background:var(--ink-2) center/cover no-repeat;background-attachment:fixed;}
+  .parallax::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,13,10,.62),rgba(15,13,10,.78));}
+  .parallax .pq{position:relative;z-index:1;max-width:760px;padding:48px 24px;}
+  .parallax .pq q{font-family:var(--display);font-style:italic;font-size:clamp(24px,3.4vw,34px);line-height:1.4;color:var(--paper);quotes:none;}
+  .parallax .pq .who{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--disc);margin-top:18px;}
+
+  /* ===== COACH BAND ===== */
+  .coach{background:var(--ink-2);color:var(--paper);padding:78px 0;}
+  .coach .inner{display:grid;grid-template-columns:340px 1fr;gap:56px;align-items:center;}
+  .coach .portrait{position:relative;}
+  .coach .portrait svg{width:100%;height:auto;display:block;}
+  .coach .portrait image{filter:grayscale(1) contrast(1.05) brightness(1.06);}
+  .coach .eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--disc);}
+  .coach h3{font-family:var(--sans);font-weight:400;font-size:clamp(28px,3.8vw,40px);letter-spacing:-.022em;margin:8px 0 2px;}
+  .coach .role{font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:rgba(239,231,216,.6);}
+  .coach .bio{font-family:var(--display);font-size:21px;line-height:1.55;font-weight:300;color:rgba(239,231,216,.92);margin-top:22px;max-width:60ch;}
+  .coach .bio em{color:var(--disc);font-style:italic;}
+
+  /* ===== FINAL CTA ===== */
+  .end{padding:84px 0;text-align:center;}
+  .end .eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--disc-deep);}
+  .end h2{font-family:var(--sans);font-weight:300;font-size:clamp(30px,4.6vw,50px);letter-spacing:-.022em;margin:12px 0 8px;}
+  .end p{max-width:560px;margin:0 auto 28px;color:var(--muted);}
+  .cta-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+  .btn{font-family:var(--sans);font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase;padding:15px 28px;text-decoration:none;border-radius:0 0 16px 0;}
+  .btn-fill{background:var(--disc-deep);color:var(--paper);} .btn-fill:hover{opacity:.9;}
+  .btn-ghost{background:none;color:var(--ink);border:1px solid var(--line);} .btn-ghost:hover{border-color:var(--ink);}
+
+  @media (max-width:860px){
+    .disc-sec .inner,.disc-sec.alt .inner,.coach .inner{grid-template-columns:1fr;gap:30px;}
+    .disc-sec.alt .copy{order:1;} .disc-sec.alt .visual{order:2;}
+    .coach .portrait{max-width:300px;margin:0 auto;}
+    .stats{grid-template-columns:1fr;}
+    .bar-row{grid-template-columns:92px 1fr 70px;gap:10px;}
+    .parallax{background-attachment:scroll;}
+  }
+</style>
+</head>
+<body>
+
+<div id="fs-nav"></div>
+
+<!-- ===== HERO ===== -->
+<section class="fsx-hero">
+  <div class="hero-photo" style="background-image:url('/images/admin-bg-6.jpg')"></div>
+  <div class="hero-scrim"></div>
+  <div class="hero-constellation"></div>
+  <div class="shell">
+    <span class="eyebrow section-eb">
+      <svg class="v6-mark" viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,8 57,50 50,92 43,50" fill="currentColor" opacity="0.85"/><polygon points="50,8 57,50 50,92 43,50" fill="currentColor" opacity="0.65" transform="rotate(72 50 50)"/><polygon points="50,8 57,50 50,92 43,50" fill="currentColor" opacity="0.55" transform="rotate(144 50 50)"/><polygon points="50,8 57,50 50,92 43,50" fill="currentColor" opacity="0.65" transform="rotate(216 50 50)"/><polygon points="50,8 57,50 50,92 43,50" fill="currentColor" opacity="0.55" transform="rotate(288 50 50)"/><circle cx="50" cy="50" r="4.5" fill="currentColor" opacity="0.8"/></svg>
+      The Method · 04 of 05
+    </span>
+    <h1 class="h-section">Strategy &amp; <em>Team Building</em></h1>
+    <p class="h-sub" style="margin-top:18px;color:rgba(239,231,216,0.66);">The best idea loses to the better-run company. This is the discipline of competitive <em>edge</em>, the right team, and the systems that let a business run without you in every room.</p>
+    <div class="hero-rule"></div>
+    <p class="tag">Build with direction.</p>
+  </div>
+</section>
+
+<!-- ===== INTRO ===== -->
+<section class="intro">
+  <div class="shell">
+    <p class="lede">A great idea executed by the wrong team, in the wrong market, with no moat, is just a slow way to lose money. Strategy and team building is the discipline of making sure the <em>fundamentals</em> hold before you scale them.</p>
+    <p class="by">— from the Strategy &amp; Team Building discipline, led by Moses Engwau Okudu</p>
+    <p class="body">Most Ugandan startups don't die of bad luck. They die because two co-founders never agreed on who decides, because a competitor with deeper pockets copied the idea and moved faster, or because the business never built the systems to run without the founder in every room. None of that is a funding problem — it's a strategy-and-team problem, and it's the most controllable risk a founder has. This page breaks down the eleven specialties of that craft, and why each one earns its place in a serious founder's toolkit.</p>
+  </div>
+</section>
+
+<!-- ===== DATA / FUNDING GAP ===== -->
+<section class="data">
+  <div class="shell">
+    <div class="eyebrow">Why this matters · the survival odds</div>
+    <h2>Capital is scarce — but most failures are self-inflicted.</h2>
+    <p class="sub">In 2024, African startups raised about US$2.2&nbsp;billion. Almost none reached Uganda — so a founder here rarely gets a second cheque to fix a first mistake.</p>
+    <div class="chart" data-reveal role="img" aria-label="2024 startup funding by country: Kenya $638M, Nigeria $410M, Egypt $400M, South Africa $394M, Uganda $19M.">
+      <div class="bar-row"><span class="lab">Kenya</span><span class="bar-track"><span class="bar-fill" style="width:100%"></span></span><span class="val">$638M</span></div>
+      <div class="bar-row"><span class="lab">Nigeria</span><span class="bar-track"><span class="bar-fill" style="width:64%"></span></span><span class="val">$410M</span></div>
+      <div class="bar-row"><span class="lab">Egypt</span><span class="bar-track"><span class="bar-fill" style="width:63%"></span></span><span class="val">$400M</span></div>
+      <div class="bar-row"><span class="lab">South Africa</span><span class="bar-track"><span class="bar-fill" style="width:62%"></span></span><span class="val">$394M</span></div>
+      <div class="bar-row ug"><span class="lab">Uganda</span><span class="bar-track"><span class="bar-fill" style="width:3%"></span></span><span class="val">$19M</span></div>
+    </div>
+    <div class="src">Source: Africa: The Big Deal, 2024 full-year funding (startups raising ≥ US$100k), reported via Technext &amp; Techweez, Jan 2025.</div>
+    <p class="takeaway">Uganda raised roughly <em>one thirty-third</em> of Kenya's total, so there's rarely a rescue round when things go wrong. The failures that follow are mostly self-inflicted — the wrong team, the wrong market, no moat. Strategy and team building is how a founder stops being their own biggest risk.</p>
+  </div>
+</section>
+
+<!-- ===== STAT STRIP ===== -->
+<section class="shell">
+  <div class="stats" id="statstrip" data-reveal>
+    <div class="stat">
+      <div class="pie" role="img" aria-label="65 percent"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="trk" cx="50" cy="50" r="42"/><circle class="arc" cx="50" cy="50" r="42" style="--off:92.4"/></svg><span class="pn" data-count="65" data-suffix="%">65%</span></div>
+      <div class="k">Fail on the team</div>
+      <div class="d">Roughly 65% of high-potential startups that fail do so because of conflict inside the founding team — over leadership, equity and direction. Team is the biggest controllable risk.</div>
+    </div>
+    <div class="stat">
+      <div class="pie" role="img" aria-label="35 percent"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="trk" cx="50" cy="50" r="42"/><circle class="arc" cx="50" cy="50" r="42" style="--off:171.6"/></svg><span class="pn" data-count="35" data-suffix="%">35%</span></div>
+      <div class="k">Build what nobody wants</div>
+      <div class="d">35% of startups fail because they build something the market doesn't actually want. Real strategy and market analysis separate a business from an expensive hobby.</div>
+    </div>
+    <div class="stat">
+      <div class="pie" role="img" aria-label="90 percent"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="trk" cx="50" cy="50" r="42"/><circle class="arc" cx="50" cy="50" r="42" style="--off:26.4"/></svg><span class="pn" data-count="90" data-suffix="%">90%</span></div>
+      <div class="k">Are Uganda's private sector</div>
+      <div class="d">MSMEs make up 90% of Uganda's private sector and ~75% of GDP. Getting strategy and team right isn't optional — it's the backbone of the whole economy.</div>
+    </div>
+  </div>
+  <div class="src" style="color:var(--muted);margin:14px 0 0">Sources: N. Wasserman / Harvard Business School, 2012 (co-founder conflict); CB Insights, 2021; State of Entrepreneurship in Uganda 2024 (MTIC × Mastercard Foundation).</div>
+</section>
+
+<!-- ===== SUB-CATEGORY 1 — COMPETITIVE STRATEGY ===== -->
+<section class="disc-sec">
+  <div class="shell inner">
+    <div class="copy">
+      <div class="sec-eb"><span class="num">Sub-category 01 ·</span> Competitive Strategy</div>
+      <h3>Your competitor isn't trying to beat you. They're trying to make you irrelevant.</h3>
+      <p class="stand">Where you win, why it's defensible, and what you'll do when the market shifts.</p>
+      <div class="mstat" data-reveal><div class="pie pie-sm" role="img" aria-label="19 percent"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="trk" cx="50" cy="50" r="42"/><circle class="arc" cx="50" cy="50" r="42" style="--off:213.8"/></svg><span class="pn" data-count="19" data-suffix="%">19%</span></div><span class="mtxt">of startups fail because they get outcompeted — usually because they never built a moat before a better-resourced rival moved in.<span class="msrc">CB Insights, 2021</span></span></div>
+      <div class="spec"><div class="sn">Market Analysis</div><p>Who's really in the market, how big it is, and where the gap is. Founders who skip this build for a market they imagined instead of the one that exists. We ground your strategy in what's actually out there.</p></div>
+      <div class="spec"><div class="sn">Positioning &amp; Moats</div><p>Why a customer picks you, and why a competitor can't simply copy it. Without a moat, every bit of traction is borrowed. We help you find the edge — distribution, trust, cost, network — that's hard to take away.</p></div>
+      <div class="spec"><div class="sn">Scenario Planning</div><p>The plan for when the assumption breaks — a price war, a new entrant, a policy shift. Founders who've thought through the downside react with a plan instead of panic. We rehearse the futures before they arrive.</p></div>
+      <a class="go" href="/beta/book/?tier=pick3&amp;spec=market-analysis,positioning-and-moats,scenario-planning">Master the Competitive Strategy track →</a>
+    </div>
+    <div class="visual">
+      <div class="ph-img" style="background-image:url('/images/portal-bg-6.jpg')"></div>
+      <div class="constel"><svg class="orbit" viewBox="0 0 300 250"><defs><filter id="fg1" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="5"/></filter></defs><g fill="#5F7A45" opacity=".30"><circle cx="40" cy="38" r="1.5"/><circle cx="264" cy="50" r="1.2"/><circle cx="26" cy="150" r="1.3"/><circle cx="278" cy="172" r="1.5"/><circle cx="150" cy="234" r="1.2"/><circle cx="92" cy="212" r="1"/><circle cx="212" cy="206" r="1.1"/><circle cx="120" cy="28" r="1"/></g><g class="spin"><g class="glow" fill="#5F7A45"><circle cx="150" cy="60" r="12" filter="url(#fg1)"/><circle cx="74" cy="150" r="12" filter="url(#fg1)"/><circle cx="226" cy="150" r="12" filter="url(#fg1)"/><circle cx="150" cy="120" r="16" filter="url(#fg1)"/></g><g stroke="#5F7A45" stroke-width="1" opacity=".45" fill="none"><line x1="150" y1="120" x2="150" y2="60"/><line x1="150" y1="120" x2="74" y2="150"/><line x1="150" y1="120" x2="226" y2="150"/></g><circle cx="150" cy="120" r="20" fill="none" stroke="#5F7A45" stroke-width="1" stroke-dasharray="1 5" opacity=".55"/><circle cx="150" cy="120" r="12" fill="#15110a" stroke="#5F7A45" stroke-width="2"/><circle cx="150" cy="120" r="4" fill="#5F7A45"/><circle cx="145" cy="115" r="2" fill="#EFE7D8" opacity=".55"/><circle cx="150" cy="60" r="8" fill="#15110a" stroke="#5F7A45" stroke-width="1.6"/><circle cx="150" cy="60" r="2.6" fill="#5F7A45"/><circle cx="147" cy="57" r="1.6" fill="#EFE7D8" opacity=".55"/><circle cx="74" cy="150" r="8" fill="#15110a" stroke="#5F7A45" stroke-width="1.6"/><circle cx="74" cy="150" r="2.6" fill="#5F7A45"/><circle cx="71" cy="147" r="1.6" fill="#EFE7D8" opacity=".55"/><circle cx="226" cy="150" r="8" fill="#15110a" stroke="#5F7A45" stroke-width="1.6"/><circle cx="226" cy="150" r="2.6" fill="#5F7A45"/><circle cx="223" cy="147" r="1.6" fill="#EFE7D8" opacity=".55"/><g class="lbl" font-family="Josefin Sans,sans-serif" font-weight="600" font-size="11" fill="#33421E" text-anchor="middle"><text x="150" y="40">Market Analysis</text></g><g class="lbl" font-family="Josefin Sans,sans-serif" font-weight="600" font-size="11" fill="#33421E" text-anchor="middle"><text x="74" y="178">Positioning</text></g><g class="lbl" font-family="Josefin Sans,sans-serif" font-weight="600" font-size="11" fill="#33421E" text-anchor="middle"><text x="226" y="178">Scenario Plan</text></g></g></svg></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PARALLAX 1 ===== -->
+<section class="parallax" style="background-image:url('/images/coach-bg-3.jpg')">
+  <div class="pq"><q>Strategy is choosing what not to do. Most founders fail because they refused to choose.</q><div class="who">Strategy &amp; Team Building · The Founder's Sprint</div></div>
+</section>
+
+<!-- ===== SUB-CATEGORY 2 — TEAM ARCHITECTURE ===== -->
+<section class="disc-sec alt">
+  <div class="shell inner">
+    <div class="copy">
+      <div class="sec-eb"><span class="num">Sub-category 02 ·</span> Team Architecture</div>
+      <h3>A company is just a group of people who agree on what matters. Design that on purpose.</h3>
+      <p class="stand">Who you hire, how they work, and the rules that keep it from breaking.</p>
+      <div class="mstat" data-reveal><div class="pie pie-sm" role="img" aria-label="23 percent"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="trk" cx="50" cy="50" r="42"/><circle class="arc" cx="50" cy="50" r="42" style="--off:203.3"/></svg><span class="pn" data-count="23" data-suffix="%">23%</span></div><span class="mtxt">of startups fail because they didn't have the right team — wrong skills, missing roles, co-founders who couldn't execute together.<span class="msrc">CB Insights, 2021</span></span></div>
+      <div class="spec"><div class="sn">Hiring Strategy</div><p>Who you need now versus who you want later, and how to find them on a startup budget. Early hires shape the culture more than any handbook. We help you hire for the gap, not the résumé.</p></div>
+      <div class="spec"><div class="sn">Culture Design</div><p>The unwritten rules that decide how people behave when no one's watching. Culture forms whether you design it or not — better to choose it deliberately. We help you name the values that actually drive decisions.</p></div>
+      <div class="spec"><div class="sn">Org Structure</div><p>Who owns what, who decides, and who reports to whom — before ambiguity turns into friction. A clear structure lets a small team move fast without stepping on each other. We map roles to the work that matters.</p></div>
+      <div class="spec"><div class="sn">Payroll &amp; HR Compliance</div><p>Contracts, NSSF, PAYE, and the obligations that protect both the founder and the team. Getting people-admin right early avoids disputes and penalties later. We build the basics so growth doesn't create legal exposure.</p></div>
+      <a class="go" href="/beta/book/?tier=pick3&amp;spec=hiring-strategy,culture-design,org-structure">Start the Team Architecture track →</a>
+    </div>
+    <div class="visual">
+      <div class="ph-img" style="background-image:url('/images/coach-bg-5.jpg')"></div>
+      <div class="constel"><svg class="orbit" viewBox="0 0 300 250"><defs><filter id="fg2" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="5"/></filter></defs><g fill="#5F7A45" opacity=".30"><circle cx="40" cy="40" r="1.5"/><circle cx="262" cy="44" r="1.2"/><circle cx="24" cy="150" r="1.3"/><circle cx="280" cy="168" r="1.5"/><circle cx="96" cy="226" r="1.2"/><circle cx="210" cy="224" r="1.1"/><circle cx="120" cy="26" r="1"/></g><g class="spin"><g class="glow" fill="#5F7A45"><circle cx="150" cy="52" r="11" filter="url(#fg2)"/><circle cx="64" cy="128" r="11" filter="url(#fg2)"/><circle cx="236" cy="128" r="11" filter="url(#fg2)"/><circle cx="150" cy="196" r="11" filter="url(#fg2)"/><circle cx="150" cy="124" r="15" filter="url(#fg2)"/></g><g stroke="#5F7A45" stroke-width="1" opacity=".45" fill="none"><line x1="150" y1="124" x2="150" y2="52"/><line x1="150" y1="124" x2="64" y2="128"/><line x1="150" y1="124" x2="236" y2="128"/><line x1="150" y1="124" x2="150" y2="196"/></g><circle cx="150" cy="124" r="19" fill="none" stroke="#5F7A45" stroke-width="1" stroke-dasharray="1 5" opacity=".55"/><circle cx="150" cy="124" r="12" fill="#15110a" stroke="#5F7A45" stroke-width="2"/><circle cx="150" cy="124" r="4" fill="#5F7A45"/><circle cx="145" cy="119" r="2" fill="#EFE7D8" opacity=".55"/><circle cx="150" cy="52" r="8" fill="#15110a" stroke="#5F7A45" stroke-width="1.6"/><circle cx="150" cy="52" r="2.6" fill="#5F7A45"/><circle cx="147" cy="49" r="1.6" fill="#EFE7D8" opacity=".55"/><circle cx="64" cy="128" r="8" fill="#15110a" stroke="#5F7A45" stroke-width="1.6"/><circle cx="64" cy="128" r="2.6" fill="#5F7A45"/><circle cx="61" cy="125" r="1.6" fill="#EFE7D8" opacity=".55"/><circle cx="236" cy="128" r="8" fill="#15110a" stroke="#5F7A45" stroke-width="1.6"/><circle cx="236" cy="128" r="2.6" fill="#5F7A45"/><circle cx="233" cy="125" r="1.6" fill="#EFE7D8" opacity=".55"/><circle cx="150" cy="196" r="8" fill="#15110a" stroke="#5F7A45" stroke-width="1.6"/><circle cx="150" cy="196" r="2.6" fill="#5F7A45"/><circle cx="147" cy="193" r="1.6" fill="#EFE7D8" opacity=".55"/><g class="lbl" font-family="Josefin Sans,sans-serif" font-weight="600" font-size="10.5" fill="#33421E" text-anchor="middle"><text x="150" y="34">Hiring</text></g><g class="lbl" font-family="Josefin Sans,sans-serif" font-weight="600" font-size="10.5" fill="#33421E" text-anchor="middle"><text x="64" y="156">Culture</text></g><g class="lbl" font-family="Josefin Sans,sans-serif" font-weight="600" font-size="10.5" fill="#33421E" text-anchor="middle"><text x="236" y="156">Org Structure</text></g><g class="lbl" font-family="Josefin Sans,sans-serif" font-weight="600" font-size="10.5" fill="#33421E" text-anchor="middle"><text x="150" y="218">Payroll &amp; HR</text></g></g></svg></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PARALLAX 2 ===== -->
+<section class="parallax" style="background-image:url('/images/investor-bg-2.jpg')">
+  <div class="pq"><q>The founder who builds systems gets to leave the room. The one who doesn't becomes the bottleneck.</q><div class="who">Strategy &amp; Team Building · The Founder's Sprint</div></div>
+</section>
+
+<!-- ===== SUB-CATEGORY 3 — OPERATIONAL SYSTEMS ===== -->
+<section class="disc-sec">
+  <div class="shell inner">
+    <div class="copy">
+      <div class="sec-eb"><span class="num">Sub-category 03 ·</span> Operational Systems</div>
+      <h3>A business that only runs when the founder is in the room isn't a business yet.</h3>
+      <p class="stand">The processes, goals, and legal footing that let a company run itself.</p>
+      <div class="mstat" data-reveal><div class="pie pie-sm" role="img" aria-label="61 percent"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="trk" cx="50" cy="50" r="42"/><circle class="arc" cx="50" cy="50" r="42" style="--off:103"/></svg><span class="pn" data-count="61" data-suffix="%">61%</span></div><span class="mtxt">of Ugandan businesses are not formally registered — locked out of finance, contracts, and the chance to scale.<span class="msrc">State of Entrepreneurship in Uganda 2024</span></span></div>
+      <div class="spec"><div class="sn">Process Design</div><p>Turning what's in the founder's head into steps anyone can follow. The first time you write a process down is the first time the business can run without you. We help you systematise the work that repeats.</p></div>
+      <div class="spec"><div class="sn">OKRs &amp; KPIs</div><p>The handful of numbers that tell you whether you're winning, and goals the whole team can pull toward. Without them, everyone's busy and no one's sure it matters. We pick the metrics that actually move the business.</p></div>
+      <div class="spec"><div class="sn">Decision Frameworks</div><p>How choices get made when the founder isn't there — and who gets to make them. Clear decision rights stop a growing team from grinding to a halt. We install the frameworks that keep momentum without chaos.</p></div>
+      <div class="spec"><div class="sn">Legal &amp; Registration</div><p>Company registration, licences, and the legal foundation a serious business stands on. In Uganda, formalising is what unlocks finance, contracts and trust. We get the structure right so growth doesn't hit a wall.</p></div>
+      <a class="go" href="/beta/book/?tier=pick3&amp;spec=process-design,okrs-and-kpis,decision-frameworks">Start the Operational Systems track →</a>
+    </div>
+    <div class="visual">
+      <div class="ph-img" style="background-image:url('/images/portal-bg-8.jpg')"></div>
+      <div class="constel"><svg class="orbit" viewBox="0 0 300 250"><defs><filter id="fg3" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="5"/></filter></defs><g fill="#5F7A45" opacity=".30"><circle cx="40" cy="40" r="1.5"/><circle cx="262" cy="44" r="1.2"/><circle cx="24" cy="150" r="1.3"/><circle cx="280" cy="168" r="1.5"/><circle cx="96" cy="226" r="1.2"/><circle cx="210" cy="224" r="1.1"/><circle cx="120" cy="26" r="1"/></g><g class="spin"><g class="glow" fill="#5F7A45"><circle cx="150" cy="52" r="11" filter="url(#fg3)"/><circle cx="64" cy="128" r="11" filter="url(#fg3)"/><circle cx="236" cy="128" r="11" filter="url(#fg3)"/><circle cx="150" cy="196" r="11" filter="url(#fg3)"/><circle cx="150" cy="124" r="15" filter="url(#fg3)"/></g><g stroke="#5F7A45" stroke-width="1" opacity=".45" fill="none"><line x1="150" y1="124" x2="150" y2="52"/><line x1="150" y1="124" x2="64" y2="128"/><line x1="150" y1="124" x2="236" y2="128"/><line x1="150" y1="124" x2="150" y2="196"/></g><circle cx="150" cy="124" r="19" fill="none" stroke="#5F7A45" stroke-width="1" stroke-dasharray="1 5" opacity=".55"/><circle cx="150" cy="124" r="12" fill="#15110a" stroke="#5F7A45" stroke-width="2"/><circle cx="150" cy="124" r="4" fill="#5F7A45"/><circle cx="145" cy="119" r="2" fill="#EFE7D8" opacity=".55"/><circle cx="150" cy="52" r="8" fill="#15110a" stroke="#5F7A45" stroke-width="1.6"/><circle cx="150" cy="52" r="2.6" fill="#5F7A45"/><circle cx="147" cy="49" r="1.6" fill="#EFE7D8" opacity=".55"/><circle cx="64" cy="128" r="8" fill="#15110a" stroke="#5F7A45" stroke-width="1.6"/><circle cx="64" cy="128" r="2.6" fill="#5F7A45"/><circle cx="61" cy="125" r="1.6" fill="#EFE7D8" opacity=".55"/><circle cx="236" cy="128" r="8" fill="#15110a" stroke="#5F7A45" stroke-width="1.6"/><circle cx="236" cy="128" r="2.6" fill="#5F7A45"/><circle cx="233" cy="125" r="1.6" fill="#EFE7D8" opacity=".55"/><circle cx="150" cy="196" r="8" fill="#15110a" stroke="#5F7A45" stroke-width="1.6"/><circle cx="150" cy="196" r="2.6" fill="#5F7A45"/><circle cx="147" cy="193" r="1.6" fill="#EFE7D8" opacity=".55"/><g class="lbl" font-family="Josefin Sans,sans-serif" font-weight="600" font-size="10.5" fill="#33421E" text-anchor="middle"><text x="150" y="34">Process Design</text></g><g class="lbl" font-family="Josefin Sans,sans-serif" font-weight="600" font-size="10.5" fill="#33421E" text-anchor="middle"><text x="64" y="156">OKRs &amp; KPIs</text></g><g class="lbl" font-family="Josefin Sans,sans-serif" font-weight="600" font-size="10.5" fill="#33421E" text-anchor="middle"><text x="236" y="156">Decisions</text></g><g class="lbl" font-family="Josefin Sans,sans-serif" font-weight="600" font-size="10.5" fill="#33421E" text-anchor="middle"><text x="150" y="218">Legal &amp; Reg</text></g></g></svg></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== COACH BAND ===== -->
+<section class="coach">
+  <div class="shell inner">
+    <div class="portrait">
+      <svg viewBox="0 0 340 360" aria-label="Moses Engwau Okudu in the Strategy & Team Building constellation">
+        <defs><clipPath id="pclip"><circle cx="170" cy="165" r="92"/></clipPath></defs>
+        <g stroke="#5F7A45" stroke-width="1" opacity=".4" fill="none">
+          <line x1="170" y1="165" x2="40" y2="60"/><line x1="170" y1="165" x2="300" y2="60"/>
+          <line x1="170" y1="165" x2="20" y2="180"/><line x1="170" y1="165" x2="320" y2="180"/>
+          <line x1="170" y1="165" x2="55" y2="300"/><line x1="170" y1="165" x2="285" y2="300"/>
+          <line x1="170" y1="165" x2="120" y2="30"/><line x1="170" y1="165" x2="220" y2="30"/><line x1="170" y1="165" x2="170" y2="330"/>
+        </g>
+        <g fill="#5F7A45"><circle cx="40" cy="60" r="3"/><circle cx="300" cy="60" r="3"/><circle cx="20" cy="180" r="3"/><circle cx="320" cy="180" r="3"/><circle cx="55" cy="300" r="3"/><circle cx="285" cy="300" r="3"/><circle cx="120" cy="30" r="3"/><circle cx="220" cy="30" r="3"/><circle cx="170" cy="330" r="3"/></g>
+        <circle cx="170" cy="165" r="96" fill="none" stroke="#5F7A45" stroke-width="1.5" opacity=".7"/>
+        <image href="/beta/images/coach-moses.jpg" x="78" y="73" width="184" height="184" clip-path="url(#pclip)" preserveAspectRatio="xMidYMid slice"/>
+        <circle cx="170" cy="165" r="92" fill="#0f0d0a" opacity="0.04"/>
+      </svg>
+    </div>
+    <div>
+      <div class="eyebrow">Discipline lead</div>
+      <h3>Moses Engwau Okudu</h3>
+      <div class="role">Strategy &amp; Team Building</div>
+      <p class="bio">Moses leads the discipline of building a company that can outlast its founder's energy — the right strategy, the right people, and the systems that hold it all together. He coaches founders to design teams and decisions that don't depend on heroics. To him, strategy isn't a document; it's the <em>habits</em> a company runs on.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FINAL CTA ===== -->
+<section class="end">
+  <div class="shell">
+    <div class="eyebrow">Eleven specialties · one discipline</div>
+    <h2>Build a company that lasts.</h2>
+    <p>Explore how Strategy &amp; Team Building connects to the other four disciplines, or book a 2-hour deep-dive with Moses on the specialty you need most.</p>
+    <div class="cta-row">
+      <a class="btn btn-ghost" href="/beta/explore/#strategy">Explore the constellation →</a>
+      <a class="btn btn-fill" href="/beta/book/?tier=single">Book a Strategy &amp; Team session →</a>
+    </div>
+  </div>
+</section>
+
+<div id="fs-footer"></div>
+<script>
+  (function(){
+    var rm = window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+    function fmt(el,v){ var d=el.dataset.dec?+el.dataset.dec:0; return (el.dataset.prefix||'')+v.toFixed(d)+(el.dataset.suffix||''); }
+    function countUp(el){
+      var target=parseFloat(el.dataset.count); if(isNaN(target)) return;
+      var t0=null, dur=1150;
+      function step(ts){ if(!t0)t0=ts; var p=Math.min((ts-t0)/dur,1), e=1-Math.pow(1-p,3); el.textContent=fmt(el,target*e); if(p<1) requestAnimationFrame(step); else el.textContent=fmt(el,target); }
+      requestAnimationFrame(step);
+    }
+    function fire(el){
+      el.classList.add('animate');
+      el.querySelectorAll('[data-count]').forEach(rm ? function(e){ e.textContent=fmt(e,parseFloat(e.dataset.count)); } : countUp);
+    }
+    var items = document.querySelectorAll('[data-reveal]');
+    if(rm || !('IntersectionObserver' in window)){ items.forEach(fire); return; }
+    var io=new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ if(e.isIntersecting){ fire(e.target); io.unobserve(e.target); } });
+    },{threshold:0.3});
+    items.forEach(function(el){ io.observe(el); });
+  })();
+</script>
+<script src="/site-chrome.js?v=7" defer></script>
+</body>
+</html>

@@ -3,6 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<script>document.documentElement.classList.add('has-js');</script>
 <title>Financial Modelling · The Method · The Founder's Sprint</title>
 <meta name="description" content="The discipline of making every shilling accountable. A practitioner's breakdown of the ten financial-modelling specialties every Ugandan founder needs — unit economics, runway, valuation — and why they decide who survives in a capital-poor market.">
 <link rel="icon" href="/beta/favicon.svg" type="image/svg+xml">
@@ -26,6 +27,9 @@
 
   /* ===== HERO (uses .fsx-hero from site-chrome) ===== */
   section.fsx-hero .section-eb{color:var(--disc);}   /* tint eyebrow + V6 mark gold; specificity beats site-chrome's injected rule */
+  /* B&W hero photo behind the constellation glow (matches the login-portal treatment) */
+  .fsx-hero .hero-photo{position:absolute;inset:0;z-index:0;background-position:center;background-size:cover;background-repeat:no-repeat;filter:grayscale(1) contrast(1.04) brightness(.62);opacity:.72;}
+  .fsx-hero .hero-scrim{position:absolute;inset:0;z-index:0;background:linear-gradient(180deg,rgba(15,13,10,.42),rgba(15,13,10,.58) 60%,rgba(15,13,10,.9)),linear-gradient(90deg,rgba(15,13,10,.78),rgba(15,13,10,.24) 55%,transparent);}
   .fsx-hero .disc-tagline{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ochre);margin-top:6px;}
 
   /* ===== INTRO / CONTEXT ===== */
@@ -66,9 +70,34 @@
   /* ===== STAT STRIP ===== */
   .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin:56px 0 8px;}
   .stat{background:var(--paper-2);padding:26px 22px;}
-  .stat .n{font-family:var(--display);font-size:38px;font-weight:400;color:var(--disc-deep);line-height:1;}
+  .stat .n{font-family:var(--display);font-size:38px;font-weight:400;color:var(--disc-deep);line-height:1;min-height:104px;display:flex;align-items:center;}
   .stat .k{font-family:var(--sans);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:10px;}
   .stat .d{font-size:13px;color:#2a2824;margin-top:6px;line-height:1.5;}
+  /* animated donut pies for percentage stats */
+  .pie{position:relative;width:104px;height:104px;}
+  .pie svg{width:100%;height:100%;display:block;transform:rotate(-90deg);}
+  .pie .trk{fill:none;stroke:rgba(26,26,26,.10);stroke-width:9;}
+  .pie .arc{fill:none;stroke:var(--disc);stroke-width:9;stroke-linecap:round;stroke-dasharray:264;stroke-dashoffset:var(--off);}
+  .pie .pn{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:30px;font-weight:400;color:var(--disc-deep);}
+  /* scroll-reveal for the stat strip (mirrors the bar-chart pattern) */
+  .has-js .stats .stat{opacity:0;transform:translateY(14px);transition:opacity .6s ease,transform .6s ease;}
+  .has-js .pie .arc{stroke-dashoffset:264;}
+  .stats.animate .stat{opacity:1;transform:none;}
+  .stats.animate .stat:nth-child(2){transition-delay:.12s;}
+  .stats.animate .stat:nth-child(3){transition-delay:.24s;}
+  .animate .pie .arc{stroke-dashoffset:var(--off);transition:stroke-dashoffset 1.15s cubic-bezier(.2,.75,.25,1);}
+  .pie-sm{width:66px;height:66px;flex-shrink:0;}
+  .pie-sm .pn{font-size:17px;}
+  /* per-section sourced stat chip */
+  .mstat{display:flex;align-items:center;gap:16px;margin:2px 0 24px;padding:14px 18px;background:var(--paper-2);border-left:3px solid var(--disc);border-radius:0;}
+  .mstat .mtxt{font-size:13.5px;color:#33302b;line-height:1.5;}
+  .mstat .msrc{display:block;font-family:var(--mono);font-size:10px;letter-spacing:.04em;color:var(--muted);margin-top:3px;}
+  .has-js .mstat{opacity:0;transform:translateY(10px);transition:opacity .6s ease,transform .6s ease;}
+  .mstat.animate{opacity:1;transform:none;}
+  @media (prefers-reduced-motion:reduce){
+    .has-js .stats .stat,.has-js .mstat{opacity:1;transform:none;}
+    .has-js .pie .arc{stroke-dashoffset:var(--off);}
+  }
 
   /* ===== SUB-CATEGORY SECTIONS ===== */
   .disc-sec{padding:78px 0;}
@@ -153,6 +182,8 @@
 
 <!-- ===== HERO ===== -->
 <section class="fsx-hero">
+  <div class="hero-photo" style="background-image:url('/images/admin-bg-3.jpg')"></div>
+  <div class="hero-scrim"></div>
   <div class="hero-constellation"></div>
   <div class="shell">
     <span class="eyebrow section-eb">
@@ -181,7 +212,7 @@
     <div class="eyebrow">Why this matters · the capital gap</div>
     <h2>Capital here is scarce — and it doesn't forgive sloppy numbers.</h2>
     <p class="sub">In 2024, African startups raised about US$2.2&nbsp;billion. Almost none of it reached Uganda — and that's before you count the credit local businesses can't get at all.</p>
-    <div class="chart" role="img" aria-label="2024 startup funding by country: Kenya $638M, Nigeria $410M, Egypt $400M, South Africa $394M, Uganda $19M.">
+    <div class="chart" data-reveal role="img" aria-label="2024 startup funding by country: Kenya $638M, Nigeria $410M, Egypt $400M, South Africa $394M, Uganda $19M.">
       <div class="bar-row"><span class="lab">Kenya</span><span class="bar-track"><span class="bar-fill" style="width:100%"></span></span><span class="val">$638M</span></div>
       <div class="bar-row"><span class="lab">Nigeria</span><span class="bar-track"><span class="bar-fill" style="width:64%"></span></span><span class="val">$410M</span></div>
       <div class="bar-row"><span class="lab">Egypt</span><span class="bar-track"><span class="bar-fill" style="width:63%"></span></span><span class="val">$400M</span></div>
@@ -195,10 +226,28 @@
 
 <!-- ===== STAT STRIP ===== -->
 <section class="shell">
-  <div class="stats">
-    <div class="stat"><div class="n">UGX 31.4tn</div><div class="k">Unmet MSME credit demand</div><div class="d">≈ US$8.8 billion. Uganda's million-plus small businesses want far more credit than the system will lend — and lenders fund the ones whose numbers they can trust.</div></div>
-    <div class="stat"><div class="n">90%</div><div class="k">Of the private sector</div><div class="d">MSMEs are nine in ten of Uganda's private enterprises. This isn't a niche — it's the economy. Yet most run on instinct, not financials.</div></div>
-    <div class="stat"><div class="n">80%</div><div class="k">Of national GDP</div><div class="d">Small businesses generate roughly four-fifths of Uganda's output and millions of jobs. The engine is huge; what's often missing is the discipline to make it bankable.</div></div>
+  <div class="stats" id="statstrip" data-reveal>
+    <div class="stat">
+      <div class="n" data-count="31.4" data-dec="1" data-prefix="UGX " data-suffix="tn">UGX 31.4tn</div>
+      <div class="k">Unmet MSME credit demand</div>
+      <div class="d">≈ US$8.8 billion. Uganda's million-plus small businesses want far more credit than the system will lend — and lenders fund the ones whose numbers they can trust.</div>
+    </div>
+    <div class="stat">
+      <div class="pie" role="img" aria-label="90 percent">
+        <svg viewBox="0 0 100 100" aria-hidden="true"><circle class="trk" cx="50" cy="50" r="42"/><circle class="arc" cx="50" cy="50" r="42" style="--off:26.4"/></svg>
+        <span class="pn" data-count="90" data-suffix="%">90%</span>
+      </div>
+      <div class="k">Of the private sector</div>
+      <div class="d">MSMEs are nine in ten of Uganda's private enterprises. This isn't a niche — it's the economy. Yet most run on instinct, not financials.</div>
+    </div>
+    <div class="stat">
+      <div class="pie" role="img" aria-label="80 percent">
+        <svg viewBox="0 0 100 100" aria-hidden="true"><circle class="trk" cx="50" cy="50" r="42"/><circle class="arc" cx="50" cy="50" r="42" style="--off:52.8"/></svg>
+        <span class="pn" data-count="80" data-suffix="%">80%</span>
+      </div>
+      <div class="k">Of national GDP</div>
+      <div class="d">Small businesses generate roughly four-fifths of Uganda's output and millions of jobs. The engine is huge; what's often missing is the discipline to make it bankable.</div>
+    </div>
   </div>
   <div class="src" style="color:var(--muted);margin:14px 0 0">Sources: IFC — Market Bite Uganda, Nov 2021 (credit demand, survey of 833 MSMEs); UNCTAD, 2022 (private-sector &amp; GDP share).</div>
 </section>
@@ -210,6 +259,7 @@
       <div class="sec-eb"><span class="num">Sub-category 01 ·</span> Unit Economics</div>
       <h3>If a single sale doesn't make sense, a million of them won't either.</h3>
       <p class="stand">The economics of one customer — understood before you scale the losses.</p>
+      <div class="mstat" data-reveal><div class="pie pie-sm" role="img" aria-label="80 percent"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="trk" cx="50" cy="50" r="42"/><circle class="arc" cx="50" cy="50" r="42" style="--off:52.8"/></svg><span class="pn" data-count="80" data-suffix="%">80%</span></div><span class="mtxt">of African startups fail within their first five years — most because the economics never added up.<span class="msrc">African Development Bank</span></span></div>
       <div class="spec"><div class="sn">CAC &amp; LTV</div><p>What it costs to win a customer, against what that customer is worth over their lifetime. Get this ratio wrong and growth just burns cash faster. We help you measure both honestly — and find the gap where profit actually lives.</p></div>
       <div class="spec"><div class="sn">Payback Period</div><p>How many months until a customer pays back what you spent to acquire them. In a cash-tight market, a long payback can sink you even when the unit looks "profitable" on paper. We pin down how fast your money comes home.</p></div>
       <div class="spec"><div class="sn">Contribution Margin</div><p>What's left from each sale after the costs that scale with it — the real fuel for everything else. Founders who know their contribution margin know exactly how much room they have to grow, discount, or survive a slow month.</p></div>
@@ -217,7 +267,7 @@
     </div>
     <div class="visual">
       <div class="ph-img" data-ph="img: unit economics" style="background-image:url('/images/admin-bg-2.jpg')"><span class="bar"></span></div>
-      <div class="constel"><svg class="orbit" viewBox="0 0 300 250"><defs><filter id="fg1" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="4"/></filter></defs><g class="spin"><g class="glow" fill="#C9923A"><circle cx="150" cy="60" r="14" filter="url(#fg1)"/><circle cx="74" cy="150" r="14" filter="url(#fg1)"/><circle cx="226" cy="150" r="14" filter="url(#fg1)"/><circle cx="150" cy="120" r="18" filter="url(#fg1)"/></g><g stroke="#C9923A" stroke-width="1" opacity=".5" fill="none"><line x1="150" y1="120" x2="150" y2="60"/><line x1="150" y1="120" x2="74" y2="150"/><line x1="150" y1="120" x2="226" y2="150"/></g><circle cx="150" cy="60" r="8" fill="#EFE7D8" stroke="#C9923A" stroke-width="1.6"/><circle cx="150" cy="60" r="3" fill="#C9923A"/><circle cx="74" cy="150" r="8" fill="#EFE7D8" stroke="#C9923A" stroke-width="1.6"/><circle cx="74" cy="150" r="3" fill="#C9923A"/><circle cx="226" cy="150" r="8" fill="#EFE7D8" stroke="#C9923A" stroke-width="1.6"/><circle cx="226" cy="150" r="3" fill="#C9923A"/><circle cx="150" cy="120" r="11" fill="#EFE7D8" stroke="#6E4E14" stroke-width="2.2"/><circle cx="150" cy="120" r="4" fill="#6E4E14"/><g class="lbl" font-family="Josefin Sans,sans-serif" font-weight="600" font-size="11" fill="#6E4E14" text-anchor="middle"><text x="150" y="40">CAC &amp; LTV</text></g><g class="lbl" font-family="Josefin Sans,sans-serif" font-weight="600" font-size="11" fill="#6E4E14" text-anchor="middle"><text x="74" y="178">Payback</text></g><g class="lbl" font-family="Josefin Sans,sans-serif" font-weight="600" font-size="11" fill="#6E4E14" text-anchor="middle"><text x="226" y="178">Contribution</text></g></g></svg></div>
+      <div class="constel"><svg class="orbit" viewBox="0 0 300 250"><defs><filter id="fg1" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="5"/></filter></defs><g fill="#C9923A" opacity=".30"><circle cx="40" cy="38" r="1.5"/><circle cx="264" cy="50" r="1.2"/><circle cx="26" cy="150" r="1.3"/><circle cx="278" cy="172" r="1.5"/><circle cx="150" cy="234" r="1.2"/><circle cx="92" cy="212" r="1"/><circle cx="212" cy="206" r="1.1"/><circle cx="120" cy="28" r="1"/></g><g class="spin"><g class="glow" fill="#C9923A"><circle cx="150" cy="60" r="12" filter="url(#fg1)"/><circle cx="74" cy="150" r="12" filter="url(#fg1)"/><circle cx="226" cy="150" r="12" filter="url(#fg1)"/><circle cx="150" cy="120" r="16" filter="url(#fg1)"/></g><g stroke="#C9923A" stroke-width="1" opacity=".45" fill="none"><line x1="150" y1="120" x2="150" y2="60"/><line x1="150" y1="120" x2="74" y2="150"/><line x1="150" y1="120" x2="226" y2="150"/></g><circle cx="150" cy="120" r="20" fill="none" stroke="#C9923A" stroke-width="1" stroke-dasharray="1 5" opacity=".55"/><circle cx="150" cy="120" r="12" fill="#15110a" stroke="#C9923A" stroke-width="2"/><circle cx="150" cy="120" r="4" fill="#C9923A"/><circle cx="145" cy="115" r="2" fill="#EFE7D8" opacity=".55"/><circle cx="150" cy="60" r="8" fill="#15110a" stroke="#C9923A" stroke-width="1.6"/><circle cx="150" cy="60" r="2.6" fill="#C9923A"/><circle cx="147" cy="57" r="1.6" fill="#EFE7D8" opacity=".55"/><circle cx="74" cy="150" r="8" fill="#15110a" stroke="#C9923A" stroke-width="1.6"/><circle cx="74" cy="150" r="2.6" fill="#C9923A"/><circle cx="71" cy="147" r="1.6" fill="#EFE7D8" opacity=".55"/><circle cx="226" cy="150" r="8" fill="#15110a" stroke="#C9923A" stroke-width="1.6"/><circle cx="226" cy="150" r="2.6" fill="#C9923A"/><circle cx="223" cy="147" r="1.6" fill="#EFE7D8" opacity=".55"/><g class="lbl" font-family="Josefin Sans,sans-serif" font-weight="600" font-size="11" fill="#6E4E14" text-anchor="middle"><text x="150" y="40">CAC &amp; LTV</text></g><g class="lbl" font-family="Josefin Sans,sans-serif" font-weight="600" font-size="11" fill="#6E4E14" text-anchor="middle"><text x="74" y="178">Payback</text></g><g class="lbl" font-family="Josefin Sans,sans-serif" font-weight="600" font-size="11" fill="#6E4E14" text-anchor="middle"><text x="226" y="178">Contribution</text></g></g></svg></div>
     </div>
   </div>
 </section>
@@ -234,6 +284,7 @@
       <div class="sec-eb"><span class="num">Sub-category 02 ·</span> Financial Planning</div>
       <h3>A plan is just a guess until the cash flow proves it.</h3>
       <p class="stand">Forecasting, runway, and the discipline of not running out.</p>
+      <div class="mstat" data-reveal><div class="pie pie-sm" role="img" aria-label="9 percent"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="trk" cx="50" cy="50" r="42"/><circle class="arc" cx="50" cy="50" r="42" style="--off:240.2"/></svg><span class="pn" data-count="9" data-suffix="%">9%</span></div><span class="mtxt">of Uganda's MSMEs are formally registered — the rest run with no books to plan from.<span class="msrc">UNCTAD, 2023</span></span></div>
       <div class="spec"><div class="sn">Revenue Forecasting</div><p>A forecast you can defend — built from real drivers, not a wishful straight line. It's the backbone of every budget, hire, and pitch. We teach you to model revenue you can actually stand behind in front of an investor.</p></div>
       <div class="spec"><div class="sn">Burn Rate &amp; Runway</div><p>How fast you're spending, and how many months that leaves you. The single number that decides how much time you have to make it work. Knowing your runway to the week is the difference between a calm decision and a panicked one.</p></div>
       <div class="spec"><div class="sn">Cash Flow Management</div><p>Profit is an opinion; cash is a fact. Plenty of growing businesses die solvent on paper but dry in the bank. We build the cash-flow view that tells you what you can spend this week — and what you can't.</p></div>
@@ -242,7 +293,7 @@
     </div>
     <div class="visual">
       <div class="ph-img" data-ph="img: financial planning" style="background-image:url('/images/admin-bg-4.jpg')"><span class="bar"></span></div>
-      <div class="constel"><svg class="orbit" viewBox="0 0 300 250"><defs><filter id="fg2" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="4"/></filter></defs><g class="spin"><g class="glow" fill="#C9923A"><circle cx="150" cy="52" r="13" filter="url(#fg2)"/><circle cx="64" cy="128" r="13" filter="url(#fg2)"/><circle cx="236" cy="128" r="13" filter="url(#fg2)"/><circle cx="150" cy="196" r="13" filter="url(#fg2)"/><circle cx="150" cy="124" r="17" filter="url(#fg2)"/></g><g stroke="#C9923A" stroke-width="1" opacity=".5" fill="none"><line x1="150" y1="124" x2="150" y2="52"/><line x1="150" y1="124" x2="64" y2="128"/><line x1="150" y1="124" x2="236" y2="128"/><line x1="150" y1="124" x2="150" y2="196"/></g><circle cx="150" cy="52" r="8" fill="#EFE7D8" stroke="#C9923A" stroke-width="1.6"/><circle cx="150" cy="52" r="3" fill="#C9923A"/><circle cx="64" cy="128" r="8" fill="#EFE7D8" stroke="#C9923A" stroke-width="1.6"/><circle cx="64" cy="128" r="3" fill="#C9923A"/><circle cx="236" cy="128" r="8" fill="#EFE7D8" stroke="#C9923A" stroke-width="1.6"/><circle cx="236" cy="128" r="3" fill="#C9923A"/><circle cx="150" cy="196" r="8" fill="#EFE7D8" stroke="#C9923A" stroke-width="1.6"/><circle cx="150" cy="196" r="3" fill="#C9923A"/><circle cx="150" cy="124" r="11" fill="#EFE7D8" stroke="#6E4E14" stroke-width="2.2"/><circle cx="150" cy="124" r="4" fill="#6E4E14"/><g class="lbl" font-family="Josefin Sans,sans-serif" font-weight="600" font-size="10.5" fill="#6E4E14" text-anchor="middle"><text x="150" y="34">Revenue Forecast</text></g><g class="lbl" font-family="Josefin Sans,sans-serif" font-weight="600" font-size="10.5" fill="#6E4E14" text-anchor="middle"><text x="64" y="156">Burn &amp; Runway</text></g><g class="lbl" font-family="Josefin Sans,sans-serif" font-weight="600" font-size="10.5" fill="#6E4E14" text-anchor="middle"><text x="236" y="156">Cash Flow</text></g><g class="lbl" font-family="Josefin Sans,sans-serif" font-weight="600" font-size="10.5" fill="#6E4E14" text-anchor="middle"><text x="150" y="218">Tax &amp; Compliance</text></g></g></svg></div>
+      <div class="constel"><svg class="orbit" viewBox="0 0 300 250"><defs><filter id="fg2" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="5"/></filter></defs><g fill="#C9923A" opacity=".30"><circle cx="40" cy="40" r="1.5"/><circle cx="262" cy="44" r="1.2"/><circle cx="24" cy="150" r="1.3"/><circle cx="280" cy="168" r="1.5"/><circle cx="96" cy="226" r="1.2"/><circle cx="210" cy="224" r="1.1"/><circle cx="120" cy="26" r="1"/></g><g class="spin"><g class="glow" fill="#C9923A"><circle cx="150" cy="52" r="11" filter="url(#fg2)"/><circle cx="64" cy="128" r="11" filter="url(#fg2)"/><circle cx="236" cy="128" r="11" filter="url(#fg2)"/><circle cx="150" cy="196" r="11" filter="url(#fg2)"/><circle cx="150" cy="124" r="15" filter="url(#fg2)"/></g><g stroke="#C9923A" stroke-width="1" opacity=".45" fill="none"><line x1="150" y1="124" x2="150" y2="52"/><line x1="150" y1="124" x2="64" y2="128"/><line x1="150" y1="124" x2="236" y2="128"/><line x1="150" y1="124" x2="150" y2="196"/></g><circle cx="150" cy="124" r="19" fill="none" stroke="#C9923A" stroke-width="1" stroke-dasharray="1 5" opacity=".55"/><circle cx="150" cy="124" r="12" fill="#15110a" stroke="#C9923A" stroke-width="2"/><circle cx="150" cy="124" r="4" fill="#C9923A"/><circle cx="145" cy="119" r="2" fill="#EFE7D8" opacity=".55"/><circle cx="150" cy="52" r="8" fill="#15110a" stroke="#C9923A" stroke-width="1.6"/><circle cx="150" cy="52" r="2.6" fill="#C9923A"/><circle cx="147" cy="49" r="1.6" fill="#EFE7D8" opacity=".55"/><circle cx="64" cy="128" r="8" fill="#15110a" stroke="#C9923A" stroke-width="1.6"/><circle cx="64" cy="128" r="2.6" fill="#C9923A"/><circle cx="61" cy="125" r="1.6" fill="#EFE7D8" opacity=".55"/><circle cx="236" cy="128" r="8" fill="#15110a" stroke="#C9923A" stroke-width="1.6"/><circle cx="236" cy="128" r="2.6" fill="#C9923A"/><circle cx="233" cy="125" r="1.6" fill="#EFE7D8" opacity=".55"/><circle cx="150" cy="196" r="8" fill="#15110a" stroke="#C9923A" stroke-width="1.6"/><circle cx="150" cy="196" r="2.6" fill="#C9923A"/><circle cx="147" cy="193" r="1.6" fill="#EFE7D8" opacity=".55"/><g class="lbl" font-family="Josefin Sans,sans-serif" font-weight="600" font-size="10.5" fill="#6E4E14" text-anchor="middle"><text x="150" y="34">Revenue Forecast</text></g><g class="lbl" font-family="Josefin Sans,sans-serif" font-weight="600" font-size="10.5" fill="#6E4E14" text-anchor="middle"><text x="64" y="156">Burn &amp; Runway</text></g><g class="lbl" font-family="Josefin Sans,sans-serif" font-weight="600" font-size="10.5" fill="#6E4E14" text-anchor="middle"><text x="236" y="156">Cash Flow</text></g><g class="lbl" font-family="Josefin Sans,sans-serif" font-weight="600" font-size="10.5" fill="#6E4E14" text-anchor="middle"><text x="150" y="218">Tax &amp; Compliance</text></g></g></svg></div>
     </div>
   </div>
 </section>
@@ -259,6 +310,7 @@
       <div class="sec-eb"><span class="num">Sub-category 03 ·</span> Capital Architecture</div>
       <h3>Raising money is the easy part. Structuring it so you keep your company is the craft.</h3>
       <p class="stand">Valuation, ownership, and the terms you'll live with for years.</p>
+      <div class="mstat" data-reveal><div class="pie pie-sm" role="img" aria-label="under 10 percent"><svg viewBox="0 0 100 100" aria-hidden="true"><circle class="trk" cx="50" cy="50" r="42"/><circle class="arc" cx="50" cy="50" r="42" style="--off:237.6"/></svg><span class="pn" data-count="10" data-prefix="<" data-suffix="%">&lt;10%</span></div><span class="mtxt">of Ugandan family businesses survive beyond the founding generation — ownership is rarely built to last.<span class="msrc">Economic Policy Research Centre</span></span></div>
       <div class="spec"><div class="sn">Valuation Methods</div><p>What your company is worth, and why — in language an investor respects. A number you can justify turns a negotiation from hope into evidence. We ground your valuation in method, not in what you wish it were.</p></div>
       <div class="spec"><div class="sn">Cap Table Design</div><p>Who owns what, and what's left for the people who haven't joined yet. A messy cap table can quietly kill a deal years later. We help you design ownership that still makes sense three rounds from now.</p></div>
       <div class="spec"><div class="sn">Term Sheet Analysis</div><p>The clauses that decide control, dilution, and who really runs the company. Founders sign terms they don't fully understand and pay for it for years. We teach you to read a term sheet like the people on the other side of the table.</p></div>
@@ -266,7 +318,7 @@
     </div>
     <div class="visual">
       <div class="ph-img" data-ph="img: capital architecture" style="background-image:url('/images/investor-bg-4.jpg')"><span class="bar"></span></div>
-      <div class="constel"><svg class="orbit" viewBox="0 0 300 250"><defs><filter id="fg3" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="4"/></filter></defs><g class="spin"><g class="glow" fill="#C9923A"><circle cx="150" cy="60" r="14" filter="url(#fg3)"/><circle cx="74" cy="150" r="14" filter="url(#fg3)"/><circle cx="226" cy="150" r="14" filter="url(#fg3)"/><circle cx="150" cy="120" r="18" filter="url(#fg3)"/></g><g stroke="#C9923A" stroke-width="1" opacity=".5" fill="none"><line x1="150" y1="120" x2="150" y2="60"/><line x1="150" y1="120" x2="74" y2="150"/><line x1="150" y1="120" x2="226" y2="150"/></g><circle cx="150" cy="60" r="8" fill="#EFE7D8" stroke="#C9923A" stroke-width="1.6"/><circle cx="150" cy="60" r="3" fill="#C9923A"/><circle cx="74" cy="150" r="8" fill="#EFE7D8" stroke="#C9923A" stroke-width="1.6"/><circle cx="74" cy="150" r="3" fill="#C9923A"/><circle cx="226" cy="150" r="8" fill="#EFE7D8" stroke="#C9923A" stroke-width="1.6"/><circle cx="226" cy="150" r="3" fill="#C9923A"/><circle cx="150" cy="120" r="11" fill="#EFE7D8" stroke="#6E4E14" stroke-width="2.2"/><circle cx="150" cy="120" r="4" fill="#6E4E14"/><g class="lbl" font-family="Josefin Sans,sans-serif" font-weight="600" font-size="11" fill="#6E4E14" text-anchor="middle"><text x="150" y="40">Valuation</text></g><g class="lbl" font-family="Josefin Sans,sans-serif" font-weight="600" font-size="11" fill="#6E4E14" text-anchor="middle"><text x="74" y="178">Cap Table</text></g><g class="lbl" font-family="Josefin Sans,sans-serif" font-weight="600" font-size="11" fill="#6E4E14" text-anchor="middle"><text x="226" y="178">Term Sheets</text></g></g></svg></div>
+      <div class="constel"><svg class="orbit" viewBox="0 0 300 250"><defs><filter id="fg3" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="5"/></filter></defs><g fill="#C9923A" opacity=".30"><circle cx="40" cy="38" r="1.5"/><circle cx="264" cy="50" r="1.2"/><circle cx="26" cy="150" r="1.3"/><circle cx="278" cy="172" r="1.5"/><circle cx="150" cy="234" r="1.2"/><circle cx="92" cy="212" r="1"/><circle cx="212" cy="206" r="1.1"/><circle cx="120" cy="28" r="1"/></g><g class="spin"><g class="glow" fill="#C9923A"><circle cx="150" cy="60" r="12" filter="url(#fg3)"/><circle cx="74" cy="150" r="12" filter="url(#fg3)"/><circle cx="226" cy="150" r="12" filter="url(#fg3)"/><circle cx="150" cy="120" r="16" filter="url(#fg3)"/></g><g stroke="#C9923A" stroke-width="1" opacity=".45" fill="none"><line x1="150" y1="120" x2="150" y2="60"/><line x1="150" y1="120" x2="74" y2="150"/><line x1="150" y1="120" x2="226" y2="150"/></g><circle cx="150" cy="120" r="20" fill="none" stroke="#C9923A" stroke-width="1" stroke-dasharray="1 5" opacity=".55"/><circle cx="150" cy="120" r="12" fill="#15110a" stroke="#C9923A" stroke-width="2"/><circle cx="150" cy="120" r="4" fill="#C9923A"/><circle cx="145" cy="115" r="2" fill="#EFE7D8" opacity=".55"/><circle cx="150" cy="60" r="8" fill="#15110a" stroke="#C9923A" stroke-width="1.6"/><circle cx="150" cy="60" r="2.6" fill="#C9923A"/><circle cx="147" cy="57" r="1.6" fill="#EFE7D8" opacity=".55"/><circle cx="74" cy="150" r="8" fill="#15110a" stroke="#C9923A" stroke-width="1.6"/><circle cx="74" cy="150" r="2.6" fill="#C9923A"/><circle cx="71" cy="147" r="1.6" fill="#EFE7D8" opacity=".55"/><circle cx="226" cy="150" r="8" fill="#15110a" stroke="#C9923A" stroke-width="1.6"/><circle cx="226" cy="150" r="2.6" fill="#C9923A"/><circle cx="223" cy="147" r="1.6" fill="#EFE7D8" opacity=".55"/><g class="lbl" font-family="Josefin Sans,sans-serif" font-weight="600" font-size="11" fill="#6E4E14" text-anchor="middle"><text x="150" y="40">Valuation</text></g><g class="lbl" font-family="Josefin Sans,sans-serif" font-weight="600" font-size="11" fill="#6E4E14" text-anchor="middle"><text x="74" y="178">Cap Table</text></g><g class="lbl" font-family="Josefin Sans,sans-serif" font-weight="600" font-size="11" fill="#6E4E14" text-anchor="middle"><text x="226" y="178">Term Sheets</text></g></g></svg></div>
     </div>
   </div>
 </section>
@@ -315,14 +367,24 @@
 <div id="fs-footer"></div>
 <script>
   (function(){
-    var chart=document.querySelector('.chart');
-    if(!chart) return;
-    if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches) return;
-    if(!('IntersectionObserver' in window)){ chart.classList.add('animate'); return; }
+    var rm = window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+    function fmt(el,v){ var d=el.dataset.dec?+el.dataset.dec:0; return (el.dataset.prefix||'')+v.toFixed(d)+(el.dataset.suffix||''); }
+    function countUp(el){
+      var target=parseFloat(el.dataset.count); if(isNaN(target)) return;
+      var t0=null, dur=1150;
+      function step(ts){ if(!t0)t0=ts; var p=Math.min((ts-t0)/dur,1), e=1-Math.pow(1-p,3); el.textContent=fmt(el,target*e); if(p<1) requestAnimationFrame(step); else el.textContent=fmt(el,target); }
+      requestAnimationFrame(step);
+    }
+    function fire(el){
+      el.classList.add('animate');
+      el.querySelectorAll('[data-count]').forEach(rm ? function(e){ e.textContent=fmt(e,parseFloat(e.dataset.count)); } : countUp);
+    }
+    var items = document.querySelectorAll('[data-reveal]');
+    if(rm || !('IntersectionObserver' in window)){ items.forEach(fire); return; }
     var io=new IntersectionObserver(function(entries){
-      entries.forEach(function(e){ if(e.isIntersecting){ chart.classList.add('animate'); io.disconnect(); } });
-    },{threshold:0.35});
-    io.observe(chart);
+      entries.forEach(function(e){ if(e.isIntersecting){ fire(e.target); io.unobserve(e.target); } });
+    },{threshold:0.3});
+    items.forEach(function(el){ io.observe(el); });
   })();
 </script>
 <script src="/site-chrome.js?v=7" defer></script>
