@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Financial Modelling · The Method · The Founder's Sprint</title>
+<meta name="description" content="The discipline of making every shilling accountable. A practitioner's breakdown of the ten financial-modelling specialties every Ugandan founder needs — unit economics, runway, valuation — and why they decide who survives in a capital-poor market.">
+<link rel="icon" href="/beta/favicon.svg" type="image/svg+xml">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Josefin+Sans:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1A1A1A; --ink-2:#0f0d0a; --paper:#EFE7D8; --paper-2:#F6F0E3; --paper-deep:#E6DCC7;
+    --terra:#C8531F; --terra-deep:#9A3E16; --ochre:#C9923A; --moss:#3D4A2E; --sage:#8AAB5C; --stone:#777770;
+    --muted:#5A564F; --line:rgba(26,26,26,0.12);
+    --sans:'Josefin Sans',system-ui,sans-serif; --display:'Cormorant Garamond',Georgia,serif;
+    --body:'Inter',system-ui,sans-serif; --mono:'JetBrains Mono',monospace;
+    --disc:#C9923A;       /* discipline accent — Financial Modelling = ochre/gold */
+    --disc-deep:#6E4E14;  /* deep bronze — light-bg accents, buttons, borders */
+    --radius-card:0 0 24px 0;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased;}
+  .shell{max-width:1120px;margin:0 auto;padding:0 24px;}
+  em{font-style:italic;}
+
+  /* ===== HERO (uses .fsx-hero from site-chrome) ===== */
+  section.fsx-hero .section-eb{color:var(--disc);}   /* tint eyebrow + V6 mark gold; specificity beats site-chrome's injected rule */
+  .fsx-hero .disc-tagline{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--ochre);margin-top:6px;}
+
+  /* ===== INTRO / CONTEXT ===== */
+  .intro{padding:84px 0 40px;}
+  .intro .lede{font-family:var(--display);font-size:clamp(24px,3.4vw,34px);line-height:1.4;font-weight:300;max-width:880px;}
+  .intro .lede em{color:var(--disc-deep);font-style:italic;}
+  .intro .by{font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:22px;}
+  .intro p.body{max-width:760px;margin-top:18px;color:#2a2824;}
+
+  /* ===== FUNDING CHART ===== */
+  .data{background:var(--ink-2);color:var(--paper);padding:64px 0;margin-top:56px;}
+  .data .eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--disc);}
+  .data h2{font-family:var(--sans);font-weight:400;font-size:clamp(26px,3.6vw,38px);letter-spacing:-.022em;margin:10px 0 6px;}
+  .data .sub{color:rgba(239,231,216,.66);max-width:660px;}
+  .chart{margin:34px 0 10px;}
+  .bar-row{display:grid;grid-template-columns:120px 1fr 84px;align-items:center;gap:14px;margin:11px 0;}
+  .bar-row .lab{font-family:var(--sans);font-size:13px;font-weight:500;color:rgba(239,231,216,.9);text-align:right;}
+  .bar-track{height:24px;background:rgba(239,231,216,.05);position:relative;}
+  .bar-fill{height:100%;background:var(--disc);transform:scaleX(0);transform-origin:left;animation:barGrow 1.05s cubic-bezier(.2,.75,.25,1) both;}
+  .bar-row:nth-child(1) .bar-fill{animation-delay:.1s;}
+  .bar-row:nth-child(2) .bar-fill{animation-delay:.22s;}
+  .bar-row:nth-child(3) .bar-fill{animation-delay:.34s;}
+  .bar-row:nth-child(4) .bar-fill{animation-delay:.46s;}
+  .bar-row.ug .bar-fill{background:var(--terra);box-shadow:0 0 16px 1px rgba(200,83,31,.55);animation:barGrow 1.05s cubic-bezier(.2,.75,.25,1) .8s both, ugGlow 2.4s ease-in-out 2.1s infinite;}
+  .bar-row.ug .lab{color:var(--terra);font-weight:700;}
+  .bar-row .val{font-family:var(--mono);font-size:12px;color:rgba(239,231,216,.8);}
+  .bar-row.ug .val{color:var(--terra);font-weight:700;}
+  @keyframes barGrow{to{transform:scaleX(1);}}
+  @keyframes ugGlow{0%,100%{box-shadow:0 0 14px 1px rgba(200,83,31,.5);}50%{box-shadow:0 0 24px 3px rgba(200,83,31,.92);}}
+  @media (prefers-reduced-motion:reduce){.bar-fill{transform:none;animation:none!important;}}
+  .src{font-family:var(--mono);font-size:10.5px;letter-spacing:.04em;color:rgba(239,231,216,.45);margin-top:20px;}
+  .src a{color:rgba(239,231,216,.6);}
+  .data .takeaway{font-family:var(--display);font-size:22px;font-style:italic;line-height:1.5;color:var(--paper);max-width:720px;margin-top:30px;border-left:2px solid var(--disc);padding-left:20px;}
+
+  /* ===== STAT STRIP ===== */
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin:56px 0 8px;}
+  .stat{background:var(--paper-2);padding:26px 22px;}
+  .stat .n{font-family:var(--display);font-size:38px;font-weight:400;color:var(--disc-deep);line-height:1;}
+  .stat .k{font-family:var(--sans);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:10px;}
+  .stat .d{font-size:13px;color:#2a2824;margin-top:6px;line-height:1.5;}
+
+  /* ===== SUB-CATEGORY SECTIONS ===== */
+  .disc-sec{padding:78px 0;}
+  .disc-sec .inner{display:grid;grid-template-columns:1.05fr .95fr;gap:56px;align-items:center;}
+  .disc-sec.alt .inner{grid-template-columns:.95fr 1.05fr;}
+  .disc-sec.alt .copy{order:2;}
+  .disc-sec.alt .visual{order:1;}
+  .sec-eb{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--disc-deep);}
+  .sec-eb .num{color:var(--stone);}
+  .disc-sec h3{font-family:var(--sans);font-weight:400;font-size:clamp(25px,3.4vw,36px);letter-spacing:-.022em;margin:10px 0 0;line-height:1.14;}
+  .disc-sec .stand{font-family:var(--display);font-style:italic;font-size:19px;color:var(--muted);margin:8px 0 22px;max-width:46ch;}
+  .spec{padding:18px 0;border-top:1px solid var(--line);}
+  .spec:first-of-type{border-top:none;}
+  .spec .sn{font-family:var(--sans);font-weight:600;font-size:16px;letter-spacing:.01em;display:flex;align-items:baseline;gap:10px;}
+  .spec .sn::before{content:"";width:7px;height:7px;background:var(--disc);border-radius:0 0 4px 0;flex-shrink:0;transform:translateY(-1px);}
+  .spec p{margin:7px 0 0 17px;font-size:14.5px;color:#33302b;line-height:1.6;}
+  .go{display:inline-flex;align-items:center;gap:8px;margin-top:26px;font-family:var(--sans);font-weight:700;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--paper);background:var(--disc-deep);padding:13px 22px;text-decoration:none;border-radius:0 0 14px 0;transition:opacity .2s;}
+  .go:hover{opacity:.9;}
+
+  /* visual column: image + partial constellation */
+  /* Photograph, course-material treatment, edges feathered into the paper background */
+  .ph-img{width:100%;aspect-ratio:4/5;position:relative;
+    background-color:var(--paper-deep);background-position:center;background-size:cover;background-repeat:no-repeat;
+    filter:grayscale(1) contrast(1.06) brightness(.98) sepia(.10);
+    -webkit-mask-image:radial-gradient(ellipse 80% 82% at 50% 47%,#000 50%,rgba(0,0,0,.4) 74%,transparent 100%);
+    mask-image:radial-gradient(ellipse 80% 82% at 50% 47%,#000 50%,rgba(0,0,0,.4) 74%,transparent 100%);}
+  .ph-img .bar{display:none;}
+  /* Partial constellation — spinning labelled nodes; labels counter-rotate to stay upright; flattened orbit plane */
+  .constel{position:relative;margin:14px auto 0;max-width:300px;perspective:850px;}
+  .constel svg{width:100%;height:auto;display:block;overflow:visible;}
+  .constel .orbit{transform:rotateX(52deg);transform-origin:50% 50%;}
+  .constel .spin{animation:constelSpin 60s linear infinite;transform-box:fill-box;transform-origin:center;}
+  .constel .lbl{animation:constelLbl 60s linear infinite;transform-box:fill-box;transform-origin:center;}
+  .constel .glow{animation:constelPulse 5s ease-in-out infinite;}
+  @keyframes constelSpin{to{transform:rotate(360deg);}}
+  @keyframes constelLbl{to{transform:rotate(-360deg);}}
+  @keyframes constelPulse{0%,100%{opacity:.12;}50%{opacity:.22;}}
+  @media (prefers-reduced-motion:reduce){.constel .spin,.constel .lbl,.constel .glow{animation:none;}}
+
+  /* ===== PARALLAX DIVIDERS ===== */
+  .parallax{position:relative;min-height:340px;display:flex;align-items:center;justify-content:center;text-align:center;
+    background:var(--ink-2) center/cover no-repeat;background-attachment:fixed;}
+  .parallax::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,13,10,.62),rgba(15,13,10,.78));}
+  .parallax .pq{position:relative;z-index:1;max-width:760px;padding:48px 24px;}
+  .parallax .pq q{font-family:var(--display);font-style:italic;font-size:clamp(24px,3.4vw,34px);line-height:1.4;color:var(--paper);quotes:none;}
+  .parallax .pq .who{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--disc);margin-top:18px;}
+
+  /* ===== COACH BAND ===== */
+  .coach{background:var(--ink-2);color:var(--paper);padding:78px 0;}
+  .coach .inner{display:grid;grid-template-columns:340px 1fr;gap:56px;align-items:center;}
+  .coach .portrait{position:relative;}
+  .coach .portrait svg{width:100%;height:auto;display:block;}
+  .coach .eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--disc);}
+  .coach h3{font-family:var(--sans);font-weight:400;font-size:clamp(28px,3.8vw,40px);letter-spacing:-.022em;margin:8px 0 2px;}
+  .coach .role{font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:rgba(239,231,216,.6);}
+  .coach .bio{font-family:var(--display);font-size:21px;line-height:1.55;font-weight:300;color:rgba(239,231,216,.92);margin-top:22px;max-width:60ch;}
+  .coach .bio em{color:var(--disc);font-style:italic;}
+
+  /* ===== FINAL CTA ===== */
+  .end{padding:84px 0;text-align:center;}
+  .end .eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--disc-deep);}
+  .end h2{font-family:var(--sans);font-weight:300;font-size:clamp(30px,4.6vw,50px);letter-spacing:-.022em;margin:12px 0 8px;}
+  .end p{max-width:560px;margin:0 auto 28px;color:var(--muted);}
+  .cta-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+  .btn{font-family:var(--sans);font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase;padding:15px 28px;text-decoration:none;border-radius:0 0 16px 0;}
+  .btn-fill{background:var(--disc-deep);color:var(--paper);} .btn-fill:hover{opacity:.9;}
+  .btn-ghost{background:none;color:var(--ink);border:1px solid var(--line);} .btn-ghost:hover{border-color:var(--ink);}
+
+  @media (max-width:860px){
+    .disc-sec .inner,.disc-sec.alt .inner,.coach .inner{grid-template-columns:1fr;gap:30px;}
+    .disc-sec.alt .copy{order:1;} .disc-sec.alt .visual{order:2;}
+    .coach .portrait{max-width:300px;margin:0 auto;}
+    .stats{grid-template-columns:1fr;}
+    .bar-row{grid-template-columns:92px 1fr 70px;gap:10px;}
+    .parallax{background-attachment:scroll;}
+  }
+</style>
+</head>
+<body>
+
+<div id="fs-nav"></div>
+
+<!-- ===== HERO ===== -->
+<section class="fsx-hero">
+  <div class="hero-constellation"></div>
+  <div class="shell">
+    <span class="eyebrow section-eb">
+      <svg class="v6-mark" viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,8 57,50 50,92 43,50" fill="currentColor" opacity="0.85"/><polygon points="50,8 57,50 50,92 43,50" fill="currentColor" opacity="0.65" transform="rotate(72 50 50)"/><polygon points="50,8 57,50 50,92 43,50" fill="currentColor" opacity="0.55" transform="rotate(144 50 50)"/><polygon points="50,8 57,50 50,92 43,50" fill="currentColor" opacity="0.65" transform="rotate(216 50 50)"/><polygon points="50,8 57,50 50,92 43,50" fill="currentColor" opacity="0.55" transform="rotate(288 50 50)"/><circle cx="50" cy="50" r="4.5" fill="currentColor" opacity="0.8"/></svg>
+      The Method · 02 of 05
+    </span>
+    <h1 class="h-section">Financial <em>Modelling</em></h1>
+    <p class="h-sub" style="margin-top:18px;color:rgba(239,231,216,0.66);">Before a founder hires, raises, or scales, the numbers have to make sense — to them first, then to an investor. This is the discipline of knowing exactly what every <em>shilling</em> is supposed to do, and proving it.</p>
+    <div class="hero-rule"></div>
+    <p class="tag">Build with direction.</p>
+  </div>
+</section>
+
+<!-- ===== INTRO ===== -->
+<section class="intro">
+  <div class="shell">
+    <p class="lede">Capital is the scarcest thing a Ugandan founder has — and the easiest to lose track of. Financial modelling isn't accounting after the fact. It's knowing, before you spend it, exactly what every <em>shilling</em> is meant to do.</p>
+    <p class="by">— from the Financial Modelling discipline, led by Barry Wojega</p>
+    <p class="body">Most businesses here don't fail because the idea was wrong. They fail because they ran out of money before the idea had time to work — and never saw it coming. In a market where a bank loan is rare and venture capital is rarer, the founders who survive are the ones who can hold their own numbers in their head: what a customer costs, what they're worth, how long the cash lasts, and what the company is actually worth to an investor. This page breaks down the ten specialties of that craft, and why each one earns its place in a serious founder's toolkit.</p>
+  </div>
+</section>
+
+<!-- ===== DATA / FUNDING GAP ===== -->
+<section class="data">
+  <div class="shell">
+    <div class="eyebrow">Why this matters · the capital gap</div>
+    <h2>Capital here is scarce — and it doesn't forgive sloppy numbers.</h2>
+    <p class="sub">In 2024, African startups raised about US$2.2&nbsp;billion. Almost none of it reached Uganda — and that's before you count the credit local businesses can't get at all.</p>
+    <div class="chart" role="img" aria-label="2024 startup funding by country: Kenya $638M, Nigeria $410M, Egypt $400M, South Africa $394M, Uganda $19M.">
+      <div class="bar-row"><span class="lab">Kenya</span><span class="bar-track"><span class="bar-fill" style="width:100%"></span></span><span class="val">$638M</span></div>
+      <div class="bar-row"><span class="lab">Nigeria</span><span class="bar-track"><span class="bar-fill" style="width:64%"></span></span><span class="val">$410M</span></div>
+      <div class="bar-row"><span class="lab">Egypt</span><span class="bar-track"><span class="bar-fill" style="width:63%"></span></span><span class="val">$400M</span></div>
+      <div class="bar-row"><span class="lab">South Africa</span><span class="bar-track"><span class="bar-fill" style="width:62%"></span></span><span class="val">$394M</span></div>
+      <div class="bar-row ug"><span class="lab">Uganda</span><span class="bar-track"><span class="bar-fill" style="width:3%"></span></span><span class="val">$19M</span></div>
+    </div>
+    <div class="src">Source: Africa: The Big Deal, 2024 full-year funding (startups raising ≥ US$100k), reported via Technext &amp; Techweez, Jan 2025.</div>
+    <p class="takeaway">Uganda raised roughly <em>one thirty-third</em> of Kenya's total — and its small businesses face an estimated <em>US$8.8&nbsp;billion</em> unmet credit gap on top of it. When money is this hard to come by, you cannot afford to guess. Financial modelling is how a founder makes every shilling accountable, survives the lean months, and becomes one of the few the capital actually trusts.</p>
+  </div>
+</section>
+
+<!-- ===== STAT STRIP ===== -->
+<section class="shell">
+  <div class="stats">
+    <div class="stat"><div class="n">UGX 31.4tn</div><div class="k">Unmet MSME credit demand</div><div class="d">≈ US$8.8 billion. Uganda's million-plus small businesses want far more credit than the system will lend — and lenders fund the ones whose numbers they can trust.</div></div>
+    <div class="stat"><div class="n">90%</div><div class="k">Of the private sector</div><div class="d">MSMEs are nine in ten of Uganda's private enterprises. This isn't a niche — it's the economy. Yet most run on instinct, not financials.</div></div>
+    <div class="stat"><div class="n">80%</div><div class="k">Of national GDP</div><div class="d">Small businesses generate roughly four-fifths of Uganda's output and millions of jobs. The engine is huge; what's often missing is the discipline to make it bankable.</div></div>
+  </div>
+  <div class="src" style="color:var(--muted);margin:14px 0 0">Sources: IFC — Market Bite Uganda, Nov 2021 (credit demand, survey of 833 MSMEs); UNCTAD, 2022 (private-sector &amp; GDP share).</div>
+</section>
+
+<!-- ===== SUB-CATEGORY 1 — UNIT ECONOMICS ===== -->
+<section class="disc-sec">
+  <div class="shell inner">
+    <div class="copy">
+      <div class="sec-eb"><span class="num">Sub-category 01 ·</span> Unit Economics</div>
+      <h3>If a single sale doesn't make sense, a million of them won't either.</h3>
+      <p class="stand">The economics of one customer — understood before you scale the losses.</p>
+      <div class="spec"><div class="sn">CAC &amp; LTV</div><p>What it costs to win a customer, against what that customer is worth over their lifetime. Get this ratio wrong and growth just burns cash faster. We help you measure both honestly — and find the gap where profit actually lives.</p></div>
+      <div class="spec"><div class="sn">Payback Period</div><p>How many months until a customer pays back what you spent to acquire them. In a cash-tight market, a long payback can sink you even when the unit looks "profitable" on paper. We pin down how fast your money comes home.</p></div>
+      <div class="spec"><div class="sn">Contribution Margin</div><p>What's left from each sale after the costs that scale with it — the real fuel for everything else. Founders who know their contribution margin know exactly how much room they have to grow, discount, or survive a slow month.</p></div>
+      <a class="go" href="/beta/book/?tier=pick3&amp;spec=cac-and-ltv,payback-period,contribution-margin">Master the Unit Economics track →</a>
+    </div>
+    <div class="visual">
+      <div class="ph-img" data-ph="img: unit economics" style="background-image:url('/images/admin-bg-2.jpg')"><span class="bar"></span></div>
+      <div class="constel"><svg class="orbit" viewBox="0 0 300 250"><defs><filter id="fg1" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="4"/></filter></defs><g class="spin"><g class="glow" fill="#C9923A"><circle cx="150" cy="60" r="14" filter="url(#fg1)"/><circle cx="74" cy="150" r="14" filter="url(#fg1)"/><circle cx="226" cy="150" r="14" filter="url(#fg1)"/><circle cx="150" cy="120" r="18" filter="url(#fg1)"/></g><g stroke="#C9923A" stroke-width="1" opacity=".5" fill="none"><line x1="150" y1="120" x2="150" y2="60"/><line x1="150" y1="120" x2="74" y2="150"/><line x1="150" y1="120" x2="226" y2="150"/></g><circle cx="150" cy="60" r="8" fill="#EFE7D8" stroke="#C9923A" stroke-width="1.6"/><circle cx="150" cy="60" r="3" fill="#C9923A"/><circle cx="74" cy="150" r="8" fill="#EFE7D8" stroke="#C9923A" stroke-width="1.6"/><circle cx="74" cy="150" r="3" fill="#C9923A"/><circle cx="226" cy="150" r="8" fill="#EFE7D8" stroke="#C9923A" stroke-width="1.6"/><circle cx="226" cy="150" r="3" fill="#C9923A"/><circle cx="150" cy="120" r="11" fill="#EFE7D8" stroke="#6E4E14" stroke-width="2.2"/><circle cx="150" cy="120" r="4" fill="#6E4E14"/><g class="lbl" font-family="Josefin Sans,sans-serif" font-weight="600" font-size="11" fill="#6E4E14" text-anchor="middle"><text x="150" y="40">CAC &amp; LTV</text></g><g class="lbl" font-family="Josefin Sans,sans-serif" font-weight="600" font-size="11" fill="#6E4E14" text-anchor="middle"><text x="74" y="178">Payback</text></g><g class="lbl" font-family="Josefin Sans,sans-serif" font-weight="600" font-size="11" fill="#6E4E14" text-anchor="middle"><text x="226" y="178">Contribution</text></g></g></svg></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PARALLAX 1 ===== -->
+<section class="parallax" style="background-image:url('/images/investor-bg-6.jpg')">
+  <div class="pq"><q>Profit is an opinion. Cash is a fact. Run out of the second and the first never gets a chance.</q><div class="who">Financial Modelling · The Founder's Sprint</div></div>
+</section>
+
+<!-- ===== SUB-CATEGORY 2 — FINANCIAL PLANNING ===== -->
+<section class="disc-sec alt">
+  <div class="shell inner">
+    <div class="copy">
+      <div class="sec-eb"><span class="num">Sub-category 02 ·</span> Financial Planning</div>
+      <h3>A plan is just a guess until the cash flow proves it.</h3>
+      <p class="stand">Forecasting, runway, and the discipline of not running out.</p>
+      <div class="spec"><div class="sn">Revenue Forecasting</div><p>A forecast you can defend — built from real drivers, not a wishful straight line. It's the backbone of every budget, hire, and pitch. We teach you to model revenue you can actually stand behind in front of an investor.</p></div>
+      <div class="spec"><div class="sn">Burn Rate &amp; Runway</div><p>How fast you're spending, and how many months that leaves you. The single number that decides how much time you have to make it work. Knowing your runway to the week is the difference between a calm decision and a panicked one.</p></div>
+      <div class="spec"><div class="sn">Cash Flow Management</div><p>Profit is an opinion; cash is a fact. Plenty of growing businesses die solvent on paper but dry in the bank. We build the cash-flow view that tells you what you can spend this week — and what you can't.</p></div>
+      <div class="spec"><div class="sn">Tax &amp; Compliance</div><p>URA, VAT, and the obligations that quietly compound into a crisis when ignored. Building tax into the model from the start keeps a growing business from being ambushed by its own success. We make compliance a line in the plan, not a year-end shock.</p></div>
+      <a class="go" href="/beta/book/?tier=pick3&amp;spec=revenue-forecasting,burn-rate-and-runway,cash-flow-management">Start the Financial Planning track →</a>
+    </div>
+    <div class="visual">
+      <div class="ph-img" data-ph="img: financial planning" style="background-image:url('/images/admin-bg-4.jpg')"><span class="bar"></span></div>
+      <div class="constel"><svg class="orbit" viewBox="0 0 300 250"><defs><filter id="fg2" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="4"/></filter></defs><g class="spin"><g class="glow" fill="#C9923A"><circle cx="150" cy="52" r="13" filter="url(#fg2)"/><circle cx="64" cy="128" r="13" filter="url(#fg2)"/><circle cx="236" cy="128" r="13" filter="url(#fg2)"/><circle cx="150" cy="196" r="13" filter="url(#fg2)"/><circle cx="150" cy="124" r="17" filter="url(#fg2)"/></g><g stroke="#C9923A" stroke-width="1" opacity=".5" fill="none"><line x1="150" y1="124" x2="150" y2="52"/><line x1="150" y1="124" x2="64" y2="128"/><line x1="150" y1="124" x2="236" y2="128"/><line x1="150" y1="124" x2="150" y2="196"/></g><circle cx="150" cy="52" r="8" fill="#EFE7D8" stroke="#C9923A" stroke-width="1.6"/><circle cx="150" cy="52" r="3" fill="#C9923A"/><circle cx="64" cy="128" r="8" fill="#EFE7D8" stroke="#C9923A" stroke-width="1.6"/><circle cx="64" cy="128" r="3" fill="#C9923A"/><circle cx="236" cy="128" r="8" fill="#EFE7D8" stroke="#C9923A" stroke-width="1.6"/><circle cx="236" cy="128" r="3" fill="#C9923A"/><circle cx="150" cy="196" r="8" fill="#EFE7D8" stroke="#C9923A" stroke-width="1.6"/><circle cx="150" cy="196" r="3" fill="#C9923A"/><circle cx="150" cy="124" r="11" fill="#EFE7D8" stroke="#6E4E14" stroke-width="2.2"/><circle cx="150" cy="124" r="4" fill="#6E4E14"/><g class="lbl" font-family="Josefin Sans,sans-serif" font-weight="600" font-size="10.5" fill="#6E4E14" text-anchor="middle"><text x="150" y="34">Revenue Forecast</text></g><g class="lbl" font-family="Josefin Sans,sans-serif" font-weight="600" font-size="10.5" fill="#6E4E14" text-anchor="middle"><text x="64" y="156">Burn &amp; Runway</text></g><g class="lbl" font-family="Josefin Sans,sans-serif" font-weight="600" font-size="10.5" fill="#6E4E14" text-anchor="middle"><text x="236" y="156">Cash Flow</text></g><g class="lbl" font-family="Josefin Sans,sans-serif" font-weight="600" font-size="10.5" fill="#6E4E14" text-anchor="middle"><text x="150" y="218">Tax &amp; Compliance</text></g></g></svg></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PARALLAX 2 ===== -->
+<section class="parallax" style="background-image:url('/images/investor-bg-3.jpg')">
+  <div class="pq"><q>Investors don't fund the best idea in the room. They fund the founder whose numbers they believe.</q><div class="who">Financial Modelling · The Founder's Sprint</div></div>
+</section>
+
+<!-- ===== SUB-CATEGORY 3 — CAPITAL ARCHITECTURE ===== -->
+<section class="disc-sec">
+  <div class="shell inner">
+    <div class="copy">
+      <div class="sec-eb"><span class="num">Sub-category 03 ·</span> Capital Architecture</div>
+      <h3>Raising money is the easy part. Structuring it so you keep your company is the craft.</h3>
+      <p class="stand">Valuation, ownership, and the terms you'll live with for years.</p>
+      <div class="spec"><div class="sn">Valuation Methods</div><p>What your company is worth, and why — in language an investor respects. A number you can justify turns a negotiation from hope into evidence. We ground your valuation in method, not in what you wish it were.</p></div>
+      <div class="spec"><div class="sn">Cap Table Design</div><p>Who owns what, and what's left for the people who haven't joined yet. A messy cap table can quietly kill a deal years later. We help you design ownership that still makes sense three rounds from now.</p></div>
+      <div class="spec"><div class="sn">Term Sheet Analysis</div><p>The clauses that decide control, dilution, and who really runs the company. Founders sign terms they don't fully understand and pay for it for years. We teach you to read a term sheet like the people on the other side of the table.</p></div>
+      <a class="go" href="/beta/book/?tier=pick3&amp;spec=valuation-methods,cap-table-design,term-sheet-analysis">Master the Capital Architecture track →</a>
+    </div>
+    <div class="visual">
+      <div class="ph-img" data-ph="img: capital architecture" style="background-image:url('/images/investor-bg-4.jpg')"><span class="bar"></span></div>
+      <div class="constel"><svg class="orbit" viewBox="0 0 300 250"><defs><filter id="fg3" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="4"/></filter></defs><g class="spin"><g class="glow" fill="#C9923A"><circle cx="150" cy="60" r="14" filter="url(#fg3)"/><circle cx="74" cy="150" r="14" filter="url(#fg3)"/><circle cx="226" cy="150" r="14" filter="url(#fg3)"/><circle cx="150" cy="120" r="18" filter="url(#fg3)"/></g><g stroke="#C9923A" stroke-width="1" opacity=".5" fill="none"><line x1="150" y1="120" x2="150" y2="60"/><line x1="150" y1="120" x2="74" y2="150"/><line x1="150" y1="120" x2="226" y2="150"/></g><circle cx="150" cy="60" r="8" fill="#EFE7D8" stroke="#C9923A" stroke-width="1.6"/><circle cx="150" cy="60" r="3" fill="#C9923A"/><circle cx="74" cy="150" r="8" fill="#EFE7D8" stroke="#C9923A" stroke-width="1.6"/><circle cx="74" cy="150" r="3" fill="#C9923A"/><circle cx="226" cy="150" r="8" fill="#EFE7D8" stroke="#C9923A" stroke-width="1.6"/><circle cx="226" cy="150" r="3" fill="#C9923A"/><circle cx="150" cy="120" r="11" fill="#EFE7D8" stroke="#6E4E14" stroke-width="2.2"/><circle cx="150" cy="120" r="4" fill="#6E4E14"/><g class="lbl" font-family="Josefin Sans,sans-serif" font-weight="600" font-size="11" fill="#6E4E14" text-anchor="middle"><text x="150" y="40">Valuation</text></g><g class="lbl" font-family="Josefin Sans,sans-serif" font-weight="600" font-size="11" fill="#6E4E14" text-anchor="middle"><text x="74" y="178">Cap Table</text></g><g class="lbl" font-family="Josefin Sans,sans-serif" font-weight="600" font-size="11" fill="#6E4E14" text-anchor="middle"><text x="226" y="178">Term Sheets</text></g></g></svg></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== COACH BAND ===== -->
+<section class="coach">
+  <div class="shell inner">
+    <div class="portrait">
+      <svg viewBox="0 0 340 360" aria-label="Barry Wojega leads the Financial Modelling constellation">
+        <!-- constellation of the discipline's 10 specialties, around a gold monogram medallion (no portrait on file) -->
+        <g stroke="#C9923A" stroke-width="1" opacity=".4" fill="none">
+          <line x1="170" y1="165" x2="40" y2="60"/><line x1="170" y1="165" x2="300" y2="60"/>
+          <line x1="170" y1="165" x2="20" y2="180"/><line x1="170" y1="165" x2="320" y2="180"/>
+          <line x1="170" y1="165" x2="55" y2="300"/><line x1="170" y1="165" x2="285" y2="300"/>
+          <line x1="170" y1="165" x2="120" y2="30"/><line x1="170" y1="165" x2="220" y2="30"/>
+          <line x1="170" y1="165" x2="110" y2="330"/><line x1="170" y1="165" x2="230" y2="330"/>
+        </g>
+        <g fill="#C9923A"><circle cx="40" cy="60" r="3"/><circle cx="300" cy="60" r="3"/><circle cx="20" cy="180" r="3"/><circle cx="320" cy="180" r="3"/><circle cx="55" cy="300" r="3"/><circle cx="285" cy="300" r="3"/><circle cx="120" cy="30" r="3"/><circle cx="220" cy="30" r="3"/><circle cx="110" cy="330" r="3"/><circle cx="230" cy="330" r="3"/></g>
+        <circle cx="170" cy="165" r="96" fill="none" stroke="#C9923A" stroke-width="1.5" opacity=".7"/>
+        <circle cx="170" cy="165" r="84" fill="#15110a" stroke="#6E4E14" stroke-width="1.4"/>
+        <text x="170" y="185" text-anchor="middle" font-family="Josefin Sans,sans-serif" font-weight="300" font-size="58" letter-spacing="2" fill="#C9923A">BW</text>
+      </svg>
+    </div>
+    <div>
+      <div class="eyebrow">Discipline lead</div>
+      <h3>Barry Wojega</h3>
+      <div class="role">Financial Modelling &amp; Business Finance</div>
+      <p class="bio">Barry leads the discipline of turning a founder's ambition into numbers <em>an investor can trust</em>. He coaches founders to know their economics cold — what a customer costs, what the cash can carry, and what the company is truly worth. To him, financial discipline isn't the brake on a business; it's what lets a founder drive it fast without crashing.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===== FINAL CTA ===== -->
+<section class="end">
+  <div class="shell">
+    <div class="eyebrow">Ten specialties · one discipline</div>
+    <h2>Make every shilling accountable.</h2>
+    <p>Explore how Financial Modelling connects to the other four disciplines, or book a 2-hour deep-dive with Barry on the specialty you need most.</p>
+    <div class="cta-row">
+      <a class="btn btn-ghost" href="/beta/explore/#finance">Explore the constellation →</a>
+      <a class="btn btn-fill" href="/beta/book/?tier=single">Book a Financial Modelling session →</a>
+    </div>
+  </div>
+</section>
+
+<div id="fs-footer"></div>
+<script src="/site-chrome.js?v=7" defer></script>
+</body>
+</html>
