@@ -316,13 +316,13 @@
     <div class="portrait">
       <svg viewBox="0 0 340 360" aria-label="Teddy Ruge in the Marketing & Branding constellation">
         <defs><clipPath id="pclip"><circle cx="170" cy="165" r="92"/></clipPath></defs>
-        <g stroke="#C8531F" stroke-width="1" opacity=".4" fill="none">
+        <g class="c-spokes" stroke="#C8531F" stroke-width="1" opacity=".4" fill="none">
           <line x1="170" y1="165" x2="40" y2="60"/><line x1="170" y1="165" x2="300" y2="60"/>
           <line x1="170" y1="165" x2="20" y2="180"/><line x1="170" y1="165" x2="320" y2="180"/>
           <line x1="170" y1="165" x2="55" y2="300"/><line x1="170" y1="165" x2="285" y2="300"/>
           <line x1="170" y1="165" x2="120" y2="30"/><line x1="170" y1="165" x2="220" y2="30"/><line x1="170" y1="165" x2="170" y2="330"/>
         </g>
-        <g fill="#C9923A"><circle cx="40" cy="60" r="3"/><circle cx="300" cy="60" r="3"/><circle cx="20" cy="180" r="3"/><circle cx="320" cy="180" r="3"/><circle cx="55" cy="300" r="3"/><circle cx="285" cy="300" r="3"/><circle cx="120" cy="30" r="3"/><circle cx="220" cy="30" r="3"/><circle cx="170" cy="330" r="3"/></g>
+        <g class="c-nodes" fill="#C9923A"><circle cx="40" cy="60" r="3"/><circle cx="300" cy="60" r="3"/><circle cx="20" cy="180" r="3"/><circle cx="320" cy="180" r="3"/><circle cx="55" cy="300" r="3"/><circle cx="285" cy="300" r="3"/><circle cx="120" cy="30" r="3"/><circle cx="220" cy="30" r="3"/><circle cx="170" cy="330" r="3"/></g>
         <circle cx="170" cy="165" r="96" fill="none" stroke="#C8531F" stroke-width="1.5" opacity=".7"/>
         <image href="/beta/images/coach-teddy.jpg" x="78" y="73" width="184" height="184" clip-path="url(#pclip)" preserveAspectRatio="xMidYMid slice"/>
         <circle cx="170" cy="165" r="92" fill="#0f0d0a" opacity="0.04"/>
@@ -371,6 +371,34 @@
       entries.forEach(function(e){ if(e.isIntersecting){ fire(e.target); io.unobserve(e.target); } });
     },{threshold:0.3});
     items.forEach(function(el){ io.observe(el); });
+  })();
+</script>
+<script>
+  (function(){
+    var svg=document.querySelector('.portrait svg'); if(!svg) return;
+    var spokeG=svg.querySelector('.c-spokes'), nodeG=svg.querySelector('.c-nodes');
+    if(!spokeG||!nodeG) return;
+    var NS='http://www.w3.org/2000/svg', CX=170, CY=165, N=9, RX=130, RY=124, PULSE=0.25;
+    var rm=window.matchMedia&&window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+    spokeG.innerHTML=''; nodeG.innerHTML='';
+    var lines=[], dots=[];
+    for(var k=0;k<N;k++){
+      var ln=document.createElementNS(NS,'line'); ln.setAttribute('x1',CX); ln.setAttribute('y1',CY); spokeG.appendChild(ln); lines.push(ln);
+      var c=document.createElementNS(NS,'circle'); c.setAttribute('r','3'); nodeG.appendChild(c); dots.push(c);
+    }
+    var BASE=-Math.PI/2;
+    function place(t){
+      var rot=rm?0:t*0.00008;
+      for(var i=0;i<N;i++){
+        var a=BASE+i*(Math.PI*2/N)+rot;
+        var rf=1+(rm?0:PULSE*Math.sin(t*0.0011+i*0.7));
+        var x=CX+Math.cos(a)*RX*rf, y=CY+Math.sin(a)*RY*rf;
+        lines[i].setAttribute('x2',x.toFixed(1)); lines[i].setAttribute('y2',y.toFixed(1));
+        dots[i].setAttribute('cx',x.toFixed(1)); dots[i].setAttribute('cy',y.toFixed(1));
+      }
+      if(!rm) requestAnimationFrame(place);
+    }
+    if(rm) place(0); else requestAnimationFrame(place);
   })();
 </script>
 <script src="/site-chrome.js?v=7" defer></script>
