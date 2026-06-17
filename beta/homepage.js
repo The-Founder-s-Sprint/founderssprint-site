@@ -270,8 +270,9 @@
   // ============================================================
   // 2. NAV SCROLL STATE + smooth scroll
   // ============================================================
-  const nav = document.getElementById('nav');
+  const nav = document.getElementById('nav');  // null now — nav is the shared site-chrome module, which manages its own appearance
   function onScroll() {
+    if (!nav) return;
     if (window.scrollY > 40) nav.classList.add('scrolled');
     else nav.classList.remove('scrolled');
   }

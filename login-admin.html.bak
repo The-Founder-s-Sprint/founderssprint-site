@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Admin Portal · The Founder's Sprint</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://ivedeivyotwevjxvcuoe.supabase.co" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+  :root{
+    --ink:#1A1A1A; --ink-soft:#2A2826; --paper:#EFE7D8; --paper-deep:#E6DCC7; --paper-dim:#A09888;
+    --terra:#C8531F; --terra-deep:#9A3E16; --ochre:#C9923A; --sage:#8AAB5C; --moss:#3D4A2E; --stone:#777770;
+    --rule:rgba(26,26,26,0.18);
+    --sans:'Josefin Sans',Inter,system-ui,sans-serif; --display:'Cormorant Garamond',Georgia,serif; --body:'Inter',system-ui,sans-serif;
+
+    /* ── ROLE THEME (FOUNDER) — swap this block per portal ── */
+    --role-accent:#C9923A; --role-accent-deep:#9C6F22;
+    --role-tint:rgba(201,146,58,0.13);   /* warm terracotta scrim */
+    --role-node:#CFC3A8;                /* constellation node tone */
+    /* background photos rotate on load — see PHOTOS[] in the script */
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{font-family:var(--body);color:var(--ink);background:var(--ink);min-height:100vh;}
+
+  /* ── FULL-BLEED BACKGROUND ── */
+  .bg{position:fixed;inset:0;overflow:hidden;z-index:0;background:#1A1A1A;}
+  .bg-photo{position:absolute;inset:0;z-index:1;background-color:#1A1A1A;background-position:center;background-size:cover;background-repeat:no-repeat;
+    filter:grayscale(1) contrast(1.06) brightness(0.52);opacity:0;transition:opacity .9s ease;}
+  .bg-tint{position:absolute;inset:0;z-index:2;background:
+      radial-gradient(90% 90% at 22% 18%, var(--role-tint) 0%, transparent 55%),
+      linear-gradient(180deg, rgba(26,26,26,0.34) 0%, rgba(26,26,26,0.22) 42%, rgba(26,26,26,0.72) 100%);}
+  .bg-vignette{position:absolute;inset:0;z-index:3;background:radial-gradient(115% 115% at 50% 40%, transparent 52%, rgba(0,0,0,0.5) 100%);}
+  .bg-grain{position:absolute;inset:0;z-index:4;opacity:0.05;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+  /* constellation sits ON TOP of the photo + scrim so the nodes float over the image */
+  .bg canvas{position:absolute;inset:0;z-index:5;width:100%;height:100%;opacity:0.92;}
+
+  /* ── SHELL ── */
+  .shell{position:relative;z-index:2;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:88px 20px 64px;}
+  .topbar{position:absolute;top:0;left:0;right:0;display:flex;align-items:center;gap:13px;padding:26px 32px;}
+  .topbar .mark{width:40px;height:40px;animation:spin 64s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .topbar .wordmark{font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:var(--paper);}
+  .foot{position:absolute;bottom:0;left:0;right:0;text-align:center;padding:22px;font-family:var(--sans);font-size:9px;letter-spacing:0.24em;text-transform:uppercase;color:var(--paper);opacity:0.5;}
+
+  /* ── FLOATING CARD ── */
+  .card{width:100%;max-width:392px;background:rgba(239,231,216,0.97);backdrop-filter:blur(6px);-webkit-backdrop-filter:blur(6px);
+    border:1px solid rgba(255,255,255,0.18);border-top:3px solid var(--role-accent);padding:40px 38px 34px;
+    box-shadow:0 30px 80px rgba(0,0,0,0.5);}
+  .card-eyebrow{font-family:var(--sans);font-size:9px;font-weight:700;letter-spacing:0.34em;text-transform:uppercase;color:var(--role-accent);margin-bottom:6px;}
+  .card-title{font-family:var(--display);font-size:36px;font-weight:600;line-height:1.02;margin-bottom:4px;}
+  .card-sub{font-size:13px;color:var(--ink-soft);opacity:0.72;margin-bottom:24px;}
+  label{display:block;font-family:var(--sans);font-size:9px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--paper-dim);margin:0 0 6px;}
+  input{width:100%;background:rgba(0,0,0,0.04);border:1px solid var(--rule);color:var(--ink);font-family:var(--body);font-size:14px;padding:13px 14px;outline:none;margin-bottom:14px;transition:border-color .2s,background .2s;}
+  input:focus{border-color:var(--role-accent);background:rgba(200,83,31,0.05);}
+  input::placeholder{color:var(--paper-dim);}
+  .btn{width:100%;background:var(--role-accent);color:var(--paper);border:none;padding:14px;font-family:var(--sans);font-weight:700;font-size:11px;letter-spacing:0.2em;text-transform:uppercase;cursor:pointer;transition:background .2s;}
+  .btn:hover{background:var(--role-accent-deep);}
+  .btn:disabled{opacity:.5;cursor:default;}
+  .btn-google{width:100%;background:var(--paper);color:var(--ink);border:1px solid var(--rule);padding:12px;font-family:var(--sans);font-weight:600;font-size:11px;letter-spacing:0.12em;text-transform:uppercase;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:10px;transition:border-color .2s,background .2s;}
+  .btn-google:hover{border-color:var(--ink);background:var(--paper-deep);}
+  .btn-google svg{width:16px;height:16px;}
+  .divider{display:flex;align-items:center;gap:12px;margin:18px 0;color:var(--paper-dim);font-family:var(--sans);font-size:9px;letter-spacing:0.16em;text-transform:uppercase;}
+  .divider::before,.divider::after{content:'';flex:1;height:1px;background:var(--rule);}
+  .row-between{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:14px;flex-wrap:wrap;}
+  .link{font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:0.08em;text-transform:uppercase;color:var(--role-accent);text-decoration:none;cursor:pointer;background:none;border:none;padding:0;}
+  .link:hover{color:var(--role-accent-deep);}
+  .muted{font-size:12px;color:var(--ink-soft);opacity:0.65;}
+  .msg{font-size:12px;min-height:16px;margin-top:12px;line-height:1.4;}
+  .msg.err{color:var(--terra-deep);} .msg.ok{color:var(--moss);}
+  .view{display:none;} .view.active{display:block;animation:rise .35s ease;}
+  @keyframes rise{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
+
+  @media (max-width:560px){ .card{padding:34px 26px 30px;} .card-title{font-size:30px;} .topbar{padding:20px;} }
+  @media (prefers-reduced-motion: reduce){ .topbar .mark{animation:none;} }
+</style>
+</head>
+<body>
+<div class="bg">
+  <div class="bg-photo"></div>
+  <canvas id="constellation"></canvas>
+  <div class="bg-tint"></div>
+  <div class="bg-grain"></div>
+  <div class="bg-vignette"></div>
+</div>
+
+<div class="shell">
+  <div class="topbar">
+    <svg class="mark" viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.92"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.86" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.83" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.86" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#EFE7D8" opacity="0.8" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+    <span class="wordmark">The Founder's Sprint</span>
+  </div>
+
+  <div class="card">
+    <!-- SIGN IN -->
+    <div class="view active" id="view-signin">
+      <div class="card-eyebrow">Admin · Command Centre</div>
+      <div class="card-title">Sign in.</div>
+      <div class="card-sub">Platform operations & oversight.</div>
+      <form id="form-signin" onsubmit="return doSignIn(event)">
+        <label>Email</label>
+        <input type="email" id="si-email" placeholder="you@venture.com" autocomplete="email" required>
+        <label>Password</label>
+        <input type="password" id="si-pass" placeholder="Your password" autocomplete="current-password" required>
+        <button class="btn" type="submit" id="si-btn">Enter</button>
+      </form>
+      <div class="row-between">
+        <button class="link" onclick="showView('reset')">Forgot password?</button>
+        <span></span>
+      </div>
+      <div class="msg err" id="si-msg"></div>
+    </div>
+
+    <!-- RESET REQUEST -->
+    <div class="view" id="view-reset">
+      <div class="card-eyebrow">Account recovery</div>
+      <div class="card-title">Reset password</div>
+      <div class="card-sub">We'll email you a secure link to set a new password.</div>
+      <form id="form-reset" onsubmit="return doReset(event)">
+        <label>Email</label>
+        <input type="email" id="rs-email" placeholder="you@venture.com" autocomplete="email" required>
+        <button class="btn" type="submit" id="rs-btn">Send reset link</button>
+      </form>
+      <div class="row-between"><button class="link" onclick="showView('signin')">← Back to sign in</button><span></span></div>
+      <div class="msg" id="rs-msg"></div>
+    </div>
+
+    <!-- SET NEW PASSWORD -->
+    <div class="view" id="view-newpass">
+      <div class="card-eyebrow">Account recovery</div>
+      <div class="card-title">Set a new password</div>
+      <div class="card-sub">Choose a new password for your founder account.</div>
+      <form id="form-newpass" onsubmit="return doNewPass(event)">
+        <label>New password</label>
+        <input type="password" id="np-pass" placeholder="At least 8 characters" autocomplete="new-password" required>
+        <label>Confirm password</label>
+        <input type="password" id="np-conf" placeholder="Re-enter password" autocomplete="new-password" required>
+        <button class="btn" type="submit" id="np-btn">Update &amp; continue</button>
+      </form>
+      <div class="msg" id="np-msg"></div>
+    </div>
+  </div>
+
+  <div class="foot">Kampala</div>
+</div>
+
+<script>
+const SUPABASE_URL='https://ivedeivyotwevjxvcuoe.supabase.co';
+const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss';
+const DASHBOARD='dashboard.html';
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON,{auth:{detectSessionInUrl:true,autoRefreshToken:true,persistSession:true,flowType:'pkce'}});
+
+// ── Rotating background photo (random on each load, B&W, fades in) ──
+const PHOTOS=['images/admin-bg-1.jpg','images/admin-bg-2.jpg','images/admin-bg-3.jpg','images/admin-bg-4.jpg','images/admin-bg-5.jpg','images/admin-bg-6.jpg'];
+(function(){
+  const el=document.querySelector('.bg-photo'); if(!el) return;
+  const pick=PHOTOS[Math.floor(Math.random()*PHOTOS.length)];
+  const img=new Image();
+  img.onload=function(){ el.style.backgroundImage="url('"+pick+"')"; el.style.opacity='1'; };
+  img.onerror=function(){ el.style.backgroundColor='#241a14'; el.style.opacity='1'; };
+  img.src=pick;
+})();
+
+let recovering=false;
+function showView(name){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById('view-'+name).classList.add('active');}
+function setMsg(id,text,kind){const e=document.getElementById(id);e.textContent=text||'';e.className='msg '+(kind||'');}
+
+sb.auth.onAuthStateChange((event,session)=>{
+  if(event==='PASSWORD_RECOVERY'){ recovering=true; showView('newpass'); return; }
+  if(recovering) return;
+  if(event==='SIGNED_IN' && session){ go(); }
+});
+// Skip the login form only if a VALID session already exists. getSession() validates/refreshes;
+// a stale token that can't refresh returns null, so the user stays here and can sign in.
+(async()=>{ try{ if(recovering) return; const { data:{ session } } = await sb.auth.getSession(); if(session && !recovering) go(); }catch(e){} })();
+
+async function doSignIn(e){
+  e.preventDefault();
+  const email=document.getElementById('si-email').value.trim(), pass=document.getElementById('si-pass').value;
+  const btn=document.getElementById('si-btn'); setMsg('si-msg','');
+  btn.disabled=true; btn.textContent='Signing in…';
+  try{ const {error}=await sb.auth.signInWithPassword({email,password:pass}); if(error){ setMsg('si-msg',error.message,'err'); return false; } go(); }
+  catch(ex){ setMsg('si-msg',ex.message||'Sign-in failed','err'); }
+  finally{ btn.disabled=false; btn.textContent='Enter'; }
+  return false;
+}
+async function doGoogle(){
+  try{ const {error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+'/'+DASHBOARD}}); if(error) throw error; }
+  catch(ex){ setMsg('si-msg','Google sign-in isn’t enabled yet — use email and password for now.','err'); }
+}
+async function doReset(e){
+  e.preventDefault();
+  const email=document.getElementById('rs-email').value.trim(); const btn=document.getElementById('rs-btn'); setMsg('rs-msg','');
+  if(!email){ setMsg('rs-msg','Enter your email first','err'); return false; }
+  btn.disabled=true; btn.textContent='Sending…';
+  try{ const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:location.href.split('#')[0].split('?')[0]}); if(error){ setMsg('rs-msg',error.message,'err'); return false; } setMsg('rs-msg','Reset link sent to '+email+'. Check your inbox, then return here.','ok'); }
+  catch(ex){ setMsg('rs-msg',ex.message,'err'); }
+  finally{ btn.disabled=false; btn.textContent='Send reset link'; }
+  return false;
+}
+async function doNewPass(e){
+  e.preventDefault();
+  const pass=document.getElementById('np-pass').value, conf=document.getElementById('np-conf').value; const btn=document.getElementById('np-btn'); setMsg('np-msg','');
+  if(pass.length<8){ setMsg('np-msg','Password must be at least 8 characters','err'); return false; }
+  if(pass!==conf){ setMsg('np-msg','Passwords do not match','err'); return false; }
+  btn.disabled=true; btn.textContent='Updating…';
+  try{ const {error}=await sb.auth.updateUser({password:pass}); if(error){ setMsg('np-msg',error.message,'err'); return false; } setMsg('np-msg','Password updated. Taking you to your dashboard…','ok'); recovering=false; setTimeout(go,900); }
+  catch(ex){ setMsg('np-msg',ex.message,'err'); }
+  finally{ btn.disabled=false; btn.textContent='Update & continue'; }
+  return false;
+}
+// Route by role: super-admin → ops dashboard; any scoped staff role → Command Centre.
+// (dashboard.html is admin-only, so sending non-admins there causes a redirect loop.)
+const STAFF_ROLES=['finance','coach_support','investor_support','founder_support','hub_partner'];
+async function go(){
+  try{
+    const { data:{ user } } = await sb.auth.getUser();
+    if(user){
+      const { data: roles } = await sb.from('user_roles').select('role').eq('user_id', user.id);
+      const r=(roles||[]).map(x=>x.role);
+      if(r.includes('admin')){ window.location.replace('/dashboard.html'); return; }
+      if(r.some(x=>STAFF_ROLES.includes(x))){ window.location.replace('/admin-portals.html'); return; }
+      // No staff role at all → show the Command Centre's access-restricted screen (no loop).
+      window.location.replace('/admin-portals.html'); return;
+    }
+  }catch(_){}
+  window.location.replace('/'+DASHBOARD);
+}
+
+// ── Constellation animation over the photo (lightweight; reduced-motion + visibility aware) ──
+(function(){
+  const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const cv=document.getElementById('constellation'); if(!cv) return;
+  const ctx=cv.getContext('2d'); let W,H,dpr,nodes=[],raf=null;
+  const node=getComputedStyle(document.documentElement).getPropertyValue('--role-node').trim()||'#E9C9A6';
+  const COLORS=[node,'#EFE7D8','#C9923A'];
+  function size(){ dpr=Math.min(window.devicePixelRatio||1,2); const r=cv.getBoundingClientRect(); W=r.width; H=r.height; cv.width=W*dpr; cv.height=H*dpr; ctx.setTransform(dpr,0,0,dpr,0,0); }
+  function init(){ const n=Math.max(24,Math.min(56,Math.round(W*H/22000))); nodes=[]; for(let i=0;i<n;i++){ nodes.push({x:Math.random()*W,y:Math.random()*H,vx:(Math.random()-.5)*0.16,vy:(Math.random()-.5)*0.16,r:Math.random()*1.5+0.6,c:COLORS[i%COLORS.length]}); } }
+  function draw(connect){
+    ctx.clearRect(0,0,W,H);
+    if(connect){ for(let i=0;i<nodes.length;i++){ const a=nodes[i]; for(let j=i+1;j<nodes.length;j++){ const b=nodes[j],dx=a.x-b.x,dy=a.y-b.y,d=Math.hypot(dx,dy); if(d<130){ ctx.globalAlpha=(1-d/130)*0.16; ctx.strokeStyle='#E9C9A6'; ctx.lineWidth=0.6; ctx.beginPath(); ctx.moveTo(a.x,a.y); ctx.lineTo(b.x,b.y); ctx.stroke(); } } } }
+    for(const a of nodes){ ctx.globalAlpha=0.9; ctx.fillStyle=a.c; ctx.beginPath(); ctx.arc(a.x,a.y,a.r,0,6.2832); ctx.fill(); }
+    ctx.globalAlpha=1;
+  }
+  function frame(){ for(const a of nodes){ a.x+=a.vx; a.y+=a.vy; if(a.x<0||a.x>W)a.vx*=-1; if(a.y<0||a.y>H)a.vy*=-1; } draw(true); raf=requestAnimationFrame(frame); }
+  function start(){ if(raf) return; if(reduce){ draw(true); return; } frame(); }
+  function stop(){ if(raf){ cancelAnimationFrame(raf); raf=null; } }
+  window.addEventListener('resize',()=>{ size(); init(); if(reduce) draw(true); });
+  document.addEventListener('visibilitychange',()=>{ document.hidden?stop():start(); });
+  size(); init(); start();
+})();
+</script>
+</body>
+</html>

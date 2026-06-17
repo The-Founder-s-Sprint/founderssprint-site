@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mentors · The Founder's Sprint</title>
+<meta name="description" content="Sit down with an operator who's actually done it. Pay for the time of a captain of industry — a coffee or a Zoom that's worth it.">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://ivedeivyotwevjxvcuoe.supabase.co" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+  :root{--ink:#1A1A1A;--ink-soft:#22242B;--paper:#EFE7D8;--paper-deep:#E6DCC7;--muted:#5A564F;--paper-dim:#A09888;
+    --terra:#C8531F;--terra-deep:#9A3E16;--ochre:#C9923A;--moss:#3D4A2E;--sage:#8AAB5C;--stone:#777770;
+    --border:rgba(26,26,26,0.16);--border-hi:rgba(26,26,26,0.32);--success:#0A8F64;
+    --sans:'Josefin Sans',system-ui,sans-serif;--display:'Cormorant Garamond',serif;--font:'Inter',system-ui,sans-serif;}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--paper);color:var(--ink);font-family:var(--font);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;}
+  .bar{display:flex;align-items:center;justify-content:space-between;padding:18px 28px;background:var(--ink);}
+  .brand{display:flex;align-items:center;gap:10px;text-decoration:none;}
+  .brand svg{width:24px;height:24px;} .brand .wm{font-family:var(--sans);font-weight:700;font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--paper);}
+  .bar a.cta{font-family:var(--sans);font-weight:700;font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink);background:var(--paper);padding:9px 16px;text-decoration:none;}
+  /* Hero shell from the shared site-chrome module (.fsx-hero); .shell width set here to match content */
+  .shell{max-width:1120px;margin:0 auto;padding:0 24px;}
+  .wrap{max-width:1120px;margin:0 auto;padding:48px 24px 80px;}
+  /* Hero chair + animated lamp glow (mentors-only) */
+  .hero-chair{position:absolute;top:0;bottom:0;left:calc(50% + 10px);right:auto;width:clamp(300px,30vw,400px);display:none;pointer-events:none;}
+  .hero-chair img{position:absolute;bottom:0;left:50%;transform:translateX(-50%);height:clamp(330px,46vh,470px);width:auto;z-index:1;filter:drop-shadow(0 24px 26px rgba(0,0,0,.55));}
+  .hero-lamp{position:absolute;top:-6px;left:50%;width:380px;height:520px;z-index:0;transform:translateX(-50%);transform-origin:50% 0%;filter:blur(16px);
+    background:radial-gradient(circle 24px at 50% 2%,rgba(255,230,180,.95),transparent 72%),radial-gradient(ellipse 46% 64% at 50% 0%,rgba(255,201,128,.5),rgba(212,128,52,.15) 40%,transparent 66%);
+    animation:lampOn 1.9s cubic-bezier(.2,.85,.25,1) both,lampGlow 6.5s ease-in-out 1.9s infinite;}
+  @keyframes lampOn{0%{opacity:0;transform:translateX(-50%) scaleY(.42);}55%{opacity:1;transform:translateX(-50%) scaleY(1.06);}100%{opacity:.92;transform:translateX(-50%) scaleY(1);}}
+  @keyframes lampGlow{0%,100%{opacity:.8;}50%{opacity:1;}}
+  @media(min-width:1100px){.fsx-hero{min-height:620px;}.hero-chair{display:block;}}
+  @media(prefers-reduced-motion:reduce){.hero-lamp{animation:none;opacity:.92;}}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:22px;}
+  .card{background:var(--paper-deep);border:1px solid var(--border);border-top:3px solid var(--terra);padding:24px 24px 22px;display:flex;flex-direction:column;border-radius:0 0 24px 0;overflow:hidden;}
+  .card .top{display:flex;gap:14px;align-items:flex-start;margin-bottom:14px;}
+  .av{width:56px;height:56px;border-radius:50%;flex-shrink:0;background:linear-gradient(155deg,var(--ink) 0%,#3a3632 100%);color:var(--paper);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:22px;}
+  .m-title{font-family:var(--display);font-size:22px;font-weight:600;line-height:1.12;color:var(--ink);}
+  .m-co{font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.4;}
+  .m-name{font-family:var(--sans);font-size:9.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--terra-deep);margin-top:7px;}
+  .m-bio{font-size:13px;line-height:1.55;color:#3D3B35;margin:2px 0 12px;}
+  .tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
+  .tag{font-size:10.5px;font-family:var(--sans);font-weight:600;letter-spacing:.04em;color:var(--moss);border:1px solid rgba(61,74,46,.3);padding:3px 8px;border-radius:2px;}
+  .meta{margin-top:auto;padding-top:12px;border-top:1px solid var(--border);}
+  .prices{display:flex;flex-direction:column;gap:5px;}
+  .prow{display:flex;align-items:baseline;justify-content:space-between;gap:10px;}
+  .prow .pf{font-size:12px;color:var(--muted);}
+  .prow .pv{font-family:var(--display);font-size:18px;font-weight:600;color:var(--ink);}
+  .pdur{font-size:10.5px;color:var(--paper-dim);margin-top:3px;letter-spacing:.02em;}
+  .book{margin-top:14px;width:100%;background:var(--terra);color:#fff;border:none;padding:13px;font-family:var(--sans);font-weight:700;font-size:11px;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;}
+  .book:hover{background:var(--terra-deep);}
+  .empty{grid-column:1/-1;text-align:center;padding:60px;color:var(--muted);}
+  /* modal */
+  .ov{position:fixed;inset:0;background:rgba(20,18,16,.72);display:none;align-items:flex-start;justify-content:center;z-index:100;overflow-y:auto;padding:40px 18px;}
+  .ov.show{display:flex;}
+  .modal{background:var(--paper);max-width:480px;width:100%;border-top:3px solid var(--terra);padding:28px 26px 26px;border-radius:0 0 24px 0;}
+  .modal h2{font-family:var(--display);font-size:26px;font-weight:600;margin-bottom:4px;}
+  .modal .who{font-size:12.5px;color:var(--muted);margin-bottom:18px;}
+  .f{display:flex;flex-direction:column;gap:6px;margin-bottom:14px;}
+  label{font-family:var(--sans);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:#444;}
+  .req{color:var(--terra);}
+  input,select,textarea{width:100%;background:rgba(0,0,0,.025);border:1px solid var(--border);padding:12px 13px;font-size:16px;font-family:var(--font);color:var(--ink);}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--terra);}
+  textarea{resize:vertical;min-height:78px;line-height:1.5;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .fmt-pick{display:flex;gap:10px;}
+  .fmt-opt{flex:1;border:1px solid var(--border);padding:11px 10px;text-align:center;cursor:pointer;display:flex;flex-direction:column;gap:3px;}
+  .fmt-opt>span:first-child{font-size:12.5px;font-family:var(--sans);font-weight:600;letter-spacing:.04em;}
+  .fmt-opt .fo-note{font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--paper-dim);}
+  .fmt-opt .fo-price{font-family:var(--display);font-size:15px;font-weight:600;color:var(--ink);margin-top:2px;}
+  .fmt-opt.on{border-color:var(--terra);background:rgba(200,83,31,.06);}
+  .fmt-opt.on>span:first-child,.fmt-opt.on .fo-price{color:var(--terra-deep);}
+  .b-price{margin:14px 0 4px;font-size:13px;color:var(--muted);}
+  .b-price strong{font-family:var(--display);font-size:20px;color:var(--ink);font-weight:600;}
+  .btn{width:100%;background:var(--terra);color:#fff;border:none;padding:14px;font-family:var(--sans);font-weight:700;font-size:12px;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;margin-top:4px;}
+  .btn:hover{background:var(--terra-deep);} .btn:disabled{opacity:.5;}
+  .x{float:right;background:none;border:none;font-size:22px;color:var(--muted);cursor:pointer;line-height:1;}
+  .msg{font-size:13px;margin-top:10px;min-height:16px;} .msg.err{color:#C0392B;} .msg.ok{color:var(--success);}
+  .done{text-align:center;padding:18px 4px;}
+  .note{font-size:11px;color:var(--paper-dim);margin-top:14px;line-height:1.5;}
+  @media(max-width:560px){.hero h1{font-size:36px;}.grid2{grid-template-columns:1fr;}.grid{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div id="fs-nav"></div>
+
+<section class="fsx-hero">
+  <div class="hero-constellation" aria-hidden="true">
+    <svg viewBox="0 0 1600 400" preserveAspectRatio="xMidYMid slice" style="opacity:.45">
+      <line x1="120" y1="60" x2="320" y2="160" stroke="#c8531f" stroke-width="0.6" opacity="0.45"/>
+      <line x1="320" y1="160" x2="520" y2="100" stroke="#c9923a" stroke-width="0.5" opacity="0.4"/>
+      <line x1="520" y1="100" x2="720" y2="200" stroke="#8aab5c" stroke-width="0.5" opacity="0.35"/>
+      <line x1="720" y1="200" x2="920" y2="120" stroke="#3d4a2e" stroke-width="0.5" opacity="0.4"/>
+      <line x1="920" y1="120" x2="1120" y2="240" stroke="#777770" stroke-width="0.5" opacity="0.35"/>
+      <line x1="1120" y1="240" x2="1360" y2="150" stroke="#c8531f" stroke-width="0.5" opacity="0.4"/>
+      <line x1="1360" y1="150" x2="1520" y2="220" stroke="#c9923a" stroke-width="0.5" opacity="0.35"/>
+      <line x1="200" y1="280" x2="400" y2="340" stroke="#c8531f" stroke-width="0.4" opacity="0.3"/>
+      <line x1="400" y1="340" x2="640" y2="280" stroke="#8aab5c" stroke-width="0.4" opacity="0.3"/>
+      <line x1="640" y1="280" x2="880" y2="340" stroke="#c9923a" stroke-width="0.4" opacity="0.3"/>
+      <circle cx="120" cy="60" r="3" fill="#c8531f" opacity="0.65"/><circle cx="120" cy="60" r="7" fill="#c8531f" opacity="0.12"/>
+      <circle cx="320" cy="160" r="3.5" fill="#c9923a" opacity="0.6"/><circle cx="320" cy="160" r="8" fill="#c9923a" opacity="0.10"/>
+      <circle cx="520" cy="100" r="2.5" fill="#8aab5c" opacity="0.55"/><circle cx="520" cy="100" r="6" fill="#8aab5c" opacity="0.10"/>
+      <circle cx="720" cy="200" r="4" fill="#3d4a2e" opacity="0.55"/><circle cx="720" cy="200" r="9" fill="#3d4a2e" opacity="0.10"/>
+      <circle cx="920" cy="120" r="2.5" fill="#777770" opacity="0.5"/><circle cx="920" cy="120" r="6" fill="#777770" opacity="0.08"/>
+      <circle cx="1120" cy="240" r="3" fill="#c8531f" opacity="0.55"/><circle cx="1120" cy="240" r="7" fill="#c8531f" opacity="0.10"/>
+      <circle cx="1360" cy="150" r="3.5" fill="#c9923a" opacity="0.6"/><circle cx="1360" cy="150" r="8" fill="#c9923a" opacity="0.10"/>
+      <circle cx="200" cy="280" r="2" fill="#c8531f" opacity="0.45"/>
+      <circle cx="400" cy="340" r="2.5" fill="#8aab5c" opacity="0.45"/>
+      <circle cx="640" cy="280" r="2" fill="#c9923a" opacity="0.4"/>
+      <circle cx="880" cy="340" r="3" fill="#3d4a2e" opacity="0.45"/>
+      <circle cx="60" cy="180" r="1" fill="#efe7d8" opacity="0.15"/>
+      <circle cx="600" cy="380" r="1" fill="#efe7d8" opacity="0.10"/>
+      <circle cx="1000" cy="50" r="1" fill="#efe7d8" opacity="0.12"/>
+    </svg>
+  </div>
+  <div class="shell">
+    <span class="eyebrow">
+      <svg class="v6-mark" viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,8 57,50 50,92 43,50" fill="currentColor" opacity="0.85"/><polygon points="50,8 57,50 50,92 43,50" fill="currentColor" opacity="0.65" transform="rotate(72 50 50)"/><polygon points="50,8 57,50 50,92 43,50" fill="currentColor" opacity="0.55" transform="rotate(144 50 50)"/><polygon points="50,8 57,50 50,92 43,50" fill="currentColor" opacity="0.65" transform="rotate(216 50 50)"/><polygon points="50,8 57,50 50,92 43,50" fill="currentColor" opacity="0.55" transform="rotate(288 50 50)"/><circle cx="50" cy="50" r="4.5" fill="currentColor" opacity="0.8"/></svg>
+      Mentors
+    </span>
+    <h2 class="h-section">Sit down with someone<br>who's <em>actually done it</em></h2>
+    <p class="h-sub">Not a coach — an operator. Captains of industry who've built, scaled, raised, and exited. Pay for their time and ask the questions that move your business — over coffee in Kampala, or on a Zoom.</p>
+    <div class="hero-rule"></div>
+    <p class="tag">Build with direction.</p>
+  </div>
+  <!-- Hero chair: self-hosted transparent PNG. NOTE: lives under /beta/images/ — update to /images/ when the site migrates from /beta/ to root. -->
+  <div class="hero-chair" aria-hidden="true">
+    <div class="hero-lamp"></div>
+    <img src="/beta/images/mentor-chair.png" alt="">
+  </div>
+</section>
+
+<div class="wrap">
+  <div class="grid" id="grid"><div class="empty">Loading mentors…</div></div>
+</div>
+
+<!-- booking modal -->
+<div class="ov" id="ov">
+  <div class="modal" id="modal">
+    <button class="x" onclick="closeBook()" aria-label="Close">×</button>
+    <div id="book-form">
+      <h2>Request a session</h2>
+      <div class="who" id="who"></div>
+      <label style="display:block;margin-bottom:7px">Choose a format</label>
+      <div class="fmt-pick" id="fmt-pick"></div>
+      <div class="b-price" id="b-price"></div>
+      <div class="grid2">
+        <div class="f"><label>Your name <span class="req">*</span></label><input id="b-name" placeholder="Your name"></div>
+        <div class="f"><label>Email <span class="req">*</span></label><input id="b-email" type="email" placeholder="you@company.com"></div>
+      </div>
+      <div class="grid2">
+        <div class="f"><label>Phone</label><input id="b-phone" placeholder="+256…"></div>
+        <div class="f"><label>Company</label><input id="b-company" placeholder="Your company"></div>
+      </div>
+      <div class="f"><label>What do you want to get out of it?</label><textarea id="b-message" placeholder="e.g. I'm raising a seed round and want to pressure-test my term sheet."></textarea></div>
+      <button class="btn" id="b-submit" onclick="submitBooking()">Send request</button>
+      <div class="msg" id="b-msg"></div>
+      <div class="note">This sends a request to The Founder's Sprint team, who'll confirm availability and arrange payment. You're not charged yet.</div>
+    </div>
+    <div id="book-done" style="display:none">
+      <div class="done"><div style="font-family:var(--display);font-size:44px;color:var(--terra)">◇</div>
+        <div style="font-family:var(--display);font-size:26px;font-weight:600;margin:6px 0 8px">Request sent.</div>
+        <div style="color:var(--muted);max-width:340px;margin:0 auto;line-height:1.6">We'll be in touch to confirm the session and sort out the details. Thank you.</div>
+        <button class="btn" style="margin-top:18px;max-width:200px" onclick="closeBook()">Done</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const SB_URL='https://ivedeivyotwevjxvcuoe.supabase.co';
+const SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss';
+const sb=supabase.createClient(SB_URL,SB_ANON,{auth:{persistSession:false}});
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function initials(s){const a=String(s||'').replace(/[^A-Za-z ]/g,'').trim().split(/\s+/);return ((a[0]||'?')[0]+(a[1]?a[1][0]:'')).toUpperCase();}
+function money(n){return n? 'UGX '+Number(n).toLocaleString('en-US') : 'On request';}
+const FMT_LABEL={coffee:'☕ Coffee',zoom:'🎥 Zoom'};
+const FMT_NOTE={coffee:'In person',zoom:'Remote'};
+function feeFor(m,f){ const x=(m.fees&&m.fees[f]); return (x!=null?x:m.session_fee); }
+
+let MENTORS=[], current=null, fmt=null;
+async function load(){
+  let rows=[];
+  try{ const r=await fetch(SB_URL+'/rest/v1/mentors?status=eq.active&select=id,name,slug,title,company,bio,expertise,photo_url,formats,location,session_fee,session_minutes,fees&order=sort_order&limit=100',
+    {headers:{apikey:SB_ANON,Authorization:'Bearer '+SB_ANON}}); rows=r.ok?await r.json():[]; }catch(e){}
+  MENTORS=rows;
+  const g=document.getElementById('grid');
+  if(!rows.length){ g.innerHTML='<div class="empty">Mentors are being onboarded — check back soon.</div>'; return; }
+  g.innerHTML=rows.map(function(m,i){
+    const tags=(m.expertise||[]).slice(0,5).map(t=>'<span class="tag">'+esc(t)+'</span>').join('');
+    const dur=m.session_minutes?(Math.round(m.session_minutes/60)+'-hour session'):'session';
+    const av=m.photo_url?'<img class="av" src="'+esc(m.photo_url)+'" alt="" style="object-fit:cover">':'<div class="av">'+esc(initials(m.name||m.company||m.title))+'</div>';
+    const prices=(m.formats||['coffee','zoom']).map(function(f){
+      return '<div class="prow"><span class="pf">'+(FMT_LABEL[f]||esc(f))+'</span><span class="pv">'+money(feeFor(m,f))+'</span></div>';
+    }).join('');
+    return '<div class="card"><div class="top">'+av+'<div style="min-width:0">'
+      +'<div class="m-title">'+esc(m.title||m.name)+'</div>'
+      +(m.company?'<div class="m-co">'+esc(m.company)+(m.location?' · '+esc(m.location):'')+'</div>':'')
+      +(m.name?'<div class="m-name">'+esc(m.name)+'</div>':'')+'</div></div>'
+      +(m.bio?'<div class="m-bio">'+esc(m.bio)+'</div>':'')
+      +(tags?'<div class="tags">'+tags+'</div>':'')
+      +'<div class="meta"><div class="prices">'+prices+'<div class="pdur">'+esc(dur)+'</div></div></div>'
+      +'<button class="book" onclick="openBook('+i+')">Request a session →</button></div>';
+  }).join('');
+}
+function openBook(i){
+  current=MENTORS[i]; fmt=(current.formats&&current.formats[0])||'coffee';
+  document.getElementById('who').textContent='With '+(current.title||current.name)+(current.company?' · '+current.company:'');
+  document.getElementById('fmt-pick').innerHTML=(current.formats||['coffee','zoom']).map(function(f){
+    return '<div class="fmt-opt'+(f===fmt?' on':'')+'" data-f="'+f+'" onclick="pickFmt(this)"><span>'+(FMT_LABEL[f]||f)+'</span>'
+      +'<span class="fo-note">'+(FMT_NOTE[f]||'')+'</span><span class="fo-price">'+money(feeFor(current,f))+'</span></div>';
+  }).join('');
+  renderPrice();
+  document.getElementById('book-form').style.display='block';
+  document.getElementById('book-done').style.display='none';
+  document.getElementById('b-msg').textContent='';
+  document.getElementById('ov').classList.add('show');
+}
+function renderPrice(){ const el=document.getElementById('b-price'); if(el) el.innerHTML='Session fee · <strong>'+money(feeFor(current,fmt))+'</strong>'; }
+function pickFmt(el){ fmt=el.dataset.f; [].forEach.call(document.querySelectorAll('.fmt-opt'),x=>x.classList.toggle('on',x===el)); renderPrice(); }
+function closeBook(){ document.getElementById('ov').classList.remove('show'); }
+document.getElementById('ov').addEventListener('click',e=>{ if(e.target.id==='ov') closeBook(); });
+function v(id){return (document.getElementById(id).value||'').trim();}
+async function submitBooking(){
+  const msg=document.getElementById('b-msg'); msg.textContent=''; msg.className='msg';
+  const name=v('b-name'), email=v('b-email');
+  if(!name||!email){ msg.textContent='Please add your name and email.'; msg.className='msg err'; return; }
+  if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ msg.textContent='That email looks off.'; msg.className='msg err'; return; }
+  const btn=document.getElementById('b-submit'); btn.disabled=true; btn.textContent='Sending…';
+  try{
+    const { error }=await sb.from('mentor_session_requests').insert({
+      mentor_id:current.id, founder_name:name, founder_email:email.toLowerCase(),
+      founder_phone:v('b-phone')||null, founder_company:v('b-company')||null,
+      format:fmt, message:v('b-message')||null, status:'new'
+    });
+    if(error) throw new Error(error.message);
+    document.getElementById('book-form').style.display='none';
+    document.getElementById('book-done').style.display='block';
+  }catch(e){ msg.textContent='Could not send — '+e.message; msg.className='msg err'; btn.disabled=false; btn.textContent='Send request'; }
+}
+load();
+</script>
+
+<div id="fs-footer"></div>
+<script src="/site-chrome.js?v=8" defer></script>
+</body>
+</html>

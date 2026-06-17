@@ -9,7 +9,6 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <style>
   :root {
-  --radius-card: 0 0 24px 0;
     --bg:       #1A1A1A;
     --paper:    #EFE7D8;
     --terra:    #C8531F;
@@ -108,7 +107,7 @@
   .week-card {
     background: rgba(239,231,216,0.03);
     border: 1px solid rgba(239,231,216,0.08);
-    border-radius: var(--radius-card); padding: 0; overflow: hidden;
+    border-radius: 12px; padding: 0; overflow: hidden;
     transition: border-color 200ms;
   }
   .week-card:hover { border-color: rgba(239,231,216,0.18); }
@@ -205,7 +204,21 @@
 <body>
 
 <!-- ── Navigation ─────────────────────────────────────────────── -->
-<div id="fs-nav"></div>
+<nav class="learn-nav">
+  <a class="brand" href="index.html">
+    <svg viewBox="0 0 100 100" width="22" height="22" aria-hidden="true">
+      <polygon points="50,8 57,50 50,92 43,50" fill="#c8531f" opacity="0.85"></polygon>
+      <polygon points="50,8 57,50 50,92 43,50" fill="#c9923a" opacity="0.80" transform="rotate(72 50 50)"></polygon>
+      <polygon points="50,8 57,50 50,92 43,50" fill="#8aab5c" opacity="0.78" transform="rotate(144 50 50)"></polygon>
+      <polygon points="50,8 57,50 50,92 43,50" fill="#3d4a2e" opacity="0.82" transform="rotate(216 50 50)"></polygon>
+      <polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288 50 50)"></polygon>
+      <circle cx="50" cy="50" r="4.5" fill="#efe7d8"></circle>
+      <circle cx="50" cy="50" r="2" fill="#1a1a1a"></circle>
+    </svg>
+    <span>The Founder's Sprint</span>
+  </a>
+  <div class="user-info" id="user-info"></div>
+</nav>
 
 <!-- ── Loading Screen ─────────────────────────────────────────── -->
 <div class="learn-loading" id="learn-loading">
@@ -544,7 +557,5 @@ document.addEventListener('keydown', e => {
 // ── Boot on load ─────────────────────────────────────────────────
 boot();
 </script>
-<div id="fs-footer"></div>
-<script src="/site-chrome.js?v=8" defer></script>
 </body>
 </html>

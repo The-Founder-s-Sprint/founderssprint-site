@@ -1,0 +1,797 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Coach Dashboard · The Founder's Sprint</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://ivedeivyotwevjxvcuoe.supabase.co" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+  :root{--bg:#EFE7D8;--surface:#E6DCC7;--card:#EFE7D8;--ink:#1A1A1A;--ink-mid:#444;--muted:#5A564F;--text:#1A1A1A;
+    --border:rgba(26,26,26,0.18);--border-hi:rgba(26,26,26,0.35);
+    --terra:#C8531F;--terra-deep:#9A3E16;--ochre:#C9923A;--sage:#8AAB5C;--moss:#3D4A2E;--stone:#A59B8C;
+    --success:#0A8F64;--warning:#C47F08;--paper-mid:#C0B8A8;
+    --sans:'Josefin Sans',Inter,system-ui,sans-serif;--display:'Cormorant Garamond',serif;--font:'Inter',system-ui,sans-serif;}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:13px;-webkit-font-smoothing:antialiased;}
+  .geo-line{height:1px;background:var(--border-hi);width:100%;}
+  #login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;}
+  .login-card{background:var(--card);border:1px solid var(--border-hi);border-top:2px solid var(--terra);padding:52px 44px 44px;width:380px;}
+  .login-eyebrow{font-family:var(--sans);font-size:9px;letter-spacing:4px;text-transform:uppercase;color:var(--terra);margin-bottom:4px;opacity:.8;}
+  .login-title{font-size:28px;font-weight:700;line-height:1.1;margin-bottom:8px;}
+  .login-rule{display:flex;gap:10px;margin:4px 0 32px;}
+  .login-input{width:100%;background:rgba(0,0,0,.03);border:1px solid var(--border);padding:12px 14px;font-size:14px;font-family:var(--font);margin-bottom:10px;outline:none;}
+  .login-input:focus{border-color:var(--terra);}
+  .btn-login{width:100%;background:var(--terra);color:#fff;border:none;padding:13px;font-family:var(--sans);font-weight:700;font-size:12px;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;margin-top:6px;}
+  .btn-login:hover{background:var(--terra-deep);}.btn-login:disabled{opacity:.5;}
+  .login-error{color:#DC3545;font-size:12px;min-height:16px;margin-top:10px;}
+  #app{display:none;}
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;border-bottom:1px solid var(--border-hi);background:var(--card);position:sticky;top:0;z-index:50;}
+  .topbar-left{display:flex;align-items:center;gap:12px;}.topbar-mark svg{width:26px;height:26px;display:block;}
+  .topbar-logo{font-family:var(--sans);font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;}
+  .topbar-sep{width:1px;height:18px;background:var(--border-hi);}
+  .topbar-sub{font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--terra);}
+  .topbar-right{display:flex;align-items:center;gap:14px;}.topbar-user{font-size:12px;color:var(--muted);}
+  .hav-wrap{position:relative;}
+  .hav-btn{width:34px;height:34px;border-radius:50%;border:2px solid var(--border-hi);background:var(--surface);cursor:pointer;overflow:hidden;padding:0;display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-size:12px;font-weight:700;color:var(--muted);}
+  .hav-btn img{width:100%;height:100%;object-fit:cover;}
+  .hav-dd{display:none;position:absolute;top:42px;right:0;background:var(--card);border:1px solid var(--border);min-width:200px;z-index:999;padding:8px 0;box-shadow:0 8px 24px rgba(0,0,0,.10);}
+  .hav-wrap.open .hav-dd{display:block;}
+  .hav-dd .em{padding:8px 16px 10px;font-size:11px;color:var(--muted);border-bottom:1px solid var(--border);margin-bottom:4px;word-break:break-all;}
+  .hav-dd a{display:block;padding:10px 16px;font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;cursor:pointer;color:var(--ink-mid);}
+  .hav-dd a:hover{background:var(--surface);}
+  .hav-dd a.danger{color:var(--terra);}
+  .btn-ghost{background:none;color:var(--terra);border:1px solid var(--border-hi);padding:8px 14px;font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;}
+  .tabs-wrap{display:flex;padding:0 28px;border-bottom:1px solid var(--border);background:var(--card);overflow-x:auto;}
+  .tab{background:none;border:none;border-bottom:2px solid transparent;padding:14px 16px;font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);cursor:pointer;white-space:nowrap;}
+  .tab.active{color:var(--terra);border-bottom-color:var(--terra);}
+  .main{max-width:1000px;margin:0 auto;padding:32px 28px 80px;}
+  .tab-panel{display:none;}.tab-panel.active{display:block;}
+  .page-eyebrow{font-family:var(--sans);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--terra);margin-bottom:6px;}
+  .page-title{font-family:var(--display);font-size:30px;font-weight:600;line-height:1.05;margin-bottom:6px;}
+  .page-sub{font-size:14px;color:var(--muted);margin-bottom:24px;max-width:680px;line-height:1.5;}
+  .section-title{font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-mid);margin:24px 0 12px;}
+  .card{background:var(--card);border:1px solid var(--border);padding:18px 20px;margin-bottom:14px;}
+  .card-top{border-top:2px solid var(--terra);}
+  .list-row{display:flex;align-items:center;justify-content:space-between;gap:14px;padding:13px 0;border-top:1px solid var(--border);}
+  .list-row:first-child{border-top:none;}
+  .list-row.click{cursor:pointer;}.list-row.click:hover{opacity:.75;}
+  .list-main{font-size:14px;font-weight:500;}.list-sub{font-size:11.5px;color:var(--muted);margin-top:3px;}
+  .pill{font-family:var(--sans);font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 9px;border-radius:2px;}
+  .pill-green{background:rgba(10,143,100,.14);color:var(--success);}.pill-grey{background:rgba(26,26,26,.07);color:var(--muted);}.pill-terra{background:rgba(200,83,31,.1);color:var(--terra);}.pill-ochre{background:rgba(201,146,58,.16);color:#A6741F;}
+  .back{font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--terra);cursor:pointer;display:inline-block;margin-bottom:16px;}
+  .disc-block{margin-bottom:18px;border-left:3px solid var(--stone);padding-left:14px;}
+  .disc-block.mine{border-left-color:var(--terra);}
+  .disc-h{font-family:var(--display);font-size:18px;font-weight:600;margin-bottom:2px;}
+  .disc-sub{font-size:10px;font-family:var(--sans);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:10px;}
+  .l3{display:flex;align-items:center;gap:10px;padding:8px 0;border-top:1px solid var(--border);}
+  .l3:first-of-type{border-top:none;}
+  .chk{width:18px;height:18px;border:2px solid var(--paper-mid);border-radius:3px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:var(--bg);}
+  .chk.on{background:var(--success);border-color:var(--success);}
+  .chk.on::after{content:'';width:5px;height:9px;border:solid #fff;border-width:0 2px 2px 0;transform:rotate(45deg) translateY(-1px);}
+  .chk.busy{opacity:.4;pointer-events:none;}
+  .l3-name{flex:1;font-size:13px;}.l3-l2{font-size:10px;color:var(--muted);font-family:var(--sans);letter-spacing:.08em;text-transform:uppercase;}
+  .av-row{display:flex;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--border);}
+  .av-row:first-of-type{border-top:none;}
+  select,input[type=time],input[type=text],input[type=number],input[type=url],textarea{background:var(--bg);border:1px solid var(--border);padding:8px 10px;font-family:var(--font);font-size:13px;color:var(--text);}
+  input:focus,select:focus,textarea:focus{outline:none;border-color:var(--terra);}
+  .btn{background:var(--terra);color:#fff;border:none;padding:9px 16px;font-family:var(--sans);font-weight:700;font-size:10px;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;}
+  .btn:disabled{opacity:.5;}
+  .btn-del{background:none;color:#DC3545;border:1px solid var(--border);padding:6px 10px;font-size:10px;cursor:pointer;font-family:var(--sans);letter-spacing:.1em;text-transform:uppercase;}
+  .empty{text-align:center;padding:40px;color:var(--muted);}.empty-mark{font-family:var(--display);font-size:40px;color:var(--border-hi);}
+  /* profile form */
+  .pf-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:14px;}
+  .pf-f{display:flex;flex-direction:column;gap:5px;}
+  .pf-f.full{grid-column:1/-1;}
+  .pf-f label{font-family:var(--sans);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-mid);}
+  .pf-f input,.pf-f textarea{width:100%;}
+  .kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:14px;}
+  .kv .k{font-family:var(--sans);font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
+  .kv .v{font-size:14px;font-weight:500;}
+  .avatar{width:72px;height:72px;border-radius:50%;border:2px solid var(--border-hi);background:var(--surface);overflow:hidden;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:26px;color:var(--muted);flex-shrink:0;}
+  .avatar img{width:100%;height:100%;object-fit:cover;}
+  .stat-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:18px;}
+  .stat{background:var(--card);border:1px solid var(--border);border-top:2px solid var(--terra);padding:12px 18px;min-width:130px;}
+  .stat .v{font-family:var(--display);font-size:26px;font-weight:700;line-height:1;}
+  .stat .l{font-family:var(--sans);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:5px;}
+  #toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:#fff;padding:13px 22px;font-size:13px;opacity:0;transition:all .3s;z-index:2000;}
+  #toast.show{transform:translateX(-50%) translateY(0);opacity:1;}#toast.success{background:var(--success);}#toast.error{background:#DC3545;}
+  @media(max-width:560px){.main{padding:24px 18px;}}
+</style>
+</head>
+<body>
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-eyebrow">The Founder's Sprint</div>
+    <div class="login-title">Coach Dashboard</div>
+    <div class="login-rule"><div class="geo-line"></div></div>
+    <input class="login-input" type="email" id="login-email" placeholder="Email address" autocomplete="email">
+    <input class="login-input" type="password" id="login-password" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')signIn()">
+    <button class="btn-login" onclick="signIn()">Enter</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-mark"><svg viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.85"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.8" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.78" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.82" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg></div>
+      <span class="topbar-logo">Founder's Sprint</span><div class="topbar-sep"></div><span class="topbar-sub" id="coach-disc">Coach</span>
+    </div>
+    <div class="topbar-right">
+      <div class="hav-wrap" id="hav-wrap">
+        <button class="hav-btn" id="hav-btn" onclick="document.getElementById('hav-wrap').classList.toggle('open')" title="Account">?</button>
+        <div class="hav-dd">
+          <div class="em" id="user-email"></div>
+          <a onclick="switchTab('profile');document.getElementById('hav-wrap').classList.remove('open')">Profile</a>
+          <a class="danger" onmousedown="event.stopPropagation();signOut()">Sign Out</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="tabs-wrap" id="tabs">
+    <button class="tab active" data-tab="founders" onclick="switchTab('founders')">My Founders</button>
+    <button class="tab" data-tab="applications" id="tab-applications" style="display:none" onclick="switchTab('applications')">Applications <span id="app-badge" style="display:none;background:var(--terra);color:#fff;border-radius:9px;font-size:9px;padding:1px 6px;margin-left:3px">0</span></button>
+    <button class="tab" data-tab="sessions" onclick="switchTab('sessions')">Sessions</button>
+    <button class="tab" data-tab="availability" onclick="switchTab('availability')">1:1 Availability</button>
+    <button class="tab" data-tab="profile" onclick="switchTab('profile')">Profile</button>
+    <button class="tab" data-tab="earnings" onclick="switchTab('earnings')">Earnings &amp; Payout</button>
+    <button class="tab" data-tab="materials" onclick="switchTab('materials')">Materials</button>
+    <button class="tab" data-tab="testimonials" onclick="switchTab('testimonials')">Testimonials <span id="tst-badge" style="display:none;background:var(--terra);color:#fff;border-radius:9px;font-size:9px;padding:1px 6px;margin-left:3px">0</span></button>
+  </div>
+  <div class="main">
+    <!-- FOUNDERS -->
+    <div class="tab-panel active" id="panel-founders">
+      <div id="view-roster">
+        <div class="page-eyebrow">Coaching</div>
+        <div class="page-title">My Founders</div>
+        <div class="page-sub">Every founder in the cohort. Open a founder to mark their L3 courses complete — completed courses light up their journey timeline and feed their investor-readiness signal.</div>
+        <div class="card" id="roster"></div>
+      </div>
+      <div id="view-founder" style="display:none"></div>
+    </div>
+    <!-- APPLICATIONS (discipline leads only) -->
+    <div class="tab-panel" id="panel-applications">
+      <div class="page-eyebrow">Discipline lead</div>
+      <div class="page-title">Coach Applications</div>
+      <div class="page-sub">As the lead for your discipline, you vet whether an applicant is a good fit to coach in it. Approve to pass them to admin for due-diligence and listing, or decline. You only see suitability information — never their financial or ID details.</div>
+      <div id="apps-body"></div>
+    </div>
+    <!-- SESSIONS -->
+    <div class="tab-panel" id="panel-sessions">
+      <div class="page-eyebrow">Schedule</div>
+      <div class="page-title">Sessions</div>
+      <div class="page-sub">Your standing group cohort session runs every week on your discipline's day, 10:00–12:00 EAT. One-to-one intensives appear here once founders book them inside your availability windows.</div>
+      <div class="section-title" style="margin-top:0">Group cohort sessions</div>
+      <div class="card" id="cohort-sessions"></div>
+      <div class="section-title">One-to-one sessions</div>
+      <div class="card" id="oneonone-sessions"></div>
+    </div>
+    <!-- AVAILABILITY -->
+    <div class="tab-panel" id="panel-availability">
+      <div class="page-eyebrow">Bookings</div>
+      <div class="page-title">1:1 Availability</div>
+      <div class="page-sub">Set the windows you're available for 1:1 coaching. Founders can only book 1:1s inside these windows — the platform enforces it. Your group cohort sessions (your fixed weekday, 10:00–12:00 EAT) are separate and always scheduled.</div>
+      <div class="card card-top">
+        <div class="section-title" style="margin-top:0">Add a window</div>
+        <div class="av-row" style="border:none;padding-top:0;flex-wrap:wrap">
+          <select id="av-day"><option value="1">Monday</option><option value="2">Tuesday</option><option value="3">Wednesday</option><option value="4">Thursday</option><option value="5">Friday</option><option value="6">Saturday</option><option value="0">Sunday</option></select>
+          <input type="time" id="av-start" value="14:00">
+          <span style="color:var(--muted)">to</span>
+          <input type="time" id="av-end" value="16:00">
+          <button class="btn" id="av-add-btn" onclick="addAvailability()">Add</button>
+        </div>
+      </div>
+      <div class="section-title">Your windows</div>
+      <div class="card" id="av-list"></div>
+    </div>
+    <!-- PROFILE -->
+    <div class="tab-panel" id="panel-profile">
+      <div class="page-eyebrow">Your public coach profile</div>
+      <div class="page-title">Profile</div>
+      <div class="page-sub">This is what founders see when they choose a coach. Keep it sharp — your headline, credentials and rate signal your authority. You control the substance; the platform keeps it on-brand.</div>
+      <div id="profile-body"></div>
+    </div>
+    <!-- EARNINGS -->
+    <div class="tab-panel" id="panel-earnings">
+      <div class="page-eyebrow">Financials</div>
+      <div class="page-title">Earnings &amp; Payout</div>
+      <div class="page-sub">A running summary of your coaching income and the payout details you provided at onboarding. Live settlement begins once the platform's mobile-money payouts are connected.</div>
+      <div id="earnings-body"></div>
+    </div>
+    <!-- MATERIALS -->
+    <div class="tab-panel" id="panel-materials">
+      <div class="page-eyebrow">Teaching content</div>
+      <div class="page-title">Materials</div>
+      <div class="page-sub">Your branded presentation modules will live here. Today, the founding team builds materials with Teddy as the brand standard; the self-serve template builder ships in the next phase.</div>
+      <div id="materials-body"></div>
+    </div>
+    <!-- TESTIMONIALS -->
+    <div class="tab-panel" id="panel-testimonials">
+      <div class="page-eyebrow">Social proof</div>
+      <div class="page-title">Testimonials</div>
+      <div class="page-sub">Founders submit testimonials about working with you. You decide what goes public — approve to feature it on the testimonials wall, decline if it's not a fit, or revoke a live one at any time. You can't edit a founder's words; the approval is yours.</div>
+      <div id="testimonials-body"></div>
+    </div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+const SUPABASE_URL='https://ivedeivyotwevjxvcuoe.supabase.co';
+const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss';
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON,{auth:{detectSessionInUrl:true,autoRefreshToken:true,persistSession:true}});
+
+const TAXONOMY=[
+ {key:'marketing',idx:0,label:'Marketing & Branding',coach:'Teddy',color:'#C8531F',l2:[{name:'Brand Strategy',l3:['Brand Positioning','Messaging Architecture','Visual Identity']},{name:'Go-to-Market',l3:['Market Entry','Channel Mix','Launch Sequencing']},{name:'Growth & Discovery',l3:['Content Strategy','SEO & Discoverability','Customer Research']}]},
+ {key:'financial',idx:1,label:'Financial Modelling',coach:'Barry',color:'#C9923A',l2:[{name:'Unit Economics',l3:['CAC & LTV','Payback Period','Contribution Margin']},{name:'Financial Planning',l3:['Revenue Forecasting','Burn Rate & Runway','Cash Flow Management']},{name:'Capital Architecture',l3:['Valuation Methods','Cap Table Design','Term Sheet Analysis']}]},
+ {key:'investment',idx:2,label:'Investment Readiness',coach:'Joseph',color:'#8AAB5C',l2:[{name:'Pitch Craft',l3:['Pitch Deck Structure','Investor Narrative','Executive Summary']},{name:'Investor Relations',l3:['Investor Targeting','Due Diligence Prep','Data Room']},{name:'Funding Strategy',l3:['Pre-seed Rounds','Seed Rounds','Grants & DFIs']}]},
+ {key:'strategy',idx:3,label:'Strategy & Team Building',coach:'Moses',color:'#3D4A2E',l2:[{name:'Competitive Strategy',l3:['Market Analysis','Positioning & Moats','Scenario Planning']},{name:'Team Architecture',l3:['Hiring Strategy','Culture Design','Org Structure']},{name:'Operational Systems',l3:['Process Design','OKRs & KPIs','Decision Frameworks']}]},
+ {key:'product',idx:4,label:'Product Development & Pricing',coach:'Patrick',color:'#A59B8C',l2:[{name:'Product-Market Fit',l3:['Problem Validation','Solution Testing','PMF Signals']},{name:'Product Development',l3:['MVP Design','Roadmapping','Iteration Cycles']},{name:'Pricing Strategy',l3:['Value-Based Pricing','Competitive Pricing','Price Testing']}]}
+];
+const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+// Locked cohort weekday map (CLAUDE.md): discipline → weekday + lead coach
+const DISC_DAY={marketing:{day:1,coach:'Teddy Ruge'},financial:{day:2,coach:'Barry Wojega'},investment:{day:3,coach:'Joseph Kalema'},strategy:{day:4,coach:'Moses Engwau Okudu'},product:{day:5,coach:'Patrick Ngolobe'}};
+
+// auth layer
+const _SB_KEY='sb-'+SUPABASE_URL.split('//')[1].split('.')[0]+'-auth-token';
+let _rp=null,currentSession=null,booted=false;
+function _stored(){try{return JSON.parse(localStorage.getItem(_SB_KEY)||'{}');}catch{return{};}}
+function _exp(s){const e=s.expires_at;return !e||(Date.now()/1000)>(e-60);}
+async function _refresh(){if(_rp)return _rp;_rp=(async()=>{const s=_stored();if(!s.refresh_token)throw new Error('Please sign in again');
+  const r=await fetch(SUPABASE_URL+'/auth/v1/token?grant_type=refresh_token',{method:'POST',headers:{apikey:SUPABASE_ANON,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:s.refresh_token})});
+  if(!r.ok){localStorage.removeItem(_SB_KEY);throw new Error('Session expired');}const j=await r.json();localStorage.setItem(_SB_KEY,JSON.stringify(j));currentSession=j;return j.access_token;})();
+  try{return await _rp;}finally{_rp=null;}}
+async function _token(){if(currentSession?.access_token){const e=currentSession.expires_at;if(e&&(Date.now()/1000)<(e-60))return currentSession.access_token;}const s=_stored();if(s.access_token&&!_exp(s))return s.access_token;return _refresh();}
+async function _q(table,params){const t=await _token();const r=await fetch(SUPABASE_URL+'/rest/v1/'+table+'?'+params,{headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t}});if(!r.ok)throw new Error('Query failed '+r.status+': '+await r.text());return r.json();}
+async function _w(method,table,params,body,extraHeaders){const t=await _token();const r=await fetch(SUPABASE_URL+'/rest/v1/'+table+(params?('?'+params):''),{method,headers:Object.assign({apikey:SUPABASE_ANON,Authorization:'Bearer '+t,'Content-Type':'application/json',Prefer:'return=representation'},extraHeaders||{}),body:body?JSON.stringify(body):undefined});if(!r.ok)throw new Error('Write failed '+r.status+': '+await r.text());const x=await r.text();return x?JSON.parse(x):null;}
+
+async function signIn(){const email=document.getElementById('login-email').value.trim();const pw=document.getElementById('login-password').value;const err=document.getElementById('login-error');const btn=document.querySelector('.btn-login');err.textContent='';if(!email||!pw){err.textContent='Enter email and password';return;}
+  try{btn.disabled=true;btn.textContent='Signing in…';const{error}=await sb.auth.signInWithPassword({email,password:pw});if(error)err.textContent=error.message;}catch(e){err.textContent=e.message;}finally{btn.disabled=false;btn.textContent='Enter';}}
+function signOut(){localStorage.removeItem(_SB_KEY);try{sb.auth.signOut().catch(()=>{});}catch(e){}location.reload();}
+document.addEventListener('click',function(e){ var w=document.getElementById('hav-wrap'); if(w&&!w.contains(e.target)) w.classList.remove('open'); });
+function coachSupportMailto(subj){ const who=(coach&&((coach.first_name||'')+' '+(coach.last_name||'')).trim())||''; return 'mailto:hello@founderssprint.co?subject='+encodeURIComponent('Coach support — '+subj+(who?(' — '+who):'')); }
+
+sb.auth.onAuthStateChange((ev,s)=>{ currentSession=s; if((ev==='SIGNED_IN'||ev==='TOKEN_REFRESHED'||ev==='INITIAL_SESSION') && s && !booted) boot(s.user); });
+let _redir=false; function _toLogin(){ if(_redir||booted) return; _redir=true; location.replace('/login-coach.html'); }
+// Authoritative session check: getSession() validates + refreshes, or returns null for a stale/absent token.
+(async()=>{
+  try{
+    const { data:{ session } } = await sb.auth.getSession();
+    if(session){ currentSession=session; if(!booted) boot(session.user); }
+    else { _toLogin(); }
+  }catch(e){ _toLogin(); }
+})();
+
+let coach=null, application=null, sessions=[], founders=[], myDiscKeys=new Set(), authUser=null, isLead=false, leadApps=[], myMaterials=[];
+async function _rpc(fn,args){ const t=await _token(); const r=await fetch(SUPABASE_URL+'/rest/v1/rpc/'+fn,{method:'POST',headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify(args||{})}); if(!r.ok) throw new Error('RPC '+r.status+': '+await r.text()); const x=await r.text(); return x?JSON.parse(x):null; }
+
+async function boot(user){
+  if(booted||!user)return;booted=true; authUser=user;
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+  document.getElementById('user-email').textContent=user.email;
+  { const hb=document.getElementById('hav-btn'); if(hb) hb.textContent=(user.email||'?')[0].toUpperCase(); }
+  try{
+    const c=await _q('coaches','or=(user_id.eq.'+user.id+',email.eq.'+encodeURIComponent(user.email)+',founderssprint_email.eq.'+encodeURIComponent(user.email)+')&select=*&limit=1');
+    if(!c.length){ document.querySelector('.main').innerHTML='<div class="empty"><div class="empty-mark">◇</div><div style="font-weight:600;color:var(--ink-mid)">This isn’t a coach account.</div></div>'; return; }
+    coach=c[0];
+    let topics=[];
+    try{ topics=await _q('coach_topics','coach_id=eq.'+coach.id+'&select=discipline_key,is_lead'); }catch(e){}
+    myDiscKeys=new Set(topics.map(t=>t.discipline_key));
+    isLead=topics.some(t=>t.is_lead);
+    const labels=TAXONOMY.filter(t=>myDiscKeys.has(t.key)).map(t=>t.label);
+    document.getElementById('coach-disc').textContent = (labels.length?labels.join(' · '):'Coach') + (isLead?' · Discipline Lead':'');
+    // own application (RLS-scoped to this coach's email); own sessions
+    try{ const a=await _q('coach_applications','select=*&order=created_at.desc&limit=1'); application=a[0]||null; }catch(e){ application=null; }
+    try{ sessions=await _q('sessions','coach_id=eq.'+user.id+'&select=id,session_type,title,scheduled_at,duration_minutes,meet_link,status,cohort_id&order=scheduled_at'); }catch(e){ sessions=[]; }
+    await loadRoster(); await loadAvailability();
+    try{ myMaterials=await _q('course_materials','coach_id=eq.'+user.id+'&select=id,title,discipline,module_type,format,week_number,source_url,file_path,status&order=sort_order'); }catch(e){ myMaterials=[]; }
+    renderSessions(); renderProfile(); renderEarnings(); renderMaterials();
+    loadTestimonials();
+    if(isLead){ document.getElementById('tab-applications').style.display=''; loadLeadApps(); }
+  }catch(e){ showToast('Load failed — '+e.message,'error'); }
+}
+
+// ── FOUNDERS ──
+let founderMeta={};
+const TRACK_LBL={single:'1:1 Session',pick3:'Pick 3 Bundle',cohort:'Full Cohort',vip1on1:'VIP 1:1',group:'Full Cohort',oneOnOne:'1:1 Session',vip:'VIP'};
+const TRACK_DEPTH={
+  single:'Limited basis — a single 1:1 session', oneOnOne:'Limited basis — a single 1:1 session',
+  pick3:'Moderate basis — a focused 3-session bundle',
+  vip1on1:'Deep 1:1 basis — extended one-to-one work', vip:'Deep 1:1 basis — extended one-to-one work',
+  cohort:'Full-cohort basis — weeks of context, strongest signal', group:'Full-cohort basis — weeks of context, strongest signal'
+};
+async function loadRoster(){
+  founders=await _q('founder_profiles','select=id,first_name,last_name,company_name,sector,stage,enrolled_disciplines&order=company_name');
+  let meta=(founderMeta={});
+  try{ (await _rpc('coach_founder_meta')||[]).forEach(x=>{ meta[x.founder_id]=x; }); }catch(e){}
+  const el=document.getElementById('roster');
+  if(!founders.length){ el.innerHTML='<div class="empty">No founders enrolled yet.</div>'; return; }
+  const card=f=>{
+    const mt=meta[f.id];
+    const trk=mt&&mt.track?(' · '+esc(TRACK_LBL[mt.track]||mt.track)):'';
+    const att=mt
+      ? (mt.attendee==='current'
+          ? '<span class="pill" style="background:rgba(10,143,100,.14);color:#0A8F64">Current</span>'
+          : '<span class="pill pill-grey">Previous</span>')
+      : '<span class="pill pill-grey">Not booked</span>';
+    return '<div class="list-row click" onclick="openFounder(\''+f.id+'\')"><div><div class="list-main">'+esc(f.company_name||((f.first_name||'')+' '+(f.last_name||'')))+'</div>'
+      +'<div class="list-sub">'+esc((f.first_name||'')+' '+(f.last_name||''))+' · '+esc(f.sector||'—')+trk+'</div></div>'
+      +'<div style="display:flex;gap:8px;align-items:center">'+att+'<span class="pill pill-terra">Open</span></div></div>';
+  };
+  const cur=founders.filter(f=>meta[f.id]&&meta[f.id].attendee==='current');
+  const oth=founders.filter(f=>!(meta[f.id]&&meta[f.id].attendee==='current'));
+  const hdr=t=>'<div style="font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin:14px 2px 6px">'+t+'</div>';
+  let html='';
+  if(cur.length) html+=hdr('Current cohort ('+cur.length+')')+cur.map(card).join('');
+  if(oth.length) html+=hdr('Previous &amp; unbooked ('+oth.length+')')+oth.map(card).join('');
+  el.innerHTML=html;
+}
+async function openFounder(fid){
+  const f=founders.find(x=>x.id===fid);if(!f)return;
+  let prog=[];
+  try{ prog=await _q('founder_course_progress','founder_id=eq.'+fid+'&select=l1_index,l2_index,l3_index,course_label,status'); }catch(e){}
+  const done=new Set(prog.filter(p=>p.status==='complete').map(p=>p.l1_index+'-'+p.l2_index+'-'+p.l3_index));
+  const enrolled=new Set(f.enrolled_disciplines||[]);
+  document.getElementById('view-roster').style.display='none';
+  const dv=document.getElementById('view-founder');dv.style.display='block';
+  const blocks=TAXONOMY.map(d=>{
+    const mine=myDiscKeys.has(d.key);
+    const isEnr=enrolled.has(d.key);
+    const rows=[];
+    d.l2.forEach((l2,li)=>l2.l3.forEach((l3,l3i)=>{
+      const key=d.idx+'-'+li+'-'+l3i;
+      const on=done.has(key);
+      const editable=mine;
+      rows.push('<div class="l3"><span class="chk'+(on?' on':'')+(editable?'':' busy')+'" '
+        +(editable?'onclick="toggleCourse(this,\''+fid+'\','+d.idx+','+li+','+l3i+',\''+esc(l3).replace(/'/g,"\\'")+'\')"':'title="Only the lead coach for this discipline can mark it"')+'></span>'
+        +'<span class="l3-name">'+esc(l3)+'</span><span class="l3-l2">'+esc(l2.name)+'</span></div>');
+    }));
+    return '<div class="disc-block'+(mine?' mine':'')+'"><div class="disc-h">'+esc(d.label)+(mine?' — yours':'')+'</div>'
+      +'<div class="disc-sub">'+d.coach+(isEnr?'':' · founder not enrolled')+'</div>'+rows.join('')+'</div>';
+  }).join('');
+  // investor assessment (per primary company, in this coach's discipline)
+  let _comp=null, _adisc=[...myDiscKeys][0]||null, _ex=null;
+  try{ const cs=await _q('companies','founder_id=eq.'+fid+'&select=id,name,is_primary&order=is_primary.desc&limit=1'); _comp=(cs&&cs[0])||null; }catch(e){}
+  if(_comp&&_adisc){ try{ const r=await _q('founder_coach_assessment','company_id=eq.'+_comp.id+'&coach_id=eq.'+coach.id+'&discipline_key=eq.'+encodeURIComponent(_adisc)+'&select=*&limit=1'); _ex=(r&&r[0])||null; }catch(e){} }
+  const _didx=(TAXONOMY.find(t=>t.key===_adisc)||{}).idx;
+  const _basis={ track:(founderMeta[fid]||{}).track||null, courses:[...done].filter(k=>String(k.split('-')[0])===String(_didx)).length };
+  dv.innerHTML='<span class="back" onclick="closeFounder()">← All founders</span>'
+    +'<div class="page-eyebrow">Mark progress</div>'
+    +'<div class="page-title">'+esc(f.company_name||((f.first_name||'')+' '+(f.last_name||'')))+'</div>'
+    +'<div class="page-sub">Tick a course once the founder has completed it. You can mark courses in <strong>your</strong> discipline'+(TAXONOMY.filter(t=>myDiscKeys.has(t.key)).length?' ('+TAXONOMY.filter(t=>myDiscKeys.has(t.key)).map(t=>t.label).join(', ')+')':'')+'; other disciplines are read-only here.</div>'
+    +blocks
+    +(_comp&&_adisc?assessmentPanel(_comp,_adisc,_ex,_basis):'');
+  window.scrollTo(0,0);
+}
+function closeFounder(){document.getElementById('view-founder').style.display='none';document.getElementById('view-roster').style.display='block';loadRoster();window.scrollTo(0,0);}
+async function toggleCourse(elm,fid,l1,l2,l3,label){
+  const turningOn=!elm.classList.contains('on');
+  elm.classList.add('busy');
+  try{
+    await _w('POST','founder_course_progress','on_conflict=founder_id,l1_index,l2_index,l3_index',
+      { founder_id:fid, l1_index:l1, l2_index:l2, l3_index:l3, course_label:label,
+        status: turningOn?'complete':'enrolled', coach_id:coach.id,
+        completed_at: turningOn?new Date().toISOString():null, updated_at:new Date().toISOString() },
+      { Prefer:'resolution=merge-duplicates,return=representation' });
+    elm.classList.toggle('on',turningOn);
+    showToast(turningOn?'Marked complete':'Marked incomplete','success');
+  }catch(e){ showToast('Update failed — '+e.message,'error'); }
+  finally{ elm.classList.remove('busy'); }
+}
+
+// ── INVESTOR ASSESSMENT (coach writes; investor + founder read) ──
+const RUBRIC={
+  marketing:[['brand_clarity','Brand clarity'],['gtm','Go-to-market readiness'],['market','Market understanding']],
+  financial:[['model_rigour','Model rigour'],['unit_economics','Unit economics'],['discipline','Financial discipline']],
+  investment:[['narrative','Narrative & pitch'],['fundraising','Fundraising strategy'],['materials','Materials readiness']],
+  strategy:[['team','Team strength'],['clarity','Strategic clarity'],['execution','Execution & follow-through']],
+  product:[['product_instinct','Product instinct'],['pricing','Pricing strategy'],['pmf','Product-market-fit evidence']]
+};
+let _ar={};
+function arDots(key){ let h=''; for(let i=1;i<=5;i++){ const on=(_ar[key]||0)>=i; h+='<span onclick="setAR(\''+key+'\','+i+')" title="'+i+' of 5" style="cursor:pointer;display:inline-block;width:16px;height:16px;border-radius:50%;margin-left:5px;background:'+(on?'#C8531F':'transparent')+';border:1px solid '+(on?'#C8531F':'rgba(26,26,26,.3)')+'"></span>'; } return h; }
+function setAR(key,n){ _ar[key]=n; const el=document.getElementById('ard-'+key); if(el) el.innerHTML=arDots(key); }
+let _abasis={};
+function assessmentPanel(company, disc, ex, basis){
+  _ar = (ex && ex.ratings && typeof ex.ratings==='object') ? Object.assign({}, ex.ratings) : {};
+  _abasis = basis || (ex&&ex.basis) || {};
+  const bt=_abasis.track||null, cc=_abasis.courses||0;
+  const basisLine = bt
+    ? '<div style="display:inline-block;font-family:var(--sans);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#5A564F;border:1px solid rgba(26,26,26,.25);padding:4px 9px">Basis · '+esc(TRACK_LBL[bt]||bt)+(cc?(' · '+cc+' course'+(cc===1?'':'s')+' complete'):'')+'</div><div style="font-size:11px;color:var(--muted);margin:5px 0 0;font-style:italic">'+esc(TRACK_DEPTH[bt]||'')+'</div>'
+    : '<div style="font-size:11px;color:var(--muted);font-style:italic">No booking on file yet — assess only what you have actually seen.</div>';
+  const dims=(RUBRIC[disc]||[]).concat([['coachability','Coachability']]);
+  const rows=dims.map(d=>'<div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid rgba(26,26,26,.08)"><span style="font-size:13px">'+esc(d[1])+(d[0]==='coachability'?' <span style="color:var(--muted);font-size:11px">· follow-through &amp; openness</span>':'')+'</span><span id="ard-'+d[0]+'">'+arDots(d[0])+'</span></div>').join('');
+  const dlabel=(TAXONOMY.find(t=>t.key===disc)||{}).label||disc;
+  const ta='width:100%;background:rgba(0,0,0,.03);border:1px solid var(--border);padding:9px;font-family:var(--font);font-size:13px;resize:vertical';
+  const lab='font-family:var(--sans);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:4px';
+  return '<div class="card card-top" style="margin-top:22px">'
+    +'<div class="section-title" style="margin-top:0">Investor assessment · '+esc(dlabel)+'</div>'
+    +'<div style="font-size:12px;color:var(--muted);line-height:1.5;margin-bottom:12px">Visible to investors '+esc(company.name||'this company')+' has unlocked — and the founder can read it too. Strengths and development areas are both required to publish. The value to investors is candour.</div>'
+    +'<div style="margin-bottom:14px">'+basisLine+'</div>'
+    +rows
+    +'<div style="margin-top:12px"><div style="'+lab+'">Strengths</div><textarea id="as-strengths" rows="2" style="'+ta+'">'+esc((ex&&ex.strengths)||'')+'</textarea></div>'
+    +'<div style="margin-top:8px"><div style="'+lab+'">Development areas</div><textarea id="as-growth" rows="2" style="'+ta+'">'+esc((ex&&ex.growth)||'')+'</textarea></div>'
+    +'<div style="display:flex;gap:8px;align-items:center;margin-top:12px;flex-wrap:wrap"><button style="background:none;border:1px solid var(--border-hi);color:var(--ink-mid);padding:8px 14px;font-family:var(--sans);font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer" onclick="saveAssessment(\''+company.id+'\',\''+disc+'\',\'draft\')">Save draft</button>'
+    +'<button class="btn" onclick="saveAssessment(\''+company.id+'\',\''+disc+'\',\'published\')">Publish to investors</button>'
+    +(ex?'<span style="font-size:11px;color:var(--muted)">'+(ex.status==='published'?'Published':'Draft')+(ex.updated_at?(' · '+new Date(ex.updated_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'})):'')+'</span>':'<span style="font-size:11px;color:var(--muted)">Not started</span>')
+    +'</div></div>';
+}
+async function saveAssessment(companyId, disc, status){
+  const strengths=(document.getElementById('as-strengths').value||'').trim();
+  const growth=(document.getElementById('as-growth').value||'').trim();
+  if(status==='published' && (!strengths||!growth)){ showToast('Strengths and development areas are both required to publish','error'); return; }
+  try{
+    await _w('POST','founder_coach_assessment','on_conflict=company_id,coach_id,discipline_key',
+      { company_id:companyId, coach_id:coach.id, discipline_key:disc, ratings:_ar, basis:_abasis, strengths:strengths||null, growth:growth||null, status, updated_at:new Date().toISOString() },
+      { Prefer:'resolution=merge-duplicates,return=representation' });
+    showToast(status==='published'?'Published to investors':'Draft saved','success');
+  }catch(e){ showToast('Could not save — '+e.message,'error'); }
+}
+
+// ── SESSIONS ──
+function fmtDateTime(s){ if(!s)return '—'; const d=new Date(s); return d.toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}); }
+function renderSessions(){
+  // group cohort sessions: derived from the coach's discipline(s) weekday map
+  const co=document.getElementById('cohort-sessions');
+  const mine=[...myDiscKeys].filter(k=>DISC_DAY[k]);
+  if(!mine.length){ co.innerHTML='<div class="empty">No discipline assigned yet.</div>'; }
+  else { const gm=coach.group_meet_link;
+    const gbtn = gm
+      ? '<a class="pill" style="background:rgba(10,143,100,.14);color:#0A8F64;text-decoration:none" href="'+esc(gm)+'" target="_blank">Start session ↗</a> <a href="#" onclick="setGroupMeet();return false" style="font-size:10px;color:var(--muted);text-decoration:none">edit link</a>'
+      : '<a href="#" onclick="setGroupMeet();return false" style="font-size:11px;color:var(--terra);text-decoration:none;font-weight:600">+ Add Meet link</a>';
+    co.innerHTML=mine.map(k=>{ const d=DISC_DAY[k]; const t=TAXONOMY.find(x=>x.key===k);
+    return '<div class="list-row"><div><div class="list-main">'+esc(t?t.label:k)+' — '+DAYS[d.day]+'s</div>'
+      +'<div class="list-sub">Every '+DAYS[d.day]+', 10:00–12:00 EAT · group cohort session · lead: '+esc(d.coach)+'</div></div>'
+      +'<div style="display:flex;gap:10px;align-items:center">'+gbtn+'<span class="pill pill-grey">Weekly</span></div></div>'; }).join('');
+  }
+  // 1:1 sessions from the sessions table
+  const oo=document.getElementById('oneonone-sessions');
+  const ones=sessions.filter(s=>s.session_type!=='group');
+  if(!ones.length){ oo.innerHTML='<div class="empty">No 1:1 sessions booked yet. Founders book these inside your availability windows.</div>'; return; }
+  oo.innerHTML=ones.map(s=>{
+    const upcoming=s.scheduled_at && new Date(s.scheduled_at)>=new Date();
+    const link=s.meet_link?'<a class="pill" style="background:rgba(10,143,100,.14);color:#0A8F64;text-decoration:none" href="'+esc(s.meet_link)+'" target="_blank">Start session ↗</a>':'<span class="pill pill-grey">Awaiting Meet link</span>';
+    return '<div class="list-row"><div><div class="list-main">'+esc(s.title||'1:1 Intensive')+'</div>'
+      +'<div class="list-sub">'+fmtDateTime(s.scheduled_at)+' · '+(s.duration_minutes||60)+' min</div></div>'+(upcoming?link:'<span class="pill pill-grey">'+esc(s.status||'Done')+'</span>')+'</div>';
+  }).join('');
+}
+
+async function setGroupMeet(){
+  const v=prompt('Paste the Google Meet link for your weekly group cohort session:', coach.group_meet_link||'https://meet.google.com/');
+  if(v===null) return;
+  const link=v.trim()==='https://meet.google.com/'?'':v.trim();
+  try{ await _w('PATCH','coaches','id=eq.'+coach.id,{group_meet_link:link||null}); coach.group_meet_link=link||null; renderSessions(); showToast('Group session link saved','success'); }
+  catch(e){ showToast('Could not save — '+e.message,'error'); }
+}
+
+// ── PROFILE ──
+function renderProfile(){
+  const c=coach, a=application||{};
+  { const hb=document.getElementById('hav-btn'); if(hb){ hb.innerHTML = c.avatar_url?('<img src="'+esc(c.avatar_url)+'">'):esc(((c.first_name||c.email||'?')[0]||'?').toUpperCase()); } }
+  const av=c.avatar_url?'<img src="'+esc(c.avatar_url)+'">':esc(((c.first_name||'?')[0]||'?').toUpperCase());
+  const appBits=[];
+  const addBit=(k,v)=>{ if(v) appBits.push('<div><div class="k">'+k+'</div><div class="v">'+esc(v)+'</div></div>'); };
+  addBit('Current role', a.current_role); addBit('Experience', a.experience);
+  addBit('Languages', Array.isArray(a.languages)?a.languages.join(', '):a.languages);
+  addBit('Geographies', Array.isArray(a.geographies)?a.geographies.join(', '):a.geographies);
+  addBit('Notable clients', a.notable_clients); addBit('Location', a.location);
+  const appCard = appBits.length
+    ? '<div class="section-title">From your application</div><div class="card"><div class="kv">'+appBits.join('')+'</div>'
+      + (a.coaching_philosophy?'<div style="margin-top:14px"><div class="k" style="font-family:var(--sans);font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:4px">Coaching philosophy</div><div style="font-size:13.5px;line-height:1.55">'+esc(a.coaching_philosophy)+'</div></div>':'')
+      + '<div style="font-size:11px;color:var(--muted);margin-top:12px">These came from your onboarding form and are kept consistent with your verified application. Need a change? <a href="'+coachSupportMailto('Update application/profile details')+'" style="color:var(--terra);font-weight:600;text-decoration:none">Contact coach support →</a></div></div>'
+    : '<div class="section-title">From your application</div><div class="card"><div style="font-size:13px;color:var(--ink-mid)">No onboarding application is linked to this account yet. Your editable profile above is live; application details (experience, philosophy, documents) appear here once your onboarding form is on file.</div></div>';
+  // documents on file
+  const docRow=(label,present,note)=>'<div class="list-row"><div><div class="list-main">'+label+'</div><div class="list-sub">'+(note||'')+'</div></div>'+(present?'<span class="pill pill-green">On file</span>':'<span class="pill pill-grey">Not provided</span>')+'</div>';
+  const docsCard='<div class="section-title">Documents on file</div><div class="card">'
+    + docRow('Profile photo', !!(c.avatar_url||a.profile_photo_path),'Shown on your public profile')
+    + docRow('CV / résumé', !!a.cv_path,'Securely stored')
+    + docRow('ID document', !!a.id_document_path, a.id_type?('Type: '+esc(a.id_type)):'Securely stored')
+    + '<div style="font-size:11px;color:var(--muted);margin-top:10px">Sensitive documents (CV, ID) live in a private vault and are handled by the platform admin — they aren\'t uploaded or downloaded here for your protection. To add or replace one, <a href="'+coachSupportMailto('Add / replace a document (CV or ID)')+'" style="color:var(--terra);font-weight:600;text-decoration:none">contact coach support →</a></div></div>';
+
+  document.getElementById('profile-body').innerHTML =
+    '<div class="card card-top"><div style="display:flex;gap:18px;align-items:center;flex-wrap:wrap">'
+      +'<div class="avatar" id="pf-avatar">'+av+'</div>'
+      +'<div style="flex:1;min-width:200px"><div style="font-family:var(--display);font-size:24px;font-weight:600">'+esc((c.first_name||'')+' '+(c.last_name||''))+'</div>'
+        +'<div style="font-size:12.5px;color:var(--ink-mid);margin-top:2px">'+esc(c.headline||'Add a headline below')+'</div></div>'
+      +'<label class="btn" style="cursor:pointer">Change photo<input type="file" accept="image/*" style="display:none" onchange="uploadCoachPhoto(this)"></label>'
+    +'</div></div>'
+    +'<div class="card"><div class="pf-grid">'
+      +pfField('headline','Headline','text',c.headline)
+      +pfField('session_fee','1:1 session fee (UGX)','number',c.session_fee||500000)
+      +pfField('credentials','Credentials','text',c.credentials)
+      +pfField('linkedin_url','LinkedIn URL','url',c.linkedin_url)
+      +pfField('website_url','Website URL','url',c.website_url)
+      +pfField('phone','Phone','text',c.phone)
+      +'<div class="pf-f full"><label>Bio</label><textarea id="pf-bio" rows="4">'+esc(c.bio||'')+'</textarea></div>'
+    +'</div><div style="margin-top:14px"><button class="btn" id="pf-save" onclick="saveProfile()">Save profile</button></div></div>'
+    +appCard+docsCard;
+}
+function pfField(id,label,type,val){ return '<div class="pf-f"><label>'+label+'</label><input id="pf-'+id+'" type="'+type+'" value="'+esc(val==null?'':val)+'"></div>'; }
+async function saveProfile(){
+  const g=id=>document.getElementById('pf-'+id).value.trim();
+  const fee=parseInt(g('session_fee'),10);
+  const body={ headline:g('headline')||null, credentials:g('credentials')||null, bio:document.getElementById('pf-bio').value.trim()||null,
+    linkedin_url:g('linkedin_url')||null, website_url:g('website_url')||null, phone:g('phone')||null,
+    session_fee: isNaN(fee)?null:fee, updated_at:new Date().toISOString() };
+  const btn=document.getElementById('pf-save');
+  try{ btn.disabled=true; btn.textContent='Saving…';
+    await _w('PATCH','coaches','id=eq.'+coach.id,body);
+    Object.assign(coach,body); renderProfile();
+    showToast('Profile saved','success');
+  }catch(e){ showToast('Could not save — '+e.message,'error'); }
+  finally{ btn.disabled=false; }
+}
+async function uploadCoachPhoto(input){
+  const file=input.files&&input.files[0]; if(!file)return;
+  if(file.size>5*1024*1024){ showToast('Photo must be under 5MB','error'); return; }
+  try{
+    const ext=(file.name.split('.').pop()||'jpg').toLowerCase();
+    const path=coach.id+'/photo.'+ext;
+    const t=await _token();
+    const up=await fetch(SUPABASE_URL+'/storage/v1/object/coach-profiles/'+path,{method:'POST',headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t,'x-upsert':'true','Content-Type':file.type||'image/jpeg'},body:file});
+    if(!up.ok) throw new Error('upload '+up.status);
+    const url=SUPABASE_URL+'/storage/v1/object/public/coach-profiles/'+path+'?v='+Date.now();
+    await _w('PATCH','coaches','id=eq.'+coach.id,{avatar_url:url,updated_at:new Date().toISOString()});
+    coach.avatar_url=url; renderProfile(); showToast('Photo updated','success');
+  }catch(e){ showToast('Could not upload photo — '+e.message,'error'); }
+}
+
+// ── EARNINGS ──
+function ugx(n){ n=Number(n)||0; return 'UGX '+n.toLocaleString('en-US'); }
+function mask(s){ s=String(s||''); return s.length>4?('•••• '+s.slice(-4)):s; }
+function renderEarnings(){
+  const a=application||{}, fee=coach.session_fee||500000;
+  const done=sessions.filter(s=>s.status==='completed'||s.status==='complete').length;
+  const upcoming=sessions.filter(s=>s.scheduled_at&&new Date(s.scheduled_at)>=new Date()).length;
+  const indicative=done*fee;
+  let payout='<div style="font-size:13px;color:var(--ink-mid)">No payout details on file yet. These are collected on the coach onboarding form.</div>';
+  if(a.mobile_money_provider||a.mobile_money_number){
+    payout='<div class="kv"><div><div class="k">Method</div><div class="v">Mobile money</div></div>'
+      +'<div><div class="k">Provider</div><div class="v">'+esc(a.mobile_money_provider||'—')+'</div></div>'
+      +'<div><div class="k">Number</div><div class="v">'+esc(mask(a.mobile_money_number))+'</div></div></div>';
+  } else if(a.bank_name||a.account_number){
+    payout='<div class="kv"><div><div class="k">Method</div><div class="v">Bank transfer</div></div>'
+      +'<div><div class="k">Bank</div><div class="v">'+esc(a.bank_name||'—')+'</div></div>'
+      +'<div><div class="k">Account</div><div class="v">'+esc(mask(a.account_number))+'</div></div>'
+      +(a.account_name?'<div><div class="k">Account name</div><div class="v">'+esc(a.account_name)+'</div></div>':'')+'</div>';
+  }
+  document.getElementById('earnings-body').innerHTML=
+    '<div class="stat-row">'
+      +'<div class="stat"><div class="v">'+ugx(fee)+'</div><div class="l">Your 1:1 rate</div></div>'
+      +'<div class="stat"><div class="v">'+done+'</div><div class="l">Sessions delivered</div></div>'
+      +'<div class="stat"><div class="v">'+upcoming+'</div><div class="l">Upcoming</div></div>'
+      +'<div class="stat"><div class="v">'+ugx(indicative)+'</div><div class="l">Indicative earned</div></div>'
+    +'</div>'
+    +'<div class="card card-top"><div class="section-title" style="margin-top:0">Payout details</div>'+payout
+      +'<div style="font-size:11px;color:var(--muted);margin-top:12px">Indicative earnings = delivered 1:1 sessions × your rate. Actual settlement begins once mobile-money payouts go live; group-cohort revenue share is handled separately by the platform.</div></div>';
+}
+
+// ── APPLICATIONS (discipline lead vetting; suitability only, no DD) ──
+async function loadLeadApps(){
+  try{ leadApps = await _rpc('lead_review_queue') || []; }catch(e){ leadApps=[]; }
+  const badge=document.getElementById('app-badge');
+  if(leadApps.length){ badge.textContent=leadApps.length; badge.style.display=''; } else { badge.style.display='none'; }
+  renderLeadApps();
+}
+function renderLeadApps(){
+  const el=document.getElementById('apps-body'); if(!el) return;
+  if(!leadApps.length){ el.innerHTML='<div class="empty">No applications waiting on your review.</div>'; return; }
+  el.innerHTML=leadApps.map(a=>{
+    const bits=[];
+    if(a.role_now) bits.push('<div><div class="k" style="font-family:var(--sans);font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)">Current role</div><div style="font-size:13px">'+esc(a.role_now)+'</div></div>');
+    if(a.experience) bits.push('<div><div class="k" style="font-family:var(--sans);font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)">Experience</div><div style="font-size:13px">'+esc(a.experience)+'</div></div>');
+    if(a.notable_clients) bits.push('<div><div class="k" style="font-family:var(--sans);font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted)">Notable clients</div><div style="font-size:13px">'+esc(a.notable_clients)+'</div></div>');
+    return '<div class="card card-top"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div class="page-title" style="font-size:22px;margin:0">'+esc(a.applicant||'Applicant')+'</div><span class="pill pill-grey">'+esc(a.discipline||'')+'</span></div>'
+      + (a.headline?'<div style="font-size:13px;color:var(--ink-mid);margin-top:2px">'+esc(a.headline)+'</div>':'')
+      + (bits.length?'<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-top:12px">'+bits.join('')+'</div>':'')
+      + (a.coaching_philosophy?'<div style="font-size:13px;line-height:1.55;margin-top:10px"><b>Philosophy:</b> '+esc(a.coaching_philosophy)+'</div>':'')
+      + (a.bio?'<div style="font-size:12.5px;color:var(--muted);line-height:1.5;margin-top:8px">'+esc(a.bio)+'</div>':'')
+      + '<div style="display:flex;gap:8px;margin-top:14px;flex-wrap:wrap;align-items:center"><button class="btn" onclick="leadDecide(\''+a.id+'\',\'approved\')">Approve — fit to coach</button>'
+      + (a.email?'<a class="pill pill-terra" style="text-decoration:none" href="mailto:'+esc(a.email)+'?subject='+encodeURIComponent("The Founder's Sprint — your coach application")+'">Contact</a>':'')
+      + '<button class="btn-del" onclick="leadDecide(\''+a.id+'\',\'rejected\')">Decline</button></div></div>';
+  }).join('');
+}
+async function leadDecide(id,decision){
+  let notes=null;
+  if(decision==='rejected'){ notes=prompt('Reason (optional):')||null; }
+  try{
+    await _rpc('lead_decide',{p_app:id,p_decision:decision,p_notes:notes});
+    showToast(decision==='approved'?'Approved — sent to admin for due-diligence':'Declined','success');
+    await loadLeadApps();
+  }catch(e){ showToast('Could not record decision — '+e.message,'error'); }
+}
+
+// ── MATERIALS ──
+function matLink(m){
+  if(m.source_url) return '<a class="pill pill-terra" style="text-decoration:none" href="'+esc(m.source_url)+'" target="_blank">Open ↗</a>';
+  if(m.file_path) return '<a class="pill pill-terra" style="text-decoration:none" href="#" onclick="openMaterialFile(\''+esc(m.file_path)+'\');return false">Open</a>';
+  return '<span class="pill pill-grey">No file</span>';
+}
+async function openMaterialFile(path){
+  try{ const t=await _token();
+    const r=await fetch(SUPABASE_URL+'/storage/v1/object/sign/course-materials/'+encodeURI(path),{method:'POST',headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify({expiresIn:300})});
+    const j=await r.json(); if(j&&j.signedURL) window.open(SUPABASE_URL+'/storage/v1'+j.signedURL,'_blank'); else throw new Error('na');
+  }catch(e){ showToast('Could not open file','error'); }
+}
+function renderMaterials(){
+  const el=document.getElementById('materials-body');
+  if(!myMaterials.length){
+    el.innerHTML='<div class="card card-top"><div style="font-family:var(--display);font-size:20px;font-weight:600;margin-bottom:6px">No materials yet</div>'
+      +'<div style="font-size:13px;color:var(--ink-mid);line-height:1.6;max-width:560px">Your teaching decks appear here once they\'re added to the platform. The self-serve template builder (pick a branded layout, fill in content, publish — with an AI brand check) ships next phase.</div></div>';
+    return;
+  }
+  const rows=myMaterials.map(m=>'<div class="list-row"><div><div class="list-main">'+esc(m.title)+'</div>'
+    +'<div class="list-sub">'+esc(m.discipline||'')+(m.module_type?(' · '+esc(m.module_type)):'')+' · '+(m.status==='published'?'Published':esc(m.status||'Draft'))+'</div></div>'
+    +matLink(m)+'</div>').join('');
+  el.innerHTML='<div class="card card-top"><div class="section-title" style="margin-top:0">Your teaching materials</div>'+rows
+    +'<div style="font-size:11px;color:var(--muted);margin-top:12px">These are the decks founders see for your discipline. Self-serve editing + the branded template builder ship next phase.</div></div>';
+}
+
+// ── availability (unchanged) ──
+let myWindows=[];
+const _avGhost='background:none;border:1px solid var(--border-hi);color:var(--ink-mid);padding:6px 12px;font-family:var(--sans);font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;cursor:pointer';
+async function loadAvailability(){
+  try{ myWindows=await _q('coach_availability','coach_id=eq.'+coach.id+'&select=id,day_of_week,start_time,end_time,is_active&order=day_of_week,start_time'); }catch(e){ myWindows=[]; }
+  renderAvailability();
+}
+function avDur(s,e){ const a=s.split(':').map(Number),b=e.split(':').map(Number); let m=(b[0]*60+b[1])-(a[0]*60+a[1]); if(m<0)m+=1440; const h=Math.floor(m/60),mm=m%60; return ((h?h+'h':'')+(mm?(h?' ':'')+mm+'m':''))||'0m'; }
+function renderAvailability(){
+  const el=document.getElementById('av-list');
+  if(!myWindows.length){ el.innerHTML='<div class="empty">No 1:1 windows yet. Add one above.</div>'; return; }
+  const byDay={}; myWindows.forEach(w=>{(byDay[w.day_of_week]=byDay[w.day_of_week]||[]).push(w);});
+  el.innerHTML=Object.keys(byDay).sort((a,b)=>a-b).map(day=>
+    '<div style="margin-bottom:14px"><div style="font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--terra);margin:0 2px 6px">'+DAYS[day]+'</div>'
+    + byDay[day].map(avRow).join('') + '</div>').join('');
+}
+function avRow(w){
+  return '<div class="av-row" id="avrow-'+w.id+'">'
+    +'<div style="flex:1;display:flex;align-items:baseline;gap:10px"><span class="list-main" style="font-variant-numeric:tabular-nums">'+w.start_time.slice(0,5)+' – '+w.end_time.slice(0,5)+'</span>'
+    +'<span class="list-sub">'+avDur(w.start_time.slice(0,5),w.end_time.slice(0,5))+' · EAT</span></div>'
+    +'<div style="display:flex;gap:6px"><button style="'+_avGhost+'" onclick="editAvailability('+w.id+')">Edit</button>'
+    +'<button class="btn-del" onclick="delAvailability('+w.id+')">Remove</button></div></div>';
+}
+function editAvailability(id){
+  const w=myWindows.find(x=>x.id===id); if(!w) return;
+  const row=document.getElementById('avrow-'+id); if(!row) return;
+  const inp='background:rgba(0,0,0,.03);border:1px solid var(--border);padding:7px 9px;font-family:var(--font);font-size:13px';
+  row.innerHTML='<div style="flex:1;display:flex;align-items:center;gap:8px"><span class="list-sub" style="min-width:54px">'+DAYS[w.day_of_week]+'</span>'
+    +'<input type="time" id="ave-s-'+id+'" value="'+w.start_time.slice(0,5)+'" style="'+inp+'">'
+    +'<span style="color:var(--muted);font-size:12px">to</span>'
+    +'<input type="time" id="ave-e-'+id+'" value="'+w.end_time.slice(0,5)+'" style="'+inp+'"></div>'
+    +'<div style="display:flex;gap:6px"><button class="btn" onclick="saveAvailability('+id+')">Save</button>'
+    +'<button style="'+_avGhost+'" onclick="renderAvailability()">Cancel</button></div>';
+}
+async function saveAvailability(id){
+  const s=document.getElementById('ave-s-'+id).value, e=document.getElementById('ave-e-'+id).value;
+  if(!s||!e||s>=e){ showToast('End time must be after start time','error'); return; }
+  try{ await _w('PATCH','coach_availability','id=eq.'+id,{start_time:s,end_time:e}); await loadAvailability(); showToast('Window updated','success'); }
+  catch(err){ showToast('Could not update — '+err.message,'error'); }
+}
+async function addAvailability(){
+  const day=parseInt(document.getElementById('av-day').value,10);
+  const start=document.getElementById('av-start').value, end=document.getElementById('av-end').value;
+  const btn=document.getElementById('av-add-btn');
+  if(!start||!end||start>=end){ showToast('End time must be after start time','error'); return; }
+  try{ btn.disabled=true;
+    await _w('POST','coach_availability','',{ coach_id:coach.id, day_of_week:day, start_time:start, end_time:end, is_active:true });
+    await loadAvailability(); showToast('Availability added','success');
+  }catch(e){ showToast('Could not add — '+e.message,'error'); } finally{ btn.disabled=false; }
+}
+async function delAvailability(id){
+  try{ await _w('DELETE','coach_availability','id=eq.'+id); await loadAvailability(); showToast('Window removed','success'); }
+  catch(e){ showToast('Could not remove — '+e.message,'error'); }
+}
+
+// ── TESTIMONIALS ──
+let myTestimonials=[];
+const TST_PHOTO_BASE=SUPABASE_URL+'/storage/v1/object/public/testimonial-photos/';
+function tstPhotoUrl(p){ if(!p) return null; return /^https?:\/\//.test(p)?p:TST_PHOTO_BASE+p; }
+const TST_STATUS={'new':{l:'Pending review',c:'var(--ochre)'},approved:{l:'Approved · live',c:'#3D7A4E'},rejected:{l:'Declined',c:'var(--stone)'},revoked:{l:'Revoked',c:'var(--stone)'}};
+async function loadTestimonials(){
+  if(!coach||!coach.slug) return;
+  try{ myTestimonials=await _q('testimonial_submissions','for_target=eq.'+encodeURIComponent(coach.slug)+'&select=*&order=created_at.desc'); }
+  catch(e){ myTestimonials=[]; }
+  const pend=myTestimonials.filter(t=>t.status==='new').length;
+  const b=document.getElementById('tst-badge'); if(b){ b.textContent=pend; b.style.display=pend?'inline-block':'none'; }
+  renderTestimonials();
+}
+function tstCard(t){
+  const ph=tstPhotoUrl(t.photo_path);
+  const av=ph?'<img src="'+esc(ph)+'" alt="'+esc(t.name)+'" loading="lazy" style="width:46px;height:46px;border-radius:50%;object-fit:cover;flex-shrink:0">'
+            :'<div style="width:46px;height:46px;border-radius:50%;background:var(--paper-deep);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:18px;color:var(--paper-dim);flex-shrink:0">'+esc((t.name||'?').slice(0,1))+'</div>';
+  const st=TST_STATUS[t.status]||TST_STATUS['new'];
+  const meta=[t.role_title,t.company].filter(Boolean).map(esc).join(' · ');
+  let actions='';
+  if(t.status==='new') actions='<button class="btn" onclick="tstDecide(\''+t.id+'\',\'approved\')">Approve</button><button class="btn-del" onclick="tstDecide(\''+t.id+'\',\'rejected\')">Decline</button>';
+  else if(t.status==='approved') actions='<button class="btn-del" onclick="tstDecide(\''+t.id+'\',\'revoked\')">Revoke</button>';
+  else actions='<button class="btn" onclick="tstDecide(\''+t.id+'\',\'approved\')">Approve</button>';
+  return '<div style="display:flex;gap:12px;align-items:flex-start">'+av+
+    '<div style="flex:1;min-width:0"><div style="display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:baseline">'+
+      '<div style="font-weight:600">'+esc(t.name)+(meta?' <span style="font-weight:400;color:var(--muted);font-size:12px">— '+meta+'</span>':'')+'</div>'+
+      '<span style="font-family:var(--sans);font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:'+st.c+'">'+st.l+'</span></div>'+
+      (t.rating?'<div style="color:#C9923A;font-size:14px;letter-spacing:2px;margin-top:6px" title="'+t.rating+' / 5">'+'★'.repeat(t.rating)+'<span style="color:var(--border-hi)">'+'★'.repeat(5-t.rating)+'</span></div>':'')+
+      '<div style="margin:8px 0 0;color:var(--ink-mid);line-height:1.6;font-size:13.5px">“'+esc(t.testimonial)+'”</div>'+
+      '<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">'+actions+'</div>'+
+    '</div></div>';
+}
+function renderTestimonials(){
+  const host=document.getElementById('testimonials-body'); if(!host) return;
+  if(!coach||!coach.slug){ host.innerHTML='<div class="card"><div class="empty"><div class="empty-mark">◇</div><div style="color:var(--ink-mid)">Testimonials appear here once your coach profile is set up.</div></div></div>'; return; }
+  if(!myTestimonials.length){ host.innerHTML='<div class="card"><div class="empty"><div class="empty-mark">◇</div><div style="color:var(--ink-mid)">No testimonials yet.</div><div style="margin-top:6px;color:var(--muted);font-size:12.5px">Share your collection link with founders: <a href="/share-testimonial.html" target="_blank" style="color:var(--terra)">founderssprint.co/share-testimonial.html</a></div></div></div>'; return; }
+  // Your founder rating — average of ratings on approved testimonials; goes public at 10
+  const rated=myTestimonials.filter(t=>t.status==='approved'&&t.rating>=1&&t.rating<=5);
+  const cnt=rated.length, avg=cnt?rated.reduce((a,t)=>a+t.rating,0)/cnt:0, rnd=Math.round(avg);
+  let summary='';
+  if(cnt){
+    const live=cnt>=10;
+    summary='<div class="card card-top" style="display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:0">'
+      +'<div style="font-family:var(--display);font-size:40px;line-height:1;color:var(--ink)">'+avg.toFixed(1)+'</div>'
+      +'<div style="min-width:0"><div style="color:#C9923A;font-size:17px;letter-spacing:2px">'+'★'.repeat(rnd)+'<span style="color:var(--border-hi)">'+'★'.repeat(5-rnd)+'</span></div>'
+      +'<div style="font-size:12.5px;color:var(--muted);margin-top:5px">'+cnt+' rating'+(cnt===1?'':'s')+' from approved testimonials · '
+      +(live?'<b style="color:#3D7A4E">live on your public profile</b>':('shows publicly once you reach 10 — <b>'+(10-cnt)+' to go</b>'))+'</div></div></div>';
+  }
+  const groups=[['new','Pending your review'],['approved','Live on the wall'],['rejected','Declined'],['revoked','Revoked']];
+  let html='';
+  for(const g of groups){
+    const rows=myTestimonials.filter(t=>t.status===g[0]);
+    if(!rows.length) continue;
+    html+='<div class="section-title"'+(html||summary?'':' style="margin-top:0"')+'>'+g[1]+' <span style="color:var(--paper-dim);font-weight:400">('+rows.length+')</span></div>';
+    html+='<div class="card">'+rows.map(tstCard).join('<div style="height:1px;background:var(--border);margin:16px 0"></div>')+'</div>';
+  }
+  host.innerHTML=summary+html;
+}
+async function tstDecide(id,status){
+  try{ await _w('PATCH','testimonial_submissions','id=eq.'+encodeURIComponent(id),{status}); }
+  catch(e){ showToast('Update failed — '+e.message,'error'); return; }
+  showToast(status==='approved'?'Approved — now live on the wall':status==='rejected'?'Declined':status==='revoked'?'Revoked from the wall':'Updated','success');
+  loadTestimonials();
+}
+
+function switchTab(name){
+  document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active', b.dataset.tab===name));
+  document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active', p.id==='panel-'+name));
+  window.scrollTo(0,0);
+}
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function showToast(m,t){const e=document.getElementById('toast');e.textContent=m;e.className=t||'';e.classList.add('show');setTimeout(()=>e.classList.remove('show'),3000);}
+</script>
+<script>
+/* Super-admin portal switcher — self-contained, mounts only for platform admins. */
+(function(){
+  var PAGES=[['dashboard.html','Ops Dashboard'],['admin-portals.html','Command Centre'],['coach.html','Coach'],['founder.html','Founder'],['investor.html','Investor']];
+  var curr=(location.pathname.split('/').pop()||''), wrap, menu, shown=false;
+  function build(){
+    wrap=document.createElement('div'); wrap.id='psw'; wrap.style.cssText='position:relative;display:inline-block;margin-right:12px;vertical-align:middle';
+    var btn=document.createElement('button'); btn.textContent='⇄ Portals';
+    btn.style.cssText='background:#C9923A;color:#15161A;border:none;padding:8px 13px;font-family:inherit;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;border-radius:2px';
+    menu=document.createElement('div'); menu.style.cssText='display:none;position:absolute;top:40px;right:0;background:#1A1C22;border:1px solid #2A2C33;min-width:180px;z-index:1000;padding:6px 0;box-shadow:0 10px 30px rgba(0,0,0,.35)';
+    menu.innerHTML=PAGES.filter(function(p){return p[0]!==curr;}).map(function(p){return '<a href="/'+p[0]+'" style="display:block;padding:9px 16px;color:#EDE7DA;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;font-family:sans-serif">'+p[1]+'</a>';}).join('');
+    btn.onclick=function(e){ e.stopPropagation(); menu.style.display=menu.style.display==='none'?'block':'none'; };
+    wrap.appendChild(btn); wrap.appendChild(menu);
+    document.addEventListener('click',function(e){ if(wrap && !wrap.contains(e.target)) menu.style.display='none'; });
+  }
+  function mount(){
+    if(shown) return; if(!wrap) build();
+    var host=document.querySelector('.topbar-right')||document.querySelector('.topbar-right, .topbar')||null;
+    if(host){ host.insertBefore(wrap, host.firstChild); }
+    else { wrap.style.cssText='position:fixed;top:12px;right:130px;z-index:2000'; document.body.appendChild(wrap); }
+    shown=true;
+  }
+  function init(){
+    if(typeof sb==='undefined' || !sb || !sb.auth){ return setTimeout(init,400); }
+    sb.auth.getUser().then(function(r){
+      var u=r&&r.data&&r.data.user; if(!u) return;
+      sb.from('user_roles').select('role').eq('user_id',u.id).eq('role','admin').limit(1).then(function(res){
+        if(res && res.data && res.data.length) mount();
+      });
+    }).catch(function(){});
+  }
+  setTimeout(init,700);
+})();
+</script>
+</body>
+</html>

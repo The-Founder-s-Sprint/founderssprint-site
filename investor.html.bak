@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Investor Portal · The Founder's Sprint</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://ivedeivyotwevjxvcuoe.supabase.co" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+  :root{
+    --bg:#EFE7D8; --surface:#E6DCC7; --card:#EFE7D8; --ink:#1A1A1A; --ink-mid:#444; --muted:#5A564F;
+    --border:rgba(26,26,26,0.18); --border-hi:rgba(26,26,26,0.35);
+    --terra:#C8531F; --terra-deep:#9A3E16; --ochre:#C9923A; --sage:#8AAB5C; --moss:#3D4A2E; --stone:#A59B8C;
+    --success:#0A8F64; --warning:#C47F08; --paper-mid:#C0B8A8;
+    --sans:'Josefin Sans',Inter,system-ui,sans-serif; --display:'Cormorant Garamond',serif; --font:'Inter',system-ui,sans-serif;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:13px;-webkit-font-smoothing:antialiased;}
+  .geo-line{height:1px;background:var(--border-hi);width:100%;}
+  /* login */
+  #login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;}
+  .login-card{background:var(--card);border:1px solid var(--border-hi);border-top:2px solid var(--terra);padding:52px 44px 44px;width:380px;}
+  .login-eyebrow{font-family:var(--sans);font-size:9px;letter-spacing:4px;text-transform:uppercase;color:var(--terra);margin-bottom:4px;opacity:.8;}
+  .login-title{font-size:28px;font-weight:700;line-height:1.1;margin-bottom:8px;}
+  .login-rule{display:flex;gap:10px;margin:4px 0 32px;}
+  .login-input{width:100%;background:rgba(0,0,0,.03);border:1px solid var(--border);padding:12px 14px;font-size:14px;font-family:var(--font);margin-bottom:10px;outline:none;}
+  .login-input:focus{border-color:var(--terra);}
+  .btn-login{width:100%;background:var(--terra);color:#fff;border:none;padding:13px;font-family:var(--sans);font-weight:700;font-size:12px;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;margin-top:6px;}
+  .btn-login:hover{background:var(--terra-deep);} .btn-login:disabled{opacity:.5;}
+  .login-error{color:#DC3545;font-size:12px;min-height:16px;margin-top:10px;}
+  /* app */
+  #app{display:none;}
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;border-bottom:1px solid var(--border-hi);background:var(--card);position:sticky;top:0;z-index:50;}
+  .topbar-left{display:flex;align-items:center;gap:12px;}
+  .topbar-mark svg{width:26px;height:26px;display:block;}
+  .topbar-logo{font-family:var(--sans);font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;}
+  .topbar-sep{width:1px;height:18px;background:var(--border-hi);}
+  .topbar-sub{font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--terra);}
+  .topbar-right{display:flex;align-items:center;gap:14px;}
+  .topbar-user{font-size:12px;color:var(--muted);}
+  .btn-ghost{background:none;color:var(--terra);border:1px solid var(--border-hi);padding:8px 14px;font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;}
+  .hav-wrap{position:relative;}
+  .hav-btn{width:34px;height:34px;border-radius:50%;border:2px solid var(--border-hi);background:var(--surface);cursor:pointer;overflow:hidden;padding:0;display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-size:12px;font-weight:700;color:var(--muted);}
+  .hav-btn img{width:100%;height:100%;object-fit:cover;}
+  .hav-dd{display:none;position:absolute;top:42px;right:0;background:var(--card);border:1px solid var(--border);min-width:200px;z-index:999;padding:8px 0;box-shadow:0 8px 24px rgba(0,0,0,.10);}
+  .hav-wrap.open .hav-dd{display:block;}
+  .hav-dd .em{padding:8px 16px 10px;font-size:11px;color:var(--muted);border-bottom:1px solid var(--border);margin-bottom:4px;word-break:break-all;}
+  .hav-dd a{display:block;padding:10px 16px;font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;cursor:pointer;color:var(--ink-mid);}
+  .hav-dd a:hover{background:var(--surface);}
+  .hav-dd a.danger{color:var(--terra);}
+  .main{max-width:1080px;margin:0 auto;padding:32px 28px 80px;}
+  .page-eyebrow{font-family:var(--sans);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--terra);margin-bottom:6px;}
+  .page-title{font-family:var(--display);font-size:32px;font-weight:600;line-height:1.05;margin-bottom:6px;}
+  .page-sub{font-size:14px;color:var(--muted);margin-bottom:26px;max-width:640px;line-height:1.5;}
+  .ro-badge{display:inline-block;font-family:var(--sans);font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 10px;border:1px solid var(--border-hi);color:var(--muted);margin-left:8px;}
+  /* deal cards */
+  .deal-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;}
+  .deal-card{background:var(--card);border:1px solid var(--border);border-top:2px solid var(--terra);padding:20px;cursor:pointer;transition:transform .15s,box-shadow .15s;}
+  .deal-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.08);}
+  .deal-co{font-family:var(--display);font-size:22px;font-weight:600;margin-bottom:2px;}
+  .deal-meta{font-size:12px;color:var(--muted);margin-bottom:14px;}
+  .deal-stat{display:flex;gap:18px;margin-top:12px;}
+  .deal-stat div span{display:block;}
+  .ds-val{font-family:var(--display);font-size:24px;font-weight:700;line-height:1;}
+  .ds-lab{font-family:var(--sans);font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:4px;}
+  .pbar{height:7px;background:var(--border);border-radius:4px;overflow:hidden;margin-top:14px;}
+  .pbar-fill{height:100%;background:var(--terra);border-radius:4px;} .pbar-fill.met{background:var(--success);}
+  .empty{text-align:center;padding:60px 20px;color:var(--muted);}
+  .empty-mark{font-family:var(--display);font-size:44px;color:var(--border-hi);margin-bottom:8px;}
+  /* detail */
+  .back{font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--terra);cursor:pointer;display:inline-block;margin-bottom:18px;}
+  .card{background:var(--card);border:1px solid var(--border);padding:22px 24px;margin-bottom:16px;}
+  .card-top{border-top:2px solid var(--terra);}
+  .kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;}
+  .kv .k{font-family:var(--sans);font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:4px;}
+  .kv .v{font-size:14px;font-weight:500;}
+  .section-title{font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--ink-mid);margin:28px 0 14px;}
+  .disc-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px;}
+  .disc-card{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--stone);padding:18px 20px;}
+  .disc-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;}
+  .disc-week{font-family:var(--sans);font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);}
+  .disc-name{font-family:var(--display);font-size:19px;font-weight:600;margin-bottom:8px;}
+  .deliv-row{display:flex;align-items:center;gap:8px;padding:7px 0;border-top:1px solid var(--border);font-size:12.5px;}
+  .deliv-row:first-of-type{border-top:none;}
+  .deliv-dot{width:7px;height:7px;border-radius:50%;background:var(--paper-mid);flex-shrink:0;} .deliv-dot.done{background:var(--success);}
+  .deliv-name{flex:1;} .deliv-missing .deliv-name{color:var(--muted);}
+  .deliv-link{font-family:var(--sans);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--terra);text-decoration:none;}
+  .pill{font-family:var(--sans);font-size:8px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:4px 9px;border-radius:2px;}
+  .pill-green{background:rgba(10,143,100,.14);color:var(--success);} .pill-grey{background:rgba(26,26,26,.07);color:var(--muted);}
+  #toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:#fff;padding:13px 22px;font-size:13px;opacity:0;transition:all .3s;z-index:2000;}
+  #toast.show{transform:translateX(-50%) translateY(0);opacity:1;} #toast.error{background:#DC3545;}
+  .kpi-liner{font-family:var(--display);font-size:19px;font-style:italic;line-height:1.45;color:var(--text);margin-bottom:14px;}
+  .kpi-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:8px;}
+  .kpi-card{background:var(--card);border:1px solid var(--border);border-left:2px solid var(--terra);padding:13px 15px;}
+  .kpi-val{font-family:var(--display);font-size:22px;font-weight:600;line-height:1.15;color:var(--text);}
+  .kpi-lab{font-family:var(--sans);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:5px;}
+  .kpi-sub{font-size:11px;color:var(--success);margin-top:4px;}
+  @media(max-width:560px){.main{padding:24px 18px 70px;}.page-title{font-size:26px;}.kpi-grid{grid-template-columns:repeat(2,1fr);}}
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-eyebrow">The Founder's Sprint</div>
+    <div class="login-title">Investor Portal</div>
+    <div class="login-rule"><div class="geo-line"></div></div>
+    <input class="login-input" type="email" id="login-email" placeholder="Email address" autocomplete="email">
+    <input class="login-input" type="password" id="login-password" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')signIn()">
+    <button class="btn-login" onclick="signIn()">Enter</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-mark"><svg viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.85"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.8" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.78" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.82" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg></div>
+      <span class="topbar-logo">Founder's Sprint</span>
+      <div class="topbar-sep"></div><span class="topbar-sub">Investor</span>
+    </div>
+    <div class="topbar-right">
+      <div class="hav-wrap" id="hav-wrap">
+        <button class="hav-btn" id="hav-btn" onclick="document.getElementById('hav-wrap').classList.toggle('open')" title="Account">?</button>
+        <div class="hav-dd">
+          <div class="em" id="user-email"></div>
+          <a class="danger" onmousedown="event.stopPropagation();signOut()">Sign Out</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="main">
+    <div id="view-list">
+      <div class="page-eyebrow">Deal flow</div>
+      <div class="page-title">Founder Data Rooms<span class="ro-badge">Read-only</span></div>
+      <div class="page-sub">Founders who have opted into investor visibility. Every deliverable shown is coach-vetted and produced under The Founder's Sprint curriculum — a quality signal you can trust.</div>
+      <div class="deal-grid" id="deal-grid"></div>
+    </div>
+    <div id="view-detail" style="display:none"></div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+const SUPABASE_URL='https://ivedeivyotwevjxvcuoe.supabase.co';
+const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss';
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON,{auth:{detectSessionInUrl:true,autoRefreshToken:true,persistSession:true}});
+
+// Discipline model (mirrors founder dashboard / explore.js) for data-room scoring + display
+const DISCIPLINES=[
+ {key:'marketing',label:'Marketing & Branding',day:'Monday',coach:'Teddy',color:'#C8531F',dd:['Go-to-market strategy','Brand positioning']},
+ {key:'financial',label:'Financial Modelling',day:'Tuesday',coach:'Barry',color:'#C9923A',dd:['Financial model','Unit economics']},
+ {key:'investment',label:'Investment Readiness',day:'Wednesday',coach:'Joseph',color:'#8AAB5C',dd:['Pitch deck','Fundraising strategy','Investor target list']},
+ {key:'strategy',label:'Strategy & Team Building',day:'Thursday',coach:'Moses',color:'#3D4A2E',dd:['Competitive analysis','Team & org plan']},
+ {key:'product',label:'Product Development & Pricing',day:'Friday',coach:'Patrick',color:'#A59B8C',dd:['Product roadmap','Pricing strategy','Product-market fit']}
+];
+const DD_TOTAL=DISCIPLINES.reduce((a,d)=>a+d.dd.length,0);
+function disciplineOf(t){ if(!t)return null; t=String(t).toLowerCase();
+  if(t.includes('market')||t.includes('brand')||t.includes('gtm'))return'marketing';
+  if(t.includes('financ')||t.includes('unit econ')||t.includes('model'))return'financial';
+  if(t.includes('invest')||t.includes('pitch')||t.includes('fundrais')||t.includes('deck')||t.includes('target'))return'investment';
+  if(t.includes('strateg')||t.includes('team')||t.includes('competit')||t.includes('org'))return'strategy';
+  if(t.includes('product')||t.includes('pricing')||t.includes('roadmap')||t.includes('pmf'))return'product';
+  return null; }
+
+// ── auth layer (Safari-safe) ──
+const _SB_KEY='sb-'+SUPABASE_URL.split('//')[1].split('.')[0]+'-auth-token';
+let _rp=null,currentSession=null,booted=false;
+function _stored(){try{return JSON.parse(localStorage.getItem(_SB_KEY)||'{}');}catch{return{};}}
+function _exp(s){const e=s.expires_at;return !e||(Date.now()/1000)>(e-60);}
+async function _refresh(){if(_rp)return _rp;_rp=(async()=>{const s=_stored();if(!s.refresh_token)throw new Error('Please sign in again');
+  const r=await fetch(SUPABASE_URL+'/auth/v1/token?grant_type=refresh_token',{method:'POST',headers:{apikey:SUPABASE_ANON,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:s.refresh_token})});
+  if(!r.ok){localStorage.removeItem(_SB_KEY);throw new Error('Session expired');}const j=await r.json();localStorage.setItem(_SB_KEY,JSON.stringify(j));currentSession=j;return j.access_token;})();
+  try{return await _rp;}finally{_rp=null;}}
+async function _token(){if(currentSession?.access_token){const e=currentSession.expires_at;if(e&&(Date.now()/1000)<(e-60))return currentSession.access_token;}
+  const s=_stored();if(s.access_token&&!_exp(s))return s.access_token;return _refresh();}
+async function _q(table,params){const t=await _token();const r=await fetch(SUPABASE_URL+'/rest/v1/'+table+'?'+params,{headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t}});
+  if(!r.ok)throw new Error('Query failed '+r.status+': '+await r.text());return r.json();}
+
+async function signIn(){
+  const email=document.getElementById('login-email').value.trim();
+  const pw=document.getElementById('login-password').value;
+  const err=document.getElementById('login-error');const btn=document.querySelector('.btn-login');err.textContent='';
+  if(!email||!pw){err.textContent='Enter email and password';return;}
+  try{btn.disabled=true;btn.textContent='Signing in…';
+    const{error}=await sb.auth.signInWithPassword({email,password:pw});
+    if(error){err.textContent=error.message;}
+  }catch(e){err.textContent=e.message;}finally{btn.disabled=false;btn.textContent='Enter';}
+}
+function signOut(){localStorage.removeItem(_SB_KEY);try{sb.auth.signOut().catch(()=>{});}catch(e){}location.reload();}
+document.addEventListener('click',function(e){ var w=document.getElementById('hav-wrap'); if(w&&!w.contains(e.target)) w.classList.remove('open'); });
+
+sb.auth.onAuthStateChange((ev,s)=>{ currentSession=s; if((ev==='SIGNED_IN'||ev==='TOKEN_REFRESHED'||ev==='INITIAL_SESSION') && s && !booted) boot(s.user); });
+let _redir=false; function _toLogin(){ if(_redir||booted) return; _redir=true; location.replace('/login-investor.html'); }
+// Authoritative session check: getSession() validates + refreshes, or returns null for a stale/absent token.
+(async()=>{
+  try{
+    const { data:{ session } } = await sb.auth.getSession();
+    if(session){ currentSession=session; if(!booted) boot(session.user); }
+    else { _toLogin(); }
+  }catch(e){ _toLogin(); }
+})();
+
+let companies=[], filesByCompany={}, delivByCompany={}, progByCompany={}, taxonomy=[], assessByCompany={}, coachById={};
+const A_DISC={marketing:['Marketing & Branding','#C8531F'],financial:['Financial Modelling','#C9923A'],investment:['Investment Readiness','#8AAB5C'],strategy:['Strategy & Team','#3D4A2E'],product:['Product Dev & Pricing','#777770']};
+const A_RUBRIC={
+  marketing:[['brand_clarity','Brand clarity'],['gtm','GTM readiness'],['market','Market understanding']],
+  financial:[['model_rigour','Model rigour'],['unit_economics','Unit economics'],['discipline','Financial discipline']],
+  investment:[['narrative','Narrative & pitch'],['fundraising','Fundraising strategy'],['materials','Materials readiness']],
+  strategy:[['team','Team strength'],['clarity','Strategic clarity'],['execution','Execution']],
+  product:[['product_instinct','Product instinct'],['pricing','Pricing strategy'],['pmf','PMF evidence']]
+};
+const A_TRACK={single:['1:1 Session','Limited basis — a single session'],oneOnOne:['1:1 Session','Limited basis — a single session'],pick3:['Pick 3 Bundle','Moderate basis — a focused bundle'],vip1on1:['VIP 1:1','Deep 1:1 basis'],vip:['VIP','Deep 1:1 basis'],cohort:['Full Cohort','Full-cohort basis — weeks of context, strongest signal'],group:['Full Cohort','Full-cohort basis — weeks of context, strongest signal']};
+const VETTED=['complete','completed','vetted','final','published','approved'];
+function isVetted(s){ return VETTED.includes(String(s||'').toLowerCase()); }
+
+function showPreviewBanner(){
+  if(document.getElementById('admin-preview-bar')) return;
+  const bar=document.createElement('div'); bar.id='admin-preview-bar';
+  bar.style.cssText='background:#15161A;color:#EFE7DA;font-family:sans-serif;font-size:12px;letter-spacing:.04em;text-align:center;padding:7px 14px;border-bottom:2px solid #C9923A;position:sticky;top:0;z-index:1500';
+  bar.innerHTML='◇ Admin preview — viewing the investor deal flow (read-only).';
+  document.body.insertBefore(bar, document.body.firstChild);
+}
+async function boot(user){
+  if(booted||!user)return; booted=true;
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+  document.getElementById('user-email').textContent=user.email;
+  { const hb=document.getElementById('hav-btn'); if(hb) hb.textContent=(user.email||'?')[0].toUpperCase(); }
+  try{
+    const me=await _q('investors','user_id=eq.'+user.id+'&select=id,approved&limit=1');
+    if(!me.length || !me[0].approved){
+      let isAdmin=false;
+      try{ const a=await _q('user_roles','select=role&user_id=eq.'+user.id+'&role=eq.admin&limit=1'); isAdmin=!!(a&&a.length); }catch(e){}
+      if(!isAdmin){
+        document.getElementById('view-list').innerHTML='<div class="empty"><div class="empty-mark">◇</div><div style="font-weight:600;color:var(--ink-mid)">This isn’t an approved investor account</div><div style="margin-top:6px">Contact The Founder’s Sprint team to request investor access.</div></div>';
+        return;
+      }
+      showPreviewBanner();   // super-admin: read-only preview of the investor deal flow
+    }
+    const res=await Promise.allSettled([
+      _q('companies','data_room_shared=eq.true&select=*,founder_profiles(first_name,last_name)&order=name'),
+      _q('data_room_files','select=company_id,category_key,item_key,title,storage_path,file_url,status,source'),
+      _q('founder_deliverables','select=company_id,discipline,title,file_url,status'),
+      _q('founder_course_progress','select=company_id,course_label,status'),
+      _q('dr_taxonomy','select=*&order=sort_order,item_label'),
+      _q('founder_coach_assessment','select=*&status=eq.published'),
+      _q('coaches','select=id,first_name,last_name')
+    ]);
+    companies=res[0].status==='fulfilled'?(res[0].value||[]):[];
+    (res[1].status==='fulfilled'?res[1].value:[]).forEach(f=>{(filesByCompany[f.company_id]=filesByCompany[f.company_id]||[]).push(f);});
+    (res[2].status==='fulfilled'?res[2].value:[]).forEach(d=>{(delivByCompany[d.company_id]=delivByCompany[d.company_id]||[]).push(d);});
+    (res[3].status==='fulfilled'?res[3].value:[]).forEach(p=>{(progByCompany[p.company_id]=progByCompany[p.company_id]||[]).push(p);});
+    taxonomy=res[4].status==='fulfilled'?(res[4].value||[]):[];
+    (res[5]&&res[5].status==='fulfilled'?res[5].value:[]).forEach(a=>{(assessByCompany[a.company_id]=assessByCompany[a.company_id]||[]).push(a);});
+    (res[6]&&res[6].status==='fulfilled'?res[6].value:[]).forEach(c=>{ coachById[c.id]=((c.first_name||'')+' '+(c.last_name||'')).trim(); });
+    renderList();
+  }catch(e){ showToast('Could not load deal flow — '+e.message,'error'); }
+}
+
+function itemState(cid,it){
+  const files=filesByCompany[cid]||[], dels=delivByCompany[cid]||[];
+  if(it.source==='coach'){
+    const cf=files.find(f=>f.category_key===it.category_key&&f.item_key===it.item_key&&isVetted(f.status));
+    const del=dels.find(x=>disciplineOf(x.discipline||x.title)===it.discipline_key&&isVetted(x.status));
+    return {st:(cf||del)?'vetted':'missing', file:cf||del};
+  }
+  const fs=files.filter(f=>f.category_key===it.category_key&&f.item_key===it.item_key&&isVetted(f.status));
+  return {st:fs.length?'vetted':'missing', file:fs[0]};
+}
+function readinessPct(cid){ const req=taxonomy.filter(t=>t.required); let e=0; req.forEach(it=>{ if(itemState(cid,it).st==='vetted') e++; }); return Math.round(e/(req.length||1)*100); }
+function vettedCount(cid){ return (filesByCompany[cid]||[]).length + (delivByCompany[cid]||[]).filter(d=>isVetted(d.status)).length; }
+function drCategories(){ const m={}; taxonomy.forEach(t=>{(m[t.category_key]=m[t.category_key]||{key:t.category_key,label:t.category_label,sort:t.sort_order,items:[]}).items.push(t);}); return Object.values(m).sort((a,b)=>a.sort-b.sort); }
+
+// ── Investor snapshot (founder-curated highlights) ──
+function compactMoney(amt,cur){ amt=Number(amt)||0; cur=cur||'UGX'; const a=Math.abs(amt);
+  const s=a>=1e9?(amt/1e9).toFixed(amt%1e9?1:0)+'B':a>=1e6?(amt/1e6).toFixed(amt%1e6?1:0)+'M':a>=1e3?(amt/1e3).toFixed(0)+'k':String(amt); return cur+' '+s; }
+function prettyStage(s){ return String(s||'').replace(/_/g,' ').replace(/\b\w/g,c=>c.toUpperCase()); }
+function kpiCard(val,lab,sub){ return '<div class="kpi-card"><div class="kpi-val">'+esc(val)+'</div><div class="kpi-lab">'+esc(lab)+'</div>'+(sub?'<div class="kpi-sub">'+esc(sub)+'</div>':'')+'</div>'; }
+function highlightBlock(c){
+  const h=c.highlights||{}; const cards=[];
+  if(c.sector) cards.push(kpiCard(c.sector,'Sector'));
+  if(c.stage)  cards.push(kpiCard(prettyStage(c.stage),'Stage'));
+  if(h.revenue_amount) cards.push(kpiCard(compactMoney(h.revenue_amount,h.revenue_currency),(h.revenue_period==='monthly'?'Monthly':'Annual')+' revenue', h.revenue_growth_pct?('▲ '+h.revenue_growth_pct+'% YoY'):''));
+  if(h.customers!=null && h.customers!=='') cards.push(kpiCard(h.customers,'Customers'));
+  if(h.profitability) cards.push(kpiCard(h.profitability,'Profitability', h.gross_margin_pct?(h.gross_margin_pct+'% gross margin'):''));
+  if(h.team_size) cards.push(kpiCard(h.team_size,'Team'));
+  if(h.funding_raised) cards.push(kpiCard(h.funding_raised,'Raised to date'));
+  if(h.funding_seeking) cards.push(kpiCard(h.funding_seeking,'Seeking'));
+  if(h.markets) cards.push(kpiCard(h.markets,'Markets'));
+  if(h.founded_year) cards.push(kpiCard(h.founded_year,'Founded'));
+  if(cards.length<=2 && !h.one_liner) return '';
+  return (h.one_liner?'<div class="kpi-liner">“'+esc(h.one_liner)+'”</div>':'')+'<div class="kpi-grid">'+cards.join('')+'</div>';
+}
+
+function renderList(){
+  const grid=document.getElementById('deal-grid');
+  if(!companies.length){ grid.innerHTML='<div class="empty"><div class="empty-mark">◇</div><div style="font-weight:600;color:var(--ink-mid)">No founders are investor-visible yet</div><div style="margin-top:6px">Companies appear here once a founder opts in and reaches a complete data room.</div></div>'; return; }
+  grid.innerHTML=companies.map(c=>{
+    const pct=readinessPct(c.id);
+    const courses=(progByCompany[c.id]||[]).filter(p=>p.status==='complete').length;
+    return '<div class="deal-card" onclick="openCompany(\''+c.id+'\')">'
+      +'<div class="deal-co">'+esc(c.name||'—')+'</div>'
+      +'<div class="deal-meta">'+esc(c.sector||'—')+' · '+esc((c.stage||'').replace('_',' '))+'</div>'
+      +'<div class="deal-stat"><div><span class="ds-val">'+pct+'%</span><span class="ds-lab">Data room</span></div>'
+      +'<div><span class="ds-val">'+courses+'</span><span class="ds-lab">Courses done</span></div>'
+      +'<div><span class="ds-val">'+vettedCount(c.id)+'</span><span class="ds-lab">Vetted docs</span></div></div>'
+      +'<div class="pbar"><div class="pbar-fill'+(pct>=75?' met':'')+'" style="width:'+pct+'%"></div></div></div>';
+  }).join('');
+}
+
+async function openDoc(path){
+  try{ const t=await _token();
+    const r=await fetch(SUPABASE_URL+'/storage/v1/object/sign/data-room/'+encodeURI(path),{method:'POST',headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify({expiresIn:300})});
+    const j=await r.json(); if(j&&j.signedURL){ window.open(SUPABASE_URL+'/storage/v1'+j.signedURL,'_blank'); } else throw new Error('na');
+  }catch(e){ showToast('Could not open file','error'); }
+}
+
+function assessBar(lab,n,col){ n=Number(n)||0; return '<div style="display:flex;align-items:center;gap:10px;margin:3px 0"><span style="font-size:11px;color:var(--ink-mid);width:130px">'+esc(lab)+'</span><span style="flex:1;height:6px;background:rgba(26,26,26,.08);position:relative"><span style="position:absolute;left:0;top:0;height:100%;width:'+(n*20)+'%;background:'+col+'"></span></span><span style="font-size:11px;color:var(--muted);width:26px;text-align:right">'+n+'/5</span></div>'; }
+function renderAssessments(cid){
+  const order=Object.keys(A_DISC);
+  const list=(assessByCompany[cid]||[]).slice().sort((a,b)=>order.indexOf(a.discipline_key)-order.indexOf(b.discipline_key));
+  if(!list.length) return '';
+  const cards=list.map(a=>{
+    const d=A_DISC[a.discipline_key]||[a.discipline_key,'#777770'], col=d[1];
+    const dims=(A_RUBRIC[a.discipline_key]||[]).concat([['coachability','Coachability']]);
+    const r=a.ratings||{};
+    const bars=dims.map(x=>assessBar(x[1], r[x[0]], col)).join('');
+    const who=coachById[a.coach_id]||'Coach';
+    const when=a.updated_at?new Date(a.updated_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'}):'';
+    const b=a.basis||{}, td=A_TRACK[b.track];
+    const basisChip = td?('<div style="margin:-2px 0 9px"><span style="font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#5A564F;border:1px solid rgba(26,26,26,.25);padding:3px 8px">Basis · '+esc(td[0])+(b.courses?(' · '+b.courses+' course'+(b.courses===1?'':'s')):'')+'</span> <span style="font-size:11px;color:var(--muted);font-style:italic">'+esc(td[1])+'</span></div>'):'';
+    return '<div class="card" style="border-left:3px solid '+col+';margin-bottom:10px">'
+      +'<div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:8px"><span style="font-family:var(--display);font-size:18px;font-weight:600;color:'+col+'">'+esc(d[0])+'</span><span style="font-size:11px;color:var(--muted)">'+esc(who)+(when?' · '+when:'')+'</span></div>'
+      +basisChip
+      +bars
+      +(a.strengths?'<div style="font-size:12.5px;line-height:1.5;margin-top:8px"><span style="font-weight:600">Strength · </span>'+esc(a.strengths)+'</div>':'')
+      +(a.growth?'<div style="font-size:12.5px;line-height:1.5;margin-top:4px"><span style="font-weight:600">Develop · </span>'+esc(a.growth)+'</div>':'')
+      +'</div>';
+  }).join('');
+  return '<div class="section-title">Coach assessments</div>'
+    +'<div style="font-size:12px;color:var(--muted);margin:-8px 0 12px;line-height:1.5">Third-party reads from the coaches who worked directly with this founder — attributed, by discipline.</div>'
+    +cards;
+}
+function openCompany(cid){
+  const c=companies.find(x=>x.id===cid); if(!c)return;
+  const pct=readinessPct(cid);
+  const courses=(progByCompany[cid]||[]).filter(p=>p.status==='complete').length;
+  const fp=c.founder_profiles||{};
+  const cats=drCategories().map(cat=>{
+    const rows=cat.items.map(it=>{
+      const s=itemState(cid,it);
+      if(s.st==='vetted'){
+        const open = (s.file&&s.file.file_url) ? '<a class="deliv-link" href="'+esc(s.file.file_url)+'" target="_blank">Open</a>'
+          : (s.file&&s.file.storage_path ? '<a class="deliv-link" href="#" onclick="openDoc(\''+esc(s.file.storage_path)+'\');return false">Open</a>' : '<span class="pill pill-grey">On file</span>');
+        return '<div class="deliv-row"><span class="deliv-dot done"></span><span class="deliv-name">'+esc(it.item_label)+'</span>'+open+'</div>';
+      }
+      return '<div class="deliv-row deliv-missing"><span class="deliv-dot"></span><span class="deliv-name">'+esc(it.item_label)+(it.required?' <span class="pill pill-grey">Required</span>':'')+'</span></div>';
+    }).join('');
+    const have=cat.items.filter(it=>itemState(cid,it).st==='vetted').length;
+    return '<div class="disc-card" style="border-left-color:var(--terra)"><div class="disc-head"><span class="disc-week">'+esc(cat.label)+'</span><span class="pill '+(have?'pill-green':'pill-grey')+'">'+have+'/'+cat.items.length+'</span></div>'+rows+'</div>';
+  }).join('');
+  document.getElementById('view-list').style.display='none';
+  const dv=document.getElementById('view-detail'); dv.style.display='block';
+  dv.innerHTML='<span class="back" onclick="closeCompany()">← All companies</span>'
+    +'<div class="page-eyebrow">Founder data room</div>'
+    +'<div class="page-title">'+esc(c.name||'—')+'<span class="ro-badge">Read-only</span></div>'
+    +'<div class="page-sub">'+esc(c.bio||'')+'</div>'
+    +(highlightBlock(c)?'<div class="section-title">At a glance</div>'+highlightBlock(c):'')
+    +'<div class="section-title">Profile</div>'
+    +'<div class="card card-top"><div class="kv">'
+      +'<div><div class="k">Founder</div><div class="v">'+esc(((fp.first_name||'')+' '+(fp.last_name||'')).trim()||'—')+'</div></div>'
+      +'<div><div class="k">Sector</div><div class="v">'+esc(c.sector||'—')+'</div></div>'
+      +'<div><div class="k">Stage</div><div class="v">'+esc((c.stage||'—').replace('_',' '))+'</div></div>'
+      +'<div><div class="k">Data room</div><div class="v">'+pct+'%</div></div>'
+      +'<div><div class="k">Courses completed</div><div class="v">'+courses+'</div></div>'
+      +'<div><div class="k">Vetted documents</div><div class="v">'+vettedCount(cid)+'</div></div>'
+    +'</div></div>'
+    +renderAssessments(cid)
+    +'<div class="section-title">Due-diligence vault</div>'
+    +'<div class="disc-grid">'+cats+'</div>'
+    +(c.linkedin_url||c.website_url?'<div class="section-title">Links</div><div class="card">'
+      +(c.website_url?'<a class="deliv-link" href="'+esc(c.website_url)+'" target="_blank">Website</a>  ':'')
+      +(c.linkedin_url?'<a class="deliv-link" href="'+esc(c.linkedin_url)+'" target="_blank">LinkedIn</a>':'')+'</div>':'');
+  window.scrollTo(0,0);
+}
+function closeCompany(){document.getElementById('view-detail').style.display='none';document.getElementById('view-list').style.display='block';window.scrollTo(0,0);}
+
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function simil(a,b){a=String(a||'').toLowerCase().trim();b=String(b||'').toLowerCase().trim();return !!a&&!!b&&(a===b||a.includes(b)||b.includes(a));}
+function showToast(m,t){const e=document.getElementById('toast');e.textContent=m;e.className=t||'';e.classList.add('show');setTimeout(()=>e.classList.remove('show'),3200);}
+</script>
+<script>
+/* Super-admin portal switcher — self-contained, mounts only for platform admins. */
+(function(){
+  var PAGES=[['dashboard.html','Ops Dashboard'],['admin-portals.html','Command Centre'],['coach.html','Coach'],['founder.html','Founder'],['investor.html','Investor']];
+  var curr=(location.pathname.split('/').pop()||''), wrap, menu, shown=false;
+  function build(){
+    wrap=document.createElement('div'); wrap.id='psw'; wrap.style.cssText='position:relative;display:inline-block;margin-right:12px;vertical-align:middle';
+    var btn=document.createElement('button'); btn.textContent='⇄ Portals';
+    btn.style.cssText='background:#C9923A;color:#15161A;border:none;padding:8px 13px;font-family:inherit;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;border-radius:2px';
+    menu=document.createElement('div'); menu.style.cssText='display:none;position:absolute;top:40px;right:0;background:#1A1C22;border:1px solid #2A2C33;min-width:180px;z-index:1000;padding:6px 0;box-shadow:0 10px 30px rgba(0,0,0,.35)';
+    menu.innerHTML=PAGES.filter(function(p){return p[0]!==curr;}).map(function(p){return '<a href="/'+p[0]+'" style="display:block;padding:9px 16px;color:#EDE7DA;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;font-family:sans-serif">'+p[1]+'</a>';}).join('');
+    btn.onclick=function(e){ e.stopPropagation(); menu.style.display=menu.style.display==='none'?'block':'none'; };
+    wrap.appendChild(btn); wrap.appendChild(menu);
+    document.addEventListener('click',function(e){ if(wrap && !wrap.contains(e.target)) menu.style.display='none'; });
+  }
+  function mount(){
+    if(shown) return; if(!wrap) build();
+    var host=document.querySelector('.topbar-right')||document.querySelector('.topbar-right, .topbar')||null;
+    if(host){ host.insertBefore(wrap, host.firstChild); }
+    else { wrap.style.cssText='position:fixed;top:12px;right:130px;z-index:2000'; document.body.appendChild(wrap); }
+    shown=true;
+  }
+  function init(){
+    if(typeof sb==='undefined' || !sb || !sb.auth){ return setTimeout(init,400); }
+    sb.auth.getUser().then(function(r){
+      var u=r&&r.data&&r.data.user; if(!u) return;
+      sb.from('user_roles').select('role').eq('user_id',u.id).eq('role','admin').limit(1).then(function(res){
+        if(res && res.data && res.data.length) mount();
+      });
+    }).catch(function(){});
+  }
+  setTimeout(init,700);
+})();
+</script>
+</body>
+</html>

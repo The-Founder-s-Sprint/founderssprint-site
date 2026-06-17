@@ -1,0 +1,1045 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Command Centre · Portals · The Founder's Sprint</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://ivedeivyotwevjxvcuoe.supabase.co" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<style>
+  :root{
+    --bg:#EFE7D8; --surface:#E6DCC7; --card:#EFE7D8; --ink:#1A1A1A; --ink-mid:#444; --muted:#5A564F;
+    --border:rgba(26,26,26,0.18); --border-hi:rgba(26,26,26,0.35);
+    --terra:#C8531F; --terra-deep:#9A3E16; --ochre:#C9923A; --ochre-deep:#A6741F; --sage:#8AAB5C; --moss:#3D4A2E; --stone:#A59B8C;
+    --success:#0A8F64; --warning:#C47F08; --paper-mid:#C0B8A8; --text:#1A1A1A;
+    --sans:'Josefin Sans',Inter,system-ui,sans-serif; --display:'Cormorant Garamond',serif; --font:'Inter',system-ui,sans-serif;
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:13px;-webkit-font-smoothing:antialiased;}
+  .geo-line{height:1px;background:var(--border-hi);width:100%;}
+  /* login */
+  #login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;}
+  .login-card{background:#15161A;border:1px solid #2A2C33;border-top:2px solid var(--ochre);padding:52px 44px 44px;width:380px;color:#EDE7DA;}
+  .login-eyebrow{font-family:var(--sans);font-size:9px;letter-spacing:4px;text-transform:uppercase;color:var(--ochre);margin-bottom:4px;opacity:.9;}
+  .login-title{font-size:28px;font-weight:700;line-height:1.1;margin-bottom:8px;color:#fff;}
+  .login-rule{display:flex;gap:10px;margin:4px 0 32px;} .login-rule .geo-line{background:#33353D;}
+  .login-input{width:100%;background:#1F2127;border:1px solid #33353D;color:#EDE7DA;padding:12px 14px;font-size:14px;font-family:var(--font);margin-bottom:10px;outline:none;}
+  .login-input:focus{border-color:var(--ochre);}
+  .btn-login{width:100%;background:var(--ochre);color:#15161A;border:none;padding:13px;font-family:var(--sans);font-weight:700;font-size:12px;letter-spacing:.18em;text-transform:uppercase;cursor:pointer;margin-top:6px;}
+  .btn-login:hover{background:var(--ochre-deep);color:#fff;} .btn-login:disabled{opacity:.5;}
+  .login-error{color:#E2685A;font-size:12px;min-height:16px;margin-top:10px;}
+  /* app */
+  #app{display:none;}
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;background:#15161A;color:#EDE7DA;position:sticky;top:0;z-index:50;}
+  .topbar-left{display:flex;align-items:center;gap:12px;}
+  .topbar-mark svg{width:26px;height:26px;display:block;}
+  .topbar-logo{font-family:var(--sans);font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:#fff;}
+  .topbar-sep{width:1px;height:18px;background:#33353D;}
+  .topbar-sub{font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.18em;text-transform:uppercase;color:var(--ochre);}
+  .topbar-right{display:flex;align-items:center;gap:14px;}
+  .topbar-user{font-size:12px;color:#A8A498;}
+  .btn-ghost{background:none;color:var(--ochre);border:1px solid #3A3C44;padding:8px 14px;font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;}
+  .btn-ghost:hover{background:rgba(201,146,58,.12);}
+  .cc-avatar{width:34px;height:34px;border-radius:50%;border:2px solid #3A3C44;background:#22242B;color:#EDE7DA;cursor:pointer;padding:0;display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-size:13px;font-weight:700;}
+  .cc-avatar:hover{border-color:var(--ochre);}
+  .cc-menu{display:none;position:absolute;top:46px;right:0;background:#1A1C22;border:1px solid #2A2C33;min-width:210px;z-index:999;padding:6px 0;box-shadow:0 10px 30px rgba(0,0,0,.35);}
+  #cc-avatar-wrap.open .cc-menu{display:block;}
+  .cc-menu .cc-email{padding:9px 16px 10px;font-size:11px;color:#A8A498;border-bottom:1px solid #2A2C33;margin-bottom:4px;word-break:break-all;}
+  .cc-menu a{display:block;padding:10px 16px;font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#EDE7DA;text-decoration:none;cursor:pointer;}
+  .cc-menu a:hover{background:rgba(201,146,58,.12);}
+  .cc-menu a.danger{color:#E06A4E;}
+  /* tabs */
+  .tabs{display:flex;gap:0;background:#1B1C21;padding:0 28px;overflow-x:auto;}
+  .tab{font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:#9A968C;padding:14px 18px;cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;display:flex;align-items:center;gap:8px;}
+  .tab:hover{color:#EDE7DA;}
+  .tab.active{color:#fff;border-bottom-color:var(--ochre);}
+  .tab .cnt{font-family:var(--font);font-size:10px;font-weight:700;background:rgba(201,146,58,.18);color:var(--ochre);padding:2px 7px;border-radius:9px;}
+  .main{max-width:1180px;margin:0 auto;padding:30px 28px 80px;}
+  .page-eyebrow{font-family:var(--sans);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ochre-deep);margin-bottom:6px;}
+  .page-title{font-family:var(--display);font-size:32px;font-weight:600;line-height:1.05;margin-bottom:6px;}
+  .page-sub{font-size:14px;color:var(--muted);margin-bottom:22px;max-width:680px;line-height:1.5;}
+  /* stat chips */
+  .stat-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;}
+  .stat{background:var(--card);border:1px solid var(--border);border-top:2px solid var(--ochre);padding:12px 18px;min-width:120px;}
+  .stat .v{font-family:var(--display);font-size:26px;font-weight:700;line-height:1;}
+  .stat .l{font-family:var(--sans);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:5px;}
+  /* search */
+  .search{width:100%;max-width:340px;background:rgba(0,0,0,.03);border:1px solid var(--border);padding:10px 13px;font-size:13px;font-family:var(--font);outline:none;margin-bottom:14px;}
+  .search:focus{border-color:var(--ochre);}
+  /* table */
+  .tbl-wrap{background:var(--card);border:1px solid var(--border);overflow-x:auto;}
+  table{width:100%;border-collapse:collapse;font-size:12.5px;}
+  th{font-family:var(--sans);font-size:8.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);text-align:left;padding:11px 16px;border-bottom:1px solid var(--border-hi);white-space:nowrap;}
+  td{padding:11px 16px;border-bottom:1px solid var(--border);vertical-align:middle;}
+  tr:last-child td{border-bottom:none;}
+  tr.row:hover td{background:rgba(201,146,58,.06);}
+  .nm{font-weight:600;font-size:13px;}
+  .sub{color:var(--muted);font-size:11.5px;}
+  .pill{font-family:var(--sans);font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:2px;display:inline-block;}
+  .pill-green{background:rgba(10,143,100,.14);color:var(--success);} .pill-grey{background:rgba(26,26,26,.07);color:var(--muted);}
+  .pill-ochre{background:rgba(201,146,58,.16);color:var(--ochre-deep);} .pill-terra{background:rgba(200,83,31,.14);color:var(--terra);}
+  .pill-red{background:rgba(220,53,69,.13);color:#C0392B;}
+  .tag{display:inline-block;font-family:var(--sans);font-size:8px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:3px 7px;border:1px solid var(--border-hi);color:var(--ink-mid);margin:1px 3px 1px 0;border-radius:2px;}
+  .tag.lead{border-color:var(--ochre);color:var(--ochre-deep);background:rgba(201,146,58,.08);}
+  .empty{text-align:center;padding:50px 20px;color:var(--muted);}
+  .deny{max-width:460px;margin:80px auto;text-align:center;color:var(--muted);}
+  .deny .m{font-family:var(--display);font-size:30px;color:var(--border-hi);margin-bottom:10px;}
+  #toast{position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(80px);background:var(--ink);color:#fff;padding:13px 22px;font-size:13px;opacity:0;transition:all .3s;z-index:2000;}
+  #toast.show{transform:translateX(-50%) translateY(0);opacity:1;} #toast.error{background:#DC3545;}
+  /* Coaches portal hub */
+  .subtabs{display:flex;gap:4px;border-bottom:1px solid var(--border);margin-bottom:18px;}
+  .subtab{font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);padding:9px 14px;cursor:pointer;border-bottom:2px solid transparent;}
+  .subtab.active{color:var(--ochre-deep);border-bottom-color:var(--ochre);}
+  .disc-group{margin-bottom:22px;}
+  .disc-group-h{display:flex;justify-content:space-between;align-items:baseline;border-bottom:2px solid var(--ochre);padding-bottom:6px;margin-bottom:6px;}
+  .disc-group-h span:first-child{font-family:var(--display);font-size:19px;font-weight:600;}
+  .coach-row{display:flex;align-items:center;gap:12px;padding:11px 4px;border-bottom:1px solid var(--border);}
+  .coach-row:last-child{border-bottom:none;}
+  .avatar-sm{width:38px;height:38px;border-radius:50%;background:var(--surface);border:1px solid var(--border-hi);overflow:hidden;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:15px;color:var(--muted);flex-shrink:0;}
+  .avatar-sm img{width:100%;height:100%;object-fit:cover;}
+  .kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;}
+  .kv .k{font-family:var(--sans);font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:3px;}
+  .kv .v{font-size:13px;font-weight:500;}
+  .app-card{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--ochre);padding:16px 18px;margin-bottom:14px;}
+  .app-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:4px;}
+  .dd{margin-top:12px;padding-top:12px;border-top:1px dashed var(--border-hi);}
+  .app-actions{margin-top:14px;display:flex;gap:8px;}
+  .btn-sm{font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:8px 14px;border:none;cursor:pointer;}
+  .btn-sm.approve{background:var(--success);color:#fff;} .btn-sm.reject{background:none;color:#C0392B;border:1px solid var(--border-hi);}
+  .seg-row{display:flex;gap:6px;flex-wrap:wrap;}
+  .seg{font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;padding:7px 13px;border:1px solid var(--border-hi);background:none;color:var(--muted);cursor:pointer;}
+  .seg.on{background:var(--ink);color:var(--bg);border-color:var(--ink);}
+  .tst-list{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--border);}
+  .tst-item{padding:16px 18px;border-bottom:1px solid var(--border);}
+  .tst-item:last-child{border-bottom:none;}
+  .tst-ini{width:42px;height:42px;border-radius:50%;background:var(--surface);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:17px;color:var(--paper-mid);flex-shrink:0;}
+  .tst-tag{font-family:var(--sans);font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border:1px solid var(--border-hi);padding:2px 7px;}
+  .tst-tag.grp{color:var(--terra);border-color:var(--terra);}
+  .mat-coach{margin:8px 0 12px;} .mat-coach-h{font-size:12px;font-weight:600;color:var(--ink-mid);margin:6px 0 2px;}
+  .mat-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:7px 0;border-top:1px solid var(--border);font-size:12.5px;}
+  .app-card select,.app-card input{width:100%;background:var(--bg);border:1px solid var(--border);padding:8px 10px;font-size:13px;font-family:var(--font);color:var(--text);}
+  .app-card select:focus,.app-card input:focus{outline:none;border-color:var(--ochre);}
+  @media(max-width:560px){.main{padding:22px 16px 70px;}.page-title{font-size:26px;}}
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-card">
+    <div class="login-eyebrow">The Founder's Sprint</div>
+    <div class="login-title">Command Centre</div>
+    <div class="login-rule"><div class="geo-line"></div></div>
+    <input class="login-input" type="email" id="login-email" placeholder="Email address" autocomplete="email">
+    <input class="login-input" type="password" id="login-password" placeholder="Password" autocomplete="current-password" onkeydown="if(event.key==='Enter')signIn()">
+    <button class="btn-login" onclick="signIn()">Enter</button>
+    <div class="login-error" id="login-error"></div>
+  </div>
+</div>
+
+<div id="app">
+  <div class="topbar">
+    <div class="topbar-left">
+      <div class="topbar-mark"><svg viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.85"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.8" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.78" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.82" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#15161A"/><circle cx="50" cy="50" r="2" fill="#fff"/></svg></div>
+      <span class="topbar-logo">Founder's Sprint</span>
+      <div class="topbar-sep"></div><span class="topbar-sub">Command Centre</span>
+    </div>
+    <div class="topbar-right">
+      <div style="position:relative" id="cc-avatar-wrap">
+        <button class="cc-avatar" id="cc-avatar-btn" onclick="document.getElementById('cc-avatar-wrap').classList.toggle('open')" title="Account">?</button>
+        <div class="cc-menu">
+          <div class="cc-email" id="user-email"></div>
+          <a href="/dashboard.html" id="cc-ops-link" style="display:none" title="Operations dashboard — cohorts, registrations, revenue">↩ Ops dashboard</a>
+          <a class="danger" href="javascript:void(0)" onmousedown="event.stopPropagation();signOut()">Sign out</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="tabs" id="tabs"></div>
+  <div class="main">
+    <div class="page-eyebrow">Super-admin · all portals</div>
+    <div class="page-title" id="portal-title">Portals</div>
+    <div class="page-sub" id="portal-sub"></div>
+    <div class="stat-row" id="stat-row"></div>
+    <input class="search" id="search" placeholder="Search…" oninput="onSearchInput()">
+    <div id="roster"></div>
+  </div>
+</div>
+<div id="toast"></div>
+
+<script>
+const SUPABASE_URL='https://ivedeivyotwevjxvcuoe.supabase.co';
+const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss';
+const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON,{auth:{detectSessionInUrl:true,autoRefreshToken:true,persistSession:true}});
+const API_BASE='https://founders-sprint-api.vercel.app';
+function ago(ts){ if(!ts) return ''; const s=Math.max(0,(Date.now()-new Date(ts).getTime())/1000);
+  if(s<60) return 'just now'; if(s<3600) return Math.floor(s/60)+'m ago'; if(s<86400) return Math.floor(s/3600)+'h ago'; return Math.floor(s/86400)+'d ago'; }
+
+const DISC_LABEL={marketing:'Marketing & Branding',financial:'Financial Modelling',investment:'Investment Readiness',strategy:'Strategy & Team',product:'Product Dev & Pricing'};
+const TRACK_LABEL={single:'1:1 Session',pick3:'Pick 3 Bundle',cohort:'Full Cohort',group:'Full Cohort',vip1on1:'VIP 1:1',vip:'VIP Track'};
+
+// ── auth layer (Safari-safe) ──
+const _SB_KEY='sb-'+SUPABASE_URL.split('//')[1].split('.')[0]+'-auth-token';
+let _rp=null,currentSession=null,booted=false;
+function _stored(){try{return JSON.parse(localStorage.getItem(_SB_KEY)||'{}');}catch{return{};}}
+function _exp(s){const e=s.expires_at;return !e||(Date.now()/1000)>(e-60);}
+async function _refresh(){if(_rp)return _rp;_rp=(async()=>{const s=_stored();if(!s.refresh_token)throw new Error('Please sign in again');
+  const r=await fetch(SUPABASE_URL+'/auth/v1/token?grant_type=refresh_token',{method:'POST',headers:{apikey:SUPABASE_ANON,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:s.refresh_token})});
+  if(!r.ok){localStorage.removeItem(_SB_KEY);throw new Error('Session expired');}const j=await r.json();localStorage.setItem(_SB_KEY,JSON.stringify(j));currentSession=j;return j.access_token;})();
+  try{return await _rp;}finally{_rp=null;}}
+async function _token(){if(currentSession?.access_token){const e=currentSession.expires_at;if(e&&(Date.now()/1000)<(e-60))return currentSession.access_token;}
+  const s=_stored();if(s.access_token&&!_exp(s))return s.access_token;return _refresh();}
+async function _q(table,params){const t=await _token();const r=await fetch(SUPABASE_URL+'/rest/v1/'+table+'?'+params,{headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t}});
+  if(!r.ok)throw new Error('Query failed '+r.status+': '+await r.text());return r.json();}
+async function _w(method,table,params,body,extra){const t=await _token();const r=await fetch(SUPABASE_URL+'/rest/v1/'+table+(params?('?'+params):''),{method,headers:Object.assign({apikey:SUPABASE_ANON,Authorization:'Bearer '+t,'Content-Type':'application/json',Prefer:'return=representation'},extra||{}),body:body?JSON.stringify(body):undefined});
+  if(!r.ok)throw new Error('Write failed '+r.status+': '+await r.text());const x=await r.text();return x?JSON.parse(x):null;}
+async function _rpc(fn,args){const t=await _token();const r=await fetch(SUPABASE_URL+'/rest/v1/rpc/'+fn,{method:'POST',headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify(args||{})});
+  if(!r.ok)throw new Error('RPC '+r.status+': '+await r.text());const x=await r.text();return x?JSON.parse(x):null;}
+
+async function signIn(){
+  const email=document.getElementById('login-email').value.trim();
+  const pw=document.getElementById('login-password').value;
+  const err=document.getElementById('login-error');const btn=document.querySelector('.btn-login');err.textContent='';
+  if(!email||!pw){err.textContent='Enter email and password';return;}
+  try{btn.disabled=true;btn.textContent='Signing in…';
+    const{error}=await sb.auth.signInWithPassword({email,password:pw});
+    if(error){err.textContent=error.message;}
+  }catch(e){err.textContent=e.message;}finally{btn.disabled=false;btn.textContent='Enter';}
+}
+function signOut(){localStorage.removeItem(_SB_KEY);try{sb.auth.signOut().catch(()=>{});}catch(e){}location.reload();}
+document.addEventListener('click',function(e){ var w=document.getElementById('cc-avatar-wrap'); if(w&&!w.contains(e.target)) w.classList.remove('open'); });
+
+sb.auth.onAuthStateChange((ev,s)=>{ currentSession=s; if((ev==='SIGNED_IN'||ev==='TOKEN_REFRESHED'||ev==='INITIAL_SESSION') && s && !booted) boot(s.user); });
+let _redir=false; function _toLogin(){ if(_redir||booted) return; _redir=true; location.replace('/login-admin.html'); }
+// Authoritative session check: getSession() validates + refreshes, or returns null for a stale/absent token.
+(async()=>{
+  try{
+    const { data:{ session } } = await sb.auth.getSession();
+    if(session){ currentSession=session; if(!booted) boot(session.user); }
+    else { _toLogin(); }
+  }catch(e){ _toLogin(); }
+})();
+
+// ── state ──
+let founders=[], pageCompanies=[], pageRegs=[], coaches=[], topics=[], roles=[];
+let applications=[], materials=[], presentations=[], invFirms=[], invMembers=[];
+let active='founders', coachSub='roster';
+// ── server-side pagination (unbounded-growth tables: founders, firms) ──
+const PAGE=25;
+let fState={page:0,total:0}, fStatCounts=null;          // founders
+let iState={page:0,total:0}, iStatCounts=null;          // investor firms
+let portalCounts={founders:0,coaches:0,investors:0,admins:0};
+let _searchTimer=null;
+function onSearchInput(){ clearTimeout(_searchTimer); _searchTimer=setTimeout(()=>{ fState.page=0; iState.page=0; renderActive(); }, 300); }
+async function pagedFetch(table, params){
+  const t=await _token();
+  const r=await fetch(SUPABASE_URL+'/rest/v1/'+table+'?'+params,{headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t,Prefer:'count=exact'}});
+  if(!r.ok) throw new Error('Query failed '+r.status+': '+await r.text());
+  const rows=await r.json();
+  const cr=r.headers.get('content-range')||''; const tot=cr.includes('/')?parseInt(cr.split('/')[1],10):rows.length;
+  return { rows, total: isNaN(tot)?rows.length:tot };
+}
+async function countOnly(table, filter){
+  try{ const t=await _token();
+    const r=await fetch(SUPABASE_URL+'/rest/v1/'+table+'?select=id&limit=1'+(filter?('&'+filter):''),{headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t,Prefer:'count=exact'}});
+    const cr=r.headers.get('content-range')||''; const tot=cr.includes('/')?parseInt(cr.split('/')[1],10):0; return isNaN(tot)?0:tot;
+  }catch(e){ return 0; }
+}
+function pager(state, fn){
+  const pages=Math.max(1,Math.ceil(state.total/PAGE)), cur=state.page+1;
+  if(state.total<=PAGE) return '<div class="sub" style="margin-top:12px">'+state.total+' total</div>';
+  return '<div style="display:flex;align-items:center;gap:12px;margin-top:16px">'
+    +'<button class="btn-sm" style="background:none;border:1px solid var(--border-hi);color:var(--ink-mid)" '+(state.page<=0?'disabled':'')+' onclick="'+fn+'(-1)">‹ Prev</button>'
+    +'<span class="sub">Page '+cur+' of '+pages+' · '+state.total+' total</span>'
+    +'<button class="btn-sm" style="background:none;border:1px solid var(--border-hi);color:var(--ink-mid)" '+(cur>=pages?'disabled':'')+' onclick="'+fn+'(1)">Next ›</button></div>';
+}
+function foundersPage(d){ fState.page=Math.max(0,fState.page+d); loadFounders(); }
+function investorsPage(d){ iState.page=Math.max(0,iState.page+d); loadInvestors(); }
+function searchVal(){ return (document.getElementById('search').value||'').trim(); }
+// Build a safe PostgREST ilike-OR filter. encodeURIComponent leaves ()*!' unencoded, and PostgREST
+// treats , ( ) . as filter syntax + % * as wildcards — so strip those from user input before building the filter.
+function ilikeOr(cols,q){
+  let clean=String(q||'').replace(/[(),.*%"'!~\\ -]/g,' ').replace(/[\uD800-\uDBFF](?![\uDC00-\uDFFF])|(?:^|[^\uD800-\uDBFF])[\uDC00-\uDFFF]/g,' ').trim();
+  if(!clean) return '';
+  let e; try{ e=encodeURIComponent('*'+clean+'*'); } catch(_){ return ''; }
+  return 'or=('+cols.map(c=>c+'.ilike.'+e).join(',')+')';
+}
+// ── scoped roles ──
+let myRoles=[];
+const STAFF_ROLES=['admin','coach_support','investor_support','founder_support','finance','hub_partner'];
+const ROLE_LABEL={admin:'Super admin',coach_support:'Coach support',investor_support:'Investor support',founder_support:'Founder support',finance:'Finance',hub_partner:'Partner'};
+function hasR(r){ return myRoles.includes(r); }
+function isSuper(){ return hasR('admin'); }
+function canDD(){ return isSuper()||hasR('finance'); }                 // see ID/CV/payout + final approve
+function canFinance(){ return isSuper()||hasR('finance'); }            // money: payment overrides
+function canCoachMgmt(){ return isSuper()||hasR('coach_support')||hasR('finance'); }
+function canFounderMgmt(){ return isSuper()||hasR('founder_support')||hasR('finance'); }
+function canInvestorMgmt(){ return isSuper()||hasR('investor_support')||hasR('finance'); }
+// which portals a role may open
+function canSeePortal(k){
+  if(isSuper()) return true;
+  if(k==='founders')  return hasR('founder_support')||hasR('finance');
+  if(k==='coaches')   return hasR('coach_support')||hasR('finance');
+  if(k==='investors') return hasR('investor_support')||hasR('finance');
+  if(k==='testimonials') return hasR('founder_support')||hasR('coach_support');
+  if(k==='admins')    return false; // super-admin only
+  return false;
+}
+const DISC_ORDER=['marketing','financial','investment','strategy','product'];
+const DISC_LEAD={marketing:'Teddy Ruge',financial:'Barry Wojega',investment:'Joseph Kalema',strategy:'Moses Engwau Okudu',product:'Patrick Ngolobe'};
+const DISC_COLOR={marketing:'#C8531F',financial:'#C9923A',investment:'#8AAB5C',strategy:'#3D4A2E',product:'#A59B8C'};
+function normDisc(x){ x=String(x||'').toLowerCase(); if(x.includes('market'))return'marketing'; if(x.includes('financ'))return'financial'; if(x.includes('invest'))return'investment'; if(x.includes('strateg')||x.includes('team'))return'strategy'; if(x.includes('product'))return'product'; return null; }
+const PORTALS=[
+  {key:'founders',  label:'Founders'},
+  {key:'coaches',   label:'Coaches'},
+  {key:'investors', label:'Investors'},
+  {key:'testimonials', label:'Testimonials'},
+  {key:'admins',    label:'Admin & Ops'}
+];
+const PORTAL_SUB={
+  founders:'Everyone with a founder account — their venture(s), enrolment, payment state and data-room sharing.',
+  coaches:'The single home for coach management — roster by discipline, the application pipeline (lead vets suitability → admin vets due-diligence), and all teaching materials.',
+  investors:'Approved and pending investor accounts with read access to opted-in data rooms.',
+  testimonials:'Incoming testimonials. Group testimonials are yours to approve; coach-specific ones are approved by each coach — you keep oversight and can moderate any of them.',
+  admins:'Privileged roles — platform admins and hub partners. This is who can see across every portal.'
+};
+
+async function boot(user){
+  if(booted||!user)return; booted=true;
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+  document.getElementById('user-email').textContent=user.email;
+  const _av=document.getElementById('cc-avatar-btn'); if(_av) _av.textContent=(user.email||'?')[0].toUpperCase();
+  try{
+    const me=await _q('user_roles','user_id=eq.'+user.id+'&select=role');
+    myRoles=(me||[]).map(r=>r.role);
+    const _ops=document.getElementById('cc-ops-link'); if(_ops) _ops.style.display=isSuper()?'block':'none';
+    if(!STAFF_ROLES.some(r=>myRoles.includes(r))){
+      document.querySelector('.tabs').style.display='none';
+      document.getElementById('stat-row').style.display='none';
+      document.getElementById('search').style.display='none';
+      document.getElementById('portal-title').textContent='Access restricted';
+      document.getElementById('portal-sub').textContent='';
+      document.getElementById('roster').innerHTML='<div class="deny"><div class="m">◇</div><div style="font-weight:600;color:var(--ink-mid)">This account has no Command Centre access</div><div style="margin-top:6px">Ask a super-admin to grant you a staff role.</div></div>';
+      return;
+    }
+    // Bounded reference data loaded once (coaches ≤ ~1k, applications pipeline, per-coach materials/seats).
+    // Founders + investor firms are UNBOUNDED → loaded per-page server-side, never in bulk.
+    const r=await Promise.allSettled([
+      _q('coaches','select=*&order=created_at&limit=2000'),
+      _q('coach_topics','select=coach_id,discipline_key,is_lead&limit=5000'),
+      _q('coach_applications','select=*&order=created_at.desc&limit=500'),
+      _q('course_materials','select=id,coach_id,title,discipline,module_type,format,status,is_active,file_path,source_url&order=sort_order&limit=2000'),
+      _q('coach_presentations','select=id,coach_id,title,taxonomy_l1,is_active,file_path&order=sort_order&limit=2000'),
+      _q('investor_members','select=*&limit=2000')
+    ]);
+    coaches  =r[0].status==='fulfilled'?(r[0].value||[]):[];
+    topics   =r[1].status==='fulfilled'?(r[1].value||[]):[];
+    applications =r[2].status==='fulfilled'?(r[2].value||[]):[];
+    materials    =r[3].status==='fulfilled'?(r[3].value||[]):[];
+    presentations=r[4].status==='fulfilled'?(r[4].value||[]):[];
+    invMembers   =r[5].status==='fulfilled'?(r[5].value||[]):[];
+    // server-side counts for tab badges (no full-table loads)
+    portalCounts.founders  = await countOnly('founder_profiles','');
+    portalCounts.investors = await countOnly('investor_firms','');
+    portalCounts.coaches   = coaches.length;
+    portalCounts.admins    = await countOnly('user_roles',"role=in.(admin,hub_partner)");
+    portalCounts.testimonials = await countOnly('testimonial_submissions','status=eq.new');
+    const firstPortal=PORTALS.find(p=>canSeePortal(p.key));
+    renderTabs(); switchPortal(firstPortal?firstPortal.key:'founders');
+    startPresence();   // heartbeat + who's-online polling (staff only)
+  }catch(e){ showToast('Could not load — '+e.message,'error'); }
+}
+
+function counts(){ return portalCounts; }
+function renderTabs(){
+  const c=counts();
+  document.getElementById('tabs').innerHTML=PORTALS.filter(p=>canSeePortal(p.key)).map(p=>
+    '<div class="tab'+(p.key===active?' active':'')+'" onclick="switchPortal(\''+p.key+'\')">'+p.label+'<span class="cnt">'+(c[p.key]||0)+'</span></div>').join('');
+}
+function switchPortal(k){ active=k; document.getElementById('search').value=''; renderTabs();
+  document.getElementById('portal-title').textContent=PORTALS.find(p=>p.key===k).label;
+  document.getElementById('portal-sub').textContent=PORTAL_SUB[k]; renderActive(); }
+
+function match(q,...fields){ q=q.trim().toLowerCase(); if(!q)return true; return fields.some(f=>String(f||'').toLowerCase().includes(q)); }
+function tbl(headers,rows){
+  if(!rows.length) return '<div class="tbl-wrap"><div class="empty">No matching records.</div></div>';
+  return '<div class="tbl-wrap"><table><thead><tr>'+headers.map(h=>'<th>'+h+'</th>').join('')+'</tr></thead><tbody>'+rows.join('')+'</tbody></table></div>';
+}
+function stats(items){ document.getElementById('stat-row').innerHTML=items.map(i=>'<div class="stat"><div class="v">'+i.v+'</div><div class="l">'+i.l+'</div></div>').join(''); }
+
+function renderActive(){
+  const q=searchVal();
+  if(active==='founders')  loadFounders();
+  else if(active==='coaches')  renderCoaches(q);
+  else if(active==='investors') loadInvestors();
+  else if(active==='testimonials'){ tstLoaded?renderTestimonials():loadTestimonials(); }
+  else renderAdmins(q);
+}
+
+function companiesOf(fid){ return pageCompanies.filter(c=>c.founder_id===fid); }
+function regOf(f){ return pageRegs.find(r=>r.founder_id===f.id || (f.user_id && r.user_id===f.user_id) || (r.email&&f.email&&r.email.toLowerCase()===f.email.toLowerCase())); }
+function regsForFounder(f){ return pageRegs.filter(r=>r.founder_id===f.id || (f.user_id&&r.user_id===f.user_id) || (r.email&&f.email&&r.email.toLowerCase()===f.email.toLowerCase())); }
+
+// ── Founders: server-side paginated (unbounded table) ──
+async function loadFounders(){
+  const q=searchVal();
+  let params='select=*&order=created_at.desc&limit='+PAGE+'&offset='+(fState.page*PAGE);
+  const sf=ilikeOr(['first_name','last_name','email','company_name'],q); if(sf) params+='&'+sf;
+  document.getElementById('roster').innerHTML='<div class="empty">Loading…</div>';
+  try{
+    const {rows,total}=await pagedFetch('founder_profiles',params);
+    founders=rows; fState.total=total;
+    const ids=rows.map(r=>r.id), uids=rows.map(r=>r.user_id).filter(Boolean);
+    pageCompanies = ids.length ? await _q('companies','founder_id=in.('+ids.join(',')+')&select=id,founder_id,name,sector,data_room_shared,investor_visible&limit=500') : [];
+    pageRegs = (ids.length||uids.length)
+      ? await _q('registrations','or=(founder_id.in.('+(ids.join(',')||'0')+'),user_id.in.('+(uids.join(',')||'00000000-0000-0000-0000-000000000000')+'))&select=id,founder_id,user_id,email,track,deposit_paid,balance_paid,forfeited&limit=500')
+      : [];
+    // headline counts (cached after first fetch; don't recount per page)
+    if(!fStatCounts){ fStatCounts={
+      companies: await countOnly('companies',''),
+      visible:   await countOnly('founder_profiles','investor_visible=eq.true') }; }
+    stats([{v:fState.total,l:'Founders'},{v:fStatCounts.companies,l:'Companies'},{v:fStatCounts.visible,l:'Investor-visible'}]);
+    renderFoundersTable();
+  }catch(e){ document.getElementById('roster').innerHTML=tbl(['Founder'],[]); showToast('Could not load founders — '+e.message,'error'); }
+}
+function renderFoundersTable(){
+  const rows=founders.map(f=>{
+    const cos=companiesOf(f.id), r=regOf(f);
+    const coNames=cos.length?cos.map(c=>esc(c.name)+(c.data_room_shared?' <span class="pill pill-ochre">shared</span>':'')).join('<br>'):(f.company_name?esc(f.company_name):'<span class="sub">—</span>');
+    const track=r&&r.track?TRACK_LABEL[r.track]||r.track:'—';
+    let pay='<span class="pill pill-grey">No booking</span>';
+    if(r){ if(r.forfeited)pay='<span class="pill pill-red">Forfeited</span>';
+      else if(r.deposit_paid&&r.balance_paid)pay='<span class="pill pill-green">Fully paid</span>';
+      else if(r.deposit_paid)pay='<span class="pill pill-terra">Balance due</span>';
+      else pay='<span class="pill pill-grey">Unpaid</span>'; }
+    const archived=f.status==='archived';
+    const actCell=canFounderMgmt()?'<button class="btn-sm" style="background:none;border:1px solid var(--border-hi);color:var(--ink-mid);padding:5px 10px" onclick="editFounder(\''+f.id+'\')">Manage</button>':'';
+    return '<tr class="row"'+(archived?' style="opacity:.55"':'')+'><td><div class="nm">'+esc((f.first_name||'')+' '+(f.last_name||''))+(archived?' <span class="pill pill-grey">archived</span>':'')+'</div><div class="sub">'+esc(f.email||'')+'</div></td>'
+      +'<td>'+coNames+'</td><td>'+esc(f.sector||(cos[0]&&cos[0].sector)||'—')+'</td><td>'+esc(track)+'</td><td>'+pay+'</td><td>'+actCell+'</td></tr>';
+  });
+  document.getElementById('roster').innerHTML=tbl(['Founder','Company','Sector','Track','Payment','Manage'],rows)+pager(fState,'foundersPage');
+}
+function editFounder(fid){
+  const f=founders.find(x=>x.id===fid); if(!f) return;
+  const cos=companiesOf(fid);
+  const vis = !!f.investor_visible || cos.some(c=>c.investor_visible);
+  const fregs=regsForFounder(f);
+  const fin=canFinance();
+  const payRows = fregs.length ? fregs.map(r=>{
+    const pd=TRACK_LABEL[r.track]||r.track||'Enrollment';
+    const dep = fin
+      ? '<button class="btn-sm" style="background:'+(r.deposit_paid?'var(--success)':'none')+';color:'+(r.deposit_paid?'#fff':'var(--ink-mid)')+';border:1px solid var(--border-hi)" onclick="setPay(\''+r.id+'\',\'deposit_paid\','+(!r.deposit_paid)+')">Deposit '+(r.deposit_paid?'✓':'—')+'</button>'
+      : '<span class="pill '+(r.deposit_paid?'pill-green':'pill-grey')+'">Deposit '+(r.deposit_paid?'paid':'—')+'</span>';
+    const bal = fin
+      ? '<button class="btn-sm" style="background:'+(r.balance_paid?'var(--success)':'none')+';color:'+(r.balance_paid?'#fff':'var(--ink-mid)')+';border:1px solid var(--border-hi)" onclick="setPay(\''+r.id+'\',\'balance_paid\','+(!r.balance_paid)+')">Balance '+(r.balance_paid?'✓':'—')+'</button>'
+      : '<span class="pill '+(r.balance_paid?'pill-green':'pill-grey')+'">Balance '+(r.balance_paid?'paid':'—')+'</span>';
+    return '<div class="mat-row"><span>'+esc(pd)+'</span><span style="display:flex;gap:8px;align-items:center">'+dep+bal+'</span></div>';
+  }).join('') : '<div class="sub">No bookings on file.</div>';
+  document.getElementById('roster').innerHTML='<span class="back" onclick="loadFounders()" style="font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ochre-deep);cursor:pointer;display:inline-block;margin-bottom:14px">← All founders</span>'
+    +'<div class="app-card"><div class="app-head"><div><span class="nm">'+esc((f.first_name||'')+' '+(f.last_name||''))+'</span> <span class="sub">'+esc(f.email||'')+'</span></div></div>'
+    +'<div class="sub" style="margin:6px 0 14px">Administrative controls — you manage account state and payments; you don\'t rewrite the founder\'s own data-room content.</div>'
+    +'<div class="kv">'
+      +'<div><div class="k">Account status</div><select id="ef-status"><option value="active"'+(f.status!=='archived'?' selected':'')+'>Active</option><option value="archived"'+(f.status==='archived'?' selected':'')+'>Archived</option></select></div>'
+      +'<div><div class="k">Investor visibility (moderation)</div><select id="ef-vis"><option value="on"'+(vis?' selected':'')+'>Visible to investors</option><option value="off"'+(!vis?' selected':'')+'>Hidden</option></select></div>'
+    +'</div>'
+    +'<div class="f" style="margin-top:12px"><div class="k">Admin note</div><textarea id="ef-note" rows="2" style="width:100%">'+esc(f.admin_notes||'')+'</textarea></div>'
+    +'<div style="margin-top:14px"><button class="btn-sm approve" onclick="saveFounder(\''+fid+'\')">Save</button></div>'
+    +'<div class="section-title" style="margin:18px 0 6px;font-size:10px">Payments (manual override)</div>'+payRows
+    +'<div class="sub" style="margin-top:8px;font-size:11px">Use overrides only for confirmed off-platform payments; ioTec reconciliation sets these automatically once live.</div>'
+    +'</div>';
+}
+async function saveFounder(fid){
+  const f=founders.find(x=>x.id===fid); if(!f) return;
+  const status=document.getElementById('ef-status').value;
+  const vis=document.getElementById('ef-vis').value==='on';
+  const note=document.getElementById('ef-note').value.trim()||null;
+  try{
+    await _w('PATCH','founder_profiles','id=eq.'+fid,{status,investor_visible:vis,data_room_shared:vis,admin_notes:note,updated_at:new Date().toISOString()});
+    f.status=status; f.investor_visible=vis; f.admin_notes=note;
+    showToast('Founder account updated','success'); loadFounders();
+  }catch(e){ showToast('Could not save — '+e.message,'error'); }
+}
+async function setPay(regId,field,val){
+  try{ const body={}; body[field]=val; body.updated_at=new Date().toISOString();
+    await _w('PATCH','registrations','id=eq.'+regId,body);
+    const r=pageRegs.find(x=>x.id===regId); if(r)r[field]=val;
+    showToast('Payment updated','success');
+    // re-open the founder editor to reflect
+    const f=founders.find(x=>regsForFounder(x).some(rr=>rr.id===regId)); if(f) editFounder(f.id);
+  }catch(e){ showToast('Could not update — '+e.message,'error'); }
+}
+
+function discsOf(cid){ return topics.filter(t=>t.coach_id===cid); }
+function coachesInDiscipline(key){ const ids=topics.filter(t=>t.discipline_key===key).map(t=>t.coach_id); return coaches.filter(c=>ids.includes(c.id)); }
+function isLeadOf(c,key){ return topics.some(t=>t.coach_id===c.id&&t.discipline_key===key&&t.is_lead); }
+function appsPending(){ return applications.filter(a=>a.review_stage==='lead_review'||a.review_stage==='admin_review').length; }
+
+// ── Coaches Portal: the single coach-management hub (roster · applications · materials) ──
+function renderCoaches(q){
+  const active_=coaches.filter(c=>c.status==='active').length;
+  const leads=topics.filter(t=>t.is_lead).length;
+  stats([{v:coaches.length,l:'Coaches'},{v:active_,l:'Active'},{v:leads,l:'Discipline leads'},{v:appsPending(),l:'Applications in review'}]);
+  const subs=[['roster','Roster'],['applications','Applications'+(appsPending()?' ('+appsPending()+')':'')],['materials','Materials']];
+  document.getElementById('roster').innerHTML='<div class="subtabs">'
+    + subs.map(s=>'<span class="subtab'+(coachSub===s[0]?' active':'')+'" onclick="setCoachSub(\''+s[0]+'\')">'+s[1]+'</span>').join('')
+    + '</div><div id="coach-sub"></div>';
+  renderCoachSub(q);
+}
+function setCoachSub(k){ coachSub=k; renderCoaches(document.getElementById('search').value); }
+function renderCoachSub(q){ if(coachSub==='applications') renderCoachApplications(q); else if(coachSub==='materials') renderCoachMaterials(q); else renderCoachRoster(q); }
+
+function coachRow(c,key,lead){
+  const fee=c.session_fee?'UGX '+Number(c.session_fee).toLocaleString('en-US'):'—';
+  const st=c.status==='active'?'<span class="pill pill-green">Active</span>':'<span class="pill pill-grey">'+esc(c.status||'—')+'</span>';
+  const av=c.avatar_url?'<img src="'+esc(c.avatar_url)+'">':esc(((c.first_name||'?')[0]||'?').toUpperCase());
+  const edit=canCoachMgmt()?'<button class="btn-sm" style="background:none;border:1px solid var(--border-hi);color:var(--ink-mid);padding:5px 10px" onclick="editCoach('+c.id+',\''+key+'\')">Edit</button>':'';
+  return '<div class="coach-row" id="coach-row-'+c.id+'"><div class="avatar-sm">'+av+'</div>'
+    +'<div style="flex:1;min-width:0"><div class="nm">'+esc((c.first_name||'')+' '+(c.last_name||''))+(lead?' <span class="tag lead">Discipline Lead</span>':'')+'</div>'
+    +'<div class="sub">'+esc(c.headline||c.email||c.founderssprint_email||'')+'</div></div>'
+    +'<div style="text-align:right;flex-shrink:0;display:flex;align-items:center;gap:10px"><div>'+st+'<div class="sub" style="margin-top:4px">'+fee+'</div></div>'+edit+'</div></div>';
+}
+function renderCoachRoster(q){
+  const html=DISC_ORDER.map(key=>{
+    const col=DISC_COLOR[key]||'var(--ochre)';
+    const list=coachesInDiscipline(key).filter(c=>match(q,c.first_name,c.last_name,c.email,c.headline));
+    const ordered=[...list.filter(c=>isLeadOf(c,key)), ...list.filter(c=>!isLeadOf(c,key))];
+    const body=ordered.length?ordered.map(c=>coachRow(c,key,isLeadOf(c,key))).join('')
+      :'<div class="sub" style="padding:14px 4px">Lead: '+esc(DISC_LEAD[key])+' · no specialty coaches admitted yet.</div>';
+    return '<div class="disc-group" style="border-left:3px solid '+col+';padding-left:14px"><div class="disc-group-h" style="border-bottom-color:'+col+'"><span style="color:'+col+'">'+esc(DISC_LABEL[key])+'</span>'
+      +'<span class="sub">'+ordered.length+' coach'+(ordered.length===1?'':'es')+'</span></div>'+body+'</div>';
+  }).join('');
+  document.getElementById('coach-sub').innerHTML=html;
+}
+function editCoach(cid,key){
+  const c=coaches.find(x=>x.id===cid); if(!c) return;
+  const row=document.getElementById('coach-row-'+cid); if(!row) return;
+  const lead=isLeadOf(c,key);
+  row.innerHTML='<div style="flex:1"><div class="nm" style="margin-bottom:8px">'+esc((c.first_name||'')+' '+(c.last_name||''))+' — '+esc(DISC_LABEL[key]||key)+'</div>'
+    +'<div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center">'
+    +'<label class="sub">Status <select id="ec-status-'+cid+'"><option value="active"'+(c.status==='active'?' selected':'')+'>Active</option><option value="inactive"'+(c.status!=='active'?' selected':'')+'>Inactive</option></select></label>'
+    +'<label class="sub">1:1 fee (UGX) <input id="ec-fee-'+cid+'" type="number" value="'+(c.session_fee||500000)+'" style="width:120px"></label>'
+    +'<label class="sub"><input type="checkbox" id="ec-lead-'+cid+'" '+(lead?'checked':'')+'> Discipline lead</label>'
+    +'</div>'
+    +'<div style="display:flex;gap:8px;margin-top:12px"><button class="btn-sm approve" onclick="saveCoach('+cid+',\''+key+'\')">Save</button>'
+    +'<button class="btn-sm" style="background:none;border:1px solid var(--border-hi);color:var(--ink-mid)" onclick="renderCoaches(document.getElementById(\'search\').value)">Cancel</button>'
+    +'<button class="btn-sm reject" style="margin-left:auto" onclick="removeCoachFromDiscipline('+cid+',\''+key+'\')">Remove from '+esc(DISC_LABEL[key]||key)+'</button></div></div>';
+}
+async function saveCoach(cid,key){
+  const status=document.getElementById('ec-status-'+cid).value;
+  const fee=parseInt(document.getElementById('ec-fee-'+cid).value,10);
+  const lead=document.getElementById('ec-lead-'+cid).checked;
+  try{
+    await _w('PATCH','coaches','id=eq.'+cid,{status,session_fee:isNaN(fee)?null:fee,updated_at:new Date().toISOString()});
+    const c=coaches.find(x=>x.id===cid); if(c){c.status=status;c.session_fee=fee;}
+    // sync lead flag on this discipline's coach_topics row
+    const t=topics.find(x=>x.coach_id===cid&&x.discipline_key===key);
+    if(t && t.is_lead!==lead){ await _w('PATCH','coach_topics','coach_id=eq.'+cid+'&discipline_key=eq.'+key,{is_lead:lead}); t.is_lead=lead; }
+    showToast('Coach updated','success'); renderCoaches(document.getElementById('search').value);
+  }catch(e){ showToast('Could not save — '+e.message,'error'); }
+}
+async function removeCoachFromDiscipline(cid,key){
+  if(!confirm('Remove this coach from '+(DISC_LABEL[key]||key)+'? Their coverage of this discipline is removed (the coach account stays).'))return;
+  try{ await _w('DELETE','coach_topics','coach_id=eq.'+cid+'&discipline_key=eq.'+key);
+    topics=topics.filter(t=>!(t.coach_id===cid&&t.discipline_key===key));
+    showToast('Removed from discipline','success'); renderCoaches(document.getElementById('search').value);
+  }catch(e){ showToast('Could not remove — '+e.message,'error'); }
+}
+
+function mask(s){ s=String(s||''); return s.length>4?('•••• '+s.slice(-4)):(s||'—'); }
+const STAGE_PILL={lead_review:'<span class="pill pill-ochre">Lead review</span>',admin_review:'<span class="pill pill-terra">Admin DD review</span>',changes_requested:'<span class="pill pill-ochre">Changes requested</span>',listed:'<span class="pill pill-green">Listed</span>',rejected:'<span class="pill pill-red">Rejected</span>'};
+function docLink(label,path){ return path ? '<a href="#" onclick="openCoachDoc(\''+esc(path)+'\');return false" style="color:var(--ochre-deep);font-size:10px;font-weight:700;text-decoration:none">Open '+label+'</a>' : '<span class="pill pill-grey">no '+label+'</span>'; }
+function appCard(a){
+  const disc=normDisc(a.taxonomy_l1);
+  const nm=a.display_name||((a.first_name||'')+' '+(a.last_name||''));
+  const lead=a.lead_decision?('Lead: '+esc(a.lead_decision)+(a.lead_notes?(' — '+esc(a.lead_notes)):'')):'Awaiting discipline lead';
+  const suit='<div class="kv" style="margin-top:10px">'
+    +(a.current_role?'<div><div class="k">Current role</div><div class="v">'+esc(a.current_role)+'</div></div>':'')
+    +(a.experience?'<div><div class="k">Experience</div><div class="v">'+esc(a.experience)+'</div></div>':'')
+    +(a.notable_clients?'<div><div class="k">Notable clients</div><div class="v">'+esc(a.notable_clients)+'</div></div>':'')
+    +(a.credentials?'<div><div class="k">Qualifications</div><div class="v">'+esc(a.credentials)+'</div></div>':'')
+    +'</div>'+(a.coaching_philosophy?'<div class="sub" style="margin-top:8px"><b>Philosophy:</b> '+esc(a.coaching_philosophy)+'</div>':'');
+  // due-diligence (admin only) — documents openable from the private vault
+  const dd='<div class="dd"><div class="k" style="margin-bottom:6px">Due diligence (admin only) — verify before listing</div><div class="kv">'
+    +'<div><div class="k">Email</div><div class="v">'+esc(a.email||'—')+'</div></div>'
+    +'<div><div class="k">Phone</div><div class="v">'+esc((a.country_code||'')+' '+(a.phone||''))+'</div></div>'
+    +'<div><div class="k">ID ('+esc(a.id_type||'—')+')</div><div class="v">'+docLink('ID',a.id_document_path)+'</div></div>'
+    +'<div><div class="k">CV / qualifications</div><div class="v">'+docLink('CV',a.cv_path)+'</div></div>'
+    +'<div><div class="k">TIN</div><div class="v">'+esc(a.tin||a.tin_number||'—')+'</div></div>'
+    +'<div><div class="k">Payout</div><div class="v">'+(a.mobile_money_number?('MoMo '+mask(a.mobile_money_number)):(a.account_number?(esc(a.bank_name||'Bank')+' '+mask(a.account_number)):'—'))+'</div></div>'
+    +'</div></div>';
+  const noteBlk = a.admin_notes ? '<div class="sub" style="margin-top:8px;color:var(--terra)"><b>Admin note:</b> '+esc(a.admin_notes)+'</div>' : '';
+  let actions='';
+  const inReview = a.review_stage==='admin_review'||a.review_stage==='changes_requested';
+  if(inReview && canDD()){
+    actions='<div class="app-actions"><button class="btn-sm approve" onclick="adminApprove(\''+a.id+'\')">Approve &amp; list</button>'
+      +'<button class="btn-sm" style="background:var(--ochre);color:#15161A" onclick="adminRequestChanges(\''+a.id+'\')">Request changes</button>'
+      +'<button class="btn-sm reject" onclick="adminReject(\''+a.id+'\')">Reject</button></div>';
+  } else if(inReview && canCoachMgmt()){
+    actions='<div class="app-actions"><button class="btn-sm" style="background:var(--ochre);color:#15161A" onclick="adminRequestChanges(\''+a.id+'\')">Request changes</button></div>'
+      +'<div class="sub" style="margin-top:8px">Final approval requires due-diligence verification — handled by admin or finance.</div>';
+  } else if(a.review_stage==='lead_review'){
+    actions='<div class="sub" style="margin-top:10px">The discipline lead ('+esc(DISC_LEAD[disc]||'—')+') vets suitability first.'+(canDD()?' You can still <a href="#" onclick="adminReject(\''+a.id+'\');return false" style="color:#C0392B">reject</a> on DD grounds.':'')+'</div>';
+  }
+  const showDD = canDD() && (a.review_stage==='admin_review'||a.review_stage==='listed'||a.review_stage==='changes_requested');
+  return '<div class="app-card"><div class="app-head"><div><span class="nm">'+esc(nm)+'</span> <span class="tag">'+esc(DISC_LABEL[disc]||a.taxonomy_l1||'—')+'</span></div>'+(STAGE_PILL[a.review_stage]||STAGE_PILL.lead_review)+'</div>'
+    +(a.headline?'<div class="sub">'+esc(a.headline)+'</div>':'')
+    +'<div class="sub" style="margin-top:6px">'+lead+'</div>'+suit+noteBlk
+    +(showDD?dd:'')+actions+'</div>';
+}
+function renderCoachApplications(q){
+  const apps=applications.filter(a=>match(q,a.first_name,a.last_name,a.display_name,a.email,a.taxonomy_l1));
+  document.getElementById('coach-sub').innerHTML =
+    '<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">'
+    +'<div class="sub" style="max-width:560px">New coaches are vetted in two stages: the <b>discipline lead</b> confirms suitability, then <b>admin</b> verifies due-diligence (ID, CV, payout, contact) before listing. Approve, request changes, or reject.</div>'
+    +'<button class="btn-sm approve" onclick="showInviteCoach()">+ Invite a coach</button></div>'
+    +'<div id="invite-box"></div>'
+    +(apps.length ? apps.map(appCard).join('') : '<div class="tbl-wrap"><div class="empty">No applications.</div></div>');
+}
+function showInviteCoach(){
+  const el=document.getElementById('invite-box'); if(!el) return;
+  if(el.dataset.open==='1'){ el.innerHTML=''; el.dataset.open=''; return; }
+  el.dataset.open='1';
+  const url=location.origin+'/beta/coach-onboarding.html';
+  el.innerHTML='<div class="app-card"><div style="font-family:var(--display);font-size:18px;font-weight:600;margin-bottom:4px">Invite a coach</div>'
+    +'<div class="sub" style="margin-bottom:10px">Share this onboarding/application link with a prospective coach. Their submission lands in the pipeline above for lead → admin review.</div>'
+    +'<div style="display:flex;gap:8px;align-items:center"><input id="invite-url" value="'+esc(url)+'" readonly><button class="btn-sm approve" onclick="copyInvite()">Copy link</button></div></div>';
+}
+function copyInvite(){ const i=document.getElementById('invite-url'); if(!i)return; i.select(); try{ navigator.clipboard.writeText(i.value); }catch(e){ try{document.execCommand('copy');}catch(_){} } showToast('Link copied','success'); }
+async function openCoachDoc(path){
+  try{ const t=await _token();
+    const r=await fetch(SUPABASE_URL+'/storage/v1/object/sign/coach-documents/'+encodeURI(path),{method:'POST',headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify({expiresIn:300})});
+    const j=await r.json(); if(j&&j.signedURL) window.open(SUPABASE_URL+'/storage/v1'+j.signedURL,'_blank'); else throw new Error('na');
+  }catch(e){ showToast('Could not open document','error'); }
+}
+async function adminRequestChanges(id){
+  const note=prompt('What does the applicant need to change or provide? (recorded on the application)');
+  if(note==null) return;
+  try{ await _w('PATCH','coach_applications','id=eq.'+id,{review_stage:'changes_requested',admin_notes:note,reviewed_at:new Date().toISOString()});
+    const a=applications.find(x=>x.id===id); if(a){a.review_stage='changes_requested';a.admin_notes=note;}
+    showToast('Changes requested — recorded on the application','success'); renderCoaches(document.getElementById('search').value);
+  }catch(e){ showToast('Could not update — '+e.message,'error'); }
+}
+async function adminApprove(id){
+  if(!confirm('Approve and list this coach? This creates their coach profile + discipline coverage and makes them visible to founders.'))return;
+  try{
+    await _rpc('provision_coach_from_application',{p_app:id});   // creates coaches row + coach_topics, lists the app
+    const a=applications.find(x=>x.id===id); if(a){a.review_stage='listed';a.status='approved';}
+    // refresh coach roster + topics so the new coach appears immediately
+    try{ coaches=await _q('coaches','select=*&order=created_at'); }catch(e){}
+    try{ topics=await _q('coach_topics','select=coach_id,discipline_key,is_lead'); }catch(e){}
+    renderTabs();
+    showToast('Coach provisioned & listed — set up their login account to finish','success');
+    renderCoaches(document.getElementById('search').value);
+  }catch(e){ showToast('Could not approve — '+e.message,'error'); }
+}
+async function adminReject(id){
+  const reason=prompt('Reason for rejection (optional):')||null;
+  try{ await _w('PATCH','coach_applications','id=eq.'+id,{review_stage:'rejected',status:'rejected',rejection_reason:reason,reviewed_at:new Date().toISOString()});
+    const a=applications.find(x=>x.id===id); if(a){a.review_stage='rejected';a.status='rejected';}
+    showToast('Application rejected','success'); renderCoaches(document.getElementById('search').value);
+  }catch(e){ showToast('Could not reject — '+e.message,'error'); }
+}
+
+function coachByAny(cid){ return coaches.find(x=>String(x.user_id)===String(cid)||String(x.id)===String(cid)); }
+function matOpen(m){
+  if(m.source_url) return '<a href="'+esc(m.source_url)+'" target="_blank" style="color:var(--ochre-deep);font-size:10px;font-weight:700;text-decoration:none">Open ↗</a>';
+  if(m.file_path) return '<a href="#" onclick="openMaterial(\''+esc(m.file_path)+'\');return false" style="color:var(--ochre-deep);font-size:10px;font-weight:700;text-decoration:none">Open</a>';
+  return '';
+}
+function renderCoachMaterials(q){
+  const all=[];
+  materials.forEach(m=>all.push({tbl:'course_materials',id:m.id,disc:normDisc(m.discipline),coach_id:m.coach_id,title:m.title,type:m.module_type||m.format||'Material',file_path:m.file_path,source_url:m.source_url,status:m.status}));
+  presentations.forEach(p=>all.push({tbl:'coach_presentations',id:p.id,disc:normDisc(p.taxonomy_l1),coach_id:p.coach_id,title:p.title,type:'Presentation',file_path:p.file_path}));
+  const filt=all.filter(m=>match(q,m.title));
+  const groups=DISC_ORDER.map(key=>{
+    const items=filt.filter(m=>m.disc===key);
+    if(!items.length) return '';
+    const byCoach={}; items.forEach(m=>{(byCoach[m.coach_id]=byCoach[m.coach_id]||[]).push(m);});
+    const blocks=Object.keys(byCoach).map(cid=>{
+      const c=coachByAny(cid); const cn=c?((c.first_name||'')+' '+(c.last_name||'')):'Unassigned';
+      return '<div class="mat-coach"><div class="mat-coach-h">'+esc(cn)+'</div>'
+        +byCoach[cid].map(m=>'<div class="mat-row"><span>'+esc(m.title)+(m.status&&m.status!=='published'?' <span class="pill pill-grey">'+esc(m.status)+'</span>':'')+'</span>'
+          +'<span style="display:flex;gap:12px;align-items:center"><span class="tag">'+esc(m.type)+'</span>'+matOpen(m)
+          +'<a href="#" onclick="deleteMaterial(\''+m.tbl+'\',\''+m.id+'\');return false" style="color:#C0392B;font-size:10px;font-weight:700;text-decoration:none">Delete</a></span></div>').join('')+'</div>';
+    }).join('');
+    const col=DISC_COLOR[key]||'var(--ochre)';
+    return '<div class="disc-group" style="border-left:3px solid '+col+';padding-left:14px"><div class="disc-group-h" style="border-bottom-color:'+col+'"><span style="color:'+col+'">'+esc(DISC_LABEL[key])+'</span><span class="sub">'+items.length+' item'+(items.length===1?'':'s')+'</span></div>'+blocks+'</div>';
+  }).join('');
+  document.getElementById('coach-sub').innerHTML =
+    '<div style="margin-bottom:14px"><button class="btn-sm approve" onclick="showAddMaterial()">+ Add material</button></div><div id="add-material"></div>'
+    + (groups || '<div class="tbl-wrap"><div class="empty">No teaching materials yet — add one above.</div></div>');
+}
+function showAddMaterial(){
+  const el=document.getElementById('add-material');
+  if(el.dataset.open==='1'){ el.innerHTML=''; el.dataset.open=''; return; }
+  el.dataset.open='1';
+  const coachOpts=coaches.filter(c=>c.user_id).map(c=>'<option value="'+c.user_id+'">'+esc((c.first_name||'')+' '+(c.last_name||''))+'</option>').join('');
+  const discOpts=DISC_ORDER.map(k=>'<option value="'+esc(DISC_LABEL[k])+'">'+esc(DISC_LABEL[k])+'</option>').join('');
+  el.innerHTML='<div class="app-card"><div class="kv">'
+    +'<div><div class="k">Coach</div><select id="m-coach">'+coachOpts+'</select></div>'
+    +'<div><div class="k">Discipline</div><select id="m-disc">'+discOpts+'</select></div>'
+    +'<div><div class="k">Type</div><select id="m-type"><option>Slides</option><option>Document</option><option>Video</option><option>Worksheet</option><option>Template</option><option>Other</option></select></div>'
+    +'<div><div class="k">Status</div><select id="m-status"><option value="published">Published</option><option value="draft">Draft</option></select></div>'
+    +'</div>'
+    +'<div style="margin-top:10px"><div class="k">Title</div><input id="m-title" type="text" placeholder="e.g. Brand Positioning — Session 1"></div>'
+    +'<div style="margin-top:10px"><div class="k">Source URL (Google Slides / Doc / Drive)</div><input id="m-url" type="url" placeholder="https://…"></div>'
+    +'<div style="margin-top:10px"><div class="k">…or upload a file</div><input id="m-file" type="file"></div>'
+    +'<div style="margin-top:14px;display:flex;gap:8px"><button class="btn-sm approve" id="m-save" onclick="saveMaterial()">Save material</button><button class="btn-sm reject" onclick="showAddMaterial()">Cancel</button></div></div>';
+}
+async function saveMaterial(){
+  const coach_id=document.getElementById('m-coach').value;
+  const discipline=document.getElementById('m-disc').value;
+  const title=document.getElementById('m-title').value.trim();
+  const type=document.getElementById('m-type').value;
+  const status=document.getElementById('m-status').value;
+  let source_url=document.getElementById('m-url').value.trim()||null;
+  const file=document.getElementById('m-file').files[0];
+  if(!coach_id){ showToast('Pick a coach with a login account','error'); return; }
+  if(!title){ showToast('Add a title','error'); return; }
+  const btn=document.getElementById('m-save'); btn.disabled=true; btn.textContent='Saving…';
+  try{
+    let file_path=null;
+    if(file){
+      const path=coach_id+'/'+Date.now()+'-'+file.name.replace(/[^a-zA-Z0-9._-]/g,'_');
+      const t=await _token();
+      const up=await fetch(SUPABASE_URL+'/storage/v1/object/course-materials/'+encodeURI(path),{method:'POST',headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t,'x-upsert':'true','Content-Type':file.type||'application/octet-stream'},body:file});
+      if(!up.ok) throw new Error('upload '+up.status); file_path=path;
+    }
+    const row=await _w('POST','course_materials','',{coach_id,title,discipline,module_type:type,format:type,source_url,file_path,status,is_active:true,created_at:new Date().toISOString(),updated_at:new Date().toISOString()});
+    if(row&&row[0]) materials.unshift(row[0]);
+    showToast('Material added','success'); renderCoaches(document.getElementById('search').value);
+  }catch(e){ showToast('Could not save — '+e.message,'error'); } finally{ btn.disabled=false; }
+}
+async function deleteMaterial(tbl,id){
+  if(!confirm('Delete this material?'))return;
+  try{ await _w('DELETE',tbl,'id=eq.'+id);
+    if(tbl==='course_materials') materials=materials.filter(m=>String(m.id)!==String(id)); else presentations=presentations.filter(p=>String(p.id)!==String(id));
+    showToast('Deleted','success'); renderCoaches(document.getElementById('search').value);
+  }catch(e){ showToast('Could not delete — '+e.message,'error'); }
+}
+async function openMaterial(path){
+  try{ const t=await _token();
+    const r=await fetch(SUPABASE_URL+'/storage/v1/object/sign/course-materials/'+encodeURI(path),{method:'POST',headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify({expiresIn:300})});
+    const j=await r.json(); if(j&&j.signedURL) window.open(SUPABASE_URL+'/storage/v1'+j.signedURL,'_blank'); else throw new Error('na');
+  }catch(e){ showToast('Could not open file','error'); }
+}
+
+function seatsOf(fid){ return invMembers.filter(m=>m.firm_id===fid); }
+// ── Investors: server-side paginated (unbounded table) ──
+async function loadInvestors(){
+  const q=searchVal();
+  let params='select=*&order=created_at.desc&limit='+PAGE+'&offset='+(iState.page*PAGE);
+  const sf=ilikeOr(['name','firm_type','contact_email'],q); if(sf) params+='&'+sf;
+  document.getElementById('roster').innerHTML='<div class="empty">Loading…</div>';
+  try{
+    const {rows,total}=await pagedFetch('investor_firms',params);
+    invFirms=rows; iState.total=total;
+    if(!iStatCounts){ iStatCounts={
+      approved: await countOnly('investor_firms','status=eq.approved'),
+      pending:  await countOnly('investor_firms','status=eq.pending'),
+      pub:      await countOnly('investor_firms','and=(status.eq.approved,public.eq.true)') }; }
+    stats([{v:iState.total,l:'Firms'},{v:iStatCounts.approved,l:'Approved'},{v:iStatCounts.pending,l:'Pending'},{v:iStatCounts.pub,l:'Public to founders'}]);
+    renderInvestorsList();
+  }catch(e){ document.getElementById('roster').innerHTML=tbl(['Firm'],[]); showToast('Could not load investors — '+e.message,'error'); }
+}
+function renderInvestorsList(){
+  const canInvite=isSuper()||hasR('investor_support')||hasR('finance');
+  const head='<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap">'
+    +'<div class="sub" style="max-width:560px">Investors are modelled as a <b>firm</b> (a solo angel = a firm of one) with member seats. Approve to publish their profile to founders who have unlocked investor visibility.</div>'
+    +(canInvite?'<button class="btn-sm approve" onclick="showInviteInvestor()">+ Invite an investor</button>':'')+'</div><div id="inv-invite-box"></div>';
+  document.getElementById('roster').innerHTML = head + (invFirms.length
+    ? invFirms.map(firmCard).join('')+pager(iState,'investorsPage')
+    : '<div class="tbl-wrap"><div class="empty">No investor firms found.</div></div>');
+}
+function showInviteInvestor(){
+  const el=document.getElementById('inv-invite-box'); if(!el) return;
+  if(el.dataset.open==='1'){ el.innerHTML=''; el.dataset.open=''; return; }
+  el.dataset.open='1';
+  const url=location.origin+'/beta/investor-onboarding.html';
+  el.innerHTML='<div class="app-card"><div style="font-family:var(--display);font-size:18px;font-weight:600;margin-bottom:4px">Invite an investor</div>'
+    +'<div class="sub" style="margin-bottom:10px">Share this onboarding link with a prospective investor. Their submission lands here for review and verification.</div>'
+    +'<div style="display:flex;gap:8px;align-items:center"><input id="inv-invite-url" value="'+esc(url)+'" readonly><button class="btn-sm approve" onclick="copyInvInvite()">Copy link</button></div></div>';
+}
+function copyInvInvite(){ const i=document.getElementById('inv-invite-url'); if(!i)return; i.select(); try{ navigator.clipboard.writeText(i.value); }catch(e){ try{document.execCommand('copy');}catch(_){} } showToast('Link copied','success'); }
+const FIRM_PILL={pending:'<span class="pill pill-ochre">Pending</span>',approved:'<span class="pill pill-green">Approved</span>',rejected:'<span class="pill pill-red">Rejected</span>'};
+function ticket(f){ if(!f.ticket_min&&!f.ticket_max) return ''; const c=f.currency||'USD'; const n=x=>x>=1e6?(x/1e6)+'M':x>=1e3?(x/1e3)+'k':x; return c+' '+(f.ticket_min?n(f.ticket_min):'')+(f.ticket_max?('–'+n(f.ticket_max)):'+'); }
+function firmCard(f){
+  const seats=seatsOf(f.id);
+  const seatRows=seats.length?seats.map(m=>'<div class="mat-row"><span>'+esc(m.name||m.email||'—')+(m.is_primary?' <span class="tag">primary</span>':'')+'</span><span class="sub">'+esc(m.email||'')+(m.user_id?'':' · no login yet')+'</span></div>').join(''):'<div class="sub">No seats.</div>';
+  const meta=[f.firm_type, (f.stages||[]).join('/'), ticket(f), (f.geographies||[]).join(', ')].filter(Boolean).join(' · ');
+  let actions='';
+  if(canInvestorMgmt()){
+    if(f.status!=='approved') actions='<div class="app-actions"><button class="btn-sm approve" onclick="approveFirm(\''+f.id+'\')">Approve &amp; publish</button><button class="btn-sm reject" onclick="rejectFirm(\''+f.id+'\')">Reject</button></div>';
+    else actions='<div class="app-actions"><button class="btn-sm" style="background:var(--ochre);color:#15161A" onclick="toggleFirmPublic(\''+f.id+'\','+(!f.public)+')">'+(f.public?'Unpublish':'Publish')+'</button></div>';
+  }
+  const logo=f.logo_url?'<img src="'+esc(f.logo_url)+'" alt="" style="width:34px;height:34px;object-fit:contain;border:1px solid var(--border);background:#fff;margin-right:10px;vertical-align:middle">':'';
+  return '<div class="app-card"><div class="app-head"><div style="display:flex;align-items:center">'+logo+'<div><span class="nm">'+esc(f.name)+'</span> '+(f.firm_type?'<span class="tag">'+esc(f.firm_type)+'</span>':'')+(f.public?'<span class="pill pill-green" style="margin-left:4px">Public</span>':'')+'</div></div>'+(FIRM_PILL[f.status]||'')+'</div>'
+    +(f.one_liner?'<div class="sub" style="margin-top:2px">'+esc(f.one_liner)+'</div>':'')
+    +(meta?'<div class="sub" style="margin-top:6px">'+esc(meta)+'</div>':'')
+    +(f.thesis?'<div style="font-size:12.5px;line-height:1.5;margin-top:8px">'+esc(f.thesis)+'</div>':'')
+    +(f.focus_sectors&&f.focus_sectors.length?'<div style="margin-top:8px">'+f.focus_sectors.map(s=>'<span class="tag">'+esc(s)+'</span>').join('')+'</div>':'')
+    +'<div class="dd"><div class="k" style="margin-bottom:6px">Accreditation & contact</div><div class="kv">'
+      +'<div><div class="k">Contact</div><div class="v">'+esc(f.contact_email||'—')+'</div></div>'
+      +'<div><div class="k">Phone</div><div class="v">'+esc(f.contact_phone||'—')+'</div></div>'
+      +(f.website_url?'<div><div class="k">Website</div><div class="v"><a class="deliv-link" href="'+esc(f.website_url)+'" target="_blank" style="color:var(--ochre-deep)">'+esc(f.website_url)+'</a></div></div>':'')
+      +(f.accreditation_note?'<div><div class="k">Accreditation</div><div class="v">'+esc(f.accreditation_note)+'</div></div>':'')
+    +'</div></div>'
+    +'<div class="section-title" style="margin:14px 0 6px;font-size:10px">Member seats</div>'+seatRows
+    +(f.admin_notes?'<div class="sub" style="margin-top:8px;color:var(--terra)"><b>Note:</b> '+esc(f.admin_notes)+'</div>':'')
+    +actions+'</div>';
+}
+async function approveFirm(id){
+  if(!confirm('Approve this investor firm and publish their profile to unlocked founders?'))return;
+  try{ await _rpc('approve_investor_firm',{p_firm:id,p_public:true});
+    iStatCounts=null; showToast('Firm approved & published','success'); loadInvestors();
+  }catch(e){ showToast('Could not approve — '+(e.message||'').replace(/^RPC \d+: /,''),'error'); }
+}
+async function rejectFirm(id){
+  const note=prompt('Reason (optional):')||null;
+  try{ await _w('PATCH','investor_firms','id=eq.'+id,{status:'rejected',public:false,admin_notes:note,updated_at:new Date().toISOString()});
+    iStatCounts=null; showToast('Firm rejected','success'); loadInvestors();
+  }catch(e){ showToast('Could not reject — '+e.message,'error'); }
+}
+async function toggleFirmPublic(id,next){
+  try{ await _w('PATCH','investor_firms','id=eq.'+id,{public:next,updated_at:new Date().toISOString()});
+    iStatCounts=null; showToast(next?'Published to founders':'Unpublished','success'); loadInvestors();
+  }catch(e){ showToast('Could not update — '+e.message,'error'); }
+}
+
+// ── Testimonials (ops: group approvals + oversight) ──
+let tstRows=[], tstFilter='new', tstLoaded=false;
+const TST_PHOTO_BASE=SUPABASE_URL+'/storage/v1/object/public/testimonial-photos/';
+function tstPhoto(p){ if(!p) return null; return /^https?:\/\//.test(p)?p:TST_PHOTO_BASE+p; }
+function tstTargetLabel(slug){ if(!slug||slug==='group') return 'Whole team'; const c=coaches.find(x=>x.slug===slug); return c?((c.first_name||'')+' '+(c.last_name||'')).trim():slug; }
+const TST_ST={'new':{l:'Pending',c:'#A6741F'},approved:{l:'Approved · live',c:'#0A8F64'},rejected:{l:'Declined',c:'#8A857C'},revoked:{l:'Revoked',c:'#8A857C'}};
+async function loadTestimonials(){
+  const host=document.getElementById('roster'); host.innerHTML='<div class="tbl-wrap"><div class="empty">Loading…</div></div>';
+  let params='select=*&order=created_at.desc&limit=500';
+  if(tstFilter!=='all') params+='&status=eq.'+tstFilter;
+  try{ tstRows=await _q('testimonial_submissions',params); tstLoaded=true; }
+  catch(e){ host.innerHTML='<div class="tbl-wrap"><div class="empty">Could not load — '+esc(e.message)+'</div></div>'; return; }
+  try{
+    const c=await Promise.all([
+      countOnly('testimonial_submissions',''),
+      countOnly('testimonial_submissions','status=eq.new'),
+      countOnly('testimonial_submissions','and=(status.eq.new,for_target.eq.group)'),
+      countOnly('testimonial_submissions','status=eq.approved')
+    ]);
+    stats([{v:c[0],l:'Total'},{v:c[1],l:'Pending'},{v:c[2],l:'Group to approve'},{v:c[3],l:'Live'}]);
+  }catch(_){}
+  renderTestimonials();
+}
+function tstFilterSet(f){ tstFilter=f; loadTestimonials(); }
+function renderTestimonials(){
+  const q=searchVal();
+  const rows=tstRows.filter(t=>match(q,t.name,t.company,t.role_title,t.testimonial,tstTargetLabel(t.for_target)));
+  const chips=[['new','Pending'],['approved','Live'],['rejected','Declined'],['revoked','Revoked'],['all','All']]
+    .map(c=>'<button class="seg'+(tstFilter===c[0]?' on':'')+'" onclick="tstFilterSet(\''+c[0]+'\')">'+c[1]+'</button>').join('');
+  const body = rows.length ? '<div class="tst-list">'+rows.map(tstItem).join('')+'</div>'
+                           : '<div class="tbl-wrap"><div class="empty">No testimonials in this view.</div></div>';
+  document.getElementById('roster').innerHTML='<div class="seg-row" style="margin-bottom:14px">'+chips+'</div>'+body;
+}
+function tstItem(t){
+  const ph=tstPhoto(t.photo_path);
+  const av=ph?'<img src="'+esc(ph)+'" loading="lazy" alt="" style="width:42px;height:42px;border-radius:50%;object-fit:cover;flex-shrink:0">'
+            :'<div class="tst-ini">'+esc((t.name||'?').slice(0,1))+'</div>';
+  const st=TST_ST[t.status]||TST_ST['new'];
+  const isGroup=(!t.for_target||t.for_target==='group');
+  const tgt='<span class="tst-tag'+(isGroup?' grp':'')+'">'+esc(tstTargetLabel(t.for_target))+'</span>';
+  const meta=[t.role_title,t.company].filter(Boolean).map(esc).join(' · ');
+  let act='';
+  if(t.status==='new') act='<button class="btn-sm approve" onclick="tstDecide(\''+t.id+'\',\'approved\')">Approve</button><button class="btn-sm reject" onclick="tstDecide(\''+t.id+'\',\'rejected\')">Decline</button>';
+  else if(t.status==='approved') act='<button class="btn-sm reject" onclick="tstDecide(\''+t.id+'\',\'revoked\')">Revoke</button>';
+  else act='<button class="btn-sm approve" onclick="tstDecide(\''+t.id+'\',\'approved\')">Approve</button>';
+  if(isSuper()) act+='<button class="btn-sm" style="border:1px solid var(--border-hi);background:none;color:#8A857C" onclick="tstDelete(\''+t.id+'\')">Delete</button>';
+  return '<div class="tst-item"><div style="display:flex;gap:12px;align-items:flex-start">'+av+
+    '<div style="flex:1;min-width:0"><div style="display:flex;gap:8px;flex-wrap:wrap;align-items:baseline">'+
+      '<strong>'+esc(t.name)+'</strong>'+(meta?'<span style="color:var(--muted);font-size:12px">'+meta+'</span>':'')+tgt+
+      '<span style="margin-left:auto;font-family:var(--sans);font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:'+st.c+'">'+st.l+'</span></div>'+
+      (t.rating?'<div style="color:#C9923A;font-size:13px;letter-spacing:2px;margin-top:5px" title="'+t.rating+' / 5">'+'★'.repeat(t.rating)+'<span style="color:var(--border-hi,#bbb)">'+'★'.repeat(5-t.rating)+'</span></div>':'')+
+      '<div style="margin:7px 0 0;color:var(--ink-mid);line-height:1.55;font-size:13px">“'+esc(t.testimonial)+'”</div>'+
+      '<div style="margin-top:10px;display:flex;gap:7px;flex-wrap:wrap">'+act+'</div>'+
+    '</div></div></div>';
+}
+async function tstDecide(id,status){
+  try{ await _w('PATCH','testimonial_submissions','id=eq.'+encodeURIComponent(id),{status}); }
+  catch(e){ showToast('Update failed — '+e.message,'error'); return; }
+  showToast(status==='approved'?'Approved — live on the wall':status==='rejected'?'Declined':status==='revoked'?'Revoked':'Updated','success');
+  loadTestimonials();
+}
+async function tstDelete(id){
+  if(!confirm('Permanently delete this testimonial submission?')) return;
+  try{ await _w('DELETE','testimonial_submissions','id=eq.'+encodeURIComponent(id)); }
+  catch(e){ showToast('Delete failed — '+e.message,'error'); return; }
+  showToast('Deleted','success'); loadTestimonials();
+}
+let staffDir=null;
+async function loadStaffDir(){ try{ staffDir=await _rpc('staff_directory')||[]; }catch(e){ staffDir=[]; } renderAdmins(document.getElementById('search').value); }
+function renderAdmins(q){
+  if(staffDir===null){ document.getElementById('roster').innerHTML='<div class="empty">Loading…</div>'; loadStaffDir(); return; }
+  const all=staffDir;
+  const cnt=role=>all.filter(s=>(s.roles||[]).includes(role)).length;
+  stats([{v:cnt('admin'),l:'Super admins'},{v:cnt('finance'),l:'Finance'},{v:cnt('coach_support')+cnt('investor_support')+cnt('founder_support'),l:'Support staff'},{v:cnt('hub_partner'),l:'Hub partners'}]);
+  const grant = isSuper() ? '<div class="app-card"><div style="font-family:var(--display);font-size:18px;font-weight:600;margin-bottom:6px">Invite &amp; grant a staff member</div>'
+    +'<div class="sub" style="margin-bottom:10px">Enter their <b>@founderssprint.co</b> email and role. We create the account if needed and email a secure set-password link. Granting/revoking is super-admin only.</div>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center"><input id="gr-email" type="email" placeholder="name@founderssprint.co" style="flex:1;min-width:200px">'
+    +'<select id="gr-role" style="width:auto">'+STAFF_ROLES.map(r=>'<option value="'+r+'">'+ROLE_LABEL[r]+'</option>').join('')+'</select>'
+    +'<button class="btn-sm approve" id="gr-btn" onclick="inviteStaff()">Invite &amp; grant</button></div></div>' : '';
+  const rows=all.filter(s=>match(q,s.email,(s.roles||[]).join(' '))).map(s=>{
+    const chips=(s.roles||[]).map(r=>'<span class="tag'+(r==='admin'?' lead':'')+'">'+esc(ROLE_LABEL[r]||r)
+      +(isSuper()?' <a href="#" title="Revoke" onclick="revokeRole(\''+s.user_id+'\',\''+r+'\');return false" style="color:#C0392B;text-decoration:none;font-weight:700">×</a>':'')+'</span>').join('');
+    const off=isSuper()?'<a href="#" title="Disable account" onclick="disableStaff(\''+s.user_id+'\',\''+esc(s.email||'')+'\');return false" style="color:#C0392B;font-size:11px;text-decoration:none">Disable</a>':'';
+    return '<tr class="row"><td><div class="nm">'+esc(s.email||'—')+'</div></td><td>'+chips+'</td><td style="text-align:right">'+off+'</td></tr>';
+  });
+  document.getElementById('roster').innerHTML = grant
+    + '<div id="presence-panel" style="margin:6px 0 18px"></div>'
+    + tbl(['Account','Roles',''],rows)
+    + '<div class="page-sub" style="margin-top:16px;font-size:12.5px"><b>What each role can do:</b> <b>Super admin</b> — everything, incl. role management. <b>Finance</b> — payments/pricing, sees payout/bank, final coach approval. <b>Coach support</b> — coaches, applications (suitability only), materials. <b>Investor support</b> — investors. <b>Founder support</b> — founder accounts. <b>Partner</b> — partner cohorts.</div>'
+    + '<div id="search-gaps" style="margin-top:24px"></div>'
+    + '<div id="provider-activation" style="margin-top:24px"></div>'
+    + '<div id="audit-feed" style="margin-top:22px"></div>';
+  paintPresence(); loadAudit(); loadSearchGaps(); loadProviderActivation();
+}
+async function loadProviderActivation(){
+  const el=document.getElementById('provider-activation'); if(!el||!isSuper()) return;
+  let rows=[]; try{ rows=await _rpc('provider_activation',{p_days:30})||[]; }catch(_){ el.innerHTML=''; return; }
+  const head='<div style="display:flex;justify-content:space-between;align-items:baseline;gap:14px;margin-bottom:8px;flex-wrap:wrap">'
+    +'<div style="font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-mid)">Provider activation · last 30 days</div>'
+    +'<div style="font-size:11.5px;color:var(--muted);max-width:540px">Directory placements shown inside course decks — impressions, click-throughs and CTR per provider. This is the pay-per-introduction billing basis.</div></div>';
+  if(!rows.length){ el.innerHTML=head+'<div class="tbl-wrap"><div class="empty">No deck provider activity yet.</div></div>'; return; }
+  const body=rows.map(r=>{
+    const imp=Number(r.impressions)||0, clk=Number(r.clicks)||0;
+    const ctr=imp>0?Math.round(clk/imp*100):0;
+    const when=r.last_seen?new Date(r.last_seen).toLocaleDateString():'';
+    const tier='<span class="tst-tag'+(r.tier==='featured'?' grp':'')+'">'+esc(r.tier||'—')+'</span>';
+    return '<tr class="row"><td><div class="nm">'+esc(r.company_name||'—')+'</div></td>'
+      +'<td style="color:var(--muted)">'+esc(r.category||'—')+'</td>'
+      +'<td>'+tier+'</td>'
+      +'<td style="text-align:center">'+imp+'</td>'
+      +'<td style="text-align:center">'+clk+'</td>'
+      +'<td style="text-align:center">'+ctr+'%</td>'
+      +'<td style="text-align:right;color:var(--muted);white-space:nowrap">'+when+'</td></tr>';
+  });
+  el.innerHTML=head+tbl(['Provider','Category','Tier','Impressions','Clicks','CTR','Last seen'],body);
+}
+async function loadSearchGaps(){
+  const el=document.getElementById('search-gaps'); if(!el||!isSuper()) return;
+  let rows=[]; try{ rows=await _rpc('search_gaps',{p_days:30,p_limit:60,p_threshold:5})||[]; }catch(_){ el.innerHTML=''; return; }
+  const head='<div style="display:flex;justify-content:space-between;align-items:baseline;gap:14px;margin-bottom:8px;flex-wrap:wrap">'
+    +'<div style="font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-mid)">Search gaps · last 30 days</div>'
+    +'<div style="font-size:11.5px;color:var(--muted);max-width:540px">What founders searched on the discovery page that returned nothing or only a weak match — the keyword / taxonomy to-do list.</div></div>';
+  if(!rows.length){ el.innerHTML=head+'<div class="tbl-wrap"><div class="empty">No search gaps logged yet.</div></div>'; return; }
+  const body=rows.map(r=>{
+    const when=r.last_seen?new Date(r.last_seen).toLocaleDateString():'';
+    const signal=(r.no_result_hits>0)
+      ? '<span class="tst-tag grp">no result</span>'
+      : '<span class="tst-tag">weak'+(r.avg_top_score!=null?(' · '+r.avg_top_score):'')+'</span>';
+    return '<tr class="row"><td><div class="nm">'+esc(r.query)+'</div></td>'
+      +'<td style="text-align:center">'+r.hits+'</td>'
+      +'<td>'+signal+'</td>'
+      +'<td style="color:var(--muted)">'+(r.sample_top_node?esc(r.sample_top_node):'—')+'</td>'
+      +'<td style="text-align:right;color:var(--muted);white-space:nowrap">'+when+'</td></tr>';
+  });
+  el.innerHTML=head+tbl(['Query','Searches','Signal','Closest match','Last seen'],body);
+}
+async function inviteStaff(){
+  const email=document.getElementById('gr-email').value.trim(); const role=document.getElementById('gr-role').value;
+  if(!email){ showToast('Enter a company email','error'); return; }
+  const btn=document.getElementById('gr-btn'); if(btn){ btn.disabled=true; btn.textContent='Sending…'; }
+  try{
+    const t=await _token();
+    const r=await fetch(API_BASE+'/api/staff/invite',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+t},body:JSON.stringify({email,roles:[role]})});
+    const j=await r.json().catch(()=>({})); if(!r.ok) throw new Error(j.error||('HTTP '+r.status));
+    showToast(j.created?'Invite sent — account created':'Access updated — email sent','success');
+    staffDir=null; renderAdmins('');
+  }catch(e){ showToast('Could not invite — '+e.message,'error'); }
+  finally{ const b=document.getElementById('gr-btn'); if(b){ b.disabled=false; b.textContent='Invite & grant'; } }
+}
+async function disableStaff(uid,email){
+  if(!confirm('Disable '+(email||'this account')+'?\nThis revokes all roles and bans the login. Reversible by re-inviting.'))return;
+  try{
+    const t=await _token();
+    const r=await fetch(API_BASE+'/api/staff/disable',{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+t},body:JSON.stringify({user_id:uid})});
+    const j=await r.json().catch(()=>({})); if(!r.ok) throw new Error(j.error||('HTTP '+r.status));
+    showToast('Account disabled','success'); staffDir=null; renderAdmins('');
+  }catch(e){ showToast('Could not disable — '+e.message,'error'); }
+}
+let presenceRoster=[], _presTimer=null;
+async function pollPresence(){ try{ presenceRoster=await _rpc('staff_presence_roster')||[]; }catch(_){ } paintPresence(); }
+function paintPresence(){
+  const el=document.getElementById('presence-panel'); if(!el) return;
+  const on=presenceRoster.filter(p=>p.online), off=presenceRoster.filter(p=>!p.online).slice(0,8);
+  const dot=c=>'<span style="display:inline-block;width:8px;height:8px;border-radius:50%;background:'+c+';margin-right:7px;vertical-align:middle"></span>';
+  const chip=p=>'<span style="display:inline-flex;align-items:center;padding:6px 11px;border:1px solid var(--border);font-size:12.5px;margin:0 6px 6px 0">'
+    +dot(p.online?'#5BBE8B':'#9a948a')+'<b style="font-weight:600">'+esc((p.email||'').split('@')[0])+'</b>'
+    +'<span style="color:var(--muted);margin-left:7px">'+esc((p.roles||[]).map(r=>ROLE_LABEL[r]||r).join(', '))+'</span>'
+    +'<span style="color:var(--muted);margin-left:7px">· '+(p.online?'online':esc(ago(p.last_seen_at)))+'</span></span>';
+  el.innerHTML='<div class="app-card" style="padding:14px 16px"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:'+((on.length||off.length)?'10px':'0')+'">'
+    +'<div style="font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-mid)">Who&rsquo;s online'+(on.length?' · '+on.length:'')+'</div>'
+    +'<div style="font-size:11px;color:var(--muted)">live · 25s refresh</div></div>'
+    +((on.length||off.length)?('<div>'+on.map(chip).join('')+off.map(chip).join('')+'</div>'):'<div class="sub">No staff active right now.</div>')+'</div>';
+}
+async function loadAudit(){
+  const el=document.getElementById('audit-feed'); if(!el||!isSuper()) return;
+  let rows=[]; try{ rows=await _q('audit_log','select=actor_email,action,target_email,role,created_at&order=created_at.desc&limit=25')||[]; }catch(_){ return; }
+  const verb={'role.grant':'granted','role.revoke':'revoked','staff.invite':'invited','staff.disable':'disabled'};
+  const body=rows.length?rows.map(a=>'<tr class="row"><td style="white-space:nowrap;color:var(--muted);font-size:12px">'+esc(ago(a.created_at))+'</td>'
+    +'<td style="font-size:12.5px"><b>'+esc((a.actor_email||'').split('@')[0])+'</b> '+(verb[a.action]||esc(a.action))
+    +(a.role?' <span class="tag">'+esc(ROLE_LABEL[a.role]||a.role)+'</span>':'')
+    +(a.target_email?' → '+esc(a.target_email):'')+'</td></tr>').join(''):'<tr><td colspan="2" class="sub" style="padding:8px">No activity logged yet.</td></tr>';
+  el.innerHTML='<div style="font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-mid);margin-bottom:8px">Recent admin activity</div>'+tbl(['When','Action'],[body]);
+}
+function startPresence(){
+  const ping=()=>{ if(document.visibilityState==='visible') _rpc('presence_ping',{p_page:'Command Centre'}).catch(()=>{}); };
+  ping(); setInterval(ping,30000);
+  document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible') ping(); });
+  pollPresence(); if(_presTimer) clearInterval(_presTimer); _presTimer=setInterval(pollPresence,25000);
+}
+async function revokeRole(uid,role){
+  if(!confirm('Revoke '+(ROLE_LABEL[role]||role)+'?'))return;
+  try{ await _rpc('admin_revoke_role',{p_user:uid,p_role:role}); showToast('Role revoked','success'); staffDir=null; renderAdmins(''); }
+  catch(e){ showToast('Could not revoke — '+(e.message||'').replace(/^RPC \d+: /,''),'error'); }
+}
+
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function showToast(m,t){const e=document.getElementById('toast');e.textContent=m;e.className=t||'';e.classList.add('show');setTimeout(()=>e.classList.remove('show'),3200);}
+</script>
+<script>
+/* Super-admin portal switcher — self-contained, mounts only for platform admins. */
+(function(){
+  var PAGES=[['dashboard.html','Ops Dashboard'],['admin-portals.html','Command Centre'],['coach.html','Coach'],['founder.html','Founder'],['investor.html','Investor']];
+  var curr=(location.pathname.split('/').pop()||''), wrap, menu, shown=false;
+  function build(){
+    wrap=document.createElement('div'); wrap.id='psw'; wrap.style.cssText='position:relative;display:inline-block;margin-right:12px;vertical-align:middle';
+    var btn=document.createElement('button'); btn.textContent='⇄ Portals';
+    btn.style.cssText='background:#C9923A;color:#15161A;border:none;padding:8px 13px;font-family:inherit;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;cursor:pointer;border-radius:2px';
+    menu=document.createElement('div'); menu.style.cssText='display:none;position:absolute;top:40px;right:0;background:#1A1C22;border:1px solid #2A2C33;min-width:180px;z-index:1000;padding:6px 0;box-shadow:0 10px 30px rgba(0,0,0,.35)';
+    menu.innerHTML=PAGES.filter(function(p){return p[0]!==curr;}).map(function(p){return '<a href="/'+p[0]+'" style="display:block;padding:9px 16px;color:#EDE7DA;font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;text-decoration:none;font-family:sans-serif">'+p[1]+'</a>';}).join('');
+    btn.onclick=function(e){ e.stopPropagation(); menu.style.display=menu.style.display==='none'?'block':'none'; };
+    wrap.appendChild(btn); wrap.appendChild(menu);
+    document.addEventListener('click',function(e){ if(wrap && !wrap.contains(e.target)) menu.style.display='none'; });
+  }
+  function mount(){
+    if(shown) return; if(!wrap) build();
+    var host=document.querySelector('.topbar-right')||document.querySelector('.topbar-right, .topbar')||null;
+    if(host){ host.insertBefore(wrap, host.firstChild); }
+    else { wrap.style.cssText='position:fixed;top:12px;right:130px;z-index:2000'; document.body.appendChild(wrap); }
+    shown=true;
+  }
+  function init(){
+    if(typeof sb==='undefined' || !sb || !sb.auth){ return setTimeout(init,400); }
+    sb.auth.getUser().then(function(r){
+      var u=r&&r.data&&r.data.user; if(!u) return;
+      sb.from('user_roles').select('role').eq('user_id',u.id).eq('role','admin').limit(1).then(function(res){
+        if(res && res.data && res.data.length) mount();
+      });
+    }).catch(function(){});
+  }
+  setTimeout(init,700);
+})();
+</script>
+</body>
+</html>

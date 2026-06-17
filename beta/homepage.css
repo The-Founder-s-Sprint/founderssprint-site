@@ -474,6 +474,7 @@ section.problem { padding: 88px 0; }
   cursor: pointer;
   position: relative;
   transition: background 240ms;
+  text-decoration: none; color: inherit; display: block;
 }
 .method .week:hover { background: #1a1612; }
 .method .week::before {
@@ -514,6 +515,14 @@ section.problem { padding: 88px 0; }
   padding-top: 16px; border-top: 1px dashed var(--line-d);
 }
 .method .week .w-deliv b { color: var(--paper); font-weight: 500; }
+.method .week .w-go {
+  margin-top: 18px;
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--c, var(--terra)); opacity: 0.78; transition: opacity 200ms;
+}
+.method .week:hover .w-go { opacity: 1; }
+.method .week .w-go .ar { display: inline-block; transition: transform 200ms; }
+.method .week:hover .w-go .ar { transform: translateX(4px); }
 .method .week.c-terra { --c: var(--terra); }
 .method .week.c-ochre { --c: var(--ochre); }
 .method .week.c-sage  { --c: var(--sage); }
@@ -542,6 +551,7 @@ section.problem { padding: 88px 0; }
 }
 .coach-card .frame {
   position: relative; aspect-ratio: 3/4; overflow: hidden;
+  border-radius: 0 0 24px 0;
   background: linear-gradient(155deg, var(--c, var(--terra)) 0%, #2a2218 100%);
 }
 .coach-card .frame svg {
