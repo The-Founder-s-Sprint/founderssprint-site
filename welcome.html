@@ -60,7 +60,8 @@
   .body strong{color:var(--paper);font-weight:600;}
 
   /* entrance stagger for active slide content */
-  .slide.active .reveal{animation:rise .55s cubic-bezier(.25,1,.5,1) both;}
+  .reveal{opacity:1;}
+  .slide.active .reveal{animation:rise .55s cubic-bezier(.25,1,.5,1) backwards;}
   .slide.active .reveal:nth-child(1){animation-delay:.05s;}
   .slide.active .reveal:nth-child(2){animation-delay:.13s;}
   .slide.active .reveal:nth-child(3){animation-delay:.21s;}
@@ -150,7 +151,7 @@
   <main class="deck" id="deck">
 
     <!-- 1 · Welcome -->
-    <section class="slide" data-i="0">
+    <section class="slide active" data-i="0">
       <div class="slide-inner">
         <div class="eyebrow reveal">Welcome to The Founder's Sprint</div>
         <h1 class="reveal" id="hero-title">Welcome.</h1>
@@ -286,9 +287,7 @@ async function boot(user){
   if(booted||!user) return; booted=true;
   document.getElementById('app').style.display='block';
   document.getElementById('user-email').textContent = user.email;
-  renderWeek();
   startConstellation();
-  initDeck();
 
   let first='', paid=false;
   try {
@@ -394,6 +393,11 @@ function startConstellation(){
   size(); window.addEventListener('resize',size);
   if(reduce) frame(0); else requestAnimationFrame(frame);
 }
+
+// Initialise the deck immediately, independent of auth, so navigation always works
+// even if the session check is slow. boot() only reveals #app + fills name/paid/constellation.
+renderWeek();
+initDeck();
 </script>
 </body>
 </html>
