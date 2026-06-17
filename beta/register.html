@@ -478,6 +478,7 @@
           firstName,
           lastName,
           email,
+          password,        // server creates the founder login account (auto-confirmed)
           whatsapp,
           businessName,
           sector,
@@ -495,27 +496,9 @@
 
     const { registrationId, depositAmount } = regResult;
 
-    // ── Step 1b: Create founder dashboard account (Supabase Auth) ─────────────
-    // Non-blocking: if this fails (e.g. email already registered), the registration
-    // and payment still proceed. The founder can reset their password later.
-    btn.textContent = 'Creating your dashboard…';
-    try {
-      const suResp = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
-        method:  'POST',
-        headers: { 'apikey': SUPABASE_ANON, 'Content-Type': 'application/json' },
-        body:    JSON.stringify({
-          email,
-          password,
-          data: { first_name: firstName, last_name: lastName, phone: whatsapp, company: businessName, sector },
-        }),
-      });
-      const suData = await suResp.json();
-      if (!suResp.ok && !(suData.msg || '').toLowerCase().includes('already')) {
-        console.warn('[Auth] signup non-fatal error:', suData.msg || suData.error_description);
-      }
-    } catch (suErr) {
-      console.warn('[Auth] signup request failed (non-fatal):', suErr);
-    }
+    // ── Step 1b: The founder login account is now created server-side by
+    // /api/register (service role, auto-confirmed) so it can't be silently
+    // rate-limited and the founder can sign in immediately. No client-side signup.
 
     // ── Step 2: Initiate mobile money payment ────────────────────────────────
     btn.textContent = 'Sending payment prompt…';
@@ -547,7 +530,7 @@
           `<strong>Check your ${network} phone!</strong><br><br>
           A payment prompt of <strong>UGX ${depositAmount?.toLocaleString()}</strong> has been sent to <strong>${paymentPhone}</strong>.<br><br>
           Enter your mobile money PIN to confirm your deposit. A confirmation email will follow automatically.<br><br>
-          <strong>Your founder account is ready.</strong> Confirm your email if prompted, then sign in at <a href="/welcome.html">founderssprint.co/welcome.html</a> with your email and the password you just set — it'll walk you through getting started.<br><br>
+          <strong>Your founder account is ready.</strong> Sign in any time at <a href="/login-founder.html">founderssprint.co/login-founder.html</a> with your email and the password you just set.<br><br>
           <em>Registration ID: #${registrationId}</em>`,
           'success'
         );
