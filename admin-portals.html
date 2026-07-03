@@ -431,10 +431,17 @@ function renderMentors(){
     const ctrl = su
       ? '<select class="m-sel" style="font-size:12px;padding:6px 26px 6px 9px" onchange="setReqStatus(\''+r.id+'\',this.value)">'+MREQ_STATUS.map(s=>'<option value="'+s+'"'+(s===r.status?' selected':'')+'>'+s+'</option>').join('')+'</select>'
       : pill(r.status);
+    const pstat = r.payment_status || 'unpaid';
+    const canCharge = canDD() && (pstat==='unpaid' || pstat==='failed') && r.founder_phone;
+    const payCell = pill(pstat)
+      + (canCharge ? '<div style="margin-top:6px"><button class="btn-sm" style="background:var(--terra);border:none;color:#fff;padding:5px 10px;text-transform:none;letter-spacing:0;font-size:11px" onclick="chargeMentorRequest(\''+r.id+'\')">Approve &amp; charge</button></div>' : '')
+      + (pstat==='pending' ? '<div class="sub" style="margin-top:3px">prompt sent — awaiting PIN</div>' : '')
+      + (pstat==='paid' && r.paid_at ? '<div class="sub" style="margin-top:3px">paid '+ago(r.paid_at)+'</div>' : '');
     return '<tr><td>'+esc(r.founder_name||'—')+'<div class="sub">'+esc(r.founder_email||'')+(r.founder_phone?(' · '+esc(r.founder_phone)):'')+(r.founder_company?('<br>'+esc(r.founder_company)):'')+'</div></td>'
       +'<td>'+esc(mName(r.mentor_id))+'</td>'
       +'<td>'+esc(r.format||'—')+'</td>'
       +'<td>'+mMoney(r.quoted_fee)+'</td>'
+      +'<td>'+payCell+'</td>'
       +(r.message?'<td class="sub" style="max-width:240px">'+esc(r.message)+'</td>':'<td class="sub">—</td>')
       +'<td>'+ctrl+'</td>'
       +'<td class="sub">'+ago(r.created_at)+'</td></tr>';
@@ -530,7 +537,7 @@ function renderMentors(){
     + onboard
     + recSection
     + '<h3 style="'+H+';margin:24px 0 10px">Booking requests</h3>'
-    + tbl(['Founder','Mentor','Format','Quoted fee','Message','Status','When'], reqRows)
+    + tbl(['Founder','Mentor','Format','Quoted fee','Payment','Message','Status','When'], reqRows)
     + '<div style="display:flex;align-items:center;justify-content:space-between;margin:26px 0 10px"><h3 style="'+H+'">Mentor roster</h3>'+addBtn+'</div>'
     + tbl(['Mentor','Formats','Coffee','Zoom','Status','Actions'], mRows);
 }
@@ -655,6 +662,20 @@ async function resendMentorInvite(appId){
     if(out) out.innerHTML='<input readonly value="'+esc(link)+'" onclick="this.select()" style="width:100%;margin-top:6px;padding:8px 10px;border:1px solid var(--terra);background:rgba(200,83,31,.05);font-family:monospace;font-size:11px">';
     showToast('Fresh invite link generated for '+email,'success');
   }catch(e){ showToast('Resend failed — '+e.message,'error'); }
+}
+async function chargeMentorRequest(id){
+  const r=mentorReqs.find(x=>x.id===id); if(!r) return;
+  if(!(await fsConfirm('Send a mobile-money prompt to '+esc(r.founder_name||'the founder')+' for '+mMoney(r.quoted_fee)+'? They approve it on their phone to pay in full.',{title:'Approve & charge',okText:'Send prompt'}))) return;
+  try{
+    const t=await _token();
+    const res=await fetch(API_BASE+'/api/mentor/charge',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+t},body:JSON.stringify({requestId:id})});
+    const data=await res.json().catch(()=>({}));
+    if(!res.ok) throw new Error(data.error||'Charge failed');
+    const rr=mentorReqs.find(x=>x.id===id); if(rr) rr.payment_status='pending';
+    showToast('Payment prompt sent to '+(r.founder_phone||'the founder')+' — confirmation is automatic','success');
+    renderMentors();
+    setTimeout(loadMentors, 8000);   // pick up the webhook confirmation shortly after
+  }catch(e){ showToast('Charge failed — '+e.message,'error'); }
 }
 async function setRecStatus(id,status){
   try{ await _w('PATCH','mentor_recommendations','id=eq.'+id,{status});

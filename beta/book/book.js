@@ -62,9 +62,10 @@
   // `max` = number of L3 specialties this tier includes.
   // single = 1 · pick3 = 3 · cohort = every L3 (the whole programme).
   const TIER_DATA = {
-    single: { name: 'One-on-One Coaching',  price: 500000,   priceLabel: 'UGX 500,000',   max: 1,               shortPrice: 'UGX 500K' },
-    pick3:  { name: 'Pick 3 Bundle',        price: 1000000,  priceLabel: 'UGX 1,000,000', max: 3,               shortPrice: 'UGX 1M' },
-    cohort: { name: 'Full Cohort',          price: 2500000,  priceLabel: 'UGX 2,500,000', max: ALL_SPECS.length, shortPrice: 'UGX 2.5M' },
+    single:  { name: 'One-on-One Coaching', price: 500000,   priceLabel: 'UGX 500,000',   max: 1,                shortPrice: 'UGX 500K' },
+    pick3:   { name: 'Pick 3 Bundle',       price: 1000000,  priceLabel: 'UGX 1,000,000', max: 3,                shortPrice: 'UGX 1M' },
+    cohort:  { name: 'Full Cohort',         price: 2500000,  priceLabel: 'UGX 2,500,000', max: ALL_SPECS.length, shortPrice: 'UGX 2.5M' },
+    vip1on1: { name: 'VIP 1-on-1',          price: 5000000,  priceLabel: 'UGX 5,000,000', max: 0,                shortPrice: 'UGX 5M' },
   };
 
   const DISC_NAMES = {
@@ -414,8 +415,19 @@
     const tier = state.tier;
     const discPanel = $('#config-disciplines');
     const cohortPanel = $('#config-cohort');
+    const vipPanel = $('#config-vip');
+    if (vipPanel) vipPanel.style.display = 'none';
 
-    if (tier === 'cohort') {
+    if (tier === 'vip1on1') {
+      discPanel.style.display = 'none';
+      cohortPanel.style.display = 'none';
+      if (vipPanel) vipPanel.style.display = 'block';
+      $('#config-title').textContent = 'Your VIP engagement';
+      $('#config-sub').textContent = 'Private, dedicated coaching across all five disciplines — tailored to you.';
+      state.specialties = [];
+      state.disciplines = [];
+      updateStep3Button();
+    } else if (tier === 'cohort') {
       discPanel.style.display = 'none';
       cohortPanel.style.display = 'block';
       $('#config-title').textContent = 'Choose your cohort';
@@ -537,7 +549,9 @@
 
   function updateStep3Button() {
     const btn = $('#btn-next-3');
-    if (state.tier === 'cohort') {
+    if (state.tier === 'vip1on1') {
+      btn.disabled = false;   // VIP is a tailored package — nothing to select
+    } else if (state.tier === 'cohort') {
       btn.disabled = !state.cohort;
     } else {
       const max = TIER_DATA[state.tier].max;
@@ -567,6 +581,12 @@
       tag.className = 'review-disc-tag';
       tag.textContent = 'All ' + ALL_SPECS.length + ' specialties · 5 disciplines';
       discContainer.appendChild(tag);
+    } else if (state.tier === 'vip1on1') {
+      const tag = document.createElement('span');
+      tag.className = 'review-disc-tag';
+      tag.textContent = 'Private VIP · all 5 disciplines, 1-on-1';
+      discContainer.appendChild(tag);
+      const hint = $('#review-track-hint'); if (hint) hint.style.display = 'none';
     } else {
       state.specialties.forEach(slug => {
         const s = TAX && TAX.get(slug);
