@@ -12,6 +12,7 @@
   // ============================================================
   const COL_PAPER = '#efe7d8';
   const COL_INK   = '#1a1a1a';
+  const COL_INK2  = '#0f0d0a';   // deeper ink — chevron label plate fill
 
   // ============================================================
   //   MOBILE GATE
@@ -269,15 +270,15 @@
   //   AVAILABILITY DATA (placeholder — will come from API)
   // ============================================================
   const ONETOONE_SLOTS = [
-    { date: 'Mon 14 Jul', time: '10:00 – 12:00 EAT', dur: '2 hr' },
-    { date: 'Wed 16 Jul', time: '14:00 – 16:00 EAT', dur: '2 hr' },
-    { date: 'Fri 18 Jul', time: '09:00 – 11:00 EAT', dur: '2 hr' },
-    { date: 'Mon 21 Jul', time: '10:00 – 12:00 EAT', dur: '2 hr' },
+    { date: 'Mon 7 Sep', time: '10:00 – 12:00 EAT', dur: '2 hr' },
+    { date: 'Wed 9 Sep', time: '14:00 – 16:00 EAT', dur: '2 hr' },
+    { date: 'Fri 11 Sep', time: '09:00 – 11:00 EAT', dur: '2 hr' },
+    { date: 'Mon 14 Sep', time: '10:00 – 12:00 EAT', dur: '2 hr' },
   ];
   const COHORT_SCHEDULE = [
-    { label: 'Cohort A',  dates: '6 Jul – 3 Aug 2026',  seats: 0,  status: 'full' },
-    { label: 'Cohort B',  dates: '10 Aug – 7 Sep 2026', seats: 4,  status: 'open' },
-    { label: 'Cohort C',  dates: '14 Sep – 12 Oct 2026',seats: 12, status: 'open' },
+    { label: 'Cohort A',  dates: '7 Sep – 9 Oct 2026',   seats: 9,  status: 'open' },
+    { label: 'Cohort B',  dates: '12 Oct – 13 Nov 2026', seats: 12, status: 'open' },
+    { label: 'Cohort C',  dates: '16 Nov – 18 Dec 2026', seats: 12, status: 'open' },
   ];
 
   // ============================================================
@@ -660,6 +661,7 @@
     dragging: false,
     lastDragX: 0,
     searchQuery: '',
+    highlightLevel: null,  // 1|2|3 — legend click "lights up" all nodes of that tier
     lastInteraction: 0,  // timestamp of last node click/hover — auto-reset after 12s
   };
   window.__constellation = { state, TAXONOMY, COACHES };
@@ -763,12 +765,27 @@
     return e;
   }
 
-  // ---------- Atmospheric haze orbs ----------
+  // ---------- Atmospheric cloud cover ----------
+  // Layered volumetric haze for depth (matches the brand-nebula mood:
+  // terracotta upper-left, ochre upper-right, sage/moss lower, with a
+  // warm accretion core, cool far banks and a faint dust band). `depth`
+  // scales the yaw-parallax so the constellation visibly turns THROUGH
+  // the clouds; `dur` is the slow self-drift period. Bigger soft blooms
+  // sit behind, smaller crisper ones in front.
   const HAZE_ORBS = [
-    { grad: 'g-orb-terra', x: 0.20, y: 0.30, r: 360, dur: 38, phase: 0   },
-    { grad: 'g-orb-ochre', x: 0.78, y: 0.22, r: 320, dur: 44, phase: 1.7 },
-    { grad: 'g-orb-sage',  x: 0.82, y: 0.72, r: 380, dur: 52, phase: 0.6 },
-    { grad: 'g-orb-moss',  x: 0.18, y: 0.78, r: 340, dur: 46, phase: 2.3 },
+    // far depth banks (slow, big, weak parallax — read as distant)
+    { grad: 'g-cloud-far',   x: 0.30, y: 0.18, r: 620, dur: 72, phase: 0.9, depth: 0.18, op: 0.85 },
+    { grad: 'g-cloud-far',   x: 0.74, y: 0.84, r: 660, dur: 84, phase: 2.6, depth: 0.18, op: 0.80 },
+    // warm accretion core behind the mark
+    { grad: 'g-cloud-core',  x: 0.50, y: 0.52, r: 540, dur: 60, phase: 1.2, depth: 0.10, op: 0.9  },
+    // brand corner blooms (mid layer)
+    { grad: 'g-orb-terra',   x: 0.20, y: 0.30, r: 360, dur: 38, phase: 0,   depth: 0.42, op: 0.9  },
+    { grad: 'g-orb-ochre',   x: 0.78, y: 0.22, r: 320, dur: 44, phase: 1.7, depth: 0.42, op: 0.9  },
+    { grad: 'g-orb-sage',    x: 0.82, y: 0.72, r: 380, dur: 52, phase: 0.6, depth: 0.42, op: 0.9  },
+    { grad: 'g-orb-moss',    x: 0.18, y: 0.78, r: 340, dur: 46, phase: 2.3, depth: 0.42, op: 0.9  },
+    // faint near dust band (fast parallax — reads as foreground haze)
+    { grad: 'g-cloud-dust',  x: 0.42, y: 0.62, r: 300, dur: 33, phase: 3.1, depth: 0.70, op: 0.9  },
+    { grad: 'g-cloud-dust',  x: 0.62, y: 0.38, r: 280, dur: 29, phase: 4.4, depth: 0.70, op: 0.9  },
   ];
   // Cache haze data in JS — avoid reading DOM attributes every frame
   const hazeEls = HAZE_ORBS.map(o => {
@@ -779,7 +796,7 @@
       opacity: 0.0,
     });
     gHaze.appendChild(c);
-    return { el: c, phase: o.phase, dur: o.dur, ox, oy, r: o.r };
+    return { el: c, phase: o.phase, dur: o.dur, ox, oy, r: o.r, depth: o.depth, op: o.op };
   });
 
   // Orbital rings
@@ -939,13 +956,21 @@
       n._glow = el('circle', { cx: 0, cy: 0, r: 48, fill: n.color, opacity: 0.18, filter: 'url(#f-glow-lg)' });
       n._halo = el('circle', { cx: 0, cy: 0, r: 42, fill: 'none', stroke: n.color, 'stroke-width': 0.8, 'stroke-dasharray': '1 5', opacity: 0.22 });
       n._ring = el('circle', { cx: 0, cy: 0, r: 30, fill: COL_INK, stroke: n.color, 'stroke-width': 2 });
+      // 3D glass dome: rim-shade recesses the disc, sheen domes it, two
+      // catch-lights read as wet glass.
+      n._dome = el('circle', { cx: 0, cy: 0, r: 29, fill: 'url(#g-sph-shade)', opacity: 0.5, 'pointer-events': 'none' });
+      n._sheen = el('circle', { cx: 0, cy: 0, r: 29, fill: 'url(#g-sph-hi)', opacity: 0.35, 'pointer-events': 'none' });
       n._innerDot = el('circle', { cx: 0, cy: 0, r: 4, fill: n.color });
-      n._spec = el('circle', { cx: -10, cy: -10, r: 2.4, fill: COL_PAPER, opacity: 0.3 });   // specular catch-light
+      n._spec = el('circle', { cx: -10, cy: -11, r: 2.6, fill: COL_PAPER, opacity: 0.32 });    // specular catch-light
+      n._spec2 = el('circle', { cx: -5, cy: -6, r: 1.1, fill: COL_PAPER, opacity: 0.5 });      // tight wet glint
       g.appendChild(n._glow);
       g.appendChild(n._halo);
       g.appendChild(n._ring);
+      g.appendChild(n._dome);
+      g.appendChild(n._sheen);
       g.appendChild(n._innerDot);
       g.appendChild(n._spec);
+      g.appendChild(n._spec2);
 
       const t1 = el('text', { x: 0, y: -8, 'text-anchor': 'middle', 'dominant-baseline': 'middle', fill: n.color, opacity: 0.95, 'font-family': "'Josefin Sans', sans-serif", 'font-size': 8.5, 'font-weight': 700, 'letter-spacing': 1, class: 'label' });
       t1.textContent = n.short[0];
@@ -962,8 +987,11 @@
       n._glow = el('circle', { cx: 0, cy: 0, r: 18, fill: n.color, opacity: 0.18, filter: 'url(#f-glow-sm)' });
       n._ring = el('circle', { cx: 0, cy: 0, r: 9, fill: COL_INK, stroke: n.color, 'stroke-width': 1.5 });
       n._innerDot = el('circle', { cx: 0, cy: 0, r: 3, fill: n.color });
-      g.appendChild(n._glow); g.appendChild(n._ring); g.appendChild(n._innerDot);
+      n._sheen = el('circle', { cx: 0, cy: 0, r: 8, fill: 'url(#g-sph-hi)', opacity: 0.5, 'pointer-events': 'none' });   // glass gloss
+      g.appendChild(n._glow); g.appendChild(n._ring); g.appendChild(n._innerDot); g.appendChild(n._sheen);
 
+      n._plate = el('path', { d: '', fill: COL_INK2, stroke: n.color, 'stroke-width': 0.8, opacity: 0, 'pointer-events': 'none' });   // chevron label tab
+      g.appendChild(n._plate);
       n._label = el('text', { 'text-anchor': 'middle', 'dominant-baseline': 'middle', fill: n.color, 'font-family': "'Josefin Sans', sans-serif", 'font-size': 9.5, 'font-weight': 600, 'letter-spacing': 1.5, class: 'label' });
       n._label.textContent = n.name.toUpperCase();
       g.appendChild(n._label);
@@ -972,10 +1000,13 @@
       n._twPhase = Math.random() * Math.PI * 2;   // per-star twinkle offset
       n._innerDot = el('circle', { cx: 0, cy: 0, r: 3, fill: n.color, opacity: 0.7 });
       n._glowDot  = el('circle', { cx: 0, cy: 0, r: 6, fill: n.color, opacity: 0, filter: 'url(#f-glow-sm)' });
+      n._sheen = el('circle', { cx: 0, cy: 0, r: 3, fill: 'url(#g-sph-hi)', opacity: 0.6, 'pointer-events': 'none' });   // glossy orb sheen
       n._tick = el('line', { x1: 0, y1: 0, x2: 0, y2: 0, stroke: n.color, 'stroke-width': 0.6, opacity: 0.3, class: 'tick' });
       g.appendChild(n._tick);
-      g.appendChild(n._glowDot); g.appendChild(n._innerDot);
+      g.appendChild(n._glowDot); g.appendChild(n._innerDot); g.appendChild(n._sheen);
 
+      n._plate = el('path', { d: '', fill: COL_INK2, stroke: n.color, 'stroke-width': 0.8, opacity: 0, 'pointer-events': 'none' });   // chevron label tab
+      g.appendChild(n._plate);
       n._label = el('text', { 'text-anchor': 'middle', 'dominant-baseline': 'middle', fill: 'rgba(239,231,216,0.78)', 'font-family': "'Inter', sans-serif", 'font-size': 10, 'font-weight': 400, 'letter-spacing': 0.3, class: 'label' });
       n._label.textContent = n.name;
       g.appendChild(n._label);
@@ -990,6 +1021,7 @@
     g.addEventListener('click', (e) => {
       e.stopPropagation();
       state.lastInteraction = Date.now();
+      if (state.highlightLevel) setHighlightLevel(null);   // node selection takes over from a legend highlight
       if (n.level === 1) {
         focusOnDiscipline(n.l1Idx);
       } else if (n.level === 3) {
@@ -1005,6 +1037,32 @@
           recenterOnNode(n);
         }
       }
+    });
+  });
+
+  // ============================================================
+  //   LEGEND — click a tier key to light up all nodes of that level
+  // ============================================================
+  function setHighlightLevel(lvl) {
+    state.highlightLevel = (state.highlightLevel === lvl) ? null : lvl;
+    state.lastInteraction = Date.now();
+    document.querySelectorAll('.legend-item').forEach(item => {
+      const l = parseInt(item.getAttribute('data-level'), 10);
+      item.classList.toggle('active', l === state.highlightLevel);
+    });
+  }
+  document.querySelectorAll('.legend-item').forEach(item => {
+    const lvl = parseInt(item.getAttribute('data-level'), 10);
+    if (!lvl) return;
+    item.setAttribute('role', 'button');
+    item.setAttribute('tabindex', '0');
+    item.addEventListener('click', () => {
+      // a legend highlight is its own clean view — drop any pinned node
+      if (state.pinnedId || state.focusedL1 != null) unfocus();
+      setHighlightLevel(lvl);
+    });
+    item.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); item.click(); }
     });
   });
 
@@ -1026,6 +1084,7 @@
 
   function easeOutCubic(t){ return 1 - Math.pow(1-t, 3); }
   function easeInOutCubic(t){ return t<0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3)/2; }
+  function smootherstep(t){ t = Math.max(0, Math.min(1, t)); return t*t*t*(t*(t*6-15)+10); }   // C2-continuous — silky in/out
   function easeOutBack(t, overshoot){
     const c1 = overshoot != null ? overshoot : 1.5;
     const c3 = c1 + 1;
@@ -1810,15 +1869,20 @@
       const t = now / 1000;
       const hazeOp = lp < 1 ? lp * 0.9 : 0.9;
       hazeEls.forEach(h => {
+        const par = (h.depth != null ? h.depth : 0.35);
+        // two drift octaves (slow body + finer ripple) + depth-scaled yaw parallax
         const dx = Math.sin(t / h.dur * 2 * Math.PI + h.phase) * 80
-                 + Math.cos(yawRad * 0.35 + h.phase * 2.1) * 46;
+                 + Math.sin(t / (h.dur * 0.41) + h.phase * 1.9) * 26
+                 + Math.cos(yawRad * par + h.phase * 2.1) * (120 * par);
         const dy = Math.cos(t / h.dur * 2 * Math.PI + h.phase * 0.7) * 60
-                 + Math.sin(yawRad * 0.35 + h.phase * 1.4) * 28;
-        const sc = 1 + Math.sin(t / (h.dur * 0.7) + h.phase) * 0.05;
-        h.el.setAttribute('cx', h.ox + dx);
-        h.el.setAttribute('cy', h.oy + dy);
-        h.el.setAttribute('r', h.r * sc);
-        h.el.setAttribute('opacity', hazeOp);
+                 + Math.cos(t / (h.dur * 0.37) + h.phase * 2.3) * 20
+                 + Math.sin(yawRad * par + h.phase * 1.4) * (72 * par);
+        const sc = 1 + Math.sin(t / (h.dur * 0.7) + h.phase) * 0.06
+                     + Math.sin(t / (h.dur * 0.23) + h.phase * 3.0) * 0.025;
+        h.el.setAttribute('cx', (h.ox + dx).toFixed(1));
+        h.el.setAttribute('cy', (h.oy + dy).toFixed(1));
+        h.el.setAttribute('r', (h.r * sc).toFixed(1));
+        h.el.setAttribute('opacity', (hazeOp * (h.op != null ? h.op : 1)).toFixed(3));
       });
     }
 
@@ -1952,15 +2016,15 @@
       const scale = p.persp;
       let sx = p.sx, sy = p.sy, introOp = 1, introScale = scale, introFlare = 0;
       if (lp < 1) {
-        const localT = clamp01((lp - n.t0) / 0.28);
-        // Star-burst trajectory: dust flies past its target (easeOutBack
-        // overshoot, lighter nodes overshoot further) and settles back in.
-        const eT = easeOutBack(localT, n.level === 3 ? 2.2 : n.level === 2 ? 1.6 : 1.15);
+        // Wider arrival window + softer overshoot = a silkier settle into
+        // place (was a snappier 0.28 window / 2.2 overshoot).
+        const localT = clamp01((lp - n.t0) / 0.34);
+        const eT = easeOutBack(localT, n.level === 3 ? 1.55 : n.level === 2 ? 1.25 : 1.05);
         sx = lerp(CX, p.sx, eT);
         sy = lerp(CY, p.sy, eT);
-        introOp = clamp01(localT * 1.2);
-        introScale = lerp(0.2, scale, easeOutCubic(localT));
-        introFlare = Math.sin(Math.PI * localT);   // bright at mid-flight, fades as the node lands
+        introOp = smootherstep(localT * 1.08);          // gentle C2 fade-in (no hard linear ramp)
+        introScale = lerp(0.24, scale, smootherstep(localT));
+        introFlare = Math.sin(Math.PI * localT);        // bright at mid-flight, fades as the node lands
       }
       n._group.style.transform = `translate(${sx}px, ${sy}px) scale(${introScale.toFixed(3)})`;
 
@@ -2008,6 +2072,10 @@
         if (n._innerLabel) n._innerLabel.forEach(t => t.setAttribute('fill', isActive ? n.color : fillCol));
         const ringR = isActive ? 38 : 30;
         n._ring.setAttribute('r', ringR);
+        // glass-dome shading tracks the ring; eases off on greyed discs
+        if (n._dome)  { n._dome.setAttribute('r', (ringR - 1).toFixed(1));  n._dome.setAttribute('opacity', isGray ? 0.18 : 0.5); }
+        if (n._sheen) { n._sheen.setAttribute('r', (ringR - 1).toFixed(1)); n._sheen.setAttribute('opacity', isGray ? 0.10 : isActive ? 0.42 : 0.35); }
+        if (n._spec2) n._spec2.setAttribute('opacity', isGray ? 0.12 : 0.5);
 
         const dirP = projectAngle(n.theta, n.r + 60, -18, renderTilt);
         const dx = (dirP.sx - p.sx) / (scale || 1);
@@ -2032,15 +2100,24 @@
         n._label.setAttribute('y', dy);
         const labelOp = isActive ? 1 : isLineage ? 0.8 : isSibling ? 0.1 : Math.max(0, (tNorm - 0.45) * 1.8) * (isGray ? 0.15 : 1);
         n._label.setAttribute('opacity', labelOp);
+        if (n._plate) {
+          n._plate.setAttribute('stroke', isActive ? n.color : fillCol);
+          setChevronPlate(n._plate, dx, dy, labelTextWidth(n.name.toUpperCase(), 9.5, 2), 9.5, labelOp);
+        }
 
       } else {
         const op = isActive ? 1 : isLineage ? 0.85 : isSibling ? 0.2 : isGray ? 0.16 : 0.55 * baseOp;
         n._group.style.opacity = op * introOp;
         // Twinkle: idle stars breathe individually (size + brightness)
         const tw = Math.sin(now / 1100 + n._twPhase);
+        const dotR = isActive ? 6 : isLineage ? 3.4 : 3 + tw * 0.7;
         n._innerDot.setAttribute('fill', isActive ? n.color : fillCol);
-        n._innerDot.setAttribute('r', isActive ? 6 : isLineage ? 3.4 : 3 + tw * 0.7);
+        n._innerDot.setAttribute('r', dotR.toFixed(2));
         n._innerDot.setAttribute('opacity', isActive ? 1 : 0.7 + tw * 0.18);
+        if (n._sheen) {   // glossy 3D orb — sheen tracks the dot, dims on greyed nodes
+          n._sheen.setAttribute('r', (dotR * 1.05).toFixed(2));
+          n._sheen.setAttribute('opacity', isGray ? 0.18 : isActive ? 0.7 : 0.55);
+        }
         n._glowDot.setAttribute('fill', isActive ? n.color : fillCol);
         n._glowDot.setAttribute('opacity', lp < 1 ? (introFlare * 0.8).toFixed(3)
           : isActive ? 0.85 : isLineage ? 0.18 : 0.05 + Math.max(0, tw) * 0.06);
@@ -2096,6 +2173,25 @@
         if (matchHide) { labelOp = 0; n._group.style.opacity = 0.05 * introOp; }
         n._label.setAttribute('opacity', labelOp);
         if (n._tick) n._tick.setAttribute('opacity', labelOp * 0.5);
+        if (n._plate) {
+          const fsz = isActive ? 11.5 : emph ? (fi % 2 === 0 ? 10.5 : 9.5) : 10;
+          n._plate.setAttribute('stroke', isActive ? n.color : fillCol);
+          setChevronPlate(n._plate, dx, dy, labelTextWidth(n.name, fsz, 3), fsz, labelOp);
+        }
+      }
+
+      // Legend level-highlight overlay — "light up all L1s / L2s / L3s".
+      // Independent visual layer applied after per-node styling: matching tier
+      // is spotlit, the rest recedes. Re-reads the opacity just set above.
+      if (state.highlightLevel) {
+        const onLevel = (n.level === state.highlightLevel);
+        const cur = parseFloat(n._group.style.opacity) || 0;
+        n._group.style.opacity = (onLevel ? Math.max(cur, 0.97) : cur * 0.1) * 1;
+        if (onLevel) {
+          if (n._glow)    n._glow.setAttribute('opacity', n.level === 1 ? 0.6 : 0.42);
+          if (n._glowDot) { n._glowDot.setAttribute('opacity', 0.4); n._glowDot.setAttribute('r', 9); }
+          if (n._label)   n._label.setAttribute('opacity', Math.max(parseFloat(n._label.getAttribute('opacity')) || 0, n.level === 1 ? 1 : 0.92));
+        }
       }
     });
 
@@ -2216,6 +2312,29 @@
     const seq = len === 4 ? [70, 26, 74, 116] : [62, 26, 62];
     const d = seq[k % seq.length];
     return d != null ? d : 62;
+  }
+
+  // Chevron label tab — a sharp ink banner with a point aimed back at the
+  // node, so readable labels sit on a solid backing against the busy star
+  // field (brand: sharp corners, no rounding). Only drawn when the label is
+  // actually legible (op gate) so idle far labels stay clutter-free.
+  function labelTextWidth(text, fs, level) {
+    const per   = level === 2 ? 0.62 : 0.52;   // Josefin bold tracked vs Inter
+    const track = level === 2 ? 1.5  : 0.3;    // letter-spacing
+    return text.length * (fs * per + track);
+  }
+  function setChevronPlate(plate, lx, ly, w, fs, op) {
+    if (op <= 0.42) { if (plate.getAttribute('opacity') !== '0') plate.setAttribute('opacity', 0); return; }
+    const h = fs + 3.5, padX = 7, padY = 3, chev = h * 0.5;
+    const hw = w / 2 + padX, hh = h / 2 + padY;
+    const x0 = lx - hw, x1 = lx + hw, y0 = ly - hh, y1 = ly + hh;
+    const f = v => v.toFixed(1);
+    // node is toward the origin → point the chevron that way (sign of lx)
+    const d = lx >= 0
+      ? `M ${f(x0)} ${f(y0)} L ${f(x1)} ${f(y0)} L ${f(x1)} ${f(y1)} L ${f(x0)} ${f(y1)} L ${f(x0 - chev)} ${f(ly)} Z`
+      : `M ${f(x0)} ${f(y0)} L ${f(x1)} ${f(y0)} L ${f(x1 + chev)} ${f(ly)} L ${f(x1)} ${f(y1)} L ${f(x0)} ${f(y1)} Z`;
+    plate.setAttribute('d', d);
+    plate.setAttribute('opacity', Math.min(0.82, op * 0.9).toFixed(3));   // solid dark backing; text paints on top
   }
 
   // ============================================================

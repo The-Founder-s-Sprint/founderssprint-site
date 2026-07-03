@@ -395,7 +395,7 @@ section.problem { padding: 88px 0; }
 /* — Stats progressive reveal animation — */
 .problem .stat {
   opacity: 0; transform: translateY(18px);
-  transition: opacity 0.6s ease, transform 0.6s ease;
+  transition: opacity 1s cubic-bezier(0.22,1,0.36,1), transform 1s cubic-bezier(0.22,1,0.36,1);
 }
 .problem .stats.in-view .stat {
   opacity: 1; transform: translateY(0);
@@ -580,6 +580,16 @@ section.problem { padding: 88px 0; }
 .coach-card .frame::after {
   content: ""; position: absolute; inset: 0;
   background: linear-gradient(180deg, rgba(0,0,0,0) 60%, rgba(0,0,0,0.5) 100%);
+  transition: opacity .6s cubic-bezier(.25,.46,.45,.94);
+}
+/* Photo rollover — the coach photo gently zooms + warms on hover, matching the
+   directory card-hover treatment (applied to the inner .frame so it never
+   conflicts with the card's scroll-reveal transform). */
+.coach-card .frame { transition: transform .6s cubic-bezier(.25,.46,.45,.94), filter .6s cubic-bezier(.25,.46,.45,.94); }
+.coach-card:hover .frame { transform: scale(1.055); filter: saturate(1.06) brightness(1.04); }
+.coach-card:hover .frame::after { opacity: .72; }
+@media (prefers-reduced-motion: reduce) {
+  .coach-card .frame, .coach-card:hover .frame { transition: none; transform: none; }
 }
 .coach-card .meta { margin-top: 16px; }
 .coach-card .meta .n {
@@ -618,7 +628,7 @@ section.problem { padding: 88px 0; }
 /* — Coach card staggered reveal — */
 .coach-card {
   opacity: 0; transform: translateY(22px);
-  transition: opacity 0.55s ease, transform 0.55s ease;
+  transition: opacity 0.95s cubic-bezier(0.22,1,0.36,1), transform 0.95s cubic-bezier(0.22,1,0.36,1);
 }
 .coaches.in-view .coach-card { opacity: 1; transform: translateY(0); }
 .coaches.in-view .coach-card:nth-child(1) { transition-delay: 0s; }
@@ -878,11 +888,11 @@ img.proof-avatar-img {
 /* — Data room scroll-reveal animation — */
 .deliv .room .row {
   opacity: 0; transform: translateY(12px);
-  transition: opacity 0.45s ease, transform 0.45s ease;
+  transition: opacity 0.85s cubic-bezier(0.22,1,0.36,1), transform 0.85s cubic-bezier(0.22,1,0.36,1);
 }
 .deliv .room .foot {
   opacity: 0; transform: translateY(8px);
-  transition: opacity 0.45s ease 0.1s, transform 0.45s ease 0.1s;
+  transition: opacity 0.85s cubic-bezier(0.22,1,0.36,1) 0.18s, transform 0.85s cubic-bezier(0.22,1,0.36,1) 0.18s;
 }
 .deliv.in-view .room .row {
   opacity: 1; transform: translateY(0);
@@ -913,7 +923,7 @@ img.proof-avatar-img {
 /* Deliverable item rows stagger */
 .deliv .deliv-item {
   opacity: 0; transform: translateX(-12px);
-  transition: opacity 0.45s ease, transform 0.45s ease;
+  transition: opacity 0.85s cubic-bezier(0.22,1,0.36,1), transform 0.85s cubic-bezier(0.22,1,0.36,1);
 }
 .deliv.in-view .deliv-item { opacity: 1; transform: translateX(0); }
 .deliv.in-view .deliv-items .deliv-item:nth-child(1) { transition-delay: 0.2s; }
@@ -1152,10 +1162,18 @@ img.proof-avatar-img {
 /* --- 7.B MATRIX --- */
 .matrix-wrap {
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
 }
 .matrix {
   width: 100%; border-collapse: collapse;
   font-family: var(--body);
+}
+/* Swipe hint — only shown on narrow screens where the table scrolls (see media query) */
+.matrix-hint {
+  display: none;
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.16em; text-transform: uppercase;
+  color: rgba(239,231,216,0.5); margin: 0 0 10px; text-align: right;
 }
 .matrix th, .matrix td {
   padding: 11px 18px;
@@ -1500,7 +1518,7 @@ img.proof-avatar-img {
 /* — Pricing scroll-reveal animation — */
 .pricing .stage.active {
   opacity: 0; transform: translateY(20px);
-  transition: opacity 0.6s ease, transform 0.6s ease;
+  transition: opacity 1s cubic-bezier(0.22,1,0.36,1), transform 1s cubic-bezier(0.22,1,0.36,1);
 }
 .pricing.in-view .stage.active {
   opacity: 1; transform: translateY(0);
@@ -1509,7 +1527,7 @@ img.proof-avatar-img {
 /* Matrix rows stagger */
 .pricing .matrix tbody tr {
   opacity: 0; transform: translateY(10px);
-  transition: opacity 0.4s ease, transform 0.4s ease;
+  transition: opacity 0.8s cubic-bezier(0.22,1,0.36,1), transform 0.8s cubic-bezier(0.22,1,0.36,1);
 }
 .pricing.in-view .matrix tbody tr { opacity: 1; transform: translateY(0); }
 .pricing.in-view .matrix tbody tr:nth-child(1) { transition-delay: 0.1s; }
@@ -1522,7 +1540,7 @@ img.proof-avatar-img {
 /* Matrix header columns entrance */
 .pricing .matrix thead .tier-col {
   opacity: 0; transform: translateY(-14px);
-  transition: opacity 0.5s ease, transform 0.5s ease;
+  transition: opacity 0.9s cubic-bezier(0.22,1,0.36,1), transform 0.9s cubic-bezier(0.22,1,0.36,1);
 }
 .pricing.in-view .matrix thead .tier-col { opacity: 1; transform: translateY(0); }
 .pricing.in-view .matrix thead .tier-col:nth-child(2) { transition-delay: 0.1s; }
@@ -1532,7 +1550,7 @@ img.proof-avatar-img {
 /* Premium cards slide up */
 .premium-tiers .premium-card {
   opacity: 0; transform: translateY(18px);
-  transition: opacity 0.5s ease, transform 0.5s ease;
+  transition: opacity 0.9s cubic-bezier(0.22,1,0.36,1), transform 0.9s cubic-bezier(0.22,1,0.36,1);
 }
 .pricing.in-view .premium-card { opacity: 1; transform: translateY(0); }
 .pricing.in-view .premium-card:nth-child(1) { transition-delay: 0.7s; }
@@ -1540,7 +1558,7 @@ img.proof-avatar-img {
 
 /* Pay strip fade in */
 .pay-strip {
-  opacity: 0; transition: opacity 0.5s ease 0.9s;
+  opacity: 0; transition: opacity 0.8s ease 1.2s;
 }
 .pricing.in-view .pay-strip { opacity: 1; }
 
@@ -1827,7 +1845,18 @@ footer .bottom {
   .deliv .room { order: -1; }
   .deliv .deliv-item { grid-template-columns: 28px 1fr; }
   .deliv .deliv-item .detail { grid-column: 1 / -1; }
-  .matrix th, .matrix td { padding: 12px 10px; font-size: 12px; }
+  /* Pricing table: stop squishing 5 columns into ~375px — let it scroll
+     horizontally at full column width, with the metric-label column pinned so
+     each tier's content stays fully readable as you swipe across. */
+  .matrix-hint { display: block; }
+  .matrix { min-width: 600px; }
+  .matrix th, .matrix td { padding: 12px 13px; font-size: 12.5px; }
+  .matrix th:first-child, .matrix td:first-child {
+    position: sticky; left: 0; z-index: 2;
+    background: var(--ink-2);
+    box-shadow: 1px 0 0 var(--line-d);
+  }
+  .matrix .tier-col { min-width: 116px; }
   footer .row { grid-template-columns: 1fr; }
   footer .bottom { flex-direction: column; gap: 10px; }
 }

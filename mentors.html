@@ -81,6 +81,38 @@
   .msg{font-size:13px;margin-top:10px;min-height:16px;} .msg.err{color:#C0392B;} .msg.ok{color:var(--success);}
   .done{text-align:center;padding:18px 4px;}
   .note{font-size:11px;color:var(--paper-dim);margin-top:14px;line-height:1.5;}
+  /* --- discoverability toolbar: search + filter chips --- */
+  .m-tools{margin-bottom:26px;display:flex;flex-direction:column;gap:14px;}
+  .m-search{position:relative;max-width:480px;}
+  .m-search input{width:100%;background:rgba(0,0,0,.03);border:1px solid var(--border);padding:13px 14px 13px 42px;font-size:15px;font-family:var(--font);color:var(--ink);border-radius:0 0 14px 0;}
+  .m-search input:focus{outline:none;border-color:var(--terra);}
+  .m-search svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:17px;height:17px;color:var(--muted);pointer-events:none;}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;}
+  .chip{font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.05em;color:var(--stone);background:none;border:1px solid var(--border);padding:7px 14px;border-radius:40px;cursor:pointer;transition:border-color .2s,color .2s,background .2s;}
+  .chip:hover{border-color:var(--terra);color:var(--terra-deep);}
+  .chip.on{background:var(--ink);border-color:var(--ink);color:var(--paper);}
+  .chip .ct{opacity:.5;font-weight:400;margin-left:5px;}
+  /* --- grouped category browse --- */
+  .m-group{margin-bottom:36px;}
+  .m-group:last-child{margin-bottom:0;}
+  .m-group-h{font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--terra-deep);margin-bottom:16px;padding-bottom:9px;border-bottom:1px solid var(--border);}
+  /* --- card: name leads, directory-parity hover lift, bio clamp + reserved height --- */
+  .card{transition:transform .6s cubic-bezier(.25,.46,.45,.94),box-shadow .6s cubic-bezier(.25,.46,.45,.94);cursor:pointer;}
+  .card:hover{transform:translateY(-5px);box-shadow:0 14px 40px rgba(26,26,26,.10),0 2px 8px rgba(26,26,26,.05);}
+  .card .av{transition:transform .5s cubic-bezier(.25,.46,.45,.94);}
+  .card:hover .av{transform:scale(1.06);}
+  .m-lead{font-family:var(--display);font-size:23px;font-weight:600;line-height:1.1;color:var(--ink);}
+  .m-role{font-size:12.5px;color:var(--muted);margin-top:5px;line-height:1.4;font-weight:500;}
+  .card .m-bio{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;min-height:calc(1.55em * 3);}
+  /* --- detail popup: full card + full bio --- */
+  .detail .m-bio-full{font-size:14px;line-height:1.62;color:#3D3B35;margin:14px 0 16px;}
+  .detail .d-prices{margin:16px 0;}
+  /* --- recommend-a-mentor CTA + modal --- */
+  .m-rec-cta{margin-top:8px;text-align:center;padding:32px 22px;border:1px dashed var(--border-hi);border-radius:0 0 24px 0;background:rgba(0,0,0,.015);}
+  .m-rec-cta h3{font-family:var(--display);font-size:23px;font-weight:600;margin-bottom:7px;}
+  .m-rec-cta p{font-size:13.5px;color:var(--muted);max-width:500px;margin:0 auto 18px;line-height:1.55;}
+  .m-rec-cta button{background:var(--ink);color:var(--paper);border:none;padding:13px 24px;font-family:var(--sans);font-weight:700;font-size:11px;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;border-radius:0 0 14px 0;transition:background .2s;}
+  .m-rec-cta button:hover{background:var(--terra);}
   @media(max-width:560px){.hero h1{font-size:36px;}.grid2{grid-template-columns:1fr;}.grid{grid-template-columns:1fr;}}
 </style>
 </head>
@@ -134,7 +166,19 @@
 </section>
 
 <div class="wrap">
+  <div class="m-tools">
+    <div class="m-search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+      <input id="m-q" type="search" placeholder="Search by name, expertise, or company…" aria-label="Search mentors" oninput="onSearch(this.value)">
+    </div>
+    <div class="chips" id="chips"></div>
+  </div>
   <div class="grid" id="grid"><div class="empty">Loading mentors…</div></div>
+  <div class="m-rec-cta">
+    <h3>Can't find who you're looking for?</h3>
+    <p>Know an operator who'd make a brilliant mentor — someone who's built, scaled, raised, or exited a company here? Recommend them, and our team will reach out with an invitation.</p>
+    <button onclick="openRec()">Recommend a mentor →</button>
+  </div>
 </div>
 
 <!-- booking modal -->
@@ -170,9 +214,49 @@
   </div>
 </div>
 
+<!-- mentor detail popup (full card + full bio) -->
+<div class="ov" id="ov-detail">
+  <div class="modal detail" id="modal-detail">
+    <button class="x" onclick="closeDetail()" aria-label="Close">×</button>
+    <div id="detail-body"></div>
+  </div>
+</div>
+
+<!-- recommend-a-mentor modal -->
+<div class="ov" id="ov-rec">
+  <div class="modal" id="modal-rec">
+    <button class="x" onclick="closeRec()" aria-label="Close">×</button>
+    <div id="rec-form">
+      <h2>Recommend a mentor</h2>
+      <div class="who">Tell us who we should invite — our team reviews every suggestion.</div>
+      <div class="grid2">
+        <div class="f"><label>Their name <span class="req">*</span></label><input id="r-name" placeholder="Jane Doe"></div>
+        <div class="f"><label>Their company / role</label><input id="r-company" placeholder="Founder, Acme"></div>
+      </div>
+      <div class="f"><label>How can we reach them? (link or email)</label><input id="r-link" placeholder="LinkedIn URL or email address"></div>
+      <div class="f"><label>Why would they be a great mentor? <span class="req">*</span></label><textarea id="r-reason" placeholder="What have they built or done that founders could learn from?"></textarea></div>
+      <div class="grid2">
+        <div class="f"><label>Your name</label><input id="r-rec-name" placeholder="Your name"></div>
+        <div class="f"><label>Your email</label><input id="r-rec-email" type="email" placeholder="you@company.com"></div>
+      </div>
+      <button class="btn" id="r-submit" onclick="submitRec()">Send recommendation</button>
+      <div class="msg" id="r-msg"></div>
+      <div class="note">We review every recommendation and reach out to suitable operators with an invitation. No spam — just a thoughtful intro.</div>
+    </div>
+    <div id="rec-done" style="display:none">
+      <div class="done"><div style="font-family:var(--display);font-size:44px;color:var(--terra)">◇</div>
+        <div style="font-family:var(--display);font-size:26px;font-weight:600;margin:6px 0 8px">Thank you.</div>
+        <div style="color:var(--muted);max-width:340px;margin:0 auto;line-height:1.6">We'll take a look and reach out if they're a fit. We appreciate the introduction.</div>
+        <button class="btn" style="margin-top:18px;max-width:200px" onclick="closeRec()">Done</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 <script>
 const SB_URL='https://ivedeivyotwevjxvcuoe.supabase.co';
 const SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss';
+const API_BASE='https://api.founderssprint.co';
 const sb=supabase.createClient(SB_URL,SB_ANON,{auth:{persistSession:false}});
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 function initials(s){const a=String(s||'').replace(/[^A-Za-z ]/g,'').trim().split(/\s+/);return ((a[0]||'?')[0]+(a[1]?a[1][0]:'')).toUpperCase();}
@@ -180,35 +264,114 @@ function money(n){return n? 'UGX '+Number(n).toLocaleString('en-US') : 'On reque
 const FMT_LABEL={coffee:'☕ Coffee',zoom:'🎥 Zoom'};
 const FMT_NOTE={coffee:'In person',zoom:'Remote'};
 function feeFor(m,f){ const x=(m.fees&&m.fees[f]); return (x!=null?x:m.session_fee); }
+function durOf(m){ return m.session_minutes?(Math.round(m.session_minutes/60)+'-hour session'):'session'; }
+function avOf(m){ return m.photo_url?'<img class="av" src="'+esc(m.photo_url)+'" alt="" style="object-fit:cover">':'<div class="av">'+esc(initials(m.name||m.company||m.title))+'</div>'; }
+function pricesOf(m){ return (m.formats||['coffee','zoom']).map(function(f){
+  return '<div class="prow"><span class="pf">'+(FMT_LABEL[f]||esc(f))+'</span><span class="pv">'+money(feeFor(m,f))+'</span></div>'; }).join(''); }
 
 let MENTORS=[], current=null, fmt=null;
+const state={ q:'', filter:'all' };
+
+// ---- card template (uses the mentor's global index in MENTORS) ----
+function cardHTML(m,i){
+  const tags=(m.expertise||[]).slice(0,5).map(t=>'<span class="tag">'+esc(t)+'</span>').join('');
+  return '<div class="card" onclick="openDetail('+i+')"><div class="top">'+avOf(m)+'<div style="min-width:0">'
+    +'<div class="m-lead">'+esc(m.name||m.title)+'</div>'
+    +(m.title?'<div class="m-role">'+esc(m.title)+'</div>':'')
+    +(m.company?'<div class="m-co">'+esc(m.company)+(m.location?' · '+esc(m.location):'')+'</div>':'')
+    +'</div></div>'
+    +(m.bio?'<div class="m-bio">'+esc(m.bio)+'</div>':'')
+    +(tags?'<div class="tags">'+tags+'</div>':'')
+    +'<div class="meta"><div class="prices">'+pricesOf(m)+'<div class="pdur">'+esc(durOf(m))+'</div></div></div>'
+    +'<button class="book" onclick="event.stopPropagation();openBook('+i+')">Request a session →</button></div>';
+}
+
+function uniqueExpertise(){ const s=new Set(); MENTORS.forEach(m=>(m.expertise||[]).forEach(e=>e&&s.add(e))); return [...s].sort(); }
+function primaryCat(m){ return (m.expertise&&m.expertise[0])||'Other operators'; }
+function matches(m){
+  const q=state.q.trim().toLowerCase();
+  if(q){ const hay=[m.name,m.title,m.company,m.bio,(m.expertise||[]).join(' '),m.location].join(' ').toLowerCase(); if(hay.indexOf(q)<0) return false; }
+  const f=state.filter;
+  if(f && f!=='all'){
+    if(f==='fmt:coffee') return (m.formats||[]).indexOf('coffee')>=0;
+    if(f==='fmt:zoom')   return (m.formats||[]).indexOf('zoom')>=0;
+    return (m.expertise||[]).indexOf(f)>=0;
+  }
+  return true;
+}
+
+function renderChips(){
+  const wrap=document.getElementById('chips');
+  const areas=uniqueExpertise();
+  const chips=[{k:'all',label:'All'}]
+    .concat(areas.map(a=>({k:a,label:a})))
+    .concat([{k:'fmt:coffee',label:'☕ Coffee'},{k:'fmt:zoom',label:'🎥 Zoom'}]);
+  wrap.innerHTML='';
+  chips.forEach(c=>{
+    const b=document.createElement('button');
+    b.className='chip'+(state.filter===c.k?' on':'');
+    b.textContent=c.label;
+    b.addEventListener('click',()=>{ state.filter=c.k; renderChips(); render(); });
+    wrap.appendChild(b);
+  });
+}
+function onSearch(val){ state.q=val||''; render(); }
+
+function render(){
+  const g=document.getElementById('grid');
+  if(!MENTORS.length){ g.innerHTML='<div class="empty">Mentors are being onboarded — check back soon.</div>'; g.classList.add('grid'); return; }
+  const list=MENTORS.map((m,i)=>({m,i})).filter(x=>matches(x.m));
+  if(!list.length){ g.classList.add('grid'); g.innerHTML='<div class="empty">No mentors match that yet. Clear the filters — or recommend someone below.</div>'; return; }
+  const browse = (!state.q.trim() && (!state.filter || state.filter==='all'));
+  if(browse){
+    // default view: group by primary expertise area for easy browsing
+    const groups={};
+    list.forEach(x=>{ const c=primaryCat(x.m); (groups[c]=groups[c]||[]).push(x); });
+    const keys=Object.keys(groups).sort();
+    // if everything lands in a single group, skip the heading — just show the grid
+    if(keys.length<=1){
+      g.classList.add('grid');
+      g.innerHTML=list.map(x=>cardHTML(x.m,x.i)).join('');
+    } else {
+      g.classList.remove('grid');
+      g.innerHTML=keys.map(c=>'<div class="m-group"><div class="m-group-h">'+esc(c)+'</div><div class="grid">'+groups[c].map(x=>cardHTML(x.m,x.i)).join('')+'</div></div>').join('');
+    }
+  } else {
+    g.classList.add('grid');
+    g.innerHTML=list.map(x=>cardHTML(x.m,x.i)).join('');
+  }
+}
+
 async function load(){
   let rows=[];
   try{ const r=await fetch(SB_URL+'/rest/v1/mentors?status=eq.active&select=id,name,slug,title,company,bio,expertise,photo_url,formats,location,session_fee,session_minutes,fees&order=sort_order&limit=100',
     {headers:{apikey:SB_ANON,Authorization:'Bearer '+SB_ANON}}); rows=r.ok?await r.json():[]; }catch(e){}
   MENTORS=rows;
-  const g=document.getElementById('grid');
-  if(!rows.length){ g.innerHTML='<div class="empty">Mentors are being onboarded — check back soon.</div>'; return; }
-  g.innerHTML=rows.map(function(m,i){
-    const tags=(m.expertise||[]).slice(0,5).map(t=>'<span class="tag">'+esc(t)+'</span>').join('');
-    const dur=m.session_minutes?(Math.round(m.session_minutes/60)+'-hour session'):'session';
-    const av=m.photo_url?'<img class="av" src="'+esc(m.photo_url)+'" alt="" style="object-fit:cover">':'<div class="av">'+esc(initials(m.name||m.company||m.title))+'</div>';
-    const prices=(m.formats||['coffee','zoom']).map(function(f){
-      return '<div class="prow"><span class="pf">'+(FMT_LABEL[f]||esc(f))+'</span><span class="pv">'+money(feeFor(m,f))+'</span></div>';
-    }).join('');
-    return '<div class="card"><div class="top">'+av+'<div style="min-width:0">'
-      +'<div class="m-title">'+esc(m.title||m.name)+'</div>'
-      +(m.company?'<div class="m-co">'+esc(m.company)+(m.location?' · '+esc(m.location):'')+'</div>':'')
-      +(m.name?'<div class="m-name">'+esc(m.name)+'</div>':'')+'</div></div>'
-      +(m.bio?'<div class="m-bio">'+esc(m.bio)+'</div>':'')
-      +(tags?'<div class="tags">'+tags+'</div>':'')
-      +'<div class="meta"><div class="prices">'+prices+'<div class="pdur">'+esc(dur)+'</div></div></div>'
-      +'<button class="book" onclick="openBook('+i+')">Request a session →</button></div>';
-  }).join('');
+  renderChips();
+  render();
 }
+
+// ---- mentor detail popup (full card, full bio) ----
+function openDetail(i){
+  const m=MENTORS[i]; if(!m) return;
+  const tags=(m.expertise||[]).map(t=>'<span class="tag">'+esc(t)+'</span>').join('');
+  document.getElementById('detail-body').innerHTML=
+    '<div class="top" style="margin-bottom:16px">'+avOf(m)+'<div style="min-width:0">'
+    +'<div class="m-lead" style="font-size:27px">'+esc(m.name||m.title)+'</div>'
+    +(m.title?'<div class="m-role">'+esc(m.title)+'</div>':'')
+    +(m.company?'<div class="m-co">'+esc(m.company)+(m.location?' · '+esc(m.location):'')+'</div>':'')
+    +'</div></div>'
+    +(m.bio?'<div class="m-bio-full">'+esc(m.bio)+'</div>':'')
+    +(tags?'<div class="tags">'+tags+'</div>':'')
+    +'<div class="meta d-prices"><div class="prices">'+pricesOf(m)+'<div class="pdur">'+esc(durOf(m))+'</div></div></div>'
+    +'<button class="btn" onclick="closeDetail();openBook('+i+')">Request a session →</button>';
+  document.getElementById('ov-detail').classList.add('show');
+}
+function closeDetail(){ document.getElementById('ov-detail').classList.remove('show'); }
+
 function openBook(i){
   current=MENTORS[i]; fmt=(current.formats&&current.formats[0])||'coffee';
-  document.getElementById('who').textContent='With '+(current.title||current.name)+(current.company?' · '+current.company:'');
+  document.getElementById('who').textContent='With '+(current.name||current.title)+(current.company?' · '+current.company:'');
   document.getElementById('fmt-pick').innerHTML=(current.formats||['coffee','zoom']).map(function(f){
     return '<div class="fmt-opt'+(f===fmt?' on':'')+'" data-f="'+f+'" onclick="pickFmt(this)"><span>'+(FMT_LABEL[f]||f)+'</span>'
       +'<span class="fo-note">'+(FMT_NOTE[f]||'')+'</span><span class="fo-price">'+money(feeFor(current,f))+'</span></div>';
@@ -222,7 +385,8 @@ function openBook(i){
 function renderPrice(){ const el=document.getElementById('b-price'); if(el) el.innerHTML='Session fee · <strong>'+money(feeFor(current,fmt))+'</strong>'; }
 function pickFmt(el){ fmt=el.dataset.f; [].forEach.call(document.querySelectorAll('.fmt-opt'),x=>x.classList.toggle('on',x===el)); renderPrice(); }
 function closeBook(){ document.getElementById('ov').classList.remove('show'); }
-document.getElementById('ov').addEventListener('click',e=>{ if(e.target.id==='ov') closeBook(); });
+// close any overlay on backdrop click
+[].forEach.call(document.querySelectorAll('.ov'),function(ov){ ov.addEventListener('click',function(e){ if(e.target===ov) ov.classList.remove('show'); }); });
 function v(id){return (document.getElementById(id).value||'').trim();}
 async function submitBooking(){
   const msg=document.getElementById('b-msg'); msg.textContent=''; msg.className='msg';
@@ -241,6 +405,36 @@ async function submitBooking(){
     document.getElementById('book-done').style.display='block';
   }catch(e){ msg.textContent='Could not send — '+e.message; msg.className='msg err'; btn.disabled=false; btn.textContent='Send request'; }
 }
+
+// ---- recommend a mentor (routed through the rate-limited API) ----
+function openRec(){
+  document.getElementById('rec-form').style.display='block';
+  document.getElementById('rec-done').style.display='none';
+  document.getElementById('r-msg').textContent='';
+  document.getElementById('ov-rec').classList.add('show');
+}
+function closeRec(){ document.getElementById('ov-rec').classList.remove('show'); }
+async function submitRec(){
+  const msg=document.getElementById('r-msg'); msg.textContent=''; msg.className='msg';
+  const prospect=v('r-name'), reason=v('r-reason');
+  if(!prospect||!reason){ msg.textContent='Please add who you’re recommending and why.'; msg.className='msg err'; return; }
+  const email=v('r-rec-email');
+  if(email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ msg.textContent='Your email looks off.'; msg.className='msg err'; return; }
+  const btn=document.getElementById('r-submit'); btn.disabled=true; btn.textContent='Sending…';
+  try{
+    const r=await fetch(API_BASE+'/api/mentor-recommendation',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        prospect_name:prospect, prospect_company:v('r-company')||null, prospect_link:v('r-link')||null,
+        reason:reason, recommender_name:v('r-rec-name')||null, recommender_email:email||null
+      })
+    });
+    if(!r.ok){ const j=await r.json().catch(()=>({})); throw new Error(j.error||'Please try again.'); }
+    document.getElementById('rec-form').style.display='none';
+    document.getElementById('rec-done').style.display='block';
+  }catch(e){ msg.textContent='Could not send — '+e.message; msg.className='msg err'; btn.disabled=false; btn.textContent='Send recommendation'; }
+}
+
 load();
 </script>
 

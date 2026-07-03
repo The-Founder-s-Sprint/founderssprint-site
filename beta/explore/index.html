@@ -8,7 +8,7 @@
 <link rel="canonical" href="https://founderssprint.co/explore">
 <!-- Web fonts are desktop-only (CLAUDE.md mobile rules: system font stack on phones, saves ~200-400KB on 3G) -->
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Josefin+Sans:wght@300;400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="(min-width: 769px)">
-<link rel="stylesheet" href="explore.css?v=19">
+<link rel="stylesheet" href="explore.css?v=20">
 </head>
 <body>
 
@@ -72,6 +72,34 @@
         <radialGradient id="g-orb-moss" cx="50%" cy="50%" r="50%">
           <stop offset="0%"   stop-color="#3d4a2e" stop-opacity="0.28"/>
           <stop offset="100%" stop-color="#3d4a2e" stop-opacity="0"/>
+        </radialGradient>
+        <!-- 3D node shading: colour-agnostic sphere sheen (offset focal = light upper-left)
+             + dome rim-shade. Layered over the solid-colour node body. -->
+        <radialGradient id="g-sph-hi" cx="50%" cy="50%" r="50%" fx="33%" fy="27%">
+          <stop offset="0%"  stop-color="#fff" stop-opacity="0.9"/>
+          <stop offset="42%" stop-color="#fff" stop-opacity="0.14"/>
+          <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="g-sph-shade" cx="50%" cy="50%" r="50%" fx="64%" fy="72%">
+          <stop offset="0%"  stop-color="#000" stop-opacity="0"/>
+          <stop offset="58%" stop-color="#000" stop-opacity="0"/>
+          <stop offset="100%" stop-color="#000" stop-opacity="0.55"/>
+        </radialGradient>
+        <!-- Procedural cloud-cover depth: warm accretion core + cool far bank -->
+        <radialGradient id="g-cloud-core" cx="50%" cy="50%" r="50%">
+          <stop offset="0%"  stop-color="#c8531f" stop-opacity="0.16"/>
+          <stop offset="38%" stop-color="#c9923a" stop-opacity="0.07"/>
+          <stop offset="100%" stop-color="#c8531f" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="g-cloud-far" cx="50%" cy="50%" r="50%">
+          <stop offset="0%"  stop-color="#5f7a45" stop-opacity="0.12"/>
+          <stop offset="55%" stop-color="#3d4a2e" stop-opacity="0.05"/>
+          <stop offset="100%" stop-color="#3d4a2e" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="g-cloud-dust" cx="50%" cy="50%" r="50%">
+          <stop offset="0%"  stop-color="#efe7d8" stop-opacity="0.05"/>
+          <stop offset="60%" stop-color="#efe7d8" stop-opacity="0.015"/>
+          <stop offset="100%" stop-color="#efe7d8" stop-opacity="0"/>
         </radialGradient>
         <filter id="f-glow-sm" x="-100%" y="-100%" width="300%" height="300%">
           <feGaussianBlur stdDeviation="3" result="b"/>
@@ -155,15 +183,15 @@
 
   <!-- Legend -->
   <div class="legend">
-    <div class="legend-item legend-l1">
+    <div class="legend-item legend-l1" data-level="1" title="Light up all disciplines">
       <div class="legend-swatch"><i></i></div>
       <div class="legend-text"><div class="l">L1 — Discipline</div><div class="d">5 coaching domains</div></div>
     </div>
-    <div class="legend-item legend-l2">
+    <div class="legend-item legend-l2" data-level="2" title="Light up all sub-categories">
       <div class="legend-swatch"><i></i></div>
       <div class="legend-text"><div class="l">L2 — Sub-category</div><div class="d">15 topic clusters</div></div>
     </div>
-    <div class="legend-item legend-l3">
+    <div class="legend-item legend-l3" data-level="3" title="Light up all specialties">
       <div class="legend-swatch"><i></i></div>
       <div class="legend-text"><div class="l">L3 — Specialty</div><div class="d">50 coaching areas</div></div>
     </div>
@@ -220,7 +248,7 @@
 
 <script src="../taxonomy.js?v=1"></script>
 <script src="../testimonials.js?v=2"></script>
-<script src="explore.js?v=28"></script>
+<script src="explore.js?v=29"></script>
 <script src="../sponsors.js?v=2"></script>
 <script src="../auth-nav.js?v=1"></script>
 <script src="/site-chrome.js?v=8" defer></script>

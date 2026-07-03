@@ -124,6 +124,13 @@
   .mat-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:7px 0;border-top:1px solid var(--border);font-size:12.5px;}
   .app-card select,.app-card input{width:100%;background:var(--bg);border:1px solid var(--border);padding:8px 10px;font-size:13px;font-family:var(--font);color:var(--text);}
   .app-card select:focus,.app-card input:focus{outline:none;border-color:var(--ochre);}
+  /* branded select (replaces btn-sm on the status/format dropdowns — legible, normal-case, with a custom chevron) */
+  .m-sel{font-family:var(--font);font-size:14px;color:var(--ink);background-color:var(--bg);border:1px solid var(--border-hi);padding:9px 30px 9px 11px;border-radius:0;cursor:pointer;
+    -webkit-appearance:none;-moz-appearance:none;appearance:none;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%231A1A1A' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'><polyline points='6 9 12 15 18 9'/></svg>");
+    background-repeat:no-repeat;background-position:right 10px center;}
+  .m-sel:focus{outline:none;border-color:var(--ochre);}
+  .m-photo-thumb{width:64px;height:64px;border-radius:50%;object-fit:cover;border:1px solid var(--border-hi);background:var(--surface);}
   @media(max-width:560px){.main{padding:22px 16px 70px;}.page-title{font-size:26px;}}
 </style>
 </head>
@@ -387,8 +394,9 @@ function renderActive(){
 }
 
 // ── Mentors portal: booking-request queue + roster (per-format fees) ──
-let mentorsList=[], mentorReqs=[], mentorApps=[];
+let mentorsList=[], mentorReqs=[], mentorApps=[], mentorRecs=[];
 const MREQ_STATUS=['new','contacted','scheduled','completed','declined'];
+const MREC_STATUS=['new','reviewing','invited','declined'];
 function mMoney(n){ return n? 'UGX '+Number(n).toLocaleString('en-US') : '—'; }
 function mName(id){ const m=mentorsList.find(x=>x.id===id); return m?(m.name||m.title||'—'):'—'; }
 function mSlugify(s){ return String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,''); }
@@ -400,6 +408,8 @@ async function loadMentors(){
       _q('mentor_session_requests','select=*&order=created_at.desc&limit=200')
     ]);
     mentorsList=ms||[]; mentorReqs=rs||[];
+    // founder-submitted "recommend a mentor" suggestions (staff-read; RLS gates non-staff)
+    mentorRecs = await _q('mentor_recommendations','select=*&order=created_at.desc&limit=200').catch(()=>[]);
     // applications carry payout PII → super/finance only (RLS enforces; gate the fetch too)
     mentorApps = canDD() ? (await _q('mentor_applications','select=*&order=created_at.desc&limit=200').catch(()=>[])) : [];
     portalCounts.mentors = mentorReqs.filter(r=>r.status==='new').length || mentorsList.length;
@@ -419,7 +429,7 @@ function renderMentors(){
   const reqs=mentorReqs.filter(r=>!q||[r.founder_name,r.founder_email,mName(r.mentor_id)].some(x=>String(x||'').toLowerCase().includes(q)));
   const reqRows=reqs.map(r=>{
     const ctrl = su
-      ? '<select class="btn-sm" style="padding:5px 8px" onchange="setReqStatus(\''+r.id+'\',this.value)">'+MREQ_STATUS.map(s=>'<option value="'+s+'"'+(s===r.status?' selected':'')+'>'+s+'</option>').join('')+'</select>'
+      ? '<select class="m-sel" style="font-size:12px;padding:6px 26px 6px 9px" onchange="setReqStatus(\''+r.id+'\',this.value)">'+MREQ_STATUS.map(s=>'<option value="'+s+'"'+(s===r.status?' selected':'')+'>'+s+'</option>').join('')+'</select>'
       : pill(r.status);
     return '<tr><td>'+esc(r.founder_name||'—')+'<div class="sub">'+esc(r.founder_email||'')+(r.founder_phone?(' · '+esc(r.founder_phone)):'')+(r.founder_company?('<br>'+esc(r.founder_company)):'')+'</div></td>'
       +'<td>'+esc(mName(r.mentor_id))+'</td>'
@@ -476,14 +486,49 @@ function renderMentors(){
         +'<button class="btn-sm" style="background:none;border:1px solid var(--border-hi);color:#C0392B;padding:7px 12px" onclick="declineMentorApp(\''+a.id+'\')">Decline</button>'
         +'</div></div>';
     }).join('') : '<div class="sub" style="margin-bottom:8px">No applications awaiting review.</div>';
-    const invitedNote = invited.length ? '<div class="sub" style="margin:4px 0 14px">'+invited.length+' invite(s) sent, awaiting the mentor to fill in their profile.</div>' : '';
+    const invitedList = invited.length ? ('<div class="sub" style="margin:6px 0 8px;font-weight:600;color:var(--ink-mid)">Invited — awaiting profile ('+invited.length+')</div>'
+      + invited.map(a=>{
+          const exp=a.invite_expires_at?new Date(a.invite_expires_at):null;
+          const expired=exp&&exp<new Date();
+          return '<div class="app-card" style="margin-bottom:8px;border-left-color:var(--stone);padding:12px 15px">'
+            +'<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">'
+            +'<div><span style="font-weight:600">'+esc(a.name||'Invited mentor')+'</span> &nbsp;<span class="sub">'+esc(a.email||'')+'</span>'
+            +'<div class="sub" style="margin-top:2px">invited '+ago(a.created_at)+(exp?(' · link '+(expired?'<span style="color:#C0392B">expired</span>':'valid to '+exp.toLocaleDateString())):'')+'</div></div>'
+            +'<button class="btn-sm" style="background:none;border:1px solid var(--border-hi);color:var(--ink-mid);padding:6px 12px;text-transform:none;letter-spacing:0;font-size:11px" onclick="resendMentorInvite(\''+a.id+'\')">Resend invite</button>'
+            +'</div><div id="mi-resend-'+a.id+'"></div></div>';
+        }).join('')) : '';
     onboard = invite
-      + '<h3 style="'+H+';margin:22px 0 10px">Applications</h3>' + invitedNote + appCards;
+      + '<h3 style="'+H+';margin:22px 0 10px">Applications</h3>' + appCards
+      + (invitedList?('<div style="margin-top:14px">'+invitedList+'</div>'):'');
   }
+
+  // ── Recommended mentors (founder-submitted "recommend a mentor") ──
+  const su2=isSuper(), dd=canDD();
+  const recsOpen=mentorRecs.filter(r=>r.status==='new'||r.status==='reviewing');
+  const recCards = mentorRecs.length ? mentorRecs.map(r=>{
+    const link = r.prospect_link ? (/^https?:\/\//i.test(r.prospect_link)
+        ? '<a href="'+esc(r.prospect_link)+'" target="_blank" rel="noopener" style="color:var(--terra);font-weight:600">'+esc(r.prospect_link)+' ↗</a>'
+        : esc(r.prospect_link)) : '—';
+    const statusCtrl = su2
+      ? '<select class="m-sel" style="font-size:12px;padding:6px 26px 6px 9px" onchange="setRecStatus(\''+r.id+'\',this.value)">'+MREC_STATUS.map(s=>'<option value="'+s+'"'+(s===r.status?' selected':'')+'>'+s+'</option>').join('')+'</select>'
+      : pill(r.status);
+    const inviteBtn = dd ? '<button class="btn-sm" style="background:var(--terra);border:none;color:#fff;padding:6px 12px;text-transform:none;letter-spacing:0;font-size:11px" onclick="inviteFromRec(\''+r.id+'\')">Invite this mentor →</button>' : '';
+    return '<div class="app-card" style="margin-bottom:10px">'
+      +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap">'
+      +'<div><div style="font-family:var(--display);font-size:18px;font-weight:600">'+esc(r.prospect_name)+(r.prospect_company?(' <span class="sub">· '+esc(r.prospect_company)+'</span>'):'')+'</div>'
+      +'<div class="sub" style="margin-top:2px">Reach: '+link+'</div></div>'
+      +'<div>'+statusCtrl+'</div></div>'
+      +'<div style="font-size:13px;margin:8px 0;color:var(--ink-mid)">'+esc(r.reason)+'</div>'
+      +'<div class="sub">Recommended by '+esc(r.recommender_name||'anonymous')+(r.recommender_email?(' · '+esc(r.recommender_email)):'')+' · '+ago(r.created_at)+'</div>'
+      +(inviteBtn?('<div style="margin-top:10px">'+inviteBtn+'</div>'):'')
+      +'</div>';
+  }).join('') : '<div class="sub">No mentor recommendations yet.</div>';
+  const recSection = '<h3 style="'+H+';margin:26px 0 10px">Recommended mentors'+(recsOpen.length?(' <span class="sub" style="font-weight:400">· '+recsOpen.length+' open</span>'):'')+'</h3>'+recCards;
 
   document.getElementById('roster').innerHTML =
     '<div id="mentor-form"></div>'
     + onboard
+    + recSection
     + '<h3 style="'+H+';margin:24px 0 10px">Booking requests</h3>'
     + tbl(['Founder','Mentor','Format','Quoted fee','Message','Status','When'], reqRows)
     + '<div style="display:flex;align-items:center;justify-content:space-between;margin:26px 0 10px"><h3 style="'+H+'">Mentor roster</h3>'+addBtn+'</div>'
@@ -545,13 +590,20 @@ function editMentor(id){
     +'<div>'+lbl('Coffee fee (UGX)')+_mfInput('mf-coffee','2000000',fees.coffee,'type="number"')+'</div>'
     +'<div>'+lbl('Zoom fee (UGX)')+_mfInput('mf-zoom','1400000',fees.zoom,'type="number"')+'</div>'
     +'</div>'
+    +lbl('Profile photo')
+    +'<div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">'
+    +'<img id="mf-photo-prev" class="m-photo-thumb" src="'+esc(m.photo_url||'')+'" alt=""'+(m.photo_url?'':' style="display:none"')+'>'
+    +'<div style="flex:1;min-width:200px"><input type="file" id="mf-photo-file" accept="image/png,image/jpeg,image/webp" onchange="onMentorPhotoPick(this)" style="font-size:12px;width:auto;background:none;border:none;padding:0">'
+    +'<div id="mf-photo-msg" class="sub" style="margin-top:4px">PNG, JPG, or WebP · up to 5MB. Shown on the public mentor card.</div></div>'
+    +'<input type="hidden" id="mf-photo-url" value="'+esc(m.photo_url||'')+'" data-folder="'+esc(id||('new-'+Date.now()))+'">'
+    +'</div>'
     +lbl('Expertise (comma-separated)')+_mfInput('mf-expertise','Fundraising, Unit economics, Scaling',(m.expertise||[]).join(', '))
     +lbl('Bio')+'<textarea id="mf-bio" style="width:100%;padding:9px 10px;border:1px solid var(--border-hi);background:rgba(255,255,255,.5);font-family:inherit;font-size:14px;min-height:64px">'+esc(m.bio||'')+'</textarea>'
     +'<div style="display:flex;gap:18px;align-items:center;margin-top:12px;flex-wrap:wrap">'
     +'<label class="sub"><input type="checkbox" id="mf-fmt-coffee" '+(fmts.includes('coffee')?'checked':'')+'> Coffee</label>'
     +'<label class="sub"><input type="checkbox" id="mf-fmt-zoom" '+(fmts.includes('zoom')?'checked':'')+'> Zoom</label>'
     +'<label class="sub"><input type="checkbox" id="mf-featured" '+(m.featured?'checked':'')+'> Featured</label>'
-    +'<label class="sub">Status <select id="mf-status" class="btn-sm" style="padding:5px 8px">'+['active','pending','inactive'].map(s=>'<option value="'+s+'"'+((m.status||'active')===s?' selected':'')+'>'+s+'</option>').join('')+'</select></label>'
+    +'<label class="sub" style="display:flex;align-items:center;gap:8px">Status <select id="mf-status" class="m-sel" style="width:auto">'+['active','pending','inactive'].map(s=>'<option value="'+s+'"'+((m.status||'active')===s?' selected':'')+'>'+s+'</option>').join('')+'</select></label>'
     +'</div>'
     +'<div style="margin-top:16px"><button class="btn-sm" style="background:var(--terra);border:none;color:#fff;padding:8px 16px" onclick="saveMentor('+(id?('\''+m.id+'\''):'null')+')">Save</button> '
     +'<button class="btn-sm" style="background:none;border:1px solid var(--border-hi);color:var(--ink-mid);padding:8px 16px" onclick="document.getElementById(\'mentor-form\').innerHTML=\'\'">Cancel</button></div>'
@@ -566,7 +618,7 @@ async function saveMentor(id){
   const expertise=val('mf-expertise').split(',').map(s=>s.trim()).filter(Boolean);
   const body={ name, title:val('mf-title')||null, company:val('mf-company')||null, bio:val('mf-bio')||null,
     expertise, location:val('mf-location')||null, formats:formats.length?formats:['coffee','zoom'],
-    fees:{coffee:coffee,zoom:zoom}, session_fee:coffee||zoom||null,
+    fees:{coffee:coffee,zoom:zoom}, session_fee:coffee||zoom||null, photo_url:val('mf-photo-url')||null,
     status:val('mf-status')||'active', featured:document.getElementById('mf-featured').checked };
   if(!id) body.slug=mSlugify(name);
   try{
@@ -574,6 +626,49 @@ async function saveMentor(id){
     else   await _w('POST','mentors','',body);
     showToast('Mentor saved','success'); document.getElementById('mentor-form').innerHTML=''; loadMentors();
   }catch(e){ showToast('Save failed — '+e.message,'error'); }
+}
+async function onMentorPhotoPick(input){
+  const file=input.files&&input.files[0]; if(!file) return;
+  const msg=document.getElementById('mf-photo-msg');
+  if(!/^image\/(png|jpe?g|webp)$/.test(file.type)){ msg.textContent='Use a PNG, JPG, or WebP image.'; msg.style.color='#C0392B'; return; }
+  if(file.size>5*1024*1024){ msg.textContent='Image must be under 5MB.'; msg.style.color='#C0392B'; return; }
+  msg.style.color=''; msg.textContent='Uploading…';
+  try{
+    const hidden=document.getElementById('mf-photo-url');
+    const ext=((file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,''))||'jpg';
+    const folder=(hidden.dataset.folder||('m-'+Date.now())).replace(/[^A-Za-z0-9_-]/g,'');
+    const path=folder+'/photo_'+Date.now()+'.'+ext;
+    const { error }=await sb.storage.from('mentor-photos').upload(path,file,{upsert:true,contentType:file.type});
+    if(error) throw error;
+    const url=sb.storage.from('mentor-photos').getPublicUrl(path).data.publicUrl;
+    hidden.value=url;
+    const prev=document.getElementById('mf-photo-prev'); prev.src=url; prev.style.display='';
+    msg.textContent='Photo uploaded ✓'; msg.style.color='var(--success)';
+  }catch(e){ msg.textContent='Upload failed — '+e.message; msg.style.color='#C0392B'; }
+}
+async function resendMentorInvite(appId){
+  const a=mentorApps.find(x=>x.id===appId); const email=a?(a.email||''):'';
+  try{
+    const tok=await _rpc('resend_mentor_invite',{p_app:appId});
+    const link=location.origin+'/beta/mentor-onboarding.html?token='+tok;
+    const out=document.getElementById('mi-resend-'+appId);
+    if(out) out.innerHTML='<input readonly value="'+esc(link)+'" onclick="this.select()" style="width:100%;margin-top:6px;padding:8px 10px;border:1px solid var(--terra);background:rgba(200,83,31,.05);font-family:monospace;font-size:11px">';
+    showToast('Fresh invite link generated for '+email,'success');
+  }catch(e){ showToast('Resend failed — '+e.message,'error'); }
+}
+async function setRecStatus(id,status){
+  try{ await _w('PATCH','mentor_recommendations','id=eq.'+id,{status});
+    const r=mentorRecs.find(x=>x.id===id); if(r) r.status=status;
+    showToast('Recommendation marked “'+status+'”','success'); renderMentors();
+  }catch(e){ showToast('Update failed — '+e.message,'error'); }
+}
+function inviteFromRec(id){
+  const r=mentorRecs.find(x=>x.id===id); if(!r) return;
+  const emailEl=document.getElementById('mi-email'), nameEl=document.getElementById('mi-name');
+  const isEmail = r.prospect_link && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(r.prospect_link).trim());
+  if(nameEl) nameEl.value=r.prospect_name||'';
+  if(emailEl){ if(isEmail) emailEl.value=String(r.prospect_link).trim(); emailEl.focus(); emailEl.scrollIntoView({behavior:'smooth',block:'center'}); }
+  showToast(isEmail?'Invite prefilled — review and generate the link':'Add the mentor’s email, then generate the link','success');
 }
 
 function companiesOf(fid){ return pageCompanies.filter(c=>c.founder_id===fid); }

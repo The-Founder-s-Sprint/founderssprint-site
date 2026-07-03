@@ -188,7 +188,14 @@ body {
   display: flex; flex-direction: column; gap: 14px;
   min-width: 240px;
 }
-.legend-item { display: grid; grid-template-columns: 26px 1fr; align-items: center; gap: 14px; white-space: nowrap; }
+.legend-item { display: grid; grid-template-columns: 26px 1fr; align-items: center; gap: 14px; white-space: nowrap;
+  cursor: pointer; padding: 5px 10px 5px 6px; margin: -5px -10px -5px -6px; border-radius: 0 0 10px 0;
+  transition: background .2s ease; -webkit-tap-highlight-color: transparent; }
+.legend-item:hover { background: rgba(239,231,216,0.06); }
+.legend-item:focus-visible { outline: 1px solid rgba(239,231,216,0.4); outline-offset: 2px; }
+.legend-item.active { background: rgba(200,83,31,0.16); }
+.legend-item.active .legend-text .l { color: var(--terra); }
+.legend-item.active .legend-text .d::after { content: " · lit"; color: rgba(239,231,216,0.5); }
 .legend-swatch { display: flex; align-items: center; justify-content: center; }
 .legend-swatch i { display: block; border-radius: 50%; background: var(--terra); }
 .legend-l1 i { width: 14px; height: 14px; box-shadow: 0 0 12px rgba(200,83,31,0.6); }

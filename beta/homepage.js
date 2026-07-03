@@ -11,10 +11,23 @@
 (() => {
   'use strict';
 
+  // ------------------------------------------------------------
+  // Reload lands on the hero (the fresh per-visit video), not the
+  // browser's restored scroll position — users reported manual reloads
+  // dumping them in the pricing section. Anchor deep-links (#method,
+  // #pricing, …) still work because we only force the top when the URL
+  // has no hash.
+  // ------------------------------------------------------------
+  if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+  if (!window.location.hash) {
+    window.scrollTo(0, 0);
+    window.addEventListener('load', () => { if (!window.location.hash) window.scrollTo(0, 0); });
+  }
+
   // ============================================================
   // 0. CONSTANTS
   // ============================================================
-  const COHORT_START = new Date('2026-07-06T09:00:00+03:00');
+  const COHORT_START = new Date('2026-09-01T10:00:00+03:00');
   const TIER_RULES = {
     1: { eb: 'One-on-One Coaching', name: '1 × 2-hr session',   price: 500000,  full: '500K',  dur: '2 hours',  save: 0 },
     2: { eb: 'Single + Add-on',    name: '2 × 2-hr sessions',  price: 1000000, full: '1M',    dur: '4 hours',  save: 0,  hint: 'Same as Pick 3' },

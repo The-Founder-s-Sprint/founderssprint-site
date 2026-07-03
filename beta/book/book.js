@@ -18,7 +18,7 @@
     tier: null,           // 'single' | 'pick3' | 'cohort'
     specialties: [],      // selected L3 slugs — the atomic bookable unit
     disciplines: [],      // derived: distinct parent disciplines of the selected L3s
-    cohort: 'july-2026',
+    cohort: 'sep-2026',
     plan: 'full',         // 'full' | '2x' | '3x'
     provider: 'mtn',      // 'mtn' | 'airtel'
     name: '',
