@@ -142,7 +142,7 @@
     <div class="step-header">
       <span class="eyebrow terra">Step 2 of 4</span>
       <h1 class="h-section" id="step2-title">Your account</h1>
-      <p class="h-sub" id="step2-sub">Sign in or create an account to continue. We use magic links — no password needed.</p>
+      <p class="h-sub" id="step2-sub">Create your account to continue. You'll use it to sign in and reach your data room.</p>
     </div>
 
     <!-- AUTH MODE TOGGLE -->
@@ -193,9 +193,15 @@
           <input class="field-input" id="f-company" type="text" placeholder="e.g. Kibanda Foods">
         </div>
 
+        <div class="field-group">
+          <label class="field-label" for="f-password">Create a password</label>
+          <input class="field-input" id="f-password" type="password" placeholder="At least 8 characters" autocomplete="new-password" minlength="8" required>
+          <span class="field-hint">Secures your account and your data room. You'll use it to sign in.</span>
+        </div>
+
         <button class="btn-primary" type="submit" id="btn-send-link">
-          <span class="btn-text">Send magic link</span>
-          <span class="btn-loading" style="display:none">Sending...</span>
+          <span class="btn-text">Continue</span>
+          <span class="btn-loading" style="display:none">Working...</span>
         </button>
       </form>
     </div>
@@ -212,13 +218,19 @@
         <div class="field-group">
           <label class="field-label" for="l-email">Email address</label>
           <input class="field-input" id="l-email" type="email" placeholder="sarah@example.com" autocomplete="email" required>
-          <span class="field-hint">We'll send a magic link to verify it's you</span>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="l-password">Password</label>
+          <input class="field-input" id="l-password" type="password" placeholder="Your password" autocomplete="current-password" required>
+          <span class="field-hint">Forgot it? Reset from the <a href="../login-founder.html" style="color:var(--terra)">founder portal</a>.</span>
         </div>
 
         <button class="btn-primary" type="submit" id="btn-login-link">
-          <span class="btn-text">Send magic link</span>
-          <span class="btn-loading" style="display:none">Sending...</span>
+          <span class="btn-text">Sign in &amp; continue</span>
+          <span class="btn-loading" style="display:none">Signing in...</span>
         </button>
+        <div class="field-hint" id="login-error" style="color:#C0392B;display:none;margin-top:8px"></div>
       </form>
     </div>
 
@@ -525,6 +537,6 @@
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="../taxonomy.js?v=1"></script>
-<script src="book.js?v=5"></script>
+<script src="book.js?v=6"></script>
 </body>
 </html>

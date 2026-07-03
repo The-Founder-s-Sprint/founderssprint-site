@@ -11,6 +11,7 @@
   var SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss';
   var sb = (window.supabase && window.supabase.createClient) ? window.supabase.createClient(SB_URL, SB_ANON) : null;
   var LOGGED_IN = false;
+  var API = 'https://api.founderssprint.co';
 
   // ── State ──────────────────────────────────────────────────
   const state = {
@@ -26,7 +27,33 @@
     phone: '',
     phoneCode: '+256',
     company: '',
+    password: '',
+    cohorts: [],          // real cohorts fetched from /api/cohorts (for cohort-track id resolution)
+    _registrationId: null,
   };
+
+  // Fetch the real, open cohorts so the cohort track can resolve a numeric cohortId.
+  function loadCohorts() {
+    fetch(API + '/api/cohorts')
+      .then(function (r) { return r.ok ? r.json() : []; })
+      .then(function (list) { state.cohorts = Array.isArray(list) ? list : []; })
+      .catch(function () { state.cohorts = []; });
+  }
+
+  // Map the selected cohort card ('sep-2026' / 'oct-2026') to a real open cohort id
+  // by matching year + month on start_date. Returns null if none is available.
+  function resolveCohortId() {
+    var m = /^([a-z]{3})-(\d{4})$/.exec(state.cohort || '');
+    if (!m) return null;
+    var MONTHS = { jan:1, feb:2, mar:3, apr:4, may:5, jun:6, jul:7, aug:8, sep:9, oct:10, nov:11, dec:12 };
+    var mon = MONTHS[m[1]], yr = parseInt(m[2], 10);
+    var match = state.cohorts.filter(function (c) {
+      if (!c.start_date || c.status !== 'open') return false;
+      var d = new Date(c.start_date);
+      return d.getUTCFullYear() === yr && (d.getUTCMonth() + 1) === mon;
+    });
+    return match.length ? match[0].id : null;
+  }
 
   // Single source of truth for the L1/L2/L3 taxonomy (see ../taxonomy.js).
   const TAX = window.FS_TAXONOMY;
@@ -194,10 +221,10 @@
       // Update header text
       if (authMode === 'create') {
         $('#step2-title').textContent = 'Create your account';
-        $('#step2-sub').textContent = "We'll send a magic link to your email. No password needed — just tap the link to verify.";
+        $('#step2-sub').textContent = "Create your account with a password — you'll use it to sign in and reach your data room.";
       } else {
         $('#step2-title').textContent = 'Welcome back';
-        $('#step2-sub').textContent = "Enter your email and we'll send a magic link to sign you in.";
+        $('#step2-sub').textContent = "Enter your email and password to sign in and continue.";
       }
     });
   });
@@ -207,7 +234,9 @@
   const changeTierLogin = $('#btn-change-tier-login');
   if (changeTierLogin) changeTierLogin.addEventListener('click', () => goToStep(1));
 
-  // Create account form submission
+  // Create account form submission — capture details (incl. password) and move on.
+  // The account + registration are created server-side at the pay step so the
+  // deposit STK push can fire immediately after.
   $('#auth-form').addEventListener('submit', (e) => {
     e.preventDefault();
     state.name = $('#f-name').value.trim();
@@ -215,32 +244,60 @@
     state.phone = $('#f-phone').value.trim();
     state.phoneCode = $('#f-phone-code').value;
     state.company = $('#f-company').value.trim();
+    const pwEl = $('#f-password');
+    state.password = pwEl ? pwEl.value : '';
 
     if (!state.name || !state.email || !state.phone) return;
-
-    // Show magic link sent
-    $('#form-create').style.display = 'none';
-    $('#form-login').style.display = 'none';
-    $('#auth-toggle').style.display = 'none';
-    $('#magic-sent').style.display = 'block';
-    $('#sent-email').textContent = state.email;
+    if (!state.password || state.password.length < 8) {
+      if (pwEl) { pwEl.focus(); pwEl.reportValidity && pwEl.reportValidity(); }
+      return;
+    }
+    goToStep(3);
   });
 
-  // Login form submission
+  // Login form submission — real password sign-in so the returning founder gets a
+  // session (drives the deposit poll + the dashboard link), then continue to config.
   const loginForm = $('#login-form');
   if (loginForm) {
-    loginForm.addEventListener('submit', (e) => {
+    loginForm.addEventListener('submit', async (e) => {
       e.preventDefault();
       const email = $('#l-email').value.trim();
-      if (!email) return;
-      state.email = email;
+      const pw = $('#l-password') ? $('#l-password').value : '';
+      const errEl = $('#login-error');
+      if (errEl) { errEl.style.display = 'none'; errEl.textContent = ''; }
+      if (!email || !pw) return;
 
-      // Show magic link sent
-      $('#form-create').style.display = 'none';
-      $('#form-login').style.display = 'none';
-      $('#auth-toggle').style.display = 'none';
-      $('#magic-sent').style.display = 'block';
-      $('#sent-email').textContent = state.email;
+      const btn = $('#btn-login-link');
+      const tx = btn ? btn.querySelector('.btn-text') : null;
+      const ld = btn ? btn.querySelector('.btn-loading') : null;
+      if (tx) tx.style.display = 'none'; if (ld) ld.style.display = 'inline';
+      if (btn) btn.disabled = true;
+
+      try {
+        if (!sb) throw new Error('Sign-in is unavailable right now.');
+        const { error } = await sb.auth.signInWithPassword({ email, password: pw });
+        if (error) throw error;
+        state.email = email;
+        state.password = pw;   // lets the pay step re-establish the session if needed
+        LOGGED_IN = true;
+        // Best-effort: pull name + phone from the founder profile (RLS scopes to own row)
+        try {
+          const pr = await sb.from('founder_profiles').select('first_name,last_name,phone,whatsapp').limit(1);
+          const p = pr && pr.data && pr.data[0];
+          if (p) {
+            const nm = ((p.first_name || '') + ' ' + (p.last_name || '')).trim();
+            if (nm) state.name = nm;
+            const ph = (p.phone || p.whatsapp || '').trim();
+            if (ph) { state.phone = ph; state.phoneCode = ''; }
+          }
+        } catch (e2) {}
+        goToStep(3);
+      } catch (err) {
+        if (errEl) { errEl.textContent = (err && err.message) ? err.message : 'Could not sign you in. Check your details.'; errEl.style.display = 'block'; }
+      } finally {
+        if (tx) tx.style.display = 'inline'; if (ld) ld.style.display = 'none';
+        if (btn) btn.disabled = false;
+      }
     });
   }
 
@@ -345,7 +402,7 @@
       authMode = 'login';
       $$('.auth-tab').forEach(t => t.classList.toggle('active', t.dataset.mode === 'login'));
       $('#step2-title').textContent = 'Welcome back';
-      $('#step2-sub').textContent = "Enter your email and we'll send a magic link to sign you in.";
+      $('#step2-sub').textContent = "Enter your email and password to sign in and continue.";
       state.name = '';
       state.email = '';
       state.phone = '';
@@ -578,80 +635,151 @@
     goToStep(5);
   });
 
-  // ── Step 5: Payment processing + confirmation ──────────────
-  function startPaymentProcessing() {
-    // Show processing, hide success
+  // ── Step 5: Real checkout — register → deposit STK push → confirm ──
+  const providerNames = { mtn: 'MTN MoMo', airtel: 'Airtel Money' };
+
+  function fullPhone() { return (state.phoneCode || '') + String(state.phone || '').replace(/\s+/g, ''); }
+
+  async function startPaymentProcessing() {
+    // Show the "check your phone" state; hide prototype + success
     $('#state-processing').style.display = 'flex';
     $('#state-success').style.display = 'none';
-    $('#proto-payment-skip').style.display = 'flex';
+    const proto = $('#proto-payment-skip'); if (proto) proto.style.display = 'none';
+    $('#provider-name').textContent = providerNames[state.provider] || 'Mobile Money';
+    $('#processing-phone').textContent = (state.phoneCode || '') + ' ' + state.phone;
+    const fill = $('#timer-fill'); if (fill) fill.style.width = '0%';
+    const cancel = $('#btn-cancel-payment'); if (cancel) cancel.disabled = true;
 
-    const providerNames = { mtn: 'MTN MoMo', airtel: 'Airtel Money' };
-    $('#provider-name').textContent = providerNames[state.provider];
-    $('#processing-phone').textContent = state.phoneCode + ' ' + state.phone;
+    try {
+      // 1 — Create the registration (+ founder account) server-side
+      const parts = state.name.trim().split(/\s+/);
+      const firstName = parts.shift() || state.name;
+      const lastName  = parts.join(' ') || '—';
 
-    // Animate timer bar
-    const fill = $('#timer-fill');
-    fill.style.width = '0%';
-    // Prototype: auto-complete after 5 seconds
-    let elapsed = 0;
-    const interval = setInterval(() => {
-      elapsed += 100;
-      fill.style.width = (elapsed / 5000 * 100) + '%';
-      if (elapsed >= 5000) {
-        clearInterval(interval);
-        showSuccess();
+      let cohortId = null;
+      if (state.tier === 'cohort') {
+        cohortId = resolveCohortId();
+        if (!cohortId) throw new Error('That cohort is no longer open — go back and choose another date.');
       }
-    }, 100);
 
-    // Store interval for cancel
-    state._payInterval = interval;
-  }
+      const regBody = {
+        track: state.tier,
+        firstName, lastName, email: state.email,
+        phone: fullPhone(), company: state.company || null,
+        enrolledSpecialties: state.specialties.slice(),
+        disciplines: state.disciplines.slice(),
+      };
+      if (state.password) regBody.password = state.password;
+      if (cohortId) regBody.cohortId = cohortId;
 
-  function showSuccess() {
-    $('#state-processing').style.display = 'none';
-    $('#proto-payment-skip').style.display = 'none';
-    $('#state-success').style.display = 'flex';
+      const regRes = await fetch(API + '/api/register', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(regBody),
+      });
+      const regData = await regRes.json().catch(() => ({}));
+      if (!regRes.ok) throw new Error(regData.error || 'We could not create your booking. Please try again.');
+      state._registrationId = regData.registrationId;
+      state._depositAmount  = regData.depositAmount;
 
-    // Hide nav progress on success
-    $('#nav-progress').style.opacity = '0';
+      // 2 — Fire the deposit mobile-money prompt (STK push)
+      const payRes = await fetch(API + '/api/payment-request', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ registrationId: regData.registrationId, paymentType: 'deposit', phone: fullPhone() }),
+      });
+      const payData = await payRes.json().catch(() => ({}));
+      if (!payRes.ok && !payData.pending) {
+        // Booking exists but the prompt failed — they can still pay from the dashboard.
+        return showPending(true);
+      }
 
-    const t = TIER_DATA[state.tier];
-    const payNow = Math.round(t.price * 0.10);  // 10% deposit
-
-    // Generate mock transaction ID
-    const now = new Date();
-    const txnId = 'FS-' + now.getFullYear() +
-      String(now.getMonth() + 1).padStart(2, '0') +
-      String(now.getDate()).padStart(2, '0') + '-' +
-      String(Math.floor(Math.random() * 9000) + 1000);
-
-    $('#txn-id').textContent = txnId;
-    $('#txn-amount').textContent = 'UGX ' + payNow.toLocaleString('en-UG');
-    $('#txn-method').textContent = state.provider === 'mtn' ? 'MTN MoMo' : 'Airtel Money';
-    $('#txn-email').textContent = state.email;
-
-    // Schedule text
-    if (state.tier === 'cohort') {
-      const cohortCard = $(`.cohort-card.selected`);
-      const month = cohortCard ? $('.cohort-month', cohortCard).textContent : 'your cohort';
-      $('#ns-schedule-text').textContent = `Your cohort starts ${month}. Calendar invites for all 5 weeks will arrive 48 hours before.`;
+      // 3 — Sign the founder in (they just set a password) so we can watch their
+      //     own registration flip to paid, and so "Go to dashboard" just works.
+      if (!LOGGED_IN && state.password && sb) {
+        try { await sb.auth.signInWithPassword({ email: state.email, password: state.password }); LOGGED_IN = true; } catch (e) {}
+      }
+      pollDeposit(regData.registrationId);
+    } catch (e) {
+      showPayError(e.message);
     }
   }
 
-  // Cancel payment
+  // Poll the founder's own registration (RLS-scoped) until the deposit confirms.
+  function pollDeposit(regId) {
+    const fill = $('#timer-fill');
+    const MAX = 36; let tries = 0;   // ~3 minutes at 5s
+    if (state._payInterval) clearInterval(state._payInterval);
+    state._payInterval = setInterval(async () => {
+      tries++;
+      if (fill) fill.style.width = Math.min(100, (tries / MAX) * 100) + '%';
+      let paid = false;
+      try {
+        const r = await sb.from('registrations').select('deposit_paid').eq('id', regId).maybeSingle();
+        paid = !!(r && r.data && r.data.deposit_paid);
+      } catch (e) {}
+      if (paid) { clearInterval(state._payInterval); showConfirmed(); }
+      else if (tries >= MAX) { clearInterval(state._payInterval); showPending(false); }
+    }, 5000);
+  }
+
+  function setSuccessCard() {
+    $('#txn-id').textContent    = state._registrationId ? ('Booking #' + state._registrationId) : '—';
+    $('#txn-amount').textContent = 'UGX ' + Number(state._depositAmount || Math.round(TIER_DATA[state.tier].price * 0.10)).toLocaleString('en-UG');
+    $('#txn-method').textContent = providerNames[state.provider] || 'Mobile Money';
+    $('#txn-email').textContent  = state.email;
+    if (state.tier === 'cohort') {
+      const cohortCard = $('.cohort-card.selected');
+      const month = cohortCard ? $('.cohort-month', cohortCard).textContent : 'your cohort';
+      $('#ns-schedule-text').textContent = `Your cohort starts ${month}. Calendar invites for all 5 weeks will arrive 48 hours before.`;
+    }
+    // Point the primary action at the dashboard now that they have an account.
+    const act = document.querySelector('#state-success .success-actions .btn-primary');
+    if (act) { act.textContent = 'Go to your dashboard'; act.setAttribute('href', LOGGED_IN ? '../../founder.html' : '../login-founder.html'); }
+  }
+
+  function showConfirmed() {
+    $('#state-processing').style.display = 'none';
+    $('#state-success').style.display = 'flex';
+    const np = $('#nav-progress'); if (np) np.style.opacity = '0';
+    const h = document.querySelector('#state-success .h-section'); if (h) h.textContent = "You're in.";
+    const sub = document.querySelector('#state-success > .h-sub'); if (sub) sub.textContent = 'Deposit received. Check your email for your receipt and next steps.';
+    setSuccessCard();
+  }
+
+  // Prompt sent but not yet confirmed (timed out or STK send failed).
+  function showPending(sendFailed) {
+    $('#state-processing').style.display = 'none';
+    $('#state-success').style.display = 'flex';
+    const np = $('#nav-progress'); if (np) np.style.opacity = '0';
+    const h = document.querySelector('#state-success .h-section'); if (h) h.textContent = 'Almost there.';
+    const sub = document.querySelector('#state-success > .h-sub');
+    if (sub) sub.textContent = sendFailed
+      ? 'Your booking is reserved. We couldn’t send the prompt automatically — you can pay your deposit from your dashboard.'
+      : 'Your booking is reserved. Approve the prompt on your phone to confirm your deposit — we’ll email your receipt once it lands.';
+    setSuccessCard();
+  }
+
+  function showPayError(msg) {
+    const sub = $('#state-processing') && document.querySelector('#state-processing .h-sub');
+    const h = document.querySelector('#state-processing .h-section');
+    if (h) h.textContent = 'Something went wrong';
+    if (sub) sub.innerHTML = (msg || 'Please try again.');
+    const timer = document.querySelector('#state-processing .processing-timer'); if (timer) timer.style.display = 'none';
+    const cancel = $('#btn-cancel-payment');
+    if (cancel) { cancel.disabled = false; cancel.textContent = 'Back'; }
+  }
+
+  // Back / cancel — return to review
   $('#btn-cancel-payment').addEventListener('click', () => {
     if (state._payInterval) clearInterval(state._payInterval);
+    // reset processing UI for a possible retry
+    const h = document.querySelector('#state-processing .h-section'); if (h) h.textContent = 'Check your phone';
+    const timer = document.querySelector('#state-processing .processing-timer'); if (timer) timer.style.display = '';
+    const cancel = $('#btn-cancel-payment'); if (cancel) { cancel.disabled = false; cancel.textContent = 'Cancel'; }
     goToStep(4);
-  });
-
-  // Skip payment (prototype)
-  $('#btn-skip-payment').addEventListener('click', () => {
-    if (state._payInterval) clearInterval(state._payInterval);
-    showSuccess();
   });
 
   // ── Init ───────────────────────────────────────────────────
   (async function init() {
+    loadCohorts();
     readEntryParams();
     await checkExistingSession();
     // Deep-link with a tier (e.g. a module's "Book a course") + already signed in
