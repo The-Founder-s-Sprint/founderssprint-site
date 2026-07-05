@@ -355,7 +355,7 @@ function openCompany(cid){
     const rows=cat.items.map(it=>{
       const s=itemState(cid,it);
       if(s.st==='vetted'){
-        const open = (s.file&&s.file.file_url) ? '<a class="deliv-link" href="'+esc(s.file.file_url)+'" target="_blank">Open</a>'
+        const open = (s.file&&s.file.file_url) ? '<a class="deliv-link" href="'+esc(safeUrl(s.file.file_url))+'" target="_blank" rel="noopener">Open</a>'
           : (s.file&&s.file.storage_path ? '<a class="deliv-link" href="#" onclick="openDoc(\''+esc(s.file.storage_path)+'\');return false">Open</a>' : '<span class="pill pill-grey">On file</span>');
         return '<div class="deliv-row"><span class="deliv-dot done"></span><span class="deliv-name">'+esc(it.item_label)+'</span>'+open+'</div>';
       }
@@ -384,13 +384,15 @@ function openCompany(cid){
     +'<div class="section-title">Due-diligence vault</div>'
     +'<div class="disc-grid">'+cats+'</div>'
     +(c.linkedin_url||c.website_url?'<div class="section-title">Links</div><div class="card">'
-      +(c.website_url?'<a class="deliv-link" href="'+esc(c.website_url)+'" target="_blank">Website</a>  ':'')
-      +(c.linkedin_url?'<a class="deliv-link" href="'+esc(c.linkedin_url)+'" target="_blank">LinkedIn</a>':'')+'</div>':'');
+      +(c.website_url?'<a class="deliv-link" href="'+esc(safeUrl(c.website_url))+'" target="_blank" rel="noopener">Website</a>  ':'')
+      +(c.linkedin_url?'<a class="deliv-link" href="'+esc(safeUrl(c.linkedin_url))+'" target="_blank" rel="noopener">LinkedIn</a>':'')+'</div>':'');
   window.scrollTo(0,0);
 }
 function closeCompany(){document.getElementById('view-detail').style.display='none';document.getElementById('view-list').style.display='block';window.scrollTo(0,0);}
 
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+// Only allow http/https hrefs — blocks javascript:/data: URLs a founder could inject into a link.
+function safeUrl(u){ u=String(u==null?'':u).trim(); return /^https?:\/\//i.test(u)?u:'#'; }
 function simil(a,b){a=String(a||'').toLowerCase().trim();b=String(b||'').toLowerCase().trim();return !!a&&!!b&&(a===b||a.includes(b)||b.includes(a));}
 function showToast(m,t){const e=document.getElementById('toast');e.textContent=m;e.className=t||'';e.classList.add('show');setTimeout(()=>e.classList.remove('show'),3200);}
 </script>

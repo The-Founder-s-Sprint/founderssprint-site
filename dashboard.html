@@ -2872,11 +2872,11 @@ async function renderRegistrations() {
     const iotecBadge  = `<span style="font-size:9px;background:rgba(12,180,173,0.15);color:#0A918B;padding:2px 7px;border:1px solid rgba(12,180,173,0.3);letter-spacing:1px">📱 IOTEC</span>`;
     return `<tr class="${forfeited ? 'forfeited' : ''}">
       <td style="color:var(--muted);font-family:var(--mono)">#${r.id}</td>
-      <td><strong>${r.first_name} ${r.last_name}</strong>${r.company ? `<br><span style="color:var(--muted);font-size:10px">${r.company}</span>` : ''}</td>
-      <td style="color:var(--muted)">${r.email}</td>
+      <td><strong>${esc(r.first_name)} ${esc(r.last_name)}</strong>${r.company ? `<br><span style="color:var(--muted);font-size:10px">${esc(r.company)}</span>` : ''}</td>
+      <td style="color:var(--muted)">${esc(r.email)}</td>
       <td>${cohortName(r.cohort_id)}</td>
       <td>${trackBadge(r.track)}</td>
-      <td style="color:var(--muted);font-size:11px">${r.sector || '—'}</td>
+      <td style="color:var(--muted);font-size:11px">${esc(r.sector) || '—'}</td>
       <td class="${depositDone ? 'text-green' : 'text-red'}" style="font-family:var(--mono)">${fmtUGX(r.deposit_amount)}${depIotec ? ' ' + iotecBadge : ''}</td>
       <td class="${balanceDone ? 'text-green' : ''}" style="font-family:var(--mono)">${fmtUGX(r.balance_amount)}${balIotec ? ' ' + iotecBadge : ''}</td>
       <td style="font-family:var(--mono)">${fmtUGX(r.full_fee)}</td>
@@ -2888,7 +2888,7 @@ async function renderRegistrations() {
           ${!depositDone && !forfeited ? `<button class="action-btn success" onclick="openPaymentModal(${r.id},'deposit')">✓ Manual</button>` : ''}
           ${depositDone && !balanceDone && !forfeited ? `<button class="action-btn" style="border-color:rgba(12,180,173,0.4);color:#0A918B" onclick="sendIotecRequest(${r.id},'balance')" title="Send mobile money prompt">📱 Send</button>` : ''}
           ${depositDone && !balanceDone && !forfeited ? `<button class="action-btn success" onclick="openPaymentModal(${r.id},'balance')">✓ Manual</button>` : ''}
-          ${r.admin_note ? `<span class="note-field" title="${r.admin_note}">📝 ${r.admin_note}</span>` : ''}
+          ${r.admin_note ? `<span class="note-field" title="${esc(r.admin_note)}">📝 ${esc(r.admin_note)}</span>` : ''}
         </div>
       </td>
     </tr>`;
@@ -3104,10 +3104,10 @@ function renderDocuments() {
     <div class="doc-item">
       <div class="doc-icon">${fileIcon(d.mime_type)}</div>
       <div class="doc-info">
-        <div class="doc-name">${d.name}</div>
+        <div class="doc-name">${esc(d.name)}</div>
         <div class="doc-meta">
-          ${d.category} · ${d.cohort_id ? cohortName(d.cohort_id) : 'All cohorts'} · ${d.file_size ? (d.file_size/1024/1024).toFixed(1)+'MB' : ''} · ${fmtDate(d.created_at)}
-          ${d.description ? ' · ' + d.description : ''}
+          ${esc(d.category)} · ${d.cohort_id ? cohortName(d.cohort_id) : 'All cohorts'} · ${d.file_size ? (d.file_size/1024/1024).toFixed(1)+'MB' : ''} · ${fmtDate(d.created_at)}
+          ${d.description ? ' · ' + esc(d.description) : ''}
         </div>
       </div>
       <div class="doc-actions">

@@ -1390,9 +1390,31 @@ async function payBalance(regId){
   try {
     const res = await fetch(API_BASE+'/api/payment-request', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ registrationId:r.id, paymentType:'balance', phone:phone.trim() }) });
     let data={}; try { data = await res.json(); } catch(e){}
-    if(res.ok || data.pending){ showToast('Payment prompt sent to '+phone+' — approve it on your phone.','success'); }
+    if(res.ok || data.pending){ showToast('Payment prompt sent to '+phone+' — approve it on your phone.','success'); pollPayment(r.id, 'balance'); }
     else { showToast(data.error || 'Mobile money payments go live once ioTec is connected.','info'); }
   } catch(e){ showToast('Mobile money payments go live once ioTec is connected.','info'); }
+}
+
+// After a payment prompt is sent, the ioTec webhook clears the payment server-side a few
+// seconds later. Poll the registration so the dashboard live-updates to "Fully paid" /
+// unlocks without a manual reload. Stops on success or after ~3.3 min.
+function pollPayment(regId, type){
+  const field = type === 'balance' ? 'balance_paid' : 'deposit_paid';
+  let tries = 0; const MAX = 40;
+  const iv = setInterval(async () => {
+    if(++tries > MAX){ clearInterval(iv); return; }
+    try {
+      const rows = await _pgQuery('registrations', 'id=eq.'+regId+'&select=deposit_paid,balance_paid');
+      const row = rows && rows[0];
+      if(row && row[field] === true){
+        clearInterval(iv);
+        const r = myRegs.find(x => x.id === regId);
+        if(r){ r.deposit_paid = row.deposit_paid; r.balance_paid = row.balance_paid; }
+        renderPayments(); renderOverview(); renderDataRoom(); renderTimeline();
+        showToast('Payment received — your dashboard is up to date.', 'success');
+      }
+    } catch(e){}
+  }, 5000);
 }
 
 // ── AVATAR ──
@@ -1548,8 +1570,8 @@ function firmTile(f, founderSector){
     +(f.thesis?'<div style="font-size:12.5px;line-height:1.55;margin-top:10px">'+esc(f.thesis)+'</div>':'')
     +((f.focus_sectors&&f.focus_sectors.length)?'<div style="margin-top:10px">'+f.focus_sectors.map(invChip).join('')+'</div>':'')
     +((f.website_url||f.linkedin_url)?'<div style="margin-top:12px">'
-       +(f.website_url?'<a href="'+esc(f.website_url)+'" target="_blank" style="color:var(--terra);font-size:11px;font-weight:600;text-decoration:none;margin-right:14px">Website ↗</a>':'')
-       +(f.linkedin_url?'<a href="'+esc(f.linkedin_url)+'" target="_blank" style="color:var(--terra);font-size:11px;font-weight:600;text-decoration:none">LinkedIn ↗</a>':'')+'</div>':'')
+       +(f.website_url?'<a href="'+esc(safeUrl(f.website_url))+'" target="_blank" rel="noopener" style="color:var(--terra);font-size:11px;font-weight:600;text-decoration:none;margin-right:14px">Website ↗</a>':'')
+       +(f.linkedin_url?'<a href="'+esc(safeUrl(f.linkedin_url))+'" target="_blank" rel="noopener" style="color:var(--terra);font-size:11px;font-weight:600;text-decoration:none">LinkedIn ↗</a>':'')+'</div>':'')
     +'</div>';
 }
 async function renderInvestorDir(){
@@ -1578,6 +1600,8 @@ async function renderInvestorDir(){
 }
 function emptyState(title, sub){ return '<div class="empty"><div class="empty-mark">◇</div><div style="font-weight:600;color:var(--ink-mid)">'+esc(title)+'</div>'+(sub?'<div style="margin-top:4px">'+esc(sub)+'</div>':'')+'</div>'; }
 function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+// Only allow http/https hrefs — blocks javascript:/data: URLs (e.g. from an investor firm profile).
+function safeUrl(u){ u=String(u==null?'':u).trim(); return /^https?:\/\//i.test(u)?u:'#'; }
 function ugx(n){ n=Number(n)||0; return 'UGX ' + n.toLocaleString('en-US'); }
 function trackLabel(t){ return ({ single:'Single Session', pick3:'Pick 3 Bundle', cohort:'Full Cohort', group:'Group Track', vip:'VIP Track', vip1on1:'VIP 1-on-1' })[t] || (t? t.charAt(0).toUpperCase()+t.slice(1) : 'Enrollment'); }
 function fmtDate(d){ if(!d) return '—'; return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short'}); }
