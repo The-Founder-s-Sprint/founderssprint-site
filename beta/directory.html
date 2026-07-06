@@ -136,295 +136,63 @@ section, footer, nav { position: relative; z-index: 2; }
 .filter-btn:hover { border-color: var(--terra); color: var(--terra); }
 .filter-btn.active { background: var(--terra); color: var(--paper); border-color: var(--terra); }
 
-/* ===== DIRECTORY GRID ===== */
-.directory-section { padding: 48px 0 100px; }
-.directory-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 24px;
-}
-
-/* --- Provider card: Cloudflare-inspired transitions --- */
-.provider-card {
-  position: relative; background: var(--paper-2);
-  display: flex; flex-direction: column;
-  transition: transform .6s cubic-bezier(.25,.46,.45,.94),
-              box-shadow .6s cubic-bezier(.25,.46,.45,.94);
-  overflow: hidden;
- border-radius: var(--radius-card); overflow: hidden;}
-.provider-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 40px rgba(26,26,26,0.08), 0 2px 8px rgba(26,26,26,0.04);
-}
-
-/* Color bar: expands on hover */
-.provider-card .card-bar {
-  height: 3px; transition: height .5s cubic-bezier(.25,.46,.45,.94);
-}
-.provider-card:hover .card-bar { height: 5px; }
-
-/* Category colors */
-.cat-legal    { background: var(--terra); }
-.cat-accounting { background: var(--ochre); }
-.cat-design   { background: var(--terra); }
-.cat-unbs     { background: var(--moss); }
-.cat-banking  { background: var(--ochre); }
-.cat-insurance { background: var(--stone); }
-.cat-ip       { background: var(--terra-d); }
-.cat-digital  { background: var(--ink); }
-
-.provider-card .card-body { padding: 28px 28px 24px; flex: 1; display: flex; flex-direction: column; }
-
-/* Head: initials + meta */
-.provider-card .card-head { display: flex; align-items: flex-start; gap: 14px; margin-bottom: 14px; }
-.provider-card .card-initials {
-  width: 46px; height: 46px; border-radius: 8px;
-  display: flex; align-items: center; justify-content: center;
-  font-family: var(--sans); font-weight: 600; font-size: 15px; letter-spacing: 0.02em;
-  flex-shrink: 0; color: var(--paper);
-  transition: transform .5s cubic-bezier(.25,.46,.45,.94);
-}
-.provider-card:hover .card-initials { transform: scale(1.06); }
-
-.provider-card .card-meta { flex: 1; min-width: 0; }
-.provider-card .featured-badge {
-  display: inline-flex; align-items: center; gap: 5px;
-  font-family: var(--sans); font-size: 8px; font-weight: 700;
-  letter-spacing: 0.16em; text-transform: uppercase;
-  background: rgba(201,146,58,0.14); color: var(--ochre);
-  padding: 3px 9px; margin-bottom: 5px;
-}
-.provider-card .featured-badge svg { width: 10px; height: 10px; }
-.provider-card .cat-label {
-  font-family: var(--sans); font-size: 9px; font-weight: 700;
-  letter-spacing: 0.20em; text-transform: uppercase;
-  margin-bottom: 3px; transition: color .4s ease;
-}
-.provider-card .company-name {
-  font-family: var(--display); font-size: 24px; font-weight: 400;
-  color: var(--ink); line-height: 1.15;
-}
-.provider-card .description {
-  font-size: 14px; color: rgba(26,26,26,0.58); line-height: 1.55;
-  margin-bottom: 18px; flex: 1;
-}
-
-/* Contact actions: slide up on hover */
-.provider-card .card-divider {
-  border: none; border-top: 1px solid rgba(26,26,26,0.07);
-  margin: 0 0 14px;
-}
-.provider-card .card-actions {
-  display: flex; flex-wrap: wrap; gap: 8px;
-  opacity: 0.6; transform: translateY(4px);
-  transition: opacity .5s cubic-bezier(.25,.46,.45,.94),
-              transform .5s cubic-bezier(.25,.46,.45,.94);
-}
-.provider-card:hover .card-actions {
-  opacity: 1; transform: translateY(0);
-}
-.card-action-btn {
-  display: inline-flex; align-items: center; gap: 6px;
-  font-family: var(--body); font-size: 12px; font-weight: 500;
-  padding: 7px 13px; border-radius: 6px;
-  border: 1px solid rgba(26,26,26,0.10);
-  background: transparent; color: var(--ink);
-  transition: all .3s cubic-bezier(.25,.46,.45,.94);
-  text-decoration: none; cursor: pointer;
-}
-.card-action-btn:hover {
-  border-color: rgba(26,26,26,0.22);
-  background: rgba(26,26,26,0.03);
-}
-.card-action-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
-
-/* WhatsApp button */
-.card-action-btn.wa {
-  border-color: rgba(37,211,102,0.3);
-  color: #128C7E;
-}
-.card-action-btn.wa:hover {
-  background: rgba(37,211,102,0.08);
-  border-color: rgba(37,211,102,0.5);
-}
-
-/* Featured card accent */
-.provider-card.featured {
-  box-shadow: 0 0 0 1px rgba(201,146,58,0.2);
-}
-.provider-card.featured:hover {
-  box-shadow: 0 12px 40px rgba(26,26,26,0.08), 0 0 0 1px rgba(201,146,58,0.3);
-}
-
-/* Category label colors */
-.label-legal, .label-design { color: var(--terra); }
-.label-accounting, .label-banking { color: var(--ochre); }
-.label-unbs { color: var(--moss); }
-.label-insurance { color: var(--stone); }
-.label-ip { color: var(--terra-d); }
-.label-digital { color: var(--ink); }
-
-/* ===== PROGRAMME SPONSORS BANNER ===== */
-.sponsor-strip {
-  padding: 28px 0;
-  border-bottom: 1px solid var(--line-l);
-  margin-bottom: 32px;
-}
-.sponsor-strip-label {
-  font-family: var(--sans); font-size: 9px; font-weight: 600;
-  letter-spacing: 0.2em; text-transform: uppercase;
-  color: var(--stone); margin-bottom: 16px; text-align: center;
-}
-.sponsor-strip-row {
-  display: flex; justify-content: center; align-items: center;
-  flex-wrap: wrap; gap: 40px;
-}
-.sponsor-item {
-  display: flex; flex-direction: column; align-items: center; gap: 6px;
-  text-decoration: none; opacity: 0.7; transition: opacity 200ms;
-}
-.sponsor-item:hover { opacity: 1; }
-.sponsor-item img {
-  height: 32px; width: auto; filter: grayscale(100%); transition: filter 200ms;
-}
-.sponsor-item:hover img { filter: grayscale(0%); }
-.sponsor-item .sponsor-tagline {
-  font-family: var(--sans); font-size: 9px; font-weight: 500;
-  letter-spacing: 0.08em; color: var(--stone); text-transform: uppercase;
-}
-
-/* ===== SECTION DIVIDER ===== */
-.dir-section-label {
-  font-family: var(--sans); font-size: 10px; font-weight: 700;
-  letter-spacing: 0.18em; text-transform: uppercase;
-  color: var(--stone); margin: 40px 0 20px; padding-bottom: 10px;
-  border-bottom: 1px solid var(--line-l);
-  grid-column: 1 / -1;
-}
-.basic-table-wrap { grid-column: 1 / -1; }
-
-/* ===== BASIC TABLE ===== */
-.basic-table { width: 100%; border-collapse: collapse; margin-top: 8px; }
-.basic-table th {
-  font-family: var(--sans); font-size: 9px; font-weight: 700;
-  letter-spacing: 0.16em; text-transform: uppercase;
-  color: var(--stone); text-align: left; padding: 10px 12px;
-  border-bottom: 2px solid var(--line-l); cursor: pointer; user-select: none;
-}
-.basic-table th:hover { color: var(--ink); }
-.basic-table td {
-  font-family: var(--body); font-size: 13px; color: var(--ink);
-  padding: 14px 12px; border-bottom: 1px solid rgba(26,26,26,0.06);
-  vertical-align: top;
-}
-.basic-table tr:hover td { background: rgba(26,26,26,0.015); }
-.basic-table .td-company { font-weight: 500; white-space: nowrap; }
-.basic-table .td-cat {
-  font-family: var(--sans); font-size: 10px; font-weight: 600;
-  letter-spacing: 0.06em; text-transform: uppercase; white-space: nowrap;
-}
-.basic-table .td-desc { color: var(--stone); font-size: 12.5px; max-width: 400px; }
-.basic-table .td-email a {
-  color: var(--terra); text-decoration: none;
-  font-family: var(--sans); font-size: 10px; letter-spacing: 0.04em;
-  display: inline-flex; align-items: center; gap: 4px;
-}
-.basic-table .td-email a:hover { color: var(--terra-d); }
-.basic-table .td-email svg { width: 13px; height: 13px; }
-@media (max-width: 700px) {
-  .basic-table .td-desc { display: none; }
-  .basic-table .td-cat { display: none; }
-}
-
-/* ===== BASIC CARDS — listings split into a column grid ===== */
-.basic-grid {
-  grid-column: 1 / -1;
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 18px;
-  margin-top: 8px;
-}
-.basic-card {
-  position: relative; background: var(--paper-2); overflow: hidden;
-  border-radius: var(--radius-card); border: 1px solid var(--line-l);
-  display: flex; flex-direction: column;
-  transition: transform .5s cubic-bezier(.25,.46,.45,.94), box-shadow .5s cubic-bezier(.25,.46,.45,.94);
-}
-.basic-card:hover { transform: translateY(-3px); box-shadow: 0 14px 30px -18px rgba(26,26,26,0.35); }
-.basic-card .bc-bar { height: 3px; width: 100%; }
-.basic-card .bc-body { padding: 20px 22px 18px; flex: 1; display: flex; flex-direction: column; }
-.basic-card .bc-cat {
-  font-family: var(--sans); font-size: 10px; font-weight: 600;
-  letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: 6px;
-}
-.basic-card .bc-name { font-family: var(--display); font-size: 21px; font-weight: 400; color: var(--ink); line-height: 1.18; }
-.basic-card .bc-desc {
-  color: var(--stone); font-size: 12.5px; line-height: 1.5; margin: 8px 0 0;
-  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
-}
-.basic-card .bc-foot { margin-top: auto; padding-top: 14px; }
-.basic-card .bc-email {
-  color: var(--terra); text-decoration: none;
-  font-family: var(--sans); font-size: 10.5px; font-weight: 600; letter-spacing: 0.04em;
-  display: inline-flex; align-items: center; gap: 5px;
-}
-.basic-card .bc-email:hover { color: var(--terra-d); }
-.basic-card .bc-email svg { width: 13px; height: 13px; }
-.basic-card .bc-none { color: var(--stone); font-size: 11px; font-style: italic; }
-.basic-sort {
-  grid-column: 1 / -1; display: flex; align-items: center; gap: 8px;
-  margin: -8px 0 4px; font-family: var(--sans); font-size: 10px;
-  letter-spacing: 0.12em; text-transform: uppercase; color: var(--stone);
-}
-.basic-sort button {
-  font: inherit; letter-spacing: inherit; text-transform: inherit;
-  background: none; border: none; cursor: pointer; padding: 4px 2px;
-  color: var(--stone); border-bottom: 2px solid transparent;
-}
-.basic-sort button:hover { color: var(--ink); }
-.basic-sort button.on { color: var(--terra); border-bottom-color: var(--terra); }
-
-/* Content wrapper — spans the outer auto-fill grid so inner grids lay out full-width */
-.dir-content { grid-column: 1 / -1; }
-
-/* Pager */
-.dir-pager {
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 16px; flex-wrap: wrap; margin-top: 28px; padding-top: 18px;
-  border-top: 1px solid var(--line-l);
-}
-.dir-pager-count {
-  font-family: var(--sans); font-size: 11px; letter-spacing: 0.1em;
-  text-transform: uppercase; color: var(--stone);
-}
-.dir-pager-btns { display: flex; gap: 10px; }
-.dir-pg {
-  font-family: var(--sans); font-size: 11px; letter-spacing: 0.08em;
-  text-transform: uppercase; color: var(--ink); background: var(--paper-2);
-  border: 1px solid var(--line-l); border-radius: 6px; padding: 8px 16px;
-  cursor: pointer; transition: background .2s, border-color .2s, color .2s;
-}
-.dir-pg:hover:not([disabled]) { border-color: var(--terra); color: var(--terra); }
-.dir-pg[disabled] { opacity: 0.4; cursor: not-allowed; }
-
-/* Empty state */
-.empty-state { grid-column: 1 / -1; text-align: center; padding: 80px 20px; }
-.empty-state h3 {
-  font-family: var(--display); font-size: 28px; font-weight: 300;
-  color: var(--ink); margin-bottom: 12px;
-}
-.empty-state p { font-size: 15px; color: var(--stone); max-width: 400px; margin: 0 auto 24px; }
-.empty-state .btn-apply { font-size: 10px; padding: 14px 24px; }
-
-/* Loading skeleton */
-.skeleton-card { background: var(--paper-2); overflow: hidden; }
-.skeleton-bar { height: 3px; background: rgba(26,26,26,0.06); }
-.skeleton-body { padding: 28px 28px 24px; }
-.skeleton-head { display: flex; gap: 14px; margin-bottom: 14px; align-items: flex-start; }
-.skeleton-avatar { width: 46px; height: 46px; border-radius: 8px; background: rgba(26,26,26,0.06); flex-shrink: 0; animation: pulse 1.5s ease-in-out infinite; }
-.skeleton-line { height: 12px; background: rgba(26,26,26,0.06); margin-bottom: 10px; border-radius: 4px; animation: pulse 1.5s ease-in-out infinite; }
-.skeleton-line.short { width: 35%; } .skeleton-line.medium { width: 70%; }
-.skeleton-line.long { width: 100%; } .skeleton-line.title { height: 18px; width: 55%; margin-bottom: 0; }
-.skeleton-line-divider { height: 1px; background: rgba(26,26,26,0.05); margin: 14px 0; }
-.skeleton-actions { display: flex; gap: 8px; }
-.skeleton-btn { width: 80px; height: 32px; border-radius: 6px; background: rgba(26,26,26,0.04); animation: pulse 1.5s ease-in-out infinite; }
-@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
+/* ===== DIRECTORY — cascading board (matches the mentors board) ===== */
+.directory-section { padding: 40px 0 100px; }
+.board{position:relative;width:100%;}
+.empty,.empty-state{text-align:center;padding:70px 20px;color:var(--stone);}
+.empty-state h3{font-family:var(--display);font-size:28px;font-weight:300;color:var(--ink);margin-bottom:12px;}
+.empty-state p{font-size:15px;color:var(--stone);max-width:400px;margin:0 auto 24px;}
+.card{position:absolute;top:0;left:0;border-radius:var(--radius-card);overflow:hidden;cursor:pointer;background:var(--paper-2);
+  box-shadow:0 1px 2px rgba(26,26,26,.06);
+  transition:transform .55s cubic-bezier(.4,.9,.3,1),width .55s cubic-bezier(.4,.9,.3,1),height .55s cubic-bezier(.4,.9,.3,1),box-shadow .4s ease;
+  will-change:transform,width,height;}
+.card:hover{box-shadow:0 16px 40px rgba(26,26,26,.12);}
+.card.expanded{box-shadow:0 26px 60px rgba(26,26,26,.20);cursor:default;z-index:3;}
+.photo{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background-size:cover;background-position:center;}
+.photo .logo{max-width:62%;max-height:44%;object-fit:contain;background:rgba(239,231,216,.94);padding:14px 16px;border-radius:8px;position:relative;z-index:1;}
+.photo .ini{font-family:var(--sans);font-weight:700;font-size:54px;color:rgba(239,231,216,.92);letter-spacing:.02em;}
+.photo::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 45%,rgba(0,0,0,.5) 100%);}
+/* category tile colours */
+.tile-legal,.tile-design{background:linear-gradient(155deg,var(--terra) 0%,#241d17 130%);}
+.tile-accounting,.tile-banking{background:linear-gradient(155deg,var(--ochre) 0%,#241d17 130%);}
+.tile-unbs{background:linear-gradient(155deg,var(--moss) 0%,#20160f 130%);}
+.tile-insurance{background:linear-gradient(155deg,var(--stone) 0%,#20160f 130%);}
+.tile-ip{background:linear-gradient(155deg,var(--terra-d) 0%,#20160f 130%);}
+.tile-digital{background:linear-gradient(155deg,#33312c 0%,#0f0d0a 130%);}
+.label{position:absolute;left:16px;right:16px;bottom:14px;z-index:2;color:var(--paper);}
+.label .cat{font-family:var(--sans);font-size:9px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:rgba(239,231,216,.82);margin-bottom:5px;}
+.label .nm{font-family:var(--display);font-size:22px;font-weight:400;line-height:1.08;}
+.vbadge{display:inline-flex;align-items:center;gap:5px;font-family:var(--sans);font-size:8px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--ochre);margin-bottom:6px;}
+.vbadge svg{width:10px;height:10px;}
+.reveal{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;justify-content:flex-end;padding:20px 18px;opacity:0;transition:opacity .4s ease;background:rgba(20,17,13,.34);-webkit-backdrop-filter:blur(9px) saturate(1.05);backdrop-filter:blur(9px) saturate(1.05);}
+.card:hover .reveal{opacity:1;}
+.card.expanded .reveal{opacity:0;pointer-events:none;}
+.reveal .r-nm{font-family:var(--display);font-size:23px;color:var(--paper);line-height:1.08;}
+.reveal .r-cat{font-family:var(--sans);font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--ochre);margin:6px 0 8px;}
+.reveal .r-desc{font-size:13px;line-height:1.5;color:rgba(239,231,216,.94);display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden;}
+.reveal .r-more{font-family:var(--sans);font-size:9.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--paper);margin-top:12px;opacity:.85;}
+.full{position:absolute;inset:0;z-index:4;display:none;grid-template-columns:42% 58%;background:var(--paper-2);}
+.card.expanded .full{display:grid;}
+.full .f-tile{position:relative;display:flex;align-items:center;justify-content:center;}
+.full .f-tile .logo{max-width:72%;max-height:54%;object-fit:contain;background:rgba(239,231,216,.94);padding:16px 18px;border-radius:8px;}
+.full .f-tile .ini{font-family:var(--sans);font-weight:700;font-size:60px;color:rgba(239,231,216,.92);}
+.full .f-body{padding:26px 26px 22px;display:flex;flex-direction:column;overflow:auto;}
+.full .fx{position:absolute;top:12px;right:12px;z-index:6;width:30px;height:30px;border-radius:50%;border:none;background:rgba(239,231,216,.92);color:var(--ink);font-size:18px;cursor:pointer;line-height:1;}
+.full .f-cat{font-family:var(--sans);font-size:9.5px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;margin-bottom:5px;}
+.full .f-nm{font-family:var(--display);font-size:27px;font-weight:400;line-height:1.06;color:var(--ink);}
+.full .f-desc{font-size:14px;line-height:1.6;color:rgba(26,26,26,.62);margin:12px 0 0;}
+.full .f-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:auto;padding-top:16px;}
+/* contact buttons */
+.card-action-btn{display:inline-flex;align-items:center;gap:6px;font-family:var(--body);font-size:12px;font-weight:500;padding:8px 13px;border-radius:6px;border:1px solid rgba(26,26,26,.10);background:transparent;color:var(--ink);transition:all .3s;text-decoration:none;cursor:pointer;}
+.card-action-btn:hover{border-color:rgba(26,26,26,.22);background:rgba(26,26,26,.03);}
+.card-action-btn svg{width:15px;height:15px;flex-shrink:0;}
+.card-action-btn.wa{border-color:rgba(37,211,102,.3);color:#128C7E;}
+.card-action-btn.wa:hover{background:rgba(37,211,102,.08);border-color:rgba(37,211,102,.5);}
+/* category label colours */
+.label-legal,.label-design{color:var(--terra);} .label-accounting,.label-banking{color:var(--ochre);} .label-unbs{color:var(--moss);} .label-insurance{color:var(--stone);} .label-ip{color:var(--terra-d);} .label-digital{color:var(--ink);}
+.load-more{display:block;margin:34px auto 0;font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--ink);background:var(--paper-2);border:1px solid var(--line-l);padding:12px 26px;cursor:pointer;border-radius:0 0 14px 0;}
+.load-more:hover{border-color:var(--terra);color:var(--terra);}
+@media(max-width:640px){.full{grid-template-columns:1fr;}.full .f-tile{min-height:160px;}}
 
 /* ===== FOOTER — universal (matches beta site) ===== */
 footer {
@@ -494,7 +262,6 @@ footer .bottom {
   .nav { padding: 16px 20px; }
   .nav .brand .wm { font-size: 10px; letter-spacing: 0.22em; }
   .shell { padding: 0 24px; }
-  .directory-grid { grid-template-columns: 1fr; }
   .filter-bar { gap: 6px; }
   .filter-btn { padding: 8px 12px; font-size: 9px; }
   footer { padding: 40px 24px 28px; }
@@ -550,7 +317,7 @@ footer .bottom {
       Resource Directory
     </span>
     <h2 class="h-section">Trusted providers for<br><em>ambitious founders</em></h2>
-    <p class="h-sub" style="margin-top:18px;color:rgba(239,231,216,0.62);">Every provider in this directory has been vetted by The Founder's Sprint. We only list services we'd recommend to our own cohort founders.</p>
+    <p class="h-sub" style="margin-top:18px;color:rgba(239,231,216,0.62);">Every provider here is vetted by The Founder's Sprint. We only list services we'd put in front of our own cohort founders.</p>
     <div class="hero-rule"></div>
     <p class="tag">Build with direction.</p>
     <div class="cta-row">
@@ -582,11 +349,8 @@ footer .bottom {
 <!-- DIRECTORY LISTINGS -->
 <section class="directory-section">
   <div class="shell">
-    <div class="directory-grid" id="directoryGrid">
-      <div class="skeleton-card"><div class="skeleton-bar"></div><div class="skeleton-body"><div class="skeleton-head"><div class="skeleton-avatar"></div><div><div class="skeleton-line short"></div><div class="skeleton-line title"></div></div></div><div class="skeleton-line long"></div><div class="skeleton-line medium"></div><div class="skeleton-line-divider"></div><div class="skeleton-actions"><div class="skeleton-btn"></div><div class="skeleton-btn"></div><div class="skeleton-btn"></div></div></div></div>
-      <div class="skeleton-card"><div class="skeleton-bar"></div><div class="skeleton-body"><div class="skeleton-head"><div class="skeleton-avatar"></div><div><div class="skeleton-line short"></div><div class="skeleton-line title"></div></div></div><div class="skeleton-line long"></div><div class="skeleton-line medium"></div><div class="skeleton-line-divider"></div><div class="skeleton-actions"><div class="skeleton-btn"></div><div class="skeleton-btn"></div><div class="skeleton-btn"></div></div></div></div>
-      <div class="skeleton-card"><div class="skeleton-bar"></div><div class="skeleton-body"><div class="skeleton-head"><div class="skeleton-avatar"></div><div><div class="skeleton-line short"></div><div class="skeleton-line title"></div></div></div><div class="skeleton-line long"></div><div class="skeleton-line medium"></div><div class="skeleton-line-divider"></div><div class="skeleton-actions"><div class="skeleton-btn"></div><div class="skeleton-btn"></div><div class="skeleton-btn"></div></div></div></div>
-    </div>
+    <div class="board" id="board"><div class="empty">Loading providers…</div></div>
+    <div id="dirMore"></div>
   </div>
 </section>
 
@@ -609,7 +373,8 @@ var CATEGORY_LABELS = {
   digital:    'Digital & Web Dev',
 };
 
-var grid = document.getElementById('directoryGrid');
+var board = document.getElementById('board');
+var dirMore = document.getElementById('dirMore');
 var filterBar = document.getElementById('filterBar');
 var activeFilter = 'all';
 
@@ -647,216 +412,207 @@ function formatWhatsApp(phone) {
   return phone.replace(/[\s\-\(\)]/g, '').replace(/^\+/, '');
 }
 
-function renderProviderCard(p) {
-  var cat = p.category || 'digital';
-  var initials = getInitials(p.company_name);
-  var html = '<div class="provider-card' + (p.tier === 'verified' ? ' featured' : '') + '">';
-  html += '<div class="card-bar cat-' + esc(cat) + '"></div>';
-  html += '<div class="card-body">';
-  html += '<div class="card-head">';
-  if (p.logo_url) {
-    html += '<img src="' + esc(p.logo_url) + '" alt="" style="width:40px;height:40px;border-radius:4px;object-fit:contain">';
-  } else {
-    html += '<div class="card-initials cat-' + esc(cat) + '">' + initials + '</div>';
-  }
-  html += '<div class="card-meta">';
-  html += '<span class="featured-badge">' + V6_MINI + ' Verified Partner</span>';
-  html += '<div class="cat-label label-' + esc(cat) + '">' + esc(CATEGORY_LABELS[cat] || cat) + '</div>';
-  html += '<div class="company-name">' + esc(p.company_name) + '</div>';
-  html += '</div></div>';
-  if (p.description) html += '<div class="description">' + esc(p.description) + '</div>';
-  html += '<hr class="card-divider"><div class="card-actions">';
-  if (p.phone) html += '<a class="card-action-btn wa" href="https://wa.me/' + formatWhatsApp(p.phone) + '" target="_blank" rel="noopener">' + WA_ICON + ' WhatsApp</a>';
-  if (p.email) html += '<a class="card-action-btn" href="mailto:' + esc(p.email) + '">' + MAIL_ICON + ' Email</a>';
-  if (p.phone) html += '<a class="card-action-btn" href="tel:' + esc(p.phone.replace(/\s/g,'')) + '">' + PHONE_ICON + ' Call</a>';
-  if (p.website) { var url = p.website; if (!url.match(/^https?:\/\//)) url = 'https://' + url; html += '<a class="card-action-btn" href="' + esc(url) + '" target="_blank" rel="noopener">' + LINK_ICON + ' Website</a>'; }
-  html += '</div></div></div>';
-  return html;
-}
-
-function renderBasicCard(p) {
-  var cat = p.category || 'other';
-  var html = '<div class="basic-card">';
-  html += '<span class="bc-bar cat-' + esc(cat) + '"></span>';
-  html += '<div class="bc-body">';
-  html += '<div class="bc-cat label-' + esc(cat) + '">' + esc(CATEGORY_LABELS[cat] || cat) + '</div>';
-  html += '<div class="bc-name">' + esc(p.company_name) + '</div>';
-  if (p.description) html += '<p class="bc-desc">' + esc(p.description) + '</p>';
-  html += '<div class="bc-foot">';
-  html += p.email
-    ? '<a class="bc-email" href="mailto:' + esc(p.email) + '">' + MAIL_ICON + ' Email</a>'
-    : '<span class="bc-none">No contact listed</span>';
-  html += '</div></div></div>';
-  return html;
-}
-
-// Inline sponsor strip removed — handled by sponsors.js scrolling strip above filter bar
-function renderSponsorStrip() { return ''; }
-
-// ===== State =====
-// Verified partners (paid tier) are a small set — loaded once, filtered client-side.
-// Basic listings can grow large — server-paginated via PostgREST Range + count=exact.
-var PAGE_SIZE = 12;
-var basicSortField = 'company_name';
-var basicSortAsc = true;
-var basicPage = 0;     // 0-indexed
-var basicTotal = 0;    // total rows for the active filter
-var basicRows = [];    // current page
-var verifiedCache = [];
-var SELECT = 'company_name,category,description,contact_name,email,phone,website,logo_url,tier,featured,banner_tagline,status';
+/* ===== Cascading board (matches mentors.html) ===== */
+var PAGE_SIZE = 24;
 var ALLOWED_CATS = ['legal','accounting','design','unbs','banking','insurance','ip','digital'];
+var SELECT = 'company_name,category,description,contact_name,email,phone,website,logo_url,tier,featured,banner_tagline,status';
+var verifiedCache = [];
+var ITEMS = [];          // providers currently on the board (verified + loaded basic)
+var basicLoaded = 0;     // basic rows appended so far (for the active filter)
+var basicTotal = 0;      // total basic rows for the active filter
+var expandedIdx = -1;
 
-function renderGrid() {
-  var html = '';
+function tileClass(cat){ return 'tile-' + (ALLOWED_CATS.indexOf(cat) >= 0 ? cat : 'digital'); }
+function catLabel(cat){ return esc(CATEGORY_LABELS[cat] || cat); }
+function cardH(p){ var d = (p.description||'').length; return Math.max(240, Math.min(390, 250 + Math.round(d/4))); }
 
-  // ── VERIFIED CARDS (loaded once, filtered client-side) ──
-  var verified = activeFilter === 'all'
-    ? verifiedCache
-    : verifiedCache.filter(function(p) { return p.category === activeFilter; });
-  if (verified.length) {
-    html += '<div class="dir-section-label">Verified Partners</div>';
-    html += '<div class="directory-grid">';
-    verified.forEach(function(p) { html += renderProviderCard(p); });
-    html += '</div>';
+function tileInner(p){
+  return p.logo_url
+    ? '<img class="logo" src="' + esc(p.logo_url) + '" alt="' + esc(p.company_name) + ' logo" loading="lazy">'
+    : '<span class="ini">' + getInitials(p.company_name) + '</span>';
+}
+
+function contactActions(p){
+  var h = '';
+  var phone = p.phone ? String(p.phone) : '';
+  if (phone) h += '<a class="card-action-btn wa" href="https://wa.me/' + formatWhatsApp(phone) + '" target="_blank" rel="noopener">' + WA_ICON + ' WhatsApp</a>';
+  if (p.email) h += '<a class="card-action-btn" href="mailto:' + esc(p.email) + '">' + MAIL_ICON + ' Email</a>';
+  if (phone) h += '<a class="card-action-btn" href="tel:' + esc(phone.replace(/\s/g,'')) + '">' + PHONE_ICON + ' Call</a>';
+  if (p.website) {
+    var u = String(p.website).trim();
+    if (!/^https?:\/\//i.test(u)) u = 'https://' + u;
+    if (/^https?:\/\//i.test(u)) h += '<a class="card-action-btn" href="' + esc(u) + '" target="_blank" rel="noopener">' + LINK_ICON + ' Website</a>';
   }
+  return h || '<span style="font-size:12px;color:var(--stone);font-style:italic">No contact listed</span>';
+}
 
-  // ── BASIC LISTINGS (server-paginated card grid) ──
-  if (basicTotal > 0) {
-    var arrow = function(f) { return basicSortField === f ? (basicSortAsc ? ' ↑' : ' ↓') : ''; };
-    var on = function(f) { return basicSortField === f ? 'on' : ''; };
-    html += '<div class="dir-section-label">Directory Listings</div>';
-    html += '<div class="basic-sort"><span>Sort</span>';
-    html += '<button class="' + on('company_name') + '" onclick="sortBasic(\'company_name\')">Company' + arrow('company_name') + '</button>';
-    html += '<button class="' + on('category') + '" onclick="sortBasic(\'category\')">Category' + arrow('category') + '</button>';
-    html += '</div>';
-    html += '<div class="basic-grid">';
-    basicRows.forEach(function(p) { html += renderBasicCard(p); });
-    html += '</div>';
-    html += renderPager();
+function boardCard(p, i){
+  var cat = ALLOWED_CATS.indexOf(p.category) >= 0 ? p.category : 'digital';
+  var name = esc(p.company_name || '—');
+  var lbl = catLabel(cat);
+  var verified = p.tier === 'verified';
+  var vbadge = verified ? '<span class="vbadge">' + V6_MINI + ' Verified</span>' : '';
+  return '<div class="card" data-i="' + i + '" data-h="' + cardH(p) + '">' +
+      '<div class="photo ' + tileClass(cat) + '">' + tileInner(p) + '</div>' +
+      '<div class="label">' + vbadge + '<div class="cat">' + lbl + '</div><div class="nm">' + name + '</div></div>' +
+      '<div class="reveal">' + (verified ? '<span class="vbadge">' + V6_MINI + ' Verified Partner</span>' : '') +
+        '<div class="r-nm">' + name + '</div><div class="r-cat">' + lbl + '</div>' +
+        (p.description ? '<div class="r-desc">' + esc(p.description) + '</div>' : '') +
+        '<div class="r-more">Click for contact →</div></div>' +
+      '<div class="full"><button class="fx" aria-label="Close">×</button>' +
+        '<div class="f-tile ' + tileClass(cat) + '">' + tileInner(p) + '</div>' +
+        '<div class="f-body"><div class="f-cat label-' + cat + '">' + (verified ? '✦ Verified Partner · ' : '') + lbl + '</div>' +
+          '<div class="f-nm">' + name + '</div>' +
+          (p.description ? '<div class="f-desc">' + esc(p.description) + '</div>' : '') +
+          '<div class="f-actions">' + contactActions(p) + '</div>' +
+        '</div></div>' +
+    '</div>';
+}
+
+/* Masonry engine — absolute placement + FLIP-style transitions */
+function layout(){
+  var W = board.clientWidth;
+  var COLW = 264, gap = 18;
+  var cols = Math.max(1, Math.floor((W + gap) / (COLW + gap)));
+  var colW = (W - gap * (cols - 1)) / cols;
+  var colH = new Array(cols).fill(0);
+  var cards = board.querySelectorAll('.card');
+  for (var k = 0; k < cards.length; k++){
+    var card = cards[k];
+    var gi = +card.dataset.i;
+    var isExp = (gi === expandedIdx);
+    var span = isExp ? Math.min(2, cols) : 1;
+    // find the column with min height that can host `span` consecutive columns
+    var bestCol = 0, bestTop = Infinity;
+    for (var c = 0; c <= cols - span; c++){
+      var top = 0;
+      for (var q = 0; q < span; q++) top = Math.max(top, colH[c+q]);
+      if (top < bestTop){ bestTop = top; bestCol = c; }
+    }
+    var w = colW * span + gap * (span - 1);
+    var h = isExp ? (span === 1 ? 560 : 470) : (+card.dataset.h || 300);
+    var x = bestCol * (colW + gap);
+    var y = bestTop;
+    card.style.width = w + 'px';
+    card.style.height = h + 'px';
+    card.style.transform = 'translate(' + x + 'px,' + y + 'px)';
+    card.classList.toggle('expanded', isExp);
+    for (var q2 = 0; q2 < span; q2++) colH[bestCol+q2] = y + h + gap;
   }
+  board.style.height = Math.max.apply(null, colH.concat([0])) + 'px';
+}
 
-  if (!verified.length && basicTotal === 0) {
-    html += '<div class="empty-state">' +
-      '<h3>No providers listed yet</h3>' +
-      '<p>' + (activeFilter === 'all'
+function setExpanded(gi){ expandedIdx = (expandedIdx === gi ? -1 : gi); layout(); }
+
+function moreHtml(){
+  if (basicLoaded >= basicTotal) return '';
+  return '<button class="load-more" id="loadMoreBtn">Load more providers</button>';
+}
+
+function render(){
+  expandedIdx = -1;
+  if (!ITEMS.length){
+    board.style.height = 'auto';
+    board.innerHTML = '<div class="empty-state"><h3>No providers listed yet</h3><p>' +
+      (activeFilter === 'all'
         ? 'Be the first to join our curated directory of service providers for East African founders.'
         : 'No providers in this category yet. Check back soon or apply to be the first.') +
-      '</p>' +
-      '<a class="btn-apply" href="apply-directory.html">Apply to be listed &rarr;</a>' +
-      '</div>';
+      '</p><a class="btn-apply" href="apply-directory.html">Apply to be listed &rarr;</a></div>';
+    dirMore.innerHTML = '';
+    return;
   }
-
-  grid.innerHTML = '<div class="dir-content">' + html + '</div>';
+  board.innerHTML = ITEMS.map(function(p, i){ return boardCard(p, i); }).join('');
+  dirMore.innerHTML = moreHtml();
+  var lm = document.getElementById('loadMoreBtn');
+  if (lm) lm.addEventListener('click', loadMore);
+  layout();
 }
 
-function renderPager() {
-  var pages = Math.ceil(basicTotal / PAGE_SIZE);
-  if (pages <= 1) return '';
-  var start = basicPage * PAGE_SIZE;
-  var end = Math.min(start + PAGE_SIZE, basicTotal);
-  var prevDis = basicPage <= 0 ? ' disabled' : '';
-  var nextDis = (basicPage + 1) >= pages ? ' disabled' : '';
-  return '<div class="dir-pager">' +
-    '<span class="dir-pager-count">Showing ' + (start + 1) + '&ndash;' + end + ' of ' + basicTotal + '</span>' +
-    '<div class="dir-pager-btns">' +
-      '<button class="dir-pg"' + prevDis + ' onclick="basicGo(' + (basicPage - 1) + ')">&larr; Prev</button>' +
-      '<button class="dir-pg"' + nextDis + ' onclick="basicGo(' + (basicPage + 1) + ')">Next &rarr;</button>' +
-    '</div></div>';
-}
-
-function basicQueryUrl() {
+function basicQueryUrl(page){
   var url = SUPABASE_URL + '/rest/v1/directory_providers?select=' + SELECT +
-    '&status=eq.active&or=(tier.eq.basic,tier.is.null)';
-  if (activeFilter !== 'all' && ALLOWED_CATS.indexOf(activeFilter) !== -1) {
+    '&status=eq.active&or=(tier.eq.basic,tier.is.null)&order=company_name.asc.nullslast';
+  if (activeFilter !== 'all' && ALLOWED_CATS.indexOf(activeFilter) !== -1){
     url += '&category=eq.' + encodeURIComponent(activeFilter);
   }
-  var dir = basicSortAsc ? 'asc' : 'desc';
-  url += basicSortField === 'category'
-    ? '&order=category.' + dir + '.nullslast,company_name.asc'
-    : '&order=company_name.' + dir + '.nullslast';
   return url;
 }
 
-async function fetchBasic() {
-  var start = basicPage * PAGE_SIZE;
-  var end = start + PAGE_SIZE - 1;
+async function fetchBasicPage(page){
+  var start = page * PAGE_SIZE, end = start + PAGE_SIZE - 1;
+  var res = await fetch(basicQueryUrl(page), {
+    headers: {
+      'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
+      'Accept': 'application/json', 'Range-Unit': 'items', 'Range': start + '-' + end, 'Prefer': 'count=exact'
+    }
+  });
+  if (!res.ok && res.status !== 206) throw new Error('HTTP ' + res.status);
+  var rows = await res.json();
+  var cr = res.headers.get('Content-Range') || '';
+  var slash = cr.indexOf('/');
+  basicTotal = slash !== -1 ? (parseInt(cr.slice(slash + 1), 10) || 0) : rows.length;
+  return rows;
+}
+
+async function loadMore(){
+  var btn = document.getElementById('loadMoreBtn');
+  if (btn){ btn.disabled = true; btn.textContent = 'Loading…'; }
   try {
-    var res = await fetch(basicQueryUrl(), {
-      headers: {
-        'apikey': SUPABASE_ANON_KEY,
-        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
-        'Accept': 'application/json',
-        'Range-Unit': 'items',
-        'Range': start + '-' + end,
-        'Prefer': 'count=exact'
-      }
-    });
-    if (res.status === 416 && basicPage > 0) { basicPage = 0; return fetchBasic(); }
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    basicRows = await res.json();
-    var cr = res.headers.get('Content-Range') || '';
-    var slash = cr.indexOf('/');
-    basicTotal = slash !== -1 ? (parseInt(cr.slice(slash + 1), 10) || 0) : basicRows.length;
-    renderGrid();
-  } catch (err) {
-    console.error('Failed to load listings:', err);
-    if (!verifiedCache.length) {
-      grid.innerHTML = '<div class="empty-state">' +
-        '<h3>Directory coming soon</h3>' +
-        '<p>We\'re building our curated directory of service providers for East African founders. Apply now to be listed when we launch.</p>' +
-        '<a class="btn-apply" href="apply-directory.html">Apply to be listed &rarr;</a>' +
-        '</div>';
-    } else { renderGrid(); }
-  }
+    var page = Math.floor(basicLoaded / PAGE_SIZE);
+    var rows = await fetchBasicPage(page);
+    basicLoaded += rows.length;
+    ITEMS = ITEMS.concat(rows);
+    render();
+  } catch (err){ console.error('Load more failed:', err); if (btn){ btn.disabled = false; btn.textContent = 'Load more providers'; } }
 }
 
-function basicGo(page) {
-  if (page < 0) return;
-  basicPage = page;
-  fetchBasic();
-  var s = document.querySelector('.directory-section');
-  if (s && s.scrollIntoView) s.scrollIntoView({ behavior: 'smooth', block: 'start' });
-}
-
-function sortBasic(field) {
-  if (basicSortField === field) { basicSortAsc = !basicSortAsc; }
-  else { basicSortField = field; basicSortAsc = true; }
-  basicPage = 0;
-  fetchBasic();
-}
-
-function applyFilter(cat) {
-  activeFilter = cat;
-  basicPage = 0;
-  var btns = filterBar.querySelectorAll('.filter-btn');
-  for (var i = 0; i < btns.length; i++) {
-    btns[i].classList.toggle('active', btns[i].getAttribute('data-cat') === cat);
-  }
-  fetchBasic(); // re-renders the whole grid (verified re-filtered client-side)
-}
-
-filterBar.addEventListener('click', function(e) {
-  var btn = e.target.closest('.filter-btn');
-  if (!btn) return;
-  applyFilter(btn.getAttribute('data-cat'));
-});
-
-async function loadVerified() {
+async function loadVerified(){
   try {
     var url = SUPABASE_URL + '/rest/v1/directory_providers?select=' + SELECT +
-      '&status=eq.active&tier=eq.verified&order=company_name.asc&limit=100';
-    var res = await fetch(url, {
-      headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY, 'Accept': 'application/json' }
-    });
+      '&status=eq.active&tier=eq.verified&order=featured.desc.nullslast,company_name.asc&limit=100';
+    var res = await fetch(url, { headers: { 'apikey': SUPABASE_ANON_KEY, 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY, 'Accept': 'application/json' } });
     if (res.ok) verifiedCache = await res.json();
-  } catch (err) { console.error('Failed to load verified partners:', err); }
+  } catch (err){ console.error('Failed to load verified partners:', err); }
 }
 
-async function loadDirectory() {
+async function reload(){
+  var verified = activeFilter === 'all' ? verifiedCache : verifiedCache.filter(function(p){ return p.category === activeFilter; });
+  basicLoaded = 0; basicTotal = 0;
+  var basic = [];
+  try { basic = await fetchBasicPage(0); basicLoaded = basic.length; }
+  catch (err){ console.error('Failed to load listings:', err); }
+  ITEMS = verified.concat(basic);
+  render();
+}
+
+function applyFilter(cat){
+  activeFilter = cat;
+  var btns = filterBar.querySelectorAll('.filter-btn');
+  for (var i = 0; i < btns.length; i++){ btns[i].classList.toggle('active', btns[i].getAttribute('data-cat') === cat); }
+  reload();
+}
+
+filterBar.addEventListener('click', function(e){
+  var btn = e.target.closest('.filter-btn');
+  if (btn) applyFilter(btn.getAttribute('data-cat'));
+});
+
+/* Board interactions — bound once */
+board.addEventListener('click', function(e){
+  var card = e.target.closest('.card');
+  if (!card) return;
+  if (e.target.closest('a')) return;            // let contact links work
+  if (e.target.closest('.fx')){ e.stopPropagation(); setExpanded(-1); return; }
+  if (card.classList.contains('expanded')) return;
+  setExpanded(+card.dataset.i);
+});
+document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && expandedIdx !== -1) setExpanded(-1); });
+var rt;
+window.addEventListener('resize', function(){ clearTimeout(rt); rt = setTimeout(layout, 120); });
+
+async function loadDirectory(){
   await loadVerified();
-  await fetchBasic();
+  await reload();
 }
-
 loadDirectory();
 </script>
 <script src="sponsors.js?v=2"></script>
