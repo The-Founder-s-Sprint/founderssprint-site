@@ -134,7 +134,9 @@
 
   var CSS =
     // ---- NAV (mirrors homepage: Josefin wordmark + JetBrains Mono uppercase links, centered) ----
-    ".fsx-nav{position:sticky;top:0;z-index:1000;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:32px;padding:20px 48px;background:#1A1A1A;}"
+    "#fs-nav{display:contents;}"  // mount point generates no box, so the sticky nav's containing block is <body> and it travels the whole page
+    + ".fsx-nav{position:sticky;top:0;z-index:1000;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:32px;padding:20px 48px;background:#1A1A1A;transition:box-shadow .25s ease,padding .22s ease;}"
+    + ".fsx-nav.fsx-scrolled{box-shadow:0 14px 34px -16px rgba(0,0,0,.65);padding-top:13px;padding-bottom:13px;}"
     + ".fsx-brand{display:flex;align-items:center;gap:12px;text-decoration:none;justify-self:start;}"
     + ".fsx-brand svg{width:26px;height:26px;animation:fsx-spin 64s linear infinite;}"
     + ".fsx-wm{font-family:'Josefin Sans',system-ui,sans-serif;font-weight:700;font-size:12px;letter-spacing:.30em;text-transform:uppercase;color:#EFE7D8;white-space:nowrap;}"
@@ -158,6 +160,16 @@
     + ".fsx-pill:hover{filter:brightness(1.1);transform:translateY(-1px);}"
     + ".fsx-burger{display:none;justify-self:end;flex-direction:column;gap:4px;background:none;border:none;cursor:pointer;padding:6px;}"
     + ".fsx-burger span{display:block;width:22px;height:2px;background:#EFE7D8;}"
+    // ---- logged-in avatar (folded in from the retired auth-nav.js) ----
+    + ".fsx-avatar-wrap{position:relative;display:flex;align-items:center;}"
+    + ".fsx-avatar-btn{width:34px;height:34px;border-radius:50%;border:2px solid rgba(239,231,216,.3);background:#5A564F;color:#EFE7D8;font-family:'Inter',system-ui,sans-serif;font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;overflow:hidden;padding:0;transition:border-color .18s;}"
+    + ".fsx-avatar-btn img{width:100%;height:100%;object-fit:cover;}"
+    + ".fsx-avatar-btn:hover{border-color:rgba(239,231,216,.55);}"
+    + ".fsx-avatar-menu{display:none;position:absolute;top:44px;right:0;min-width:190px;background:#161616;border:1px solid #2c2c2c;padding:8px 0;z-index:1001;box-shadow:0 24px 50px -20px rgba(0,0,0,.7);}"
+    + ".fsx-avatar-wrap.fsx-open-menu .fsx-avatar-menu{display:block;}"
+    + ".fsx-avatar-email{padding:8px 16px 10px;font-family:'Inter',system-ui,sans-serif;font-size:11px;color:rgba(239,231,216,.4);border-bottom:1px solid rgba(239,231,216,.08);margin-bottom:4px;word-break:break-all;}"
+    + ".fsx-avatar-menu a{display:block;padding:10px 16px;font-family:'Josefin Sans',system-ui,sans-serif;font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:rgba(239,231,216,.7);text-decoration:none;transition:color .15s,background .15s;}"
+    + ".fsx-avatar-menu a:hover{background:rgba(239,231,216,.06);color:#EFE7D8;}"
     + ".fsx-nav.fsx-fixed{position:fixed;left:0;right:0;}"  // opt-in via data-fixed on #fs-nav (pages whose hero already clears an overlapping nav, e.g. the homepage)
     + "@keyframes fsx-spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}"
     // ---- FOOTER (matches homepage: deep ink + constellation background) ----
@@ -212,6 +224,70 @@
     document.head.appendChild(l);
   }
 
+  // ── Auth state in the nav (folded in from the retired auth-nav.js) ──────────
+  // Reads the public Supabase session from localStorage (RLS is the boundary;
+  // the anon key is public by design). When signed in, the "Log in" ghost link
+  // is swapped for an avatar menu (Dashboard / Sign out); the pill CTA stays.
+  var SB_URL = 'https://ivedeivyotwevjxvcuoe.supabase.co';
+  var SBKEY  = 'sb-ivedeivyotwevjxvcuoe-auth-token';
+  var ANON   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss';
+
+  function escHtml(s) {
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function getSession() {
+    try {
+      var s = JSON.parse(localStorage.getItem(SBKEY) || '{}');
+      if (!s.access_token) return null;
+      if (s.expires_at && (Date.now() / 1000) > (s.expires_at - 60)) return null;
+      return s;
+    } catch (e) { return null; }
+  }
+
+  function fetchCoachAvatar(email, cb) {
+    try {
+      var url = SB_URL + '/rest/v1/coaches?select=avatar_url&founderssprint_email=eq.' + encodeURIComponent(email) + '&limit=1';
+      fetch(url, { headers: { apikey: ANON, Authorization: 'Bearer ' + ANON, Accept: 'application/json' } })
+        .then(function (r) { return r.json(); })
+        .then(function (d) { if (d && d[0] && d[0].avatar_url) cb(d[0].avatar_url); })
+        .catch(function () {});
+    } catch (e) {}
+  }
+
+  function applyAuth() {
+    var sess = getSession();
+    if (!sess || !sess.user) return;
+    var cta = document.querySelector('#fsx-nav .fsx-cta');
+    if (!cta) return;
+    var ghost = cta.querySelector('.fsx-ghost');
+    var email = sess.user.email || '';
+    var initials = (email.split('@')[0].charAt(0) || '?').toUpperCase();
+    var wrap = document.createElement('div');
+    wrap.className = 'fsx-avatar-wrap';
+    wrap.innerHTML =
+        '<button class="fsx-avatar-btn" aria-label="Account" aria-haspopup="true"><span>' + escHtml(initials) + '</span></button>'
+      + '<div class="fsx-avatar-menu">'
+      +   '<div class="fsx-avatar-email">' + escHtml(email) + '</div>'
+      +   '<a href="/dashboard.html">Dashboard</a>'
+      +   '<a href="#" class="fsx-signout">Sign out</a>'
+      + '</div>';
+    if (ghost) cta.replaceChild(wrap, ghost); else cta.insertBefore(wrap, cta.firstChild);
+    var btn = wrap.querySelector('.fsx-avatar-btn');
+    btn.addEventListener('click', function (e) { e.stopPropagation(); wrap.classList.toggle('fsx-open-menu'); });
+    document.addEventListener('click', function (e) { if (!wrap.contains(e.target)) wrap.classList.remove('fsx-open-menu'); });
+    wrap.querySelector('.fsx-signout').addEventListener('click', function (e) {
+      e.preventDefault();
+      try { localStorage.removeItem(SBKEY); } catch (_) {}
+      window.location.reload();
+    });
+    if (email) fetchCoachAvatar(email, function (u) {
+      var b = wrap.querySelector('.fsx-avatar-btn'); if (b) b.innerHTML = '<img src="' + encodeURI(u) + '" alt="">';
+    });
+  }
+
   function inject() {
     injectFonts();
     if (!document.getElementById('fsx-style')) {
@@ -232,6 +308,15 @@
       var open = nav.classList.toggle('fsx-open');
       burger.setAttribute('aria-expanded', open ? 'true' : 'false');
     });
+
+    // Sticky elevation: raise + slightly condense the bar once the page scrolls (skip when fixed-over-hero)
+    if (nav && !navFixed) {
+      var onScroll = function () { nav.classList.toggle('fsx-scrolled', (window.scrollY || window.pageYOffset) > 8); };
+      onScroll();
+      window.addEventListener('scroll', onScroll, { passive: true });
+    }
+
+    applyAuth();
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', inject);

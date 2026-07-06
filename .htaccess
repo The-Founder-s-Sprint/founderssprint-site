@@ -78,6 +78,25 @@ RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
 </IfModule>
 
+# ─── SHARED UI MODULES — always fresh, ZERO per-page cache-bust ─────
+# site-chrome.js (nav + footer + hero shell), sponsors.js, auth-nav.js
+# and taxonomy.js are loaded by EVERY page. Force them to revalidate on
+# every request so that editing ONE file propagates site-wide — no ?v=
+# bumps, no re-uploading every page. This overrides the 10-minute JS rule
+# above for just these four files (mod_expires is the lever that actually
+# beats Bluehost's server default; Header is belt + suspenders).
+<FilesMatch "^(site-chrome|sponsors|auth-nav|taxonomy)\.js$">
+  <IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType application/javascript "access plus 0 seconds"
+    ExpiresByType text/javascript "access plus 0 seconds"
+    ExpiresByType application/x-javascript "access plus 0 seconds"
+  </IfModule>
+  <IfModule mod_headers.c>
+    Header set Cache-Control "no-cache, must-revalidate"
+  </IfModule>
+</FilesMatch>
+
 # ─── GZIP COMPRESSION ──────────────────────────────────────────────
 <IfModule mod_deflate.c>
   AddOutputFilterByType DEFLATE text/html text/css text/javascript
