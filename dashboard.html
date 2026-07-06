@@ -1075,7 +1075,7 @@
       <!-- Add Provider sub-panel -->
       <div class="dir-panel" id="dir-add">
         <div class="section-head" style="margin-bottom:16px">
-          <span class="section-title">Add Provider Manually</span>
+          <span class="section-title" id="dir-add-title">Add Provider Manually</span>
         </div>
         <div class="dir-form-wrap">
           <div class="dir-form-row">
@@ -1137,6 +1137,7 @@
             <label>Logo</label>
             <input type="file" id="prov-logo" accept="image/png,image/jpeg,image/svg+xml" style="font-size:13px">
             <div style="font-size:11px;color:var(--muted);margin-top:4px">Square <strong>800×800px</strong>, transparent PNG or SVG, logo centred with ~15% padding (wordmark/horizontal logos are fine — they're centred). Sits on a light panel, so use a dark or full-colour version — a white/reversed logo would disappear. Used on the directory card and sponsor strips.</div>
+            <div id="prov-logo-current" style="font-size:11px;color:var(--terra);margin-top:4px"></div>
           </div>
           <div class="dir-form-row two-col">
             <div>
@@ -1149,7 +1150,7 @@
             </div>
           </div>
           <div style="margin-top:20px;display:flex;gap:12px">
-            <button class="btn-confirm" onclick="addProvider()">Add Provider</button>
+            <button class="btn-confirm" id="prov-submit-btn" onclick="addProvider()">Add Provider</button>
             <button class="btn-cancel" onclick="clearProviderForm()">Clear</button>
           </div>
         </div>
@@ -3840,6 +3841,7 @@ function renderListings() {
           ${daysLeft < 0 ? 'Expired ' + Math.abs(daysLeft) + 'd ago' : daysLeft + 'd remaining'}
         </span>
         <div class="dir-card-actions">
+          <button onclick="editProvider('${p.id}')">Edit</button>
           <button onclick="toggleProviderStatus('${p.id}', '${p.status === 'active' ? 'paused' : 'active'}')">${p.status === 'active' ? 'Pause' : 'Activate'}</button>
           <button class="btn-remove" onclick="removeProvider('${p.id}')">Remove</button>
         </div>
@@ -3873,6 +3875,33 @@ function updateProvPrice() {
   }
 }
 
+let editingProviderId = null;
+
+function editProvider(id){
+  const pr = (allProviders || []).find(x => String(x.id) === String(id));
+  if(!pr){ showToast('Provider not found', 'error'); return; }
+  editingProviderId = pr.id;
+  document.getElementById('prov-name').value    = pr.company_name || '';
+  document.getElementById('prov-category').value = pr.category || 'legal';
+  document.getElementById('prov-desc').value    = pr.description || '';
+  document.getElementById('prov-contact').value = pr.contact_name || '';
+  document.getElementById('prov-email').value   = pr.email || '';
+  document.getElementById('prov-phone').value   = pr.phone || '';
+  document.getElementById('prov-website').value = pr.website || '';
+  document.getElementById('prov-tier').value    = pr.tier || 'basic';
+  document.getElementById('prov-tagline').value = pr.banner_tagline || '';
+  document.getElementById('prov-start').value   = pr.starts_at ? pr.starts_at.split('T')[0] : '';
+  document.getElementById('prov-expiry').value  = pr.expires_at ? pr.expires_at.split('T')[0] : '';
+  document.getElementById('prov-logo').value = '';
+  updateProvPrice();
+  const t = document.getElementById('dir-add-title'); if(t) t.textContent = 'Edit Provider — ' + (pr.company_name || '');
+  const b = document.getElementById('prov-submit-btn'); if(b) b.textContent = 'Save Changes';
+  const lc = document.getElementById('prov-logo-current');
+  if(lc) lc.innerHTML = pr.logo_url ? 'A logo is on file — leave the file empty to keep it, or choose a new one to replace it.' : 'No logo on file yet.';
+  switchDirTab('add');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
 async function addProvider() {
   const name = document.getElementById('prov-name').value.trim();
   const category = document.getElementById('prov-category').value;
@@ -3885,10 +3914,11 @@ async function addProvider() {
   if (tier !== 'basic' && (!startDate || !expiryDate)) { showToast('Start and expiry dates are required for paid tiers', 'error'); return; }
 
   const TIER_PRICES = { basic: 0, verified: 500000, corporate: 25000000, programme_partner: 50000000, strategic_partner: 100000000 };
+  const editing = editingProviderId;
 
   try {
-    // 1. Upload logo if provided (raw fetch — bypasses Supabase client)
-    let logoUrl = null;
+    // 1. Upload logo if a new file was chosen (raw fetch — bypasses Supabase client)
+    let logoUrl = null, logoProvided = false;
     const logoFile = document.getElementById('prov-logo').files?.[0];
     if (logoFile) {
       const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
@@ -3897,53 +3927,60 @@ async function addProvider() {
       const token = await _getValidToken();
       const uploadRes = await fetch(SUPABASE_URL + '/storage/v1/object/coach-profiles/' + storagePath, {
         method: 'POST',
-        headers: {
-          'apikey': SUPABASE_ANON,
-          'Authorization': 'Bearer ' + token,
-          'Content-Type': logoFile.type,
-          'x-upsert': 'true',
-        },
+        headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + token, 'Content-Type': logoFile.type, 'x-upsert': 'true' },
         body: logoFile,
       });
       if (!uploadRes.ok) throw new Error('Logo upload failed: ' + uploadRes.status);
       logoUrl = SUPABASE_URL + '/storage/v1/object/public/coach-profiles/' + storagePath;
+      logoProvided = true;
     }
 
-    // 2. Insert provider record
+    // 2. Build the record payload (fields shared by add + edit)
+    const payload = {
+      company_name: name,
+      category,
+      description: document.getElementById('prov-desc').value.trim() || null,
+      contact_name: document.getElementById('prov-contact').value.trim() || null,
+      email: document.getElementById('prov-email').value.trim() || null,
+      phone: document.getElementById('prov-phone').value.trim() || null,
+      website: document.getElementById('prov-website').value.trim() || null,
+      tier,
+      price_ugx: TIER_PRICES[tier] || 0,
+      banner_tagline: tagline,
+      featured: tier === 'verified' || tier === 'corporate',
+    };
+    if (logoProvided) payload.logo_url = logoUrl;   // only overwrite the logo when a new one is uploaded
+
     const token = await _getValidToken();
-    const res = await fetch(SUPABASE_URL + '/rest/v1/directory_providers', {
-      method: 'POST',
-      headers: {
-        'apikey': SUPABASE_ANON,
-        'Authorization': 'Bearer ' + token,
-        'Content-Type': 'application/json',
-        'Prefer': 'return=minimal',
-      },
-      body: JSON.stringify({
-        company_name: name,
-        category,
-        description: document.getElementById('prov-desc').value.trim() || null,
-        contact_name: document.getElementById('prov-contact').value.trim() || null,
-        email: document.getElementById('prov-email').value.trim() || null,
-        phone: document.getElementById('prov-phone').value.trim() || null,
-        website: document.getElementById('prov-website').value.trim() || null,
-        tier,
-        price_ugx: TIER_PRICES[tier] || 0,
-        logo_url: logoUrl,
-        banner_tagline: tagline,
-        featured: tier === 'verified' || tier === 'corporate',
-        status: 'active',
-        starts_at: startDate ? new Date(startDate).toISOString() : new Date().toISOString(),
-        expires_at: expiryDate ? new Date(expiryDate).toISOString() : (tier === 'basic' ? new Date('2099-12-31').toISOString() : null),
-      }),
-    });
+    let res;
+    if (editing) {
+      // EDIT — patch the existing row; keep its status; only change dates if provided
+      if (startDate)  payload.starts_at  = new Date(startDate).toISOString();
+      if (expiryDate) payload.expires_at = new Date(expiryDate).toISOString();
+      res = await fetch(SUPABASE_URL + '/rest/v1/directory_providers?id=eq.' + encodeURIComponent(editing), {
+        method: 'PATCH',
+        headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+        body: JSON.stringify(payload),
+      });
+    } else {
+      // ADD — new row
+      payload.status = 'active';
+      payload.logo_url = logoProvided ? logoUrl : null;
+      payload.starts_at = startDate ? new Date(startDate).toISOString() : new Date().toISOString();
+      payload.expires_at = expiryDate ? new Date(expiryDate).toISOString() : (tier === 'basic' ? new Date('2099-12-31').toISOString() : null);
+      res = await fetch(SUPABASE_URL + '/rest/v1/directory_providers', {
+        method: 'POST',
+        headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
+        body: JSON.stringify(payload),
+      });
+    }
 
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
-      throw new Error(err.message || 'Insert failed');
+      throw new Error(err.message || (editing ? 'Update failed' : 'Insert failed'));
     }
 
-    showToast('Provider added successfully!', 'success');
+    showToast(editing ? 'Provider updated!' : 'Provider added successfully!', 'success');
     clearProviderForm();
     switchDirTab('listings');
     await loadDirectoryData();
@@ -3959,6 +3996,16 @@ function clearProviderForm() {
   document.getElementById('prov-category').value = 'legal';
   document.getElementById('prov-tier').value = 'basic';
   document.getElementById('prov-logo').value = '';
+  // reset date defaults (today → +3 months) for a fresh add
+  const today = new Date().toISOString().split('T')[0];
+  const d = new Date(); d.setMonth(d.getMonth() + 3);
+  document.getElementById('prov-start').value = today;
+  document.getElementById('prov-expiry').value = d.toISOString().split('T')[0];
+  // leave edit mode
+  editingProviderId = null;
+  const t = document.getElementById('dir-add-title'); if(t) t.textContent = 'Add Provider Manually';
+  const b = document.getElementById('prov-submit-btn'); if(b) b.textContent = 'Add Provider';
+  const lc = document.getElementById('prov-logo-current'); if(lc) lc.innerHTML = '';
   updateProvPrice();
 }
 
