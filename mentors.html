@@ -34,25 +34,55 @@
   @keyframes lampGlow{0%,100%{opacity:.8;}50%{opacity:1;}}
   @media(min-width:1100px){.fsx-hero{min-height:620px;}.hero-chair{display:block;}}
   @media(prefers-reduced-motion:reduce){.hero-lamp{animation:none;opacity:.92;}}
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(330px,1fr));gap:22px;}
-  .card{background:var(--paper-deep);border:1px solid var(--border);border-top:3px solid var(--terra);padding:24px 24px 22px;display:flex;flex-direction:column;border-radius:0 0 24px 0;overflow:hidden;}
-  .card .top{display:flex;gap:14px;align-items:flex-start;margin-bottom:14px;}
-  .av{width:56px;height:56px;border-radius:50%;flex-shrink:0;background:linear-gradient(155deg,var(--ink) 0%,#3a3632 100%);color:var(--paper);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:22px;}
-  .m-title{font-family:var(--display);font-size:22px;font-weight:600;line-height:1.12;color:var(--ink);}
-  .m-co{font-size:12.5px;color:var(--muted);margin-top:3px;line-height:1.4;}
-  .m-name{font-family:var(--sans);font-size:9.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--terra-deep);margin-top:7px;}
-  .m-bio{font-size:13px;line-height:1.55;color:#3D3B35;margin:2px 0 12px;}
-  .tags{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
+  /* ===== cascading board (masonry) — photo-forward cards ===== */
+  .board{position:relative;width:100%;}
+  .empty{text-align:center;padding:60px;color:var(--muted);}
+  .card{position:absolute;top:0;left:0;border-radius:0 0 22px 0;overflow:hidden;cursor:pointer;
+    box-shadow:0 1px 2px rgba(26,26,26,.06);
+    transition:transform .55s cubic-bezier(.4,.9,.3,1),width .55s cubic-bezier(.4,.9,.3,1),height .55s cubic-bezier(.4,.9,.3,1),box-shadow .4s ease;
+    will-change:transform,width,height;}
+  .card:hover{box-shadow:0 16px 40px rgba(26,26,26,.16);}
+  .card.expanded{box-shadow:0 26px 60px rgba(26,26,26,.22);cursor:default;z-index:3;}
+  .photo{position:absolute;inset:0;background-size:cover;background-position:center 26%;}
+  /* B&W treatment on real photos; colour tiles left in colour to stand out (chosen 4 Jul 2026) */
+  .card.has-photo .photo,.card.has-photo .f-photo{filter:grayscale(1) contrast(1.06) brightness(.98);}
+  .photo.tile{display:flex;align-items:center;justify-content:center;}
+  .photo.tile::after{content:"";position:absolute;inset:0;background:radial-gradient(120% 90% at 20% 10%,rgba(255,255,255,.16),transparent 55%),linear-gradient(180deg,transparent 40%,rgba(0,0,0,.42) 100%);}
+  .photo .ini{font-family:var(--display);font-style:italic;font-size:80px;color:rgba(239,231,216,.9);mix-blend-mode:overlay;}
+  .scrim{position:absolute;left:0;right:0;bottom:0;height:52%;background:linear-gradient(180deg,transparent,rgba(0,0,0,.55));}
+  .label{position:absolute;left:16px;right:16px;bottom:14px;z-index:2;color:var(--paper);}
+  .label .nm{font-family:var(--display);font-weight:600;font-size:22px;line-height:1.05;}
+  .label .rl{font-family:var(--sans);font-size:9.5px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:rgba(239,231,216,.82);margin-top:5px;}
+  /* frosted rollover reveal */
+  .reveal{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;justify-content:flex-end;padding:20px 18px;opacity:0;transition:opacity .4s ease;background:rgba(30,26,22,.30);-webkit-backdrop-filter:blur(9px) saturate(1.1);backdrop-filter:blur(9px) saturate(1.1);}
+  .card:hover .reveal{opacity:1;}
+  .card.expanded .reveal,.card.expanded:hover .reveal{opacity:0;pointer-events:none;}
+  .reveal .r-nm{font-family:var(--display);font-weight:600;font-size:23px;color:var(--paper);line-height:1.05;}
+  .reveal .r-rl{font-family:var(--sans);font-size:9.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ochre);margin:6px 0 10px;}
+  .reveal .r-bio{font-size:13px;line-height:1.55;color:rgba(239,231,216,.94);display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden;}
+  .r-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;}
+  .r-tags span{font-family:var(--sans);font-size:9.5px;font-weight:600;letter-spacing:.05em;color:var(--paper);border:1px solid rgba(239,231,216,.45);padding:3px 8px;border-radius:2px;}
+  .r-more{font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--paper);margin-top:12px;opacity:.85;}
+  /* expanded profile: photo left, content right (stacks on mobile) */
+  .full{position:absolute;inset:0;z-index:4;display:none;grid-template-columns:44% 56%;background:var(--paper);}
+  .card.expanded .full{display:grid;}
+  .full .f-photo{position:relative;background-size:cover;background-position:center 22%;}
+  .full .f-body{padding:26px 26px 22px;display:flex;flex-direction:column;overflow:auto;}
+  .full .fx{position:absolute;top:12px;right:12px;z-index:6;width:30px;height:30px;border-radius:50%;border:none;background:rgba(239,231,216,.92);color:var(--ink);font-size:18px;cursor:pointer;line-height:1;}
+  .full .f-nm{font-family:var(--display);font-weight:600;font-size:28px;line-height:1.05;}
+  .full .f-rl{font-size:12.5px;color:var(--muted);margin:6px 0 14px;line-height:1.4;}
+  .full .f-bio{font-size:14px;line-height:1.6;color:#3D3B35;}
+  .full .f-prices{margin:14px 0 0;}
+  .full .f-cta{width:100%;background:var(--terra);color:#fff;border:none;padding:13px;font-family:var(--sans);font-weight:700;font-size:11px;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;border-radius:0 0 14px 0;margin-top:16px;}
+  .full .f-cta:hover{background:var(--terra-deep);}
+  /* shared bits reused by the panel */
+  .tags{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0 0;}
   .tag{font-size:10.5px;font-family:var(--sans);font-weight:600;letter-spacing:.04em;color:var(--moss);border:1px solid rgba(61,74,46,.3);padding:3px 8px;border-radius:2px;}
-  .meta{margin-top:auto;padding-top:12px;border-top:1px solid var(--border);}
   .prices{display:flex;flex-direction:column;gap:5px;}
   .prow{display:flex;align-items:baseline;justify-content:space-between;gap:10px;}
   .prow .pf{font-size:12px;color:var(--muted);}
   .prow .pv{font-family:var(--display);font-size:18px;font-weight:600;color:var(--ink);}
   .pdur{font-size:10.5px;color:var(--paper-dim);margin-top:3px;letter-spacing:.02em;}
-  .book{margin-top:14px;width:100%;background:var(--terra);color:#fff;border:none;padding:13px;font-family:var(--sans);font-weight:700;font-size:11px;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;}
-  .book:hover{background:var(--terra-deep);}
-  .empty{grid-column:1/-1;text-align:center;padding:60px;color:var(--muted);}
   /* modal */
   .ov{position:fixed;inset:0;background:rgba(20,18,16,.72);display:none;align-items:flex-start;justify-content:center;z-index:100;overflow-y:auto;padding:40px 18px;}
   .ov.show{display:flex;}
@@ -92,28 +122,15 @@
   .chip:hover{border-color:var(--terra);color:var(--terra-deep);}
   .chip.on{background:var(--ink);border-color:var(--ink);color:var(--paper);}
   .chip .ct{opacity:.5;font-weight:400;margin-left:5px;}
-  /* --- grouped category browse --- */
-  .m-group{margin-bottom:36px;}
-  .m-group:last-child{margin-bottom:0;}
-  .m-group-h{font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--terra-deep);margin-bottom:16px;padding-bottom:9px;border-bottom:1px solid var(--border);}
-  /* --- card: name leads, directory-parity hover lift, bio clamp + reserved height --- */
-  .card{transition:transform .6s cubic-bezier(.25,.46,.45,.94),box-shadow .6s cubic-bezier(.25,.46,.45,.94);cursor:pointer;}
-  .card:hover{transform:translateY(-5px);box-shadow:0 14px 40px rgba(26,26,26,.10),0 2px 8px rgba(26,26,26,.05);}
-  .card .av{transition:transform .5s cubic-bezier(.25,.46,.45,.94);}
-  .card:hover .av{transform:scale(1.06);}
-  .m-lead{font-family:var(--display);font-size:23px;font-weight:600;line-height:1.1;color:var(--ink);}
-  .m-role{font-size:12.5px;color:var(--muted);margin-top:5px;line-height:1.4;font-weight:500;}
-  .card .m-bio{display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;min-height:calc(1.55em * 3);}
-  /* --- detail popup: full card + full bio --- */
-  .detail .m-bio-full{font-size:14px;line-height:1.62;color:#3D3B35;margin:14px 0 16px;}
-  .detail .d-prices{margin:16px 0;}
+  /* (grouped browse + old card-lift + detail popup removed — the board handles all of this) */
   /* --- recommend-a-mentor CTA + modal --- */
   .m-rec-cta{margin-top:8px;text-align:center;padding:32px 22px;border:1px dashed var(--border-hi);border-radius:0 0 24px 0;background:rgba(0,0,0,.015);}
   .m-rec-cta h3{font-family:var(--display);font-size:23px;font-weight:600;margin-bottom:7px;}
   .m-rec-cta p{font-size:13.5px;color:var(--muted);max-width:500px;margin:0 auto 18px;line-height:1.55;}
   .m-rec-cta button{background:var(--ink);color:var(--paper);border:none;padding:13px 24px;font-family:var(--sans);font-weight:700;font-size:11px;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;border-radius:0 0 14px 0;transition:background .2s;}
   .m-rec-cta button:hover{background:var(--terra);}
-  @media(max-width:560px){.hero h1{font-size:36px;}.grid2{grid-template-columns:1fr;}.grid{grid-template-columns:1fr;}}
+  @media(max-width:560px){.hero h1{font-size:36px;}.grid2{grid-template-columns:1fr;}}
+  @media(max-width:640px){.full{grid-template-columns:1fr;}.full .f-photo{min-height:170px;}}
 </style>
 </head>
 <body>
@@ -173,7 +190,7 @@
     </div>
     <div class="chips" id="chips"></div>
   </div>
-  <div class="grid" id="grid"><div class="empty">Loading mentors…</div></div>
+  <div class="board" id="board"><div class="empty">Loading mentors…</div></div>
   <div class="m-rec-cta">
     <h3>Can't find who you're looking for?</h3>
     <p>Know an operator who'd make a brilliant mentor — someone who's built, scaled, raised, or exited a company here? Recommend them, and our team will reach out with an invitation.</p>
@@ -211,14 +228,6 @@
         <button class="btn" style="margin-top:18px;max-width:200px" onclick="closeBook()">Done</button>
       </div>
     </div>
-  </div>
-</div>
-
-<!-- mentor detail popup (full card + full bio) -->
-<div class="ov" id="ov-detail">
-  <div class="modal detail" id="modal-detail">
-    <button class="x" onclick="closeDetail()" aria-label="Close">×</button>
-    <div id="detail-body"></div>
   </div>
 </div>
 
@@ -269,22 +278,63 @@ function avOf(m){ return m.photo_url?'<img class="av" src="'+esc(m.photo_url)+'"
 function pricesOf(m){ return (m.formats||['coffee','zoom']).map(function(f){
   return '<div class="prow"><span class="pf">'+(FMT_LABEL[f]||esc(f))+'</span><span class="pv">'+money(feeFor(m,f))+'</span></div>'; }).join(''); }
 
-let MENTORS=[], current=null, fmt=null;
+let MENTORS=[], current=null, fmt=null, expandedIdx=-1, VIEW=[];
 const state={ q:'', filter:'all' };
+const PALETTE=['#C8531F','#C9923A','#8AAB5C','#3D4A2E','#777770'];   // tile colours (photo-less cards)
+function cardColor(i){ return PALETTE[i % PALETTE.length]; }
+function cardH(m){ const b=(m.bio||'').length; return Math.max(260, Math.min(430, 262 + Math.round(b/3.2))); }
 
-// ---- card template (uses the mentor's global index in MENTORS) ----
-function cardHTML(m,i){
-  const tags=(m.expertise||[]).slice(0,5).map(t=>'<span class="tag">'+esc(t)+'</span>').join('');
-  return '<div class="card" onclick="openDetail('+i+')"><div class="top">'+avOf(m)+'<div style="min-width:0">'
-    +'<div class="m-lead">'+esc(m.name||m.title)+'</div>'
-    +(m.title?'<div class="m-role">'+esc(m.title)+'</div>':'')
-    +(m.company?'<div class="m-co">'+esc(m.company)+(m.location?' · '+esc(m.location):'')+'</div>':'')
-    +'</div></div>'
-    +(m.bio?'<div class="m-bio">'+esc(m.bio)+'</div>':'')
-    +(tags?'<div class="tags">'+tags+'</div>':'')
-    +'<div class="meta"><div class="prices">'+pricesOf(m)+'<div class="pdur">'+esc(durOf(m))+'</div></div></div>'
-    +'<button class="book" onclick="event.stopPropagation();openBook('+i+')">Request a session →</button></div>';
+// ---- board card (gi = global index into MENTORS) ----
+function boardCard(m, gi){
+  const name=esc(m.name||m.title||'—'), role=esc(m.title||'');
+  const co=[m.company, m.location].filter(Boolean).map(esc).join(' · ');
+  const rTags=(m.expertise||[]).slice(0,4).map(t=>'<span>'+esc(t)+'</span>').join('');
+  const fTags=(m.expertise||[]).map(t=>'<span class="tag">'+esc(t)+'</span>').join('');
+  const hasPhoto=!!m.photo_url;
+  const photoCss = hasPhoto ? "background-image:url('"+esc(m.photo_url)+"')" : "background:linear-gradient(155deg,"+cardColor(gi)+" 0%, #241d17 130%)";
+  const photo = '<div class="photo'+(hasPhoto?'':' tile')+'" style="'+photoCss+'">'+(hasPhoto?'':'<span class="ini">'+esc(initials(m.name||m.title))+'</span>')+'</div>';
+  return '<div class="card'+(hasPhoto?' has-photo':'')+'" data-i="'+gi+'" data-h="'+cardH(m)+'">'
+    + photo + '<div class="scrim"></div>'
+    + '<div class="label"><div class="nm">'+name+'</div>'+(role?'<div class="rl">'+role+'</div>':'')+'</div>'
+    + '<div class="reveal"><div class="r-nm">'+name+'</div>'+(role?'<div class="r-rl">'+role+'</div>':'')
+      + (m.bio?'<div class="r-bio">'+esc(m.bio)+'</div>':'')
+      + (rTags?'<div class="r-tags">'+rTags+'</div>':'')
+      + '<div class="r-more">Click to open →</div></div>'
+    + '<div class="full"><button class="fx" aria-label="Close">×</button>'
+      + '<div class="f-photo" style="'+photoCss+'"></div>'
+      + '<div class="f-body"><div class="f-nm">'+name+'</div>'
+        + ((role||co)?'<div class="f-rl">'+[role,co].filter(Boolean).join(' · ')+'</div>':'')
+        + (m.bio?'<div class="f-bio">'+esc(m.bio)+'</div>':'')
+        + (fTags?'<div class="tags">'+fTags+'</div>':'')
+        + '<div class="f-prices"><div class="prices">'+pricesOf(m)+'<div class="pdur">'+esc(durOf(m))+'</div></div></div>'
+        + '<button class="f-cta">Request a session →</button>'
+      + '</div></div>'
+    + '</div>';
 }
+
+// ---- masonry layout: place cards; expanded card spans 2 cols, others reflow ----
+function layout(){
+  const board=document.getElementById('board'); const W=board.clientWidth; if(!W) return;
+  const gap=18, COLW=264;
+  const cols=Math.max(1, Math.floor((W+gap)/(COLW+gap)));
+  const colW=(W-gap*(cols-1))/cols;
+  const heights=new Array(cols).fill(0);
+  board.querySelectorAll('.card').forEach(el=>{
+    const gi=+el.dataset.i, isExp=(gi===expandedIdx);
+    el.classList.toggle('expanded', isExp);
+    const span=isExp?Math.min(2,cols):1;
+    const h=isExp?(span===1?560:480):(+el.dataset.h);
+    const w=colW*span+gap*(span-1);
+    let start=0;
+    if(span===1){ start=heights.indexOf(Math.min.apply(null,heights)); }
+    else { let best=0,bestY=Infinity; for(let k=0;k<=cols-2;k++){ const y=Math.max(heights[k],heights[k+1]); if(y<bestY){bestY=y;best=k;} } start=best; }
+    const y=span===1?heights[start]:Math.max(heights[start],heights[start+1]);
+    el.style.width=w+'px'; el.style.height=h+'px'; el.style.transform='translate('+(start*(colW+gap))+'px,'+y+'px)';
+    for(let k=start;k<start+span;k++) heights[k]=y+h+gap;
+  });
+  board.style.height=Math.max.apply(null,heights.concat(0))+'px';
+}
+function setExpanded(gi){ expandedIdx=(expandedIdx===gi?-1:gi); layout(); }
 
 function uniqueExpertise(){ const s=new Set(); MENTORS.forEach(m=>(m.expertise||[]).forEach(e=>e&&s.add(e))); return [...s].sort(); }
 function primaryCat(m){ return (m.expertise&&m.expertise[0])||'Other operators'; }
@@ -318,28 +368,13 @@ function renderChips(){
 function onSearch(val){ state.q=val||''; render(); }
 
 function render(){
-  const g=document.getElementById('grid');
-  if(!MENTORS.length){ g.innerHTML='<div class="empty">Mentors are being onboarded — check back soon.</div>'; g.classList.add('grid'); return; }
-  const list=MENTORS.map((m,i)=>({m,i})).filter(x=>matches(x.m));
-  if(!list.length){ g.classList.add('grid'); g.innerHTML='<div class="empty">No mentors match that yet. Clear the filters — or recommend someone below.</div>'; return; }
-  const browse = (!state.q.trim() && (!state.filter || state.filter==='all'));
-  if(browse){
-    // default view: group by primary expertise area for easy browsing
-    const groups={};
-    list.forEach(x=>{ const c=primaryCat(x.m); (groups[c]=groups[c]||[]).push(x); });
-    const keys=Object.keys(groups).sort();
-    // if everything lands in a single group, skip the heading — just show the grid
-    if(keys.length<=1){
-      g.classList.add('grid');
-      g.innerHTML=list.map(x=>cardHTML(x.m,x.i)).join('');
-    } else {
-      g.classList.remove('grid');
-      g.innerHTML=keys.map(c=>'<div class="m-group"><div class="m-group-h">'+esc(c)+'</div><div class="grid">'+groups[c].map(x=>cardHTML(x.m,x.i)).join('')+'</div></div>').join('');
-    }
-  } else {
-    g.classList.add('grid');
-    g.innerHTML=list.map(x=>cardHTML(x.m,x.i)).join('');
-  }
+  const board=document.getElementById('board');
+  expandedIdx=-1;
+  if(!MENTORS.length){ board.style.height='auto'; board.innerHTML='<div class="empty">Mentors are being onboarded — check back soon.</div>'; return; }
+  VIEW=MENTORS.map((m,i)=>({m,i})).filter(x=>matches(x.m));
+  if(!VIEW.length){ board.style.height='auto'; board.innerHTML='<div class="empty">No mentors match that yet. Clear the filters — or recommend someone below.</div>'; return; }
+  board.innerHTML=VIEW.map(x=>boardCard(x.m,x.i)).join('');
+  layout();
 }
 
 async function load(){
@@ -351,23 +386,20 @@ async function load(){
   render();
 }
 
-// ---- mentor detail popup (full card, full bio) ----
-function openDetail(i){
-  const m=MENTORS[i]; if(!m) return;
-  const tags=(m.expertise||[]).map(t=>'<span class="tag">'+esc(t)+'</span>').join('');
-  document.getElementById('detail-body').innerHTML=
-    '<div class="top" style="margin-bottom:16px">'+avOf(m)+'<div style="min-width:0">'
-    +'<div class="m-lead" style="font-size:27px">'+esc(m.name||m.title)+'</div>'
-    +(m.title?'<div class="m-role">'+esc(m.title)+'</div>':'')
-    +(m.company?'<div class="m-co">'+esc(m.company)+(m.location?' · '+esc(m.location):'')+'</div>':'')
-    +'</div></div>'
-    +(m.bio?'<div class="m-bio-full">'+esc(m.bio)+'</div>':'')
-    +(tags?'<div class="tags">'+tags+'</div>':'')
-    +'<div class="meta d-prices"><div class="prices">'+pricesOf(m)+'<div class="pdur">'+esc(durOf(m))+'</div></div></div>'
-    +'<button class="btn" onclick="closeDetail();openBook('+i+')">Request a session →</button>';
-  document.getElementById('ov-detail').classList.add('show');
-}
-function closeDetail(){ document.getElementById('ov-detail').classList.remove('show'); }
+// ---- board interaction (bound once; survives innerHTML re-renders) ----
+(function(){
+  const board=document.getElementById('board');
+  board.addEventListener('click', function(e){
+    const card=e.target.closest('.card'); if(!card) return;
+    const gi=+card.dataset.i;
+    if(e.target.closest('.f-cta')){ e.stopPropagation(); openBook(gi); return; }
+    if(e.target.closest('.fx')){ e.stopPropagation(); setExpanded(-1); return; }
+    if(card.classList.contains('expanded')) return;
+    setExpanded(gi);
+  });
+  let rt; window.addEventListener('resize', function(){ clearTimeout(rt); rt=setTimeout(layout,120); });
+  document.addEventListener('keydown', function(e){ if(e.key==='Escape' && expandedIdx>=0) setExpanded(-1); });
+})();
 
 function openBook(i){
   current=MENTORS[i]; fmt=(current.formats&&current.formats[0])||'coffee';
