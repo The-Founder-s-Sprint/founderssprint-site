@@ -164,8 +164,11 @@ section, footer, nav { position: relative; z-index: 2; }
 .label .nm{font-family:var(--display);font-size:22px;font-weight:400;line-height:1.08;}
 .vbadge{display:inline-flex;align-items:center;gap:5px;font-family:var(--sans);font-size:8px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--ochre);margin-bottom:6px;}
 .vbadge svg{width:10px;height:10px;}
-.reveal{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;justify-content:flex-end;padding:20px 18px;opacity:0;transition:opacity .4s ease;background:rgba(20,17,13,.34);-webkit-backdrop-filter:blur(9px) saturate(1.05);backdrop-filter:blur(9px) saturate(1.05);}
+.reveal{position:absolute;inset:0;z-index:2;display:flex;flex-direction:column;justify-content:flex-end;padding:20px 18px;opacity:0;transition:opacity .45s cubic-bezier(.25,.46,.45,.94);background:rgba(20,17,13,.34);-webkit-backdrop-filter:blur(9px) saturate(1.05);backdrop-filter:blur(9px) saturate(1.05);}
+.reveal > *{transform:translateY(10px);transition:transform .55s cubic-bezier(.25,.46,.45,.94);}
+.reveal > *:nth-child(2){transition-delay:.05s;} .reveal > *:nth-child(3){transition-delay:.10s;} .reveal > *:nth-child(4){transition-delay:.15s;} .reveal > *:nth-child(5){transition-delay:.20s;}
 .card:hover .reveal{opacity:1;}
+.card:hover .reveal > *{transform:translateY(0);}
 .card.expanded .reveal{opacity:0;pointer-events:none;}
 .reveal .r-nm{font-family:var(--display);font-size:23px;color:var(--paper);line-height:1.08;}
 .reveal .r-cat{font-family:var(--sans);font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--ochre);margin:6px 0 8px;}
