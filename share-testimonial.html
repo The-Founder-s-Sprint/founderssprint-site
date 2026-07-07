@@ -138,6 +138,7 @@
 const SUPABASE_URL='https://ivedeivyotwevjxvcuoe.supabase.co';
 const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss';
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON,{auth:{persistSession:false}});
+const API_BASE='https://api.founderssprint.co';
 
 /* Deep-link pre-targeting: /share-testimonial.html?for=<slug> (from coach profiles, courses, etc.) */
 (function(){
@@ -200,11 +201,13 @@ async function submitForm(){
       photo_path=path;
     }
     const rating = (for_target && for_target!=='group' && ratingVal>=1 && ratingVal<=5) ? ratingVal : null;
-    const { error }=await sb.from('testimonial_submissions').insert({
-      name, role_title:val('role_title')||null, company:val('company')||null,
-      for_target, testimonial, photo_path, consent:true, status:'new', rating
+    const resp=await fetch(API_BASE+'/api/testimonial',{
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ name, role_title:val('role_title')||null, company:val('company')||null,
+        for_target, testimonial, photo_path, consent:true, rating })
     });
-    if(error) throw new Error(error.message);
+    const data=await resp.json().catch(()=>({}));
+    if(!resp.ok) throw new Error(data.error||'Could not send.');
     document.getElementById('form-card').style.display='none';
     document.getElementById('done-card').style.display='block';
     window.scrollTo(0,0);

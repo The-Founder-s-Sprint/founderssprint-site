@@ -15,3 +15,4 @@ Baseline recorded 10 Jun 2026 (explore.js?v=16): matcher 66/72 top-1, 72/72 top-
     node tests/taxonomy-parity.js                    # explore fallback mirrors beta/taxonomy.js: structure + slug parity
     node tests/booking-l3-check.js <site-root>       # converged-from-shared taxonomy + L3 ?spec= booking links: 13 checks
     node tests/chrome-check.js <site-root>           # uses shared site-chrome.js nav+footer (Method/Mentors/CTAs, fixed): 25 checks
+    node tests/fidelity-check.js .                   # 3D node sheen, 9-layer cloud, chevron plates: 8 checks
