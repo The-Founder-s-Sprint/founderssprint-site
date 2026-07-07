@@ -69,7 +69,7 @@
       var g = mk('g', { 'class': 'fan-node', style: '--d:' + (0.14 + i * 0.08).toFixed(2) + 's' }, gn);
       mk('circle', { cx: x, cy: y, r: 9, fill: color, opacity: 0.13 }, g);
       mk('circle', { cx: x, cy: y, r: 2.8, fill: color }, g);
-      var t = mk('text', { x: x + 9, y: y, 'text-anchor': 'start', 'dominant-baseline': 'middle', 'font-family': "'Josefin Sans',sans-serif", 'font-weight': 400, 'font-size': 9.5, 'letter-spacing': 0.8, fill: INK }, g);
+      var t = mk('text', { x: x + 9, y: y, 'text-anchor': 'start', 'dominant-baseline': 'middle', 'font-family': "'Josefin Sans',sans-serif", 'font-weight': 400, 'font-size': 7.1, 'letter-spacing': 0.6, fill: INK }, g);
       t.textContent = lab.toUpperCase();
     });
 
@@ -81,7 +81,7 @@
       var words = hubName.toUpperCase().split(' ');
       var lines = words.length > 2 ? [words.slice(0, Math.ceil(words.length / 2)).join(' '), words.slice(Math.ceil(words.length / 2)).join(' ')] : [hubName.toUpperCase()];
       lines.forEach(function (ln, li) {
-        var ht = mk('text', { x: hubX, y: hubY + 22 + li * 12, 'text-anchor': 'middle', 'font-family': "'Josefin Sans',sans-serif", 'font-weight': 600, 'font-size': 10, 'letter-spacing': 1.2, fill: INK_HUB }, gh);
+        var ht = mk('text', { x: hubX, y: hubY + 22 + li * 12, 'text-anchor': 'middle', 'font-family': "'Josefin Sans',sans-serif", 'font-weight': 600, 'font-size': 7.5, 'letter-spacing': 1, fill: INK_HUB }, gh);
         ht.textContent = ln;
       });
     }
