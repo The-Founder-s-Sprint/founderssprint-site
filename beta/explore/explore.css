@@ -41,6 +41,36 @@ body {
 
 /* ── Atmospheric haze (handled by SVG g-haze orbs — CSS overlay removed to avoid duplicate) ── */
 
+/* ── Nebula cloud plates (desktop-only; extracted from the Fable build).
+   screen blend: the plates are black + light cloud, so only the warm clouds
+   add light over the dark base. Plates load ONLY at ≥769px (mobile card-stack
+   never fetches them — keeps the 3G budget). Slow drift added with motion. ── */
+.nebula { position: absolute; inset: 0; z-index: 0; pointer-events: none; overflow: hidden; }
+.neb { position: absolute; inset: -8% -8%; background-repeat: no-repeat; background-position: center; background-size: cover; opacity: 0; }
+/* Dust is deliberately faint — the field is mostly dark, with the band as a
+   soft diagonal warm wash (matches the Fable design's restraint). */
+@media (min-width: 769px) {
+  .neb-far  { background-image: url("img/nebula-dust-2.webp"); opacity: 0.05; mix-blend-mode: screen; transform: scale(1.08); }
+  .neb-mid  { background-image: url("img/nebula-dust-1.webp"); opacity: 0.06; mix-blend-mode: screen; transform: scale(1.03); }
+  .neb-band { background-image: url("img/nebula-band.webp");  opacity: 0.16; mix-blend-mode: screen; }
+}
+/* Centre vignette — keeps the constellation core dark + readable, clouds ride the edges. */
+.nebula::after {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background: radial-gradient(ellipse 58% 54% at 50% 52%, #0d0b08 0%, rgba(13,11,8,0.72) 42%, rgba(13,11,8,0) 100%);
+}
+/* Slow parallax drift — the dust banks breathe at different rates. Decoupled
+   from the constellation's own rotation/twinkle (tuned later). Motion-gated. */
+@media (min-width: 769px) and (prefers-reduced-motion: no-preference) {
+  .neb-far  { animation: nebDriftA 150s ease-in-out infinite alternate; }
+  .neb-mid  { animation: nebDriftB 108s ease-in-out infinite alternate; }
+  .neb-band { animation: nebDriftC 190s ease-in-out infinite alternate; }
+}
+@keyframes nebDriftA { from { transform: scale(1.08) translate(0, 0); }      to { transform: scale(1.13) translate(-2.6%, 1.6%); } }
+@keyframes nebDriftB { from { transform: scale(1.03) translate(0, 0); }      to { transform: scale(1.07) translate(2.2%, -1.6%); } }
+@keyframes nebDriftC { from { transform: scale(1.02) translate(0, 0); }      to { transform: scale(1.05) translate(-3%, 1.1%); } }
+@media (prefers-reduced-motion: reduce) { .neb { transform: none !important; animation: none !important; } }
+
 /* ── Star field ── */
 .constellation-hero::before {
   content: "";
@@ -59,6 +89,11 @@ body {
   pointer-events: none;
   z-index: 0;
 }
+/* Ambient starfield twinkle — gentle global pulse (node stars twinkle in JS). */
+@media (min-width: 769px) and (prefers-reduced-motion: no-preference) {
+  .constellation-hero::before { animation: starTwinkle 7.5s ease-in-out infinite alternate; }
+}
+@keyframes starTwinkle { from { opacity: 0.62; } to { opacity: 1; } }
 
 /* ── Noise overlay ── */
 .noise {
@@ -120,11 +155,33 @@ body {
 
 /* ── Controls ── */
 .ctrl {
-  position: absolute; right: 56px; top: 80px; z-index: 6;
+  position: absolute; right: 56px; top: 130px; z-index: 6;
   display: flex; align-items: center; gap: 10px;
   font-family: var(--mono); font-size: 10px;
   letter-spacing: 0.18em; text-transform: uppercase;
   color: rgba(239,231,216,0.55);
+}
+
+/* ── Search pill (top-right) — opens the wired search overlay ── */
+.search-pill {
+  position: absolute; top: 84px; right: 56px; z-index: 6;
+  display: inline-flex; align-items: center; gap: 9px; min-width: 232px;
+  padding: 11px 16px; background: rgba(15,13,10,0.55);
+  border: 1px solid rgba(239,231,216,0.14); border-radius: 0 0 12px 0;
+  font-family: var(--mono); font-size: 11px; letter-spacing: 0.05em;
+  color: rgba(239,231,216,0.5); cursor: text; text-align: left;
+  -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px);
+  transition: border-color .2s, color .2s;
+}
+.search-pill:hover { border-color: rgba(200,83,31,0.5); color: rgba(239,231,216,0.82); }
+.search-pill svg { width: 14px; height: 14px; opacity: 0.7; flex-shrink: 0; }
+
+/* ── Stat strip (bottom-right) ── */
+.stat-strip {
+  position: absolute; right: 56px; bottom: 86px; z-index: 5;
+  font-family: var(--mono); font-size: 10px; letter-spacing: 0.14em;
+  text-transform: uppercase; color: rgba(239,231,216,0.4);
+  pointer-events: none; text-align: right;
 }
 .ctrl button {
   background: transparent;
@@ -141,14 +198,25 @@ body {
 /* ── Title block ── */
 .title-block {
   position: absolute;
-  top: 80px; left: 50%; transform: translateX(-50%);
-  z-index: 4; text-align: center;
+  top: 84px; left: 56px;
+  z-index: 4; text-align: left;
   pointer-events: none;
+  max-width: 340px;
+  padding: 18px 22px 20px;
+  background: rgba(15,13,10,0.55);
+  border: 1px solid rgba(239,231,216,0.08);
+  border-radius: 0 0 18px 0;
+  -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px);
 }
 .title-block .eb {
   font-family: var(--sans); font-size: 10px; font-weight: 700;
-  letter-spacing: 0.42em; text-transform: uppercase;
-  color: rgba(239,231,216,0.4);
+  letter-spacing: 0.38em; text-transform: uppercase;
+  color: rgba(239,231,216,0.55);
+}
+.title-block .eb-star { color: var(--terra); }
+.title-block .ti-sub {
+  font-family: var(--body); font-size: 12px; line-height: 1.5;
+  color: rgba(239,231,216,0.6); margin-top: 10px; max-width: 30ch;
 }
 .title-block .ti {
   font-family: var(--display); font-style: italic; font-weight: 400;
@@ -191,6 +259,16 @@ body {
 .legend-item { display: grid; grid-template-columns: 26px 1fr; align-items: center; gap: 14px; white-space: nowrap;
   cursor: pointer; padding: 5px 10px 5px 6px; margin: -5px -10px -5px -6px; border-radius: 0 0 10px 0;
   transition: background .2s ease; -webkit-tap-highlight-color: transparent; }
+/* ── Disciplines legend (glyph · name · count) ── */
+.legend-head { font-family: var(--sans); font-size: 9px; font-weight: 700; letter-spacing: 0.28em;
+  text-transform: uppercase; color: rgba(239,231,216,0.35); margin-bottom: 2px; }
+.legend-disc { grid-template-columns: 16px 1fr auto; gap: 11px; }
+.legend-diamond { width: 11px; height: 11px; background: currentColor; transform: rotate(45deg);
+  border-radius: 1px; box-shadow: 0 0 9px currentColor; justify-self: center; }
+.legend-disc-name { font-family: var(--sans); font-size: 11px; font-weight: 600; letter-spacing: 0.1em;
+  text-transform: uppercase; color: rgba(239,231,216,0.82); }
+.legend-disc:hover .legend-disc-name { color: var(--paper); }
+.legend-disc-count { font-family: var(--mono); font-size: 10px; letter-spacing: 0.08em; color: rgba(239,231,216,0.4); }
 .legend-item:hover { background: rgba(239,231,216,0.06); }
 .legend-item:focus-visible { outline: 1px solid rgba(239,231,216,0.4); outline-offset: 2px; }
 .legend-item.active { background: rgba(200,83,31,0.16); }

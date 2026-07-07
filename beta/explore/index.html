@@ -8,7 +8,7 @@
 <link rel="canonical" href="https://founderssprint.co/explore">
 <!-- Web fonts are desktop-only (CLAUDE.md mobile rules: system font stack on phones, saves ~200-400KB on 3G) -->
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Josefin+Sans:wght@300;400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="(min-width: 769px)">
-<link rel="stylesheet" href="explore.css?v=20">
+<link rel="stylesheet" href="explore.css?v=21">
 </head>
 <body>
 
@@ -32,6 +32,20 @@
   <!-- Noise overlay -->
   <div class="noise" aria-hidden="true"></div>
 
+  <!-- Nebula cloud plates (desktop-only via CSS @media; screen-blended so only the
+       warm clouds glow over the dark base. Extracted from the Fable build → WebP. -->
+  <div class="nebula" aria-hidden="true">
+    <div class="neb neb-far"></div>
+    <div class="neb neb-mid"></div>
+    <div class="neb neb-band"></div>
+  </div>
+
+  <!-- Persistent search pill (top-right) — opens the wired search overlay -->
+  <button class="search-pill" id="search-pill" aria-label="Search specialties">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+    <span>Search specialties…</span>
+  </button>
+
   <!-- Controls -->
   <div class="ctrl">
     <button id="btn-pause">Pause</button>
@@ -40,8 +54,9 @@
 
   <!-- Title -->
   <div class="title-block">
-    <div class="eb">The Constellation</div>
-    <div class="ti">Five disciplines · Three depths · One <em>direction.</em></div>
+    <div class="eb"><span class="eb-star">✦</span>&nbsp;&nbsp;The Founder's Sprint</div>
+    <div class="ti">The <em>constellation</em></div>
+    <div class="ti-sub">Five disciplines · five coaches. Choose a star; meet your coach.</div>
   </div>
 
   <!-- SVG Stage -->
@@ -179,23 +194,14 @@
   </aside>
 
   <!-- Hint -->
-  <div class="hint">Hover the mark to search · Click a node to explore</div>
+  <div class="hint">Search a topic · or click a star to meet your coach</div>
 
-  <!-- Legend -->
-  <div class="legend">
-    <div class="legend-item legend-l1" data-level="1" title="Light up all disciplines">
-      <div class="legend-swatch"><i></i></div>
-      <div class="legend-text"><div class="l">L1 — Discipline</div><div class="d">5 coaching domains</div></div>
-    </div>
-    <div class="legend-item legend-l2" data-level="2" title="Light up all sub-categories">
-      <div class="legend-swatch"><i></i></div>
-      <div class="legend-text"><div class="l">L2 — Sub-category</div><div class="d">15 topic clusters</div></div>
-    </div>
-    <div class="legend-item legend-l3" data-level="3" title="Light up all specialties">
-      <div class="legend-swatch"><i></i></div>
-      <div class="legend-text"><div class="l">L3 — Specialty</div><div class="d">50 coaching areas</div></div>
-    </div>
-  </div>
+  <!-- Stat strip (bottom-right) — counts built by explore.js from taxonomy.js -->
+  <div class="stat-strip" id="stat-strip"></div>
+
+  <!-- Legend — the five disciplines (built by explore.js from taxonomy.js:
+       glyph · name · specialty count. Click focuses that discipline). -->
+  <div class="legend" id="legend"></div>
 
   <!-- Info panel -->
   <div class="info" id="info">
@@ -248,9 +254,9 @@
 
 <script src="../taxonomy.js?v=1"></script>
 <script src="../testimonials.js?v=2"></script>
-<script src="explore.js?v=29"></script>
+<script src="explore.js?v=30"></script>
 <script src="../sponsors.js?v=2"></script>
 <script src="../auth-nav.js?v=1"></script>
-<script src="/site-chrome.js?v=8" defer></script>
+<script src="/site-chrome.js?v=9" defer></script>
 </body>
 </html>

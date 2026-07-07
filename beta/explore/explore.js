@@ -819,19 +819,34 @@
 
   // Centre mark group
   const centerGroup = el('g', { id: 'center-mark' });
-  centerGroup.appendChild(el('circle', { cx: CX, cy: CY, r: 80, fill: 'url(#g-center)' }));
+  centerGroup.appendChild(el('circle', { cx: CX, cy: CY, r: 118, fill: 'url(#g-center)' }));
   const PETAL_COLS = ['#c8531f','#c9923a','#8aab5c','#3d4a2e','#777770'];
-  const MARK_SCALE = 1.8;
+  const RAY_COLS   = ['#c8531f','#c9923a','#8aab5c','#5f7a45','#a59b8c'];  // brightened moss/stone read on the dark field
+  const MARK_SCALE = 1.55;
   const petalsGroup = el('g', { id: 'center-petals', transform: `translate(${CX} ${CY})` });
+  // long thin light-ray spikes — a glowing star ("choose a star; meet your coach")
+  for (let i = 0; i < 10; i++) {
+    const long = i % 2 === 0;
+    const len = long ? 134 : 76;
+    const w = long ? 3.2 : 2.0;
+    const ray = el('polygon', {
+      points: `0,${-len} ${w},0 0,${(len*0.14).toFixed(1)} ${-w},0`,
+      fill: RAY_COLS[i % RAY_COLS.length], opacity: long ? 0.5 : 0.3,
+      transform: `rotate(${i*36})`, filter: 'url(#f-glow-sm)', 'pointer-events': 'none',
+    });
+    petalsGroup.appendChild(ray);
+  }
+  // V6 petals (identity mark)
   PETAL_COLS.forEach((c, i) => {
     const src = [[50,8],[57.5,50],[50,92],[42.5,50]];
     const pts = src.map(([x,y]) => [(x-50)*MARK_SCALE, (y-50)*MARK_SCALE].join(',')).join(' ');
-    const p = el('polygon', { points: pts, fill: c, opacity: 0.85, transform: `rotate(${i*72})` });
+    const p = el('polygon', { points: pts, fill: c, opacity: 0.9, transform: `rotate(${i*72})` });
     petalsGroup.appendChild(p);
   });
-  // Open circle eye — paper ring with ink center (V6 mark signature)
-  petalsGroup.appendChild(el('circle', { cx: 0, cy: 0, r: 14, fill: COL_PAPER }));
-  petalsGroup.appendChild(el('circle', { cx: 0, cy: 0, r: 6, fill: COL_INK }));
+  // Bright glowing core — paper halo, ink eye, tight catch-light
+  petalsGroup.appendChild(el('circle', { cx: 0, cy: 0, r: 12, fill: COL_PAPER, filter: 'url(#f-glow-sm)' }));
+  petalsGroup.appendChild(el('circle', { cx: 0, cy: 0, r: 5.5, fill: COL_INK }));
+  petalsGroup.appendChild(el('circle', { cx: 0, cy: 0, r: 2, fill: COL_PAPER }));
   centerGroup.appendChild(petalsGroup);
   const centerHit = el('circle', {
     cx: CX, cy: CY, r: 92,
@@ -1043,28 +1058,49 @@
   // ============================================================
   //   LEGEND — click a tier key to light up all nodes of that level
   // ============================================================
+  // Retained for node-click + frame-loop references (no longer legend-driven).
   function setHighlightLevel(lvl) {
     state.highlightLevel = (state.highlightLevel === lvl) ? null : lvl;
-    state.lastInteraction = Date.now();
-    document.querySelectorAll('.legend-item').forEach(item => {
-      const l = parseInt(item.getAttribute('data-level'), 10);
-      item.classList.toggle('active', l === state.highlightLevel);
-    });
   }
-  document.querySelectorAll('.legend-item').forEach(item => {
-    const lvl = parseInt(item.getAttribute('data-level'), 10);
-    if (!lvl) return;
-    item.setAttribute('role', 'button');
-    item.setAttribute('tabindex', '0');
-    item.addEventListener('click', () => {
-      // a legend highlight is its own clean view — drop any pinned node
-      if (state.pinnedId || state.focusedL1 != null) unfocus();
-      setHighlightLevel(lvl);
+  // Disciplines legend — glyph · name · L3 count, built from the taxonomy.
+  // Click focuses that discipline's branch (reuses focusOnDiscipline).
+  (function buildDisciplineLegend() {
+    const box = document.getElementById('legend');
+    if (!box) return;
+    box.innerHTML = '<div class="legend-head">Disciplines</div>';
+    TAXONOMY.forEach((d, i) => {
+      const l3n = d.l2.reduce((s, sub) => s + ((sub.l3 && sub.l3.length) || 0), 0);
+      const item = document.createElement('div');
+      item.className = 'legend-item legend-disc';
+      item.setAttribute('role', 'button');
+      item.setAttribute('tabindex', '0');
+      item.dataset.l1 = i;
+      item.innerHTML = '<span class="legend-diamond" style="color:' + d.color + '"></span>';
+      const name = document.createElement('span');
+      name.className = 'legend-disc-name';
+      name.textContent = d.l1;
+      item.appendChild(name);
+      const cnt = document.createElement('span');
+      cnt.className = 'legend-disc-count';
+      cnt.textContent = String(l3n).padStart(2, '0');
+      item.appendChild(cnt);
+      item.addEventListener('click', () => { if (typeof unfocus === 'function') unfocus(); focusOnDiscipline(i); });
+      item.addEventListener('keydown', (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); item.click(); } });
+      box.appendChild(item);
     });
-    item.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); item.click(); }
-    });
-  });
+  })();
+
+  // Persistent search pill (top-right) opens the wired search overlay.
+  var _searchPill = document.getElementById('search-pill');
+  if (_searchPill) _searchPill.addEventListener('click', openSearch);
+
+  // Stat strip (bottom-right) — live counts from the taxonomy + coaches.
+  var _stat = document.getElementById('stat-strip');
+  if (_stat) {
+    var nL3 = 0, nL2 = 0;
+    TAXONOMY.forEach(function (d) { nL2 += d.l2.length; d.l2.forEach(function (s) { nL3 += (s.l3 && s.l3.length) || 0; }); });
+    _stat.textContent = nL3 + ' Specialties · ' + nL2 + ' Modules · ' + TAXONOMY.length + ' Disciplines · ' + COACHES.length + ' Coaches';
+  }
 
   // ============================================================
   //   PROJECTION
