@@ -9,7 +9,11 @@
 (function () {
   var NS = 'http://www.w3.org/2000/svg';
   var CSS =
-    '.fanlet svg.fan{width:100%;height:auto;display:block;overflow:visible;}' +
+    /* dark constellation panel so the glowing nodes + cream labels read (the page bg is paper) */
+    '.fanlet{position:relative;margin:14px auto 0;padding:18px 16px 20px;border-radius:0 0 24px 0;overflow:hidden;' +
+      'background:radial-gradient(ellipse 130% 105% at 50% 42%,#1f1c17 0%,#12100b 60%,#0d0b08 100%);' +
+      'border:1px solid rgba(239,231,216,0.10);box-shadow:0 18px 40px -22px rgba(0,0,0,0.6);}' +
+    '.fanlet svg.fan{width:100%;height:auto;display:block;overflow:visible;position:relative;z-index:1;}' +
     '.fan-links line{stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset .85s cubic-bezier(.4,.9,.3,1);}' +
     '.fan.fanned .fan-links line{stroke-dashoffset:0;}' +
     '.fan-node{opacity:0;transform:translateY(8px) scale(.5);transform-box:fill-box;transform-origin:center;' +
