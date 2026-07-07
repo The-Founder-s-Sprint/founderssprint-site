@@ -9,6 +9,24 @@
 <!-- Web fonts are desktop-only (CLAUDE.md mobile rules: system font stack on phones, saves ~200-400KB on 3G) -->
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Josefin+Sans:wght@300;400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="(min-width: 769px)">
 <link rel="stylesheet" href="explore.css?v=21">
+<link rel="stylesheet" href="constellation.css?v=1">
+<style>
+  /* Visible module host (desktop constellation) + collapsed legacy scaffold
+     (kept only so explore.js still builds its node model, matcher + coach panel). */
+  .fsc-host { position: relative; width: 100%; height: calc(100vh - 70px); margin-top: 70px; }  /* clear the fixed site nav */
+  #constellation-hero.fsc-legacy { position: absolute; top: 0; left: 0; width: 0; height: 0; overflow: hidden; opacity: 0; pointer-events: none; }
+  @media (max-width: 768px) { .fsc-host { display: none; } }   /* mobile keeps the card-stack */
+  /* Multicolour discipline hues behind the module's clouds (the warm/green glows we kept) */
+  #constellation .fsc-root {
+    background:
+      radial-gradient(620px 460px at 24% 32%, rgba(200,83,31,0.20), transparent 60%),
+      radial-gradient(560px 440px at 78% 34%, rgba(201,146,58,0.16), transparent 60%),
+      radial-gradient(600px 480px at 30% 76%, rgba(138,171,92,0.15), transparent 62%),
+      radial-gradient(560px 460px at 72% 74%, rgba(95,122,69,0.16), transparent 62%),
+      radial-gradient(720px 540px at 50% 52%, rgba(120,120,112,0.10), transparent 66%),
+      radial-gradient(1250px 850px at 46% 44%, #1f1c17 0%, #120f0b 55%, var(--fsc-bg) 100%);
+  }
+</style>
 </head>
 <body>
 
@@ -27,7 +45,13 @@
 <!-- ============================================================
      CONSTELLATION HERO (viewport-height — desktop only)
      ============================================================ -->
-<section class="constellation-hero" id="constellation-hero">
+<!-- Desktop constellation — the refined CD build, rendered by the FSConstellation module -->
+<div id="constellation" class="fsc-host"></div>
+<script>window.FS_USE_MODULE = true;</script>
+
+<!-- Legacy scaffold (collapsed): explore.js still builds its node model, search
+     matcher and coach panel here; the module renders the visible constellation. -->
+<section class="constellation-hero fsc-legacy" id="constellation-hero" aria-hidden="true">
 
   <!-- Noise overlay -->
   <div class="noise" aria-hidden="true"></div>
@@ -148,50 +172,7 @@
     <div class="s-list" id="search-list"></div>
   </div>
 
-  <!-- Detail slide-out (L3 specialty click) -->
-  <aside class="detail" id="detail">
-    <button class="d-close" aria-label="Close">Back to constellation</button>
-    <div class="d-eb">Specialty</div>
-    <div class="d-name">—</div>
-    <div class="d-path"></div>
-    <p class="d-desc">—</p>
-    <p class="d-spec-note"></p>
-    <div class="d-rule"></div>
-    <div class="d-section-h">Your coach</div>
-    <div class="coach-card" role="button" tabindex="0">
-      <div class="coach-avatar">—</div>
-      <div>
-        <div class="coach-name">—</div>
-        <div class="coach-role">—</div>
-        <div class="coach-rating">
-          <span class="stars"></span>
-          <span class="rating-num">—</span>
-          <span class="rating-count">—</span>
-        </div>
-      </div>
-    </div>
-    <div class="d-rule"></div>
-    <div class="d-section-h">Format</div>
-    <div class="d-format">
-      <label>
-        <input type="radio" name="d-format" value="1:1" checked>
-        <span class="fmt-inner">
-          <span class="fmt-h">This specialty · 1:1</span>
-          <span class="fmt-d">one 2-hour deep-dive · private</span>
-        </span>
-      </label>
-      <label>
-        <input type="radio" name="d-format" value="cohort">
-        <span class="fmt-inner">
-          <span class="fmt-h">Full Cohort</span>
-          <span class="fmt-d">all 50 specialties · group</span>
-        </span>
-      </label>
-    </div>
-    <div class="d-section-h" style="margin-top:22px;">Next available</div>
-    <div class="d-slots"></div>
-    <button class="d-book">Book Session →</button>
-  </aside>
+  <!-- #detail (coach slide-out) moved out of the collapsed scaffold — see after </section> -->
 
   <!-- Hint -->
   <div class="hint">Search a topic · or click a star to meet your coach</div>
@@ -221,6 +202,51 @@
   </div>
 
 </section><!-- /.constellation-hero -->
+
+<!-- Coach slide-out (moved out of the scaffold so it shows over the module) -->
+<aside class="detail" id="detail">
+  <button class="d-close" aria-label="Close">Back to constellation</button>
+  <div class="d-eb">Specialty</div>
+  <div class="d-name">—</div>
+  <div class="d-path"></div>
+  <p class="d-desc">—</p>
+  <p class="d-spec-note"></p>
+  <div class="d-rule"></div>
+  <div class="d-section-h">Your coach</div>
+  <div class="coach-card" role="button" tabindex="0">
+    <div class="coach-avatar">—</div>
+    <div>
+      <div class="coach-name">—</div>
+      <div class="coach-role">—</div>
+      <div class="coach-rating">
+        <span class="stars"></span>
+        <span class="rating-num">—</span>
+        <span class="rating-count">—</span>
+      </div>
+    </div>
+  </div>
+  <div class="d-rule"></div>
+  <div class="d-section-h">Format</div>
+  <div class="d-format">
+    <label>
+      <input type="radio" name="d-format" value="1:1" checked>
+      <span class="fmt-inner">
+        <span class="fmt-h">This specialty · 1:1</span>
+        <span class="fmt-d">one 2-hour deep-dive · private</span>
+      </span>
+    </label>
+    <label>
+      <input type="radio" name="d-format" value="cohort">
+      <span class="fmt-inner">
+        <span class="fmt-h">Full Cohort</span>
+        <span class="fmt-d">all 50 specialties · group</span>
+      </span>
+    </label>
+  </div>
+  <div class="d-section-h" style="margin-top:22px;">Next available</div>
+  <div class="d-slots"></div>
+  <button class="d-book">Book Session →</button>
+</aside>
 
 
 <!-- ============================================================
@@ -254,7 +280,9 @@
 
 <script src="../taxonomy.js?v=1"></script>
 <script src="../testimonials.js?v=2"></script>
-<script src="explore.js?v=30"></script>
+<script src="constellation.js?v=2"></script>
+<script src="explore.js?v=31"></script>
+<script src="constellation-wire.js?v=2"></script>
 <script src="../sponsors.js?v=2"></script>
 <script src="../auth-nav.js?v=1"></script>
 <script src="/site-chrome.js?v=9" defer></script>
