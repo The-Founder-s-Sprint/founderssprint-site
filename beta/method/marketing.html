@@ -114,11 +114,12 @@
   .go:hover{opacity:.9;}
 
   /* visual column: image + partial constellation */
-  .ph-img{width:100%;aspect-ratio:4/5;position:relative;
+  /* Framed B&W shot — matches the directory/mentor photo treatment (feathering removed) */
+  .ph-img{width:100%;aspect-ratio:4/5;position:relative;overflow:hidden;
     background-color:var(--paper-deep);background-position:center;background-size:cover;background-repeat:no-repeat;
-    filter:grayscale(1) contrast(1.06) brightness(.98) sepia(.10);
-    -webkit-mask-image:radial-gradient(ellipse 70% 72% at 50% 45%,#000 18%,rgba(0,0,0,.52) 40%,rgba(0,0,0,.22) 58%,rgba(0,0,0,.08) 74%,rgba(0,0,0,.02) 86%,transparent 95%);
-    mask-image:radial-gradient(ellipse 70% 72% at 50% 45%,#000 18%,rgba(0,0,0,.52) 40%,rgba(0,0,0,.22) 58%,rgba(0,0,0,.08) 74%,rgba(0,0,0,.02) 86%,transparent 95%);}
+    filter:grayscale(1) contrast(1.06) brightness(.98);
+    border:1px solid rgba(26,26,26,0.14);border-radius:0 0 24px 0;
+    box-shadow:0 16px 34px -20px rgba(26,26,26,0.42);}
   .constel{position:relative;margin:14px auto 0;max-width:none;}
   .constel svg{width:100%;height:auto;display:block;overflow:visible;}
   .constel .orbit{transform:none;}
@@ -255,7 +256,7 @@
     </div>
     <div class="visual">
       <div class="ph-img" style="background-image:url('/images/coach-bg-2.jpg')"></div>
-      <div class="constel"><svg class="orbit" viewBox="40 28 236 162"><defs><filter id="mg1" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="5"/></filter></defs><g fill="#C8531F" opacity=".30"><circle cx="40" cy="38" r="1.5"/><circle cx="264" cy="50" r="1.2"/><circle cx="26" cy="150" r="1.3"/><circle cx="278" cy="172" r="1.5"/><circle cx="150" cy="234" r="1.2"/><circle cx="92" cy="212" r="1"/><circle cx="212" cy="206" r="1.1"/><circle cx="120" cy="28" r="1"/></g><g class="spin"><g class="glow" fill="#C8531F"><circle cx="150" cy="78" r="12" filter="url(#mg1)"/><circle cx="97" cy="141" r="12" filter="url(#mg1)"/><circle cx="203" cy="141" r="12" filter="url(#mg1)"/><circle cx="150" cy="120" r="16" filter="url(#mg1)"/></g><g stroke="#C8531F" stroke-width="1" opacity=".45" fill="none"><line x1="150" y1="120" x2="150" y2="78"/><line x1="150" y1="120" x2="97" y2="141"/><line x1="150" y1="120" x2="203" y2="141"/></g><circle cx="150" cy="120" r="20" fill="none" stroke="#C8531F" stroke-width="1" stroke-dasharray="1 5" opacity=".55"/><circle cx="150" cy="120" r="12" fill="#15110a" stroke="#C8531F" stroke-width="2"/><circle cx="150" cy="120" r="4" fill="#C8531F"/><circle cx="145" cy="115" r="2" fill="#EFE7D8" opacity=".55"/><circle cx="150" cy="78" r="8" fill="#15110a" stroke="#C8531F" stroke-width="1.6"/><circle cx="150" cy="78" r="2.6" fill="#C8531F"/><circle cx="147" cy="75" r="1.6" fill="#EFE7D8" opacity=".55"/><circle cx="97" cy="141" r="8" fill="#15110a" stroke="#C8531F" stroke-width="1.6"/><circle cx="97" cy="141" r="2.6" fill="#C8531F"/><circle cx="94" cy="138" r="1.6" fill="#EFE7D8" opacity=".55"/><circle cx="203" cy="141" r="8" fill="#15110a" stroke="#C8531F" stroke-width="1.6"/><circle cx="203" cy="141" r="2.6" fill="#C8531F"/><circle cx="200" cy="138" r="1.6" fill="#EFE7D8" opacity=".55"/><g class="lbl" font-family="Josefin Sans,sans-serif" font-weight="600" font-size="5.5" fill="#9A3E16" text-anchor="middle"><text x="150" y="58">Positioning</text></g><g class="lbl" font-family="Josefin Sans,sans-serif" font-weight="600" font-size="5.5" fill="#9A3E16" text-anchor="middle"><text x="97" y="169">Messaging</text></g><g class="lbl" font-family="Josefin Sans,sans-serif" font-weight="600" font-size="5.5" fill="#9A3E16" text-anchor="middle"><text x="203" y="169">Visual Identity</text></g></g></svg></div>
+      <div class="fanlet" data-nodes="Positioning|Messaging|Visual Identity" data-color="#C8531F"></div>
     </div>
   </div>
 </section>
@@ -280,7 +281,7 @@
     </div>
     <div class="visual">
       <div class="ph-img" style="background-image:url('/images/portal-bg-1.jpg')"></div>
-      <div class="constel"><svg class="orbit" viewBox="40 28 236 162"><defs><filter id="mg2" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="5"/></filter></defs><g fill="#C8531F" opacity=".30"><circle cx="40" cy="40" r="1.5"/><circle cx="262" cy="44" r="1.2"/><circle cx="24" cy="150" r="1.3"/><circle cx="280" cy="168" r="1.5"/><circle cx="96" cy="226" r="1.2"/><circle cx="210" cy="224" r="1.1"/><circle cx="120" cy="26" r="1"/></g><g class="spin"><g class="glow" fill="#C8531F"><circle cx="150" cy="78" r="12" filter="url(#mg2)"/><circle cx="97" cy="141" r="12" filter="url(#mg2)"/><circle cx="203" cy="141" r="12" filter="url(#mg2)"/><circle cx="150" cy="120" r="16" filter="url(#mg2)"/></g><g stroke="#C8531F" stroke-width="1" opacity=".45" fill="none"><line x1="150" y1="120" x2="150" y2="78"/><line x1="150" y1="120" x2="97" y2="141"/><line x1="150" y1="120" x2="203" y2="141"/></g><circle cx="150" cy="120" r="20" fill="none" stroke="#C8531F" stroke-width="1" stroke-dasharray="1 5" opacity=".55"/><circle cx="150" cy="120" r="12" fill="#15110a" stroke="#C8531F" stroke-width="2"/><circle cx="150" cy="120" r="4" fill="#C8531F"/><circle cx="145" cy="115" r="2" fill="#EFE7D8" opacity=".55"/><circle cx="150" cy="78" r="8" fill="#15110a" stroke="#C8531F" stroke-width="1.6"/><circle cx="150" cy="78" r="2.6" fill="#C8531F"/><circle cx="147" cy="75" r="1.6" fill="#EFE7D8" opacity=".55"/><circle cx="97" cy="141" r="8" fill="#15110a" stroke="#C8531F" stroke-width="1.6"/><circle cx="97" cy="141" r="2.6" fill="#C8531F"/><circle cx="94" cy="138" r="1.6" fill="#EFE7D8" opacity=".55"/><circle cx="203" cy="141" r="8" fill="#15110a" stroke="#C8531F" stroke-width="1.6"/><circle cx="203" cy="141" r="2.6" fill="#C8531F"/><circle cx="200" cy="138" r="1.6" fill="#EFE7D8" opacity=".55"/><g class="lbl" font-family="Josefin Sans,sans-serif" font-weight="600" font-size="5.5" fill="#9A3E16" text-anchor="middle"><text x="150" y="58">Market Entry</text></g><g class="lbl" font-family="Josefin Sans,sans-serif" font-weight="600" font-size="5.5" fill="#9A3E16" text-anchor="middle"><text x="97" y="169">Channel Mix</text></g><g class="lbl" font-family="Josefin Sans,sans-serif" font-weight="600" font-size="5.5" fill="#9A3E16" text-anchor="middle"><text x="203" y="169">Launch</text></g></g></svg></div>
+      <div class="fanlet" data-nodes="Market Entry|Channel Mix|Launch" data-color="#C8531F"></div>
     </div>
   </div>
 </section>
@@ -305,7 +306,7 @@
     </div>
     <div class="visual">
       <div class="ph-img" style="background-image:url('/images/coach-bg-1.jpg')"></div>
-      <div class="constel"><svg class="orbit" viewBox="40 28 236 162"><defs><filter id="mg3" x="-80%" y="-80%" width="260%" height="260%"><feGaussianBlur stdDeviation="5"/></filter></defs><g fill="#C8531F" opacity=".30"><circle cx="40" cy="38" r="1.5"/><circle cx="264" cy="50" r="1.2"/><circle cx="26" cy="150" r="1.3"/><circle cx="278" cy="172" r="1.5"/><circle cx="150" cy="234" r="1.2"/><circle cx="92" cy="212" r="1"/><circle cx="212" cy="206" r="1.1"/><circle cx="120" cy="28" r="1"/></g><g class="spin"><g class="glow" fill="#C8531F"><circle cx="150" cy="78" r="12" filter="url(#mg3)"/><circle cx="97" cy="141" r="12" filter="url(#mg3)"/><circle cx="203" cy="141" r="12" filter="url(#mg3)"/><circle cx="150" cy="120" r="16" filter="url(#mg3)"/></g><g stroke="#C8531F" stroke-width="1" opacity=".45" fill="none"><line x1="150" y1="120" x2="150" y2="78"/><line x1="150" y1="120" x2="97" y2="141"/><line x1="150" y1="120" x2="203" y2="141"/></g><circle cx="150" cy="120" r="20" fill="none" stroke="#C8531F" stroke-width="1" stroke-dasharray="1 5" opacity=".55"/><circle cx="150" cy="120" r="12" fill="#15110a" stroke="#C8531F" stroke-width="2"/><circle cx="150" cy="120" r="4" fill="#C8531F"/><circle cx="145" cy="115" r="2" fill="#EFE7D8" opacity=".55"/><circle cx="150" cy="78" r="8" fill="#15110a" stroke="#C8531F" stroke-width="1.6"/><circle cx="150" cy="78" r="2.6" fill="#C8531F"/><circle cx="147" cy="75" r="1.6" fill="#EFE7D8" opacity=".55"/><circle cx="97" cy="141" r="8" fill="#15110a" stroke="#C8531F" stroke-width="1.6"/><circle cx="97" cy="141" r="2.6" fill="#C8531F"/><circle cx="94" cy="138" r="1.6" fill="#EFE7D8" opacity=".55"/><circle cx="203" cy="141" r="8" fill="#15110a" stroke="#C8531F" stroke-width="1.6"/><circle cx="203" cy="141" r="2.6" fill="#C8531F"/><circle cx="200" cy="138" r="1.6" fill="#EFE7D8" opacity=".55"/><g class="lbl" font-family="Josefin Sans,sans-serif" font-weight="600" font-size="5.5" fill="#9A3E16" text-anchor="middle"><text x="150" y="58">Content</text></g><g class="lbl" font-family="Josefin Sans,sans-serif" font-weight="600" font-size="5.5" fill="#9A3E16" text-anchor="middle"><text x="97" y="169">SEO</text></g><g class="lbl" font-family="Josefin Sans,sans-serif" font-weight="600" font-size="5.5" fill="#9A3E16" text-anchor="middle"><text x="203" y="169">Customer Research</text></g></g></svg></div>
+      <div class="fanlet" data-nodes="Content|SEO|Customer Research" data-color="#C8531F"></div>
     </div>
   </div>
 </section>
@@ -401,6 +402,7 @@
     if(rm) place(0); else requestAnimationFrame(place);
   })();
 </script>
+<script src="method-fan.js?v=1"></script>
 <script src="/site-chrome.js?v=9" defer></script>
 </body>
 </html>
