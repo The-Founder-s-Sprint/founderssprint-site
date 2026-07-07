@@ -2707,16 +2707,36 @@
     renderMobileFromHash();   // card stack — no intro, no render loop, no constellation CPU on a 3G phone
   }
   if (isMobileView()) bootMobile();
-  else bootConstellation();
+  else if (!window.FS_USE_MODULE) bootConstellation();   // desktop constellation is rendered by the FSConstellation module when FS_USE_MODULE is set
 
   // Crossing the breakpoint at runtime (window resize, phone rotate,
   // split view) boots whichever experience just became visible — the
   // other keeps its state and resumes when crossed back.
   const onBreakpointChange = () => {
     if (isMobileView()) { if (!mobileBuilt) bootMobile(); }
-    else bootConstellation();
+    else if (!window.FS_USE_MODULE) bootConstellation();
   };
   if (MOBILE_MQL.addEventListener) MOBILE_MQL.addEventListener('change', onBreakpointChange);
   else if (MOBILE_MQL.addListener) MOBILE_MQL.addListener(onBreakpointChange);   // older Safari
+
+  // ── Host API for the FSConstellation module ─────────────────────────────────
+  // The desktop constellation is rendered by the module; explore.js still owns
+  // the search matcher, coach panel, ratings, testimonials and booking. The
+  // wiring script (in index.html) maps the module's node ids to our NODES by
+  // (level · discipline key · name) and drives these.
+  window.__fsExplore = {
+    NODES: NODES,
+    TAXONOMY: TAXONOMY,
+    // run the real matcher for a query → ranked NODE[] (also fires search-gap logging)
+    search: function (q) {
+      state.searchQuery = (q == null ? '' : String(q)).trim().toLowerCase();
+      var r = searchMatches();
+      scheduleSearchLog();
+      return r;
+    },
+    // open the coach slide-out for a node (resolves to the best L3 if needed)
+    openDetail: function (n) { openDetail(n && n.level === 3 ? n : resolveBestL3(n, '')); },
+    resolveBestL3: resolveBestL3
+  };
 
 })();

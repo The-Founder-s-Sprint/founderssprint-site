@@ -1,0 +1,292 @@
+/* =========================================================================
+   FSConstellation — styles
+   -------------------------------------------------------------------------
+   All design tokens live in CSS variables on .fsc-root; override them on
+   the container (or a parent) to retheme without touching this file.
+
+   Fonts: the module expects Cormorant Garamond, Josefin Sans, Inter and
+   JetBrains Mono. If your page does not already load them, keep the
+   @import below (or move the equivalent <link> into your <head>).
+   ========================================================================= */
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500;1,600&family=Josefin+Sans:wght@300;400;600&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
+
+/* ---------------------------------------------------------------------
+   Root container — position:relative canvas the module fills.
+   The HOST controls its size; give it a height (e.g. 100vh).
+   --------------------------------------------------------------------- */
+.fsc-root {
+  /* ---- design tokens ---- */
+  --fsc-bg: #0d0b08;                 /* night-sky base */
+  --fsc-ink: #efe7d8;                /* paper / starlight */
+  --fsc-font-display: 'Cormorant Garamond', serif;
+  --fsc-font-label: 'Josefin Sans', sans-serif;
+  --fsc-font-ui: 'Inter', sans-serif;
+  --fsc-font-mono: 'JetBrains Mono', monospace;
+  --fsc-cloud: 0.26;                 /* master cloud-plate opacity (set from config) */
+  --fsc-drift-a: 150s;               /* cloud drift durations (set from config) */
+  --fsc-drift-b: 216s;
+  --fsc-drift-c: 264s;
+
+  position: relative;
+  overflow: hidden;
+  min-height: 480px;
+  background: radial-gradient(1250px 850px at 46% 44%, #1f1c17 0%, #120f0b 55%, var(--fsc-bg) 100%);
+  font-family: var(--fsc-font-ui);
+  color: var(--fsc-ink);
+}
+
+/* ---------------------------------------------------------------------
+   The constellation SVG
+   --------------------------------------------------------------------- */
+.fsc-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  display: block;
+}
+
+/* SVG label layer — uppercase, with a soft 3px halo that knocks back
+   stars and lines passing behind the text */
+.fsc-svg-labels {
+  text-transform: uppercase;
+  filter: drop-shadow(0 1px 2px rgba(13, 11, 8, 0.95)) drop-shadow(0 0 3px rgba(13, 11, 8, 0.8));
+}
+.fsc-svg-labels text {
+  font-family: var(--fsc-font-label);
+}
+
+/* ---------------------------------------------------------------------
+   Cloud plates — moonlit nimbus banks (A behind, B in front) and a slow
+   altocumulus layer (C). Screen-blended over the night sky.
+   Image URLs resolve relative to THIS css file.
+   --------------------------------------------------------------------- */
+.fsc-cloud {
+  position: absolute;
+  inset: -14% -18%;
+  z-index: 1;
+  mix-blend-mode: screen;
+  pointer-events: none;
+}
+.fsc-cloud-img {
+  position: absolute;
+  inset: 0;
+  background-size: cover;
+  background-position: center;
+  will-change: transform, opacity;
+  opacity: 0;                        /* the drift keyframes own the fade envelope */
+}
+
+.fsc-cloud-a { opacity: var(--fsc-cloud); }
+.fsc-cloud-a .fsc-cloud-img {
+  background-image: url('assets/nimbus-a.jpg');
+  filter: blur(0.6px) saturate(1.1);
+  animation: fsc-drift-a var(--fsc-drift-a) linear infinite;
+}
+
+.fsc-cloud-b { opacity: calc(var(--fsc-cloud) * 0.78); z-index: 3; }
+.fsc-cloud-b .fsc-cloud-img {
+  background-image: url('assets/nimbus-b.jpg');
+  background-position: center 30%;
+  filter: blur(1px) saturate(1.1);
+  animation: fsc-drift-b var(--fsc-drift-b) linear infinite;
+}
+
+.fsc-cloud-c { opacity: calc(var(--fsc-cloud) * 0.95); }
+.fsc-cloud-c .fsc-cloud-img {
+  background-image: url('assets/altocumulus.jpg');
+  background-position: center 40%;
+  filter: blur(1px);
+  animation: fsc-drift-c var(--fsc-drift-c) linear infinite;
+}
+
+@keyframes fsc-drift-a {
+  0%   { transform: translate3d(-9%, -1.5%, 0) scale(1.14); opacity: 0; }
+  14%  { opacity: 1; }
+  58%  { opacity: 0.72; }
+  86%  { opacity: 0.88; }
+  100% { transform: translate3d(10%, 1.5%, 0) scale(1.22); opacity: 0; }
+}
+@keyframes fsc-drift-b {
+  0%   { transform: translate3d(9%, 2%, 0) scaleX(-1.26) scaleY(1.26); opacity: 0; }
+  16%  { opacity: 1; }
+  62%  { opacity: 0.68; }
+  100% { transform: translate3d(-10%, -2%, 0) scaleX(-1.34) scaleY(1.34); opacity: 0; }
+}
+@keyframes fsc-drift-c {
+  0%   { transform: translate3d(-7%, 3%, 0) scale(1.08); opacity: 0; }
+  18%  { opacity: 1; }
+  55%  { opacity: 0.8; }
+  100% { transform: translate3d(8%, -3%, 0) scale(1.16); opacity: 0; }
+}
+
+.fsc-paused .fsc-cloud-img { animation-play-state: paused; }
+
+/* ---------------------------------------------------------------------
+   Overlay chrome — header card, search, legend, stat strip, hint
+   --------------------------------------------------------------------- */
+.fsc-header {
+  position: absolute;
+  top: 30px;
+  left: 34px;
+  z-index: 6;
+  pointer-events: none;
+  background: rgba(13, 11, 8, 0.8);
+  border: 1px solid rgba(239, 231, 216, 0.1);
+  border-radius: 0 0 16px 0;
+  padding: 16px 20px 15px 16px;
+  backdrop-filter: blur(5px);
+  transition: opacity 0.5s ease;
+}
+.fsc-header-brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.fsc-header-brand svg { display: block; }
+.fsc-eyebrow {
+  font-family: var(--fsc-font-label);
+  font-weight: 400;
+  font-size: 10.5px;
+  letter-spacing: 0.32em;
+  opacity: 0.62;
+}
+.fsc-title {
+  font-family: var(--fsc-font-display);
+  font-style: italic;
+  font-weight: 500;
+  font-size: 34px;
+  line-height: 1.1;
+  margin-top: 10px;
+}
+.fsc-subtitle {
+  font-size: 12px;
+  line-height: 1.5;
+  opacity: 0.5;
+  margin-top: 6px;
+  max-width: 300px;
+}
+
+.fsc-search {
+  position: absolute;
+  top: 30px;
+  right: 34px;
+  z-index: 7;
+  width: 296px;
+  transition: opacity 0.6s ease;
+}
+.fsc-search-input {
+  width: 100%;
+  box-sizing: border-box;
+  background: rgba(31, 28, 23, 0.72);
+  border: 1px solid rgba(239, 231, 216, 0.18);
+  color: var(--fsc-ink);
+  font-family: var(--fsc-font-mono);
+  font-size: 11.5px;
+  letter-spacing: 0.04em;
+  padding: 11px 14px;
+  border-radius: 0 0 12px 0;
+  outline: none;
+  backdrop-filter: blur(4px);
+}
+.fsc-search-input::placeholder { color: rgba(239, 231, 216, 0.45); }
+.fsc-search-input:focus {
+  border-color: rgba(239, 231, 216, 0.45);
+  background: rgba(31, 28, 23, 0.9);
+}
+
+.fsc-legend {
+  position: absolute;
+  left: 34px;
+  bottom: 32px;
+  z-index: 6;
+  background: rgba(13, 11, 8, 0.82);
+  border: 1px solid rgba(239, 231, 216, 0.1);
+  border-radius: 0 0 16px 0;
+  padding: 14px 18px 12px 14px;
+  backdrop-filter: blur(5px);
+  transition: opacity 0.5s ease;
+}
+.fsc-legend-heading {
+  font-family: var(--fsc-font-label);
+  font-size: 9.5px;
+  letter-spacing: 0.3em;
+  opacity: 0.45;
+  margin-bottom: 10px;
+}
+.fsc-legend-items {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.fsc-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: none;
+  border: none;
+  padding: 2px 0;
+  cursor: pointer;
+  color: var(--fsc-ink);
+  opacity: 0.72;
+  text-align: left;
+}
+.fsc-legend-item:hover { opacity: 1; }
+.fsc-legend-swatch {
+  width: 8px;
+  height: 8px;
+  transform: rotate(45deg);
+  flex: 0 0 auto;
+}
+.fsc-legend-name {
+  font-family: var(--fsc-font-label);
+  font-size: 11px;
+  letter-spacing: 0.14em;
+}
+.fsc-legend-count {
+  font-family: var(--fsc-font-mono);
+  font-size: 9px;
+  opacity: 0.5;
+}
+
+.fsc-meta {
+  position: absolute;
+  right: 34px;
+  bottom: 32px;
+  z-index: 5;
+  font-family: var(--fsc-font-mono);
+  font-size: 9.5px;
+  letter-spacing: 0.12em;
+  color: rgba(239, 231, 216, 0.55);
+  background: rgba(13, 11, 8, 0.72);
+  padding: 7px 10px 6px 10px;
+  border-radius: 0 0 10px 0;
+  backdrop-filter: blur(4px);
+  transition: opacity 0.6s ease;
+}
+
+.fsc-hint {
+  position: absolute;
+  left: 50%;
+  bottom: 34px;
+  transform: translateX(-50%);
+  z-index: 5;
+  font-family: var(--fsc-font-mono);
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  opacity: 0;
+  transition: opacity 0.6s ease;
+  pointer-events: none;
+}
+
+/* ---------------------------------------------------------------------
+   Reduced motion — clouds hold still at a readable opacity; the module
+   also disables the intro, twinkle and sky rotation via JS.
+   --------------------------------------------------------------------- */
+@media (prefers-reduced-motion: reduce) {
+  .fsc-cloud-img {
+    animation: none !important;
+    opacity: 0.4 !important;
+  }
+}
