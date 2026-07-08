@@ -18,9 +18,9 @@
   FSConstellation.init(el, {
     taxonomy: window.FS_TAXONOMY,
     config: {
-      // Zoom the whole map up ~20% and enlarge the fanned branch so it fills the screen.
-      layout: { fanSpreadDeg: 44, r1: 205, r2: 375, r3: 540, focusR2: 372, focusR3: 566, cxFocus: 400 },
-      atmosphere: { cloudIntensity: 0.17 }   // ease the clouds back so the discipline colour fields read
+      // Idle map stays at default size; only the FANNED branch is enlarged (~22%) to fill the screen.
+      layout: { fanSpreadDeg: 44, focusR2: 410, focusR3: 685 },
+      atmosphere: { cloudIntensity: 0.14 }   // ease the clouds back so the discipline colour fields read
     }
   });
 
