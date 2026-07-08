@@ -1141,6 +1141,14 @@
             <div id="prov-logo-warn" style="font-size:11px;margin-top:4px"></div>
             <div id="prov-logo-current" style="font-size:11px;color:var(--terra);margin-top:4px"></div>
           </div>
+          <div class="dir-form-row">
+            <label>Board display</label>
+            <select id="prov-fit" style="font-size:13px">
+              <option value="contain">Contain — logo on a light panel (default)</option>
+              <option value="cover">Fill frame — image covers the whole card (for photos / brand shots)</option>
+            </select>
+            <div style="font-size:11px;color:var(--muted);margin-top:4px">Applies to <strong>verified/featured</strong> listings with an image. "Fill frame" is for a photo or full-bleed brand image; keep "Contain" for a logo. Basic listings always show a monogram on the board.</div>
+          </div>
           <div class="dir-form-row two-col">
             <div>
               <label>Start Date</label>
@@ -4095,6 +4103,7 @@ function editProvider(id){
   document.getElementById('prov-phone').value   = pr.phone || '';
   document.getElementById('prov-website').value = pr.website || '';
   document.getElementById('prov-tier').value    = pr.tier || 'basic';
+  document.getElementById('prov-fit').value     = pr.image_fit === 'cover' ? 'cover' : 'contain';
   document.getElementById('prov-tagline').value = pr.banner_tagline || '';
   document.getElementById('prov-start').value   = pr.starts_at ? pr.starts_at.split('T')[0] : '';
   document.getElementById('prov-expiry').value  = pr.expires_at ? pr.expires_at.split('T')[0] : '';
@@ -4154,6 +4163,7 @@ async function addProvider() {
       price_ugx: TIER_PRICES[tier] || 0,
       banner_tagline: tagline,
       featured: tier === 'verified' || tier === 'corporate',
+      image_fit: (document.getElementById('prov-fit') || {}).value === 'cover' ? 'cover' : 'contain',
     };
     if (logoProvided) payload.logo_url = logoUrl;   // only overwrite the logo when a new one is uploaded
 
@@ -4201,7 +4211,9 @@ function clearProviderForm() {
   });
   document.getElementById('prov-category').value = 'legal';
   document.getElementById('prov-tier').value = 'basic';
+  document.getElementById('prov-fit').value = 'contain';
   document.getElementById('prov-logo').value = '';
+  var _pw = document.getElementById('prov-logo-warn'); if(_pw) _pw.textContent = '';
   // reset date defaults (today → +3 months) for a fresh add
   const today = new Date().toISOString().split('T')[0];
   const d = new Date(); d.setMonth(d.getMonth() + 3);

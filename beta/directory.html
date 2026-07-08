@@ -154,6 +154,9 @@ section, footer, nav { position: relative; z-index: 2; }
 .photo .logo-band{position:absolute;top:0;left:0;right:0;height:62%;background:rgba(239,231,216,.97);display:flex;align-items:center;justify-content:center;padding:22px;z-index:1;}
 .photo .logo-band img{max-width:76%;max-height:78%;width:auto;height:auto;object-fit:contain;display:block;}
 .photo.panel::after{display:none;}   /* no dark scrim over the light logo band */
+/* Fill-frame (verified opt-in) — image covers the whole card, label overlaid (mentor-photo style) */
+.photo .fill-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;}
+.full .f-tile .fill-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
 .photo .ini{font-family:var(--sans);font-weight:700;font-size:54px;color:rgba(239,231,216,.92);letter-spacing:.02em;}
 .photo::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 45%,rgba(0,0,0,.5) 100%);}
 /* category tile colours */
@@ -423,7 +426,7 @@ function formatWhatsApp(phone) {
 /* ===== Cascading board (matches mentors.html) ===== */
 var PAGE_SIZE = 24;
 var ALLOWED_CATS = ['legal','accounting','design','unbs','banking','insurance','ip','digital'];
-var SELECT = 'company_name,category,description,contact_name,email,phone,website,logo_url,tier,featured,banner_tagline,status';
+var SELECT = 'company_name,category,description,contact_name,email,phone,website,logo_url,tier,featured,banner_tagline,status,image_fit';
 var verifiedCache = [];
 var ITEMS = [];          // providers currently on the board (verified + loaded basic)
 var basicLoaded = 0;     // basic rows appended so far (for the active filter)
@@ -435,15 +438,17 @@ function catLabel(cat){ return esc(CATEGORY_LABELS[cat] || cat); }
 function cardH(p){ var d = (p.description||'').length; return Math.max(240, Math.min(390, 250 + Math.round(d/4))); }
 
 function isPaidTier(p){ return p.tier === 'verified' || p.tier === 'featured'; }
-function usesLogoPanel(p){ return isPaidTier(p) && !!p.logo_url; }
-// Board face: paid tier + logo -> light logo band; everyone else -> clean monogram (mentor no-photo style).
+function usesFill(p){ return isPaidTier(p) && !!p.logo_url && p.image_fit === 'cover'; }
+function usesLogoPanel(p){ return isPaidTier(p) && !!p.logo_url && p.image_fit !== 'cover'; }
+// Board face: fill-frame image (verified opt-in), or logo panel, or a clean monogram.
 function boardTile(p){
-  return usesLogoPanel(p)
-    ? '<div class="logo-band"><img src="' + esc(p.logo_url) + '" alt="' + esc(p.company_name) + ' logo" loading="lazy"></div>'
-    : '<span class="ini">' + getInitials(p.company_name) + '</span>';
+  if (usesFill(p)) return '<img class="fill-img" src="' + esc(p.logo_url) + '" alt="' + esc(p.company_name) + '" loading="lazy">';
+  if (usesLogoPanel(p)) return '<div class="logo-band"><img src="' + esc(p.logo_url) + '" alt="' + esc(p.company_name) + ' logo" loading="lazy"></div>';
+  return '<span class="ini">' + getInitials(p.company_name) + '</span>';
 }
-// Detail view: always show the real logo if the provider has one.
+// Detail view: fill-frame providers fill the panel; otherwise show the logo on a plate.
 function detailTile(p){
+  if (usesFill(p)) return '<img class="fill-img" src="' + esc(p.logo_url) + '" alt="' + esc(p.company_name) + '" loading="lazy">';
   return p.logo_url
     ? '<div class="logo-plate"><img src="' + esc(p.logo_url) + '" alt="' + esc(p.company_name) + ' logo" loading="lazy"></div>'
     : '<span class="ini">' + getInitials(p.company_name) + '</span>';
@@ -470,7 +475,7 @@ function boardCard(p, i){
   var verified = p.tier === 'verified';
   var vbadge = verified ? '<span class="vbadge">' + V6_MINI + ' Verified</span>' : '';
   return '<div class="card" data-i="' + i + '" data-h="' + cardH(p) + '">' +
-      '<div class="photo ' + tileClass(cat) + (usesLogoPanel(p) ? ' panel' : '') + '">' + boardTile(p) + '</div>' +
+      '<div class="photo ' + tileClass(cat) + (usesFill(p) ? ' fill' : (usesLogoPanel(p) ? ' panel' : '')) + '">' + boardTile(p) + '</div>' +
       '<div class="label">' + vbadge + '<div class="cat">' + lbl + '</div><div class="nm">' + name + '</div></div>' +
       '<div class="reveal">' + (verified ? '<span class="vbadge">' + V6_MINI + ' Verified Partner</span>' : '') +
         '<div class="r-nm">' + name + '</div><div class="r-cat">' + lbl + '</div>' +
