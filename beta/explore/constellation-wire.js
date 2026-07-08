@@ -17,7 +17,11 @@
 
   FSConstellation.init(el, {
     taxonomy: window.FS_TAXONOMY,
-    config: { layout: { fanSpreadDeg: 44, focusR2: 300, focusR3: 460 } }  // tighten the fanned view height
+    config: {
+      // Zoom the whole map up ~20% and enlarge the fanned branch so it fills the screen.
+      layout: { fanSpreadDeg: 44, r1: 205, r2: 375, r3: 540, focusR2: 372, focusR3: 566, cxFocus: 400 },
+      atmosphere: { cloudIntensity: 0.17 }   // ease the clouds back so the discipline colour fields read
+    }
   });
 
   // ---- id map: module node id  <->  our NODE, keyed by (level|disciplineKey|name) ----
