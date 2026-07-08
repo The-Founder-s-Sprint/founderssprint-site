@@ -732,6 +732,7 @@
     <button class="tab" onclick="switchTab('sessions')">Sessions</button>
     <button class="tab" onclick="switchTab('cohorts')">Cohorts</button>
     <button class="tab" onclick="switchTab('pricing')">Pricing</button>
+    <button class="tab" onclick="switchTab('capital')">Founder Capital</button>
     <a class="tab" href="/admin-portals.html" style="text-decoration:none" title="Coach roster, applications & materials live in the Coaches Portal">Coaches ↗</a>
   </div>
 
@@ -1498,6 +1499,73 @@
         <div class="table-wrap"><table><thead><tr><th>Tier</th><th>Price</th><th>Notes</th><th>Actions</th></tr></thead><tbody id="pricing-directory-body"><tr><td colspan="4" class="loading">Loading…</td></tr></tbody></table></div>
 
         <div style="margin-top:14px;font-size:11px;color:var(--muted)">Storage and directory prices are stored in <code>pricing_items</code> and read live by the founder dashboard, marketplace and billing — never hardcoded.</div>
+      </div>
+    </div>
+
+    <!-- ── FOUNDER CAPITAL (shareholder contributions) ──────────────────── -->
+    <div class="tab-panel" id="panel-capital">
+      <div class="section-head" style="margin-bottom:8px">
+        <span class="section-title">Founder Capital Ledger</span>
+      </div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:18px;max-width:780px;line-height:1.6">
+        Shareholder capital per the founding agreement — each of the four co-founders contributes <strong style="color:var(--text)">UGX 7,000,000</strong> (UGX 28,000,000 total), paid into Absa a/c ••••0492. Super-admin &amp; finance only.
+      </div>
+
+      <div id="capital-summary" style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:22px;max-width:780px"></div>
+
+      <div style="max-width:780px">
+        <div class="table-wrap">
+          <table>
+            <thead><tr>
+              <th>Founder</th><th>Discipline</th><th>Target</th><th>Paid</th><th>Outstanding</th><th>Progress</th><th>Pmts</th>
+            </tr></thead>
+            <tbody id="capital-table-body"><tr><td colspan="7" class="loading">Loading…</td></tr></tbody>
+          </table>
+        </div>
+
+        <div class="section-head" style="margin:30px 0 12px"><span class="section-title">Payments received</span></div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>Date</th><th>Founder</th><th>Amount</th><th>Method</th><th>Reference</th><th>Txn ID</th></tr></thead>
+            <tbody id="capital-pay-body"><tr><td colspan="6" class="loading">Loading…</td></tr></tbody>
+          </table>
+        </div>
+
+        <div class="section-head" style="margin:30px 0 12px"><span class="section-title">Log a payment</span></div>
+        <div style="background:var(--surface);border:1px solid var(--border);padding:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px 14px;max-width:780px">
+          <label style="font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:4px">Founder
+            <select id="cap-founder" style="padding:7px 10px;border:1px solid var(--border);font-size:13px;font-family:var(--font);background:#fff;color:var(--text)"></select>
+          </label>
+          <label style="font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:4px">Amount (UGX)
+            <input id="cap-amount" type="number" min="1" step="1" placeholder="e.g. 1000000" style="padding:7px 10px;border:1px solid var(--border);font-size:13px;font-family:var(--font);background:#fff;color:var(--text)">
+          </label>
+          <label style="font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:4px">Date paid
+            <input id="cap-date" type="date" style="padding:7px 10px;border:1px solid var(--border);font-size:13px;font-family:var(--font);background:#fff;color:var(--text)">
+          </label>
+          <label style="font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:4px">Method
+            <select id="cap-method" style="padding:7px 10px;border:1px solid var(--border);font-size:13px;font-family:var(--font);background:#fff;color:var(--text)">
+              <option value="cash">Cash deposit</option>
+              <option value="eft">EFT</option>
+              <option value="absa_transfer">Absa transfer</option>
+              <option value="mobile_money">Mobile money</option>
+              <option value="other">Other</option>
+            </select>
+          </label>
+          <label style="font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:4px">Reference / narration
+            <input id="cap-ref" type="text" maxlength="120" placeholder="e.g. Founders Sprint shares" style="padding:7px 10px;border:1px solid var(--border);font-size:13px;font-family:var(--font);background:#fff;color:var(--text)">
+          </label>
+          <label style="font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:4px">Bank txn ID
+            <input id="cap-txn" type="text" maxlength="60" placeholder="e.g. 17827486165188" style="padding:7px 10px;border:1px solid var(--border);font-size:13px;font-family:var(--font);background:#fff;color:var(--text)">
+          </label>
+          <label style="grid-column:1/3;font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:4px">Note
+            <input id="cap-note" type="text" maxlength="200" placeholder="optional" style="padding:7px 10px;border:1px solid var(--border);font-size:13px;font-family:var(--font);background:#fff;color:var(--text)">
+          </label>
+          <div style="grid-column:1/3;display:flex;gap:12px;align-items:center">
+            <button class="btn-upload" id="cap-add-btn" onclick="addCapitalPayment()">Add payment</button>
+            <span id="cap-msg" style="font-size:12px"></span>
+          </div>
+        </div>
+        <div style="margin-top:12px;font-size:11px;color:var(--muted)">Stored in <code>founder_capital_payments</code> (RLS: super-admin / finance only). Totals recompute live from logged payments.</div>
       </div>
     </div>
 
@@ -3149,6 +3217,7 @@ function switchTab(name) {
   // presentations panel removed — merged into Materials
   if (name === 'cohorts') renderCohorts();
   if (name === 'pricing' && !pricingLoaded) loadPricing();
+  if (name === 'capital' && !capitalLoaded) loadCapital();
   if (name === 'profiles' && !profilesLoaded) loadProfiles();
   if (name === 'materials' && !materialsLoaded) loadMaterials();
 }
@@ -3725,6 +3794,117 @@ function statusBadge(status) {
 }
 
 function esc(str) { return str ? String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;') : ''; }
+
+// ── FOUNDER CAPITAL LEDGER (shareholder contributions) ───────────────────────
+// Reads founder_capital + founder_capital_payments (RLS: super-admin / finance
+// only — the ops dashboard is itself admin-gated). Totals recompute client-side.
+let capitalLoaded = false, capFounders = [], capPayments = [];
+const CAP_METHODS = { cash:'Cash deposit', eft:'EFT', absa_transfer:'Absa transfer', mobile_money:'Mobile money', other:'Other' };
+function ugx(n){ return 'UGX ' + Number(n||0).toLocaleString('en-US'); }
+
+async function loadCapital(){
+  try {
+    const [f, p] = await Promise.all([
+      _pgQuery('founder_capital', 'select=*&order=sort_order'),
+      _pgQuery('founder_capital_payments', 'select=*&order=paid_on.desc,created_at.desc')
+    ]);
+    capFounders = f || []; capPayments = p || [];
+    capitalLoaded = true;
+    renderCapital();
+  } catch(e){
+    var b = document.getElementById('capital-table-body');
+    if (b) b.innerHTML = '<tr><td colspan="7" class="loading">Could not load — ' + esc(e.message) + '</td></tr>';
+  }
+}
+
+function capCard(label, val, color){
+  return '<div style="flex:1;min-width:150px;background:var(--surface);border:1px solid var(--border);padding:12px 14px">'
+    + '<div style="font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.05em">' + esc(label) + '</div>'
+    + '<div style="font-size:18px;font-weight:700;color:' + color + ';margin-top:4px">' + esc(val) + '</div></div>';
+}
+
+function renderCapital(){
+  var totTarget = capFounders.reduce(function(s,f){ return s + Number(f.target_amount||0); }, 0);
+  var totPaid   = capPayments.reduce(function(s,p){ return s + Number(p.amount||0); }, 0);
+  var totOut    = Math.max(0, totTarget - totPaid);
+  var pct       = totTarget ? Math.round(totPaid / totTarget * 100) : 0;
+
+  document.getElementById('capital-summary').innerHTML =
+      capCard('Collected', ugx(totPaid), 'var(--gold)')
+    + capCard('Outstanding', ugx(totOut), 'var(--text)')
+    + capCard('Target', ugx(totTarget), 'var(--muted)')
+    + capCard('Progress', pct + '%', 'var(--gold)');
+
+  var payCount = {};
+  capPayments.forEach(function(p){ payCount[p.founder_id] = (payCount[p.founder_id]||0) + 1; });
+
+  document.getElementById('capital-table-body').innerHTML = capFounders.map(function(f){
+    var paid = capPayments.filter(function(p){ return p.founder_id === f.id; }).reduce(function(s,p){ return s + Number(p.amount||0); }, 0);
+    var tgt = Number(f.target_amount||0), out = Math.max(0, tgt - paid);
+    var p = tgt ? Math.min(100, Math.round(paid / tgt * 100)) : 0;
+    var done = tgt > 0 && paid >= tgt;
+    return '<tr>'
+      + '<td style="font-weight:600">' + esc(f.name) + '</td>'
+      + '<td style="color:var(--muted);font-size:12px">' + esc(f.role || '') + '</td>'
+      + '<td>' + ugx(tgt) + '</td>'
+      + '<td style="color:var(--gold);font-weight:600">' + ugx(paid) + '</td>'
+      + '<td' + (out > 0 ? '' : ' style="color:var(--muted)"') + '>' + ugx(out) + '</td>'
+      + '<td><div style="background:var(--border);height:8px;width:120px;position:relative;overflow:hidden">'
+        + '<div style="position:absolute;left:0;top:0;height:8px;width:' + p + '%;background:' + (done ? '#3D4A2E' : 'var(--gold)') + '"></div></div>'
+        + '<span style="font-size:11px;color:var(--muted)">' + p + '%' + (done ? ' · paid in full' : '') + '</span></td>'
+      + '<td style="font-size:12px;color:var(--muted)">' + (payCount[f.id] || 0) + '</td>'
+      + '</tr>';
+  }).join('');
+
+  var byId = {}; capFounders.forEach(function(f){ byId[f.id] = f.name; });
+  document.getElementById('capital-pay-body').innerHTML = capPayments.length
+    ? capPayments.map(function(p){
+        return '<tr>'
+          + '<td>' + esc(p.paid_on || '') + '</td>'
+          + '<td>' + esc(byId[p.founder_id] || '—') + '</td>'
+          + '<td style="color:var(--gold);font-weight:600">' + ugx(p.amount) + '</td>'
+          + '<td>' + esc(CAP_METHODS[p.method] || p.method || '') + '</td>'
+          + '<td style="font-size:12px">' + esc(p.reference || '') + '</td>'
+          + '<td style="font-size:11px;color:var(--muted)">' + esc(p.txn_id || '') + '</td>'
+          + '</tr>';
+      }).join('')
+    : '<tr><td colspan="6" class="loading">No payments logged yet.</td></tr>';
+
+  var sel = document.getElementById('cap-founder');
+  if (sel) sel.innerHTML = capFounders.map(function(f){ return '<option value="' + esc(f.id) + '">' + esc(f.name) + '</option>'; }).join('');
+}
+
+async function addCapitalPayment(){
+  var msg = document.getElementById('cap-msg');
+  var fid = document.getElementById('cap-founder').value;
+  var amount = parseInt(document.getElementById('cap-amount').value, 10);
+  var paid_on = document.getElementById('cap-date').value;
+  var method = document.getElementById('cap-method').value;
+  var reference = document.getElementById('cap-ref').value.trim();
+  var txn_id = document.getElementById('cap-txn').value.trim();
+  var note = document.getElementById('cap-note').value.trim();
+  msg.style.color = 'var(--danger)';
+  if (!fid) { msg.textContent = 'Pick a founder.'; return; }
+  if (!amount || amount <= 0) { msg.textContent = 'Enter a valid amount.'; return; }
+  if (!paid_on) { msg.textContent = 'Pick the date paid.'; return; }
+  var btn = document.getElementById('cap-add-btn');
+  btn.disabled = true; msg.style.color = 'var(--muted)'; msg.textContent = 'Saving…';
+  try {
+    var ins = await sb.from('founder_capital_payments').insert({
+      founder_id: fid, amount: amount, paid_on: paid_on, method: method,
+      reference: reference || null, txn_id: txn_id || null, note: note || null
+    });
+    if (ins.error) throw new Error(ins.error.message);
+    document.getElementById('cap-amount').value = '';
+    document.getElementById('cap-ref').value = '';
+    document.getElementById('cap-txn').value = '';
+    document.getElementById('cap-note').value = '';
+    capitalLoaded = false; await loadCapital();
+    msg.style.color = 'var(--gold)'; msg.textContent = 'Payment logged.';
+  } catch(e){
+    msg.style.color = 'var(--danger)'; msg.textContent = 'Could not save — ' + e.message;
+  } finally { btn.disabled = false; }
+}
 
 async function approveApplication(id) {
   const app = allApplications.find(a => a.id === id);

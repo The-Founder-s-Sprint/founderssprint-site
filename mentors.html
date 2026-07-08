@@ -75,6 +75,8 @@
   .full .f-nm{font-family:var(--display);font-weight:600;font-size:28px;line-height:1.05;}
   .full .f-rl{font-size:12.5px;color:var(--muted);margin:6px 0 14px;line-height:1.4;}
   .full .f-bio{font-size:14px;line-height:1.6;color:#3D3B35;}
+  .full .f-bio p{margin:0 0 0.85em;}
+  .full .f-bio p:last-child{margin-bottom:0;}
   .full .f-prices{margin:14px 0 0;}
   .full .f-cta{width:100%;background:var(--terra);color:#fff;border:none;padding:13px;font-family:var(--sans);font-weight:700;font-size:11px;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;border-radius:0 0 14px 0;margin-top:16px;}
   .full .f-cta:hover{background:var(--terra-deep);}
@@ -286,6 +288,8 @@ const state={ q:'', filter:'all' };
 const PALETTE=['#C8531F','#C9923A','#8AAB5C','#3D4A2E','#777770'];   // tile colours (photo-less cards)
 function cardColor(i){ return PALETTE[i % PALETTE.length]; }
 function cardH(m){ const b=(m.bio||'').length; return Math.max(260, Math.min(430, 262 + Math.round(b/3.2))); }
+// bio → paragraphs (each newline-separated block becomes its own <p>, escaped)
+function bioHTML(t){ return String(t||'').split(/\n+/).map(s=>s.trim()).filter(Boolean).map(s=>'<p>'+esc(s)+'</p>').join(''); }
 
 // ---- board card (gi = global index into MENTORS) ----
 function boardCard(m, gi){
@@ -307,7 +311,7 @@ function boardCard(m, gi){
       + '<div class="f-photo" style="'+photoCss+'"></div>'
       + '<div class="f-body"><div class="f-nm">'+name+'</div>'
         + ((role||co)?'<div class="f-rl">'+[role,co].filter(Boolean).join(' · ')+'</div>':'')
-        + (m.bio?'<div class="f-bio">'+esc(m.bio)+'</div>':'')
+        + (m.bio?'<div class="f-bio">'+bioHTML(m.bio)+'</div>':'')
         + (fTags?'<div class="tags">'+fTags+'</div>':'')
         + '<div class="f-prices"><div class="prices">'+pricesOf(m)+'<div class="pdur">'+esc(durOf(m))+'</div></div></div>'
         + '<button class="f-cta">Request a session →</button>'
