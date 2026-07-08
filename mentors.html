@@ -123,10 +123,10 @@
   .m-search input:focus{outline:none;border-color:var(--terra);}
   .m-search svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:17px;height:17px;color:var(--muted);pointer-events:none;}
   .chips{display:flex;flex-wrap:wrap;gap:8px;}
-  .chip{font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.05em;color:var(--stone);background:none;border:1px solid var(--border);padding:7px 14px;border-radius:40px;cursor:pointer;transition:border-color .2s,color .2s,background .2s;}
-  .chip:hover{border-color:var(--terra);color:var(--terra-deep);}
-  .chip.on{background:var(--ink);border-color:var(--ink);color:var(--paper);}
-  .chip .ct{opacity:.5;font-weight:400;margin-left:5px;}
+  /* Match the Directory filter-btn exactly (shared marketplace-filter style) */
+  .chip{font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--stone);background:transparent;border:1px solid var(--border);padding:9px 16px;cursor:pointer;transition:all .2s;}
+  .chip:hover{border-color:var(--terra);color:var(--terra);}
+  .chip.on{background:var(--terra);border-color:var(--terra);color:var(--paper);}
   /* (grouped browse + old card-lift + detail popup removed — the board handles all of this) */
   /* --- recommend-a-mentor CTA + modal --- */
   .m-rec-cta{margin-top:8px;text-align:center;padding:32px 22px;border:1px dashed var(--border-hi);border-radius:0 0 24px 0;background:rgba(0,0,0,.015);}
@@ -343,8 +343,18 @@ function layout(){
 }
 function setExpanded(gi){ expandedIdx=(expandedIdx===gi?-1:gi); layout(); }
 
-function uniqueExpertise(){ const s=new Set(); MENTORS.forEach(m=>(m.expertise||[]).forEach(e=>e&&s.add(e))); return [...s].sort(); }
-function primaryCat(m){ return (m.expertise&&m.expertise[0])||'Other operators'; }
+// Controlled operator-domain categories — the ONLY filter vocabulary (bounded,
+// never grows with what mentors type). Free-text expertise stays on the cards
+// and in search, but is no longer the filter row.
+const MENTOR_CATS=[
+  {k:'fintech',      label:'Fintech & Payments'},
+  {k:'agribusiness', label:'Agribusiness & Exports'},
+  {k:'marketing',    label:'Marketing & Brand'},
+  {k:'fundraising',  label:'Fundraising & Capital'},
+  {k:'product',      label:'Product & Growth'},
+  {k:'creative',     label:'Creative & Media'},
+  {k:'ops',          label:'Ops & Supply Chain'},
+];
 function matches(m){
   const q=state.q.trim().toLowerCase();
   if(q){ const hay=[m.name,m.title,m.company,m.bio,(m.expertise||[]).join(' '),m.location].join(' ').toLowerCase(); if(hay.indexOf(q)<0) return false; }
@@ -352,17 +362,18 @@ function matches(m){
   if(f && f!=='all'){
     if(f==='fmt:coffee') return (m.formats||[]).indexOf('coffee')>=0;
     if(f==='fmt:zoom')   return (m.formats||[]).indexOf('zoom')>=0;
-    return (m.expertise||[]).indexOf(f)>=0;
+    return m.category===f;
   }
   return true;
 }
 
 function renderChips(){
   const wrap=document.getElementById('chips');
-  const areas=uniqueExpertise();
+  // Only show categories that actually have an active mentor — bounded to the fixed set, no dead pills.
+  const present=new Set(MENTORS.map(m=>m.category).filter(Boolean));
   const chips=[{k:'all',label:'All'}]
-    .concat(areas.map(a=>({k:a,label:a})))
-    .concat([{k:'fmt:coffee',label:'☕ Coffee'},{k:'fmt:zoom',label:'🎥 Zoom'}]);
+    .concat(MENTOR_CATS.filter(c=>present.has(c.k)))
+    .concat([{k:'fmt:coffee',label:'Coffee'},{k:'fmt:zoom',label:'Zoom'}]);
   wrap.innerHTML='';
   chips.forEach(c=>{
     const b=document.createElement('button');
@@ -386,7 +397,7 @@ function render(){
 
 async function load(){
   let rows=[];
-  try{ const r=await fetch(SB_URL+'/rest/v1/mentors?status=eq.active&select=id,name,slug,title,company,bio,expertise,photo_url,formats,location,session_fee,session_minutes,fees&order=sort_order&limit=100',
+  try{ const r=await fetch(SB_URL+'/rest/v1/mentors?status=eq.active&select=id,name,slug,title,company,bio,expertise,photo_url,formats,location,session_fee,session_minutes,fees,category&order=sort_order&limit=100',
     {headers:{apikey:SB_ANON,Authorization:'Bearer '+SB_ANON}}); rows=r.ok?await r.json():[]; }catch(e){}
   MENTORS=rows;
   renderChips();

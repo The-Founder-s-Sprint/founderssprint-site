@@ -398,6 +398,8 @@ let mentorsList=[], mentorReqs=[], mentorApps=[], mentorRecs=[];
 const MREQ_STATUS=['new','contacted','scheduled','completed','declined'];
 const MREC_STATUS=['new','reviewing','invited','declined'];
 function mMoney(n){ return n? 'UGX '+Number(n).toLocaleString('en-US') : '—'; }
+const MENTOR_CAT_LABELS={fintech:'Fintech & Payments',agribusiness:'Agribusiness & Exports',marketing:'Marketing & Brand',fundraising:'Fundraising & Capital',product:'Product & Growth',creative:'Creative & Media',ops:'Ops & Supply Chain'};
+function mCatLabel(k){ return MENTOR_CAT_LABELS[k]||'—'; }
 function mName(id){ const m=mentorsList.find(x=>x.id===id); return m?(m.name||m.title||'—'):'—'; }
 function mSlugify(s){ return String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,''); }
 async function loadMentors(){
@@ -481,7 +483,7 @@ function renderMentors(){
         +'<div class="sub">'+esc(a.email||'')+(a.phone?(' · '+esc(a.phone)):'')+(a.company?(' · '+esc(a.company)):'')+'</div></div>'
         +pill(a.status)+'</div>'
         +(a.bio?'<div style="font-size:13px;margin:8px 0;color:var(--ink-mid)">'+esc(a.bio)+'</div>':'')
-        +'<div class="sub" style="margin:6px 0">Expertise: '+esc((a.expertise||[]).join(', ')||'—')+'</div>'
+        +'<div class="sub" style="margin:6px 0">Category: <strong>'+esc(mCatLabel(a.category))+'</strong> &nbsp;·&nbsp; Expertise: '+esc((a.expertise||[]).join(', ')||'—')+'</div>'
         +'<div class="sub">Fees — ☕ '+mMoney(fees.coffee)+' · 🎥 '+mMoney(fees.zoom)+' &nbsp;|&nbsp; Formats: '+esc((a.formats||[]).join(', '))+'</div>'
         +'<div class="sub" style="margin-top:4px">Payout: '+esc(pay.method||'—')+(pay.account_no?(' · '+esc(pay.account_name||'')+' '+esc(pay.account_no)):'')+'</div>'
         +'<div class="sub" style="margin-top:4px">TIN: '+esc(a.tin||'—')+(a.id_doc_path?(' &nbsp;·&nbsp; <a href="#" onclick="openMentorId(\''+esc(a.id_doc_path)+'\');return false" style="color:var(--terra);font-weight:600">Open ID ↗</a>'):' · <span style="color:#C0392B">no ID on file</span>')+'</div>'
@@ -604,7 +606,13 @@ function editMentor(id){
     +'<div id="mf-photo-msg" class="sub" style="margin-top:4px">PNG, JPG, or WebP · up to 5MB. Shown on the public mentor card.</div></div>'
     +'<input type="hidden" id="mf-photo-url" value="'+esc(m.photo_url||'')+'" data-folder="'+esc(id||('new-'+Date.now()))+'">'
     +'</div>'
-    +lbl('Expertise (comma-separated)')+_mfInput('mf-expertise','Fundraising, Unit economics, Scaling',(m.expertise||[]).join(', '))
+    +lbl('Category (the filter domain shown on the public board)')
+    +'<select id="mf-category" class="m-sel" style="width:100%">'
+    +['','fintech','agribusiness','marketing','fundraising','product','creative','ops'].map(function(k){
+        var L={'':'— select a domain —',fintech:'Fintech & Payments',agribusiness:'Agribusiness & Exports',marketing:'Marketing & Brand',fundraising:'Fundraising & Capital',product:'Product & Growth',creative:'Creative & Media',ops:'Ops & Supply Chain'};
+        return '<option value="'+k+'"'+(((m.category||'')===k)?' selected':'')+'>'+L[k]+'</option>';
+      }).join('')+'</select>'
+    +lbl('Expertise tags (comma-separated — shown on the card, searchable, not a filter)')+_mfInput('mf-expertise','Fundraising, Unit economics, Scaling',(m.expertise||[]).join(', '))
     +lbl('Bio')+'<textarea id="mf-bio" style="width:100%;padding:9px 10px;border:1px solid var(--border-hi);background:rgba(255,255,255,.5);font-family:inherit;font-size:14px;min-height:64px">'+esc(m.bio||'')+'</textarea>'
     +'<div style="display:flex;gap:18px;align-items:center;margin-top:12px;flex-wrap:wrap">'
     +'<label class="sub"><input type="checkbox" id="mf-fmt-coffee" '+(fmts.includes('coffee')?'checked':'')+'> Coffee</label>'
@@ -626,6 +634,7 @@ async function saveMentor(id){
   const body={ name, title:val('mf-title')||null, company:val('mf-company')||null, bio:val('mf-bio')||null,
     expertise, location:val('mf-location')||null, formats:formats.length?formats:['coffee','zoom'],
     fees:{coffee:coffee,zoom:zoom}, session_fee:coffee||zoom||null, photo_url:val('mf-photo-url')||null,
+    category:val('mf-category')||null,
     status:val('mf-status')||'active', featured:document.getElementById('mf-featured').checked };
   if(!id) body.slug=mSlugify(name);
   try{

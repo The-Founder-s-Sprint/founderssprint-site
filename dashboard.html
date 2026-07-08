@@ -1136,8 +1136,9 @@
           </div>
           <div class="dir-form-row">
             <label>Logo</label>
-            <input type="file" id="prov-logo" accept="image/png,image/jpeg,image/svg+xml" style="font-size:13px">
-            <div style="font-size:11px;color:var(--muted);margin-top:4px">Square <strong>800×800px</strong>, transparent PNG or SVG, logo centred with ~15% padding (wordmark/horizontal logos are fine — they're centred). Sits on a light panel, so use a dark or full-colour version — a white/reversed logo would disappear. Used on the directory card and sponsor strips.</div>
+            <input type="file" id="prov-logo" accept="image/png,image/jpeg,image/svg+xml" onchange="onProvLogoPick(this)" style="font-size:13px">
+            <div style="font-size:11px;color:var(--muted);margin-top:4px">Square <strong>800×800px</strong>, transparent PNG or SVG, logo centred with ~15% padding (wordmark/horizontal logos are fine — they're centred). Sits on a light panel, so use a dark or full-colour version — a white/reversed logo would disappear. Used on the directory card and sponsor strips. <strong>Upload the company logo, not a headshot.</strong></div>
+            <div id="prov-logo-warn" style="font-size:11px;margin-top:4px"></div>
             <div id="prov-logo-current" style="font-size:11px;color:var(--terra);margin-top:4px"></div>
           </div>
           <div class="dir-form-row two-col">
@@ -3801,6 +3802,31 @@ function esc(str) { return str ? String(str).replace(/&/g,'&amp;').replace(/</g,
 let capitalLoaded = false, capFounders = [], capPayments = [];
 const CAP_METHODS = { cash:'Cash deposit', eft:'EFT', absa_transfer:'Absa transfer', mobile_money:'Mobile money', other:'Other' };
 function ugx(n){ return 'UGX ' + Number(n||0).toLocaleString('en-US'); }
+
+// Directory logo picker — warn when the chosen image isn't a square logo (catches
+// headshots/banners uploaded where a logo belongs). Warns only; never blocks.
+function onProvLogoPick(input){
+  var warn = document.getElementById('prov-logo-warn'); if(!warn) return;
+  warn.textContent=''; warn.style.color='';
+  var f = input.files && input.files[0]; if(!f) return;
+  if (f.type === 'image/svg+xml'){ warn.style.color='var(--muted)'; warn.textContent='SVG — scales cleanly.'; return; }
+  var url = URL.createObjectURL(f);
+  var img = new Image();
+  img.onload = function(){
+    var w = img.naturalWidth, h = img.naturalHeight; URL.revokeObjectURL(url);
+    if(!w || !h) return;
+    var ratio = Math.max(w,h) / Math.min(w,h);
+    if (ratio > 1.35){
+      warn.style.color = 'var(--danger)';
+      warn.textContent = '⚠ This image is ' + w + '×' + h + ' — not square. The directory expects a square logo; it will be centred on a plate and may look small. Crop to a square, or check this is the logo and not a photo.';
+    } else {
+      warn.style.color = 'var(--success)';
+      warn.textContent = '✓ ' + w + '×' + h + ' — good, roughly square.';
+    }
+  };
+  img.onerror = function(){ URL.revokeObjectURL(url); };
+  img.src = url;
+}
 
 async function loadCapital(){
   try {

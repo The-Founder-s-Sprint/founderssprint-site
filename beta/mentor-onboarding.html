@@ -77,7 +77,8 @@
       <div class="f"><label>Profile photo <span class="req">*</span></label><input type="file" id="photo" accept="image/*"><div class="hint">A clear headshot, shown on your public mentor card. Portrait orientation, at least <strong>1000×1500px (2:3)</strong>, with your face in the upper half. JPG or PNG, up to 5MB. Colour is fine — the card renders it in black &amp; white.</div></div>
     </div>
     <div class="f"><label>Short bio <span class="req">*</span></label><textarea id="bio" placeholder="A couple of sentences on what you've built and what a founder gets from sitting with you."></textarea></div>
-    <div class="f"><label>Areas you can help with <span class="req">*</span></label><input id="expertise" placeholder="Fundraising, Unit economics, Scaling ops"><div class="hint">Comma-separated — these show as tags on your card.</div></div>
+    <div class="f"><label>Your domain <span class="req">*</span></label><select id="category"><option value="">— select your operator domain —</option><option value="fintech">Fintech &amp; Payments</option><option value="agribusiness">Agribusiness &amp; Exports</option><option value="marketing">Marketing &amp; Brand</option><option value="fundraising">Fundraising &amp; Capital</option><option value="product">Product &amp; Growth</option><option value="creative">Creative &amp; Media</option><option value="ops">Ops &amp; Supply Chain</option></select><div class="hint">This is the single category founders filter by on the mentor board.</div></div>
+    <div class="f"><label>Areas you can help with <span class="req">*</span></label><input id="expertise" placeholder="Fundraising, Unit economics, Scaling ops"><div class="hint">Comma-separated — these show as tags on your card and are searchable.</div></div>
 
     <div class="sec">How you'll meet &amp; what you charge</div>
     <div class="f"><label>Formats you'll offer</label>
@@ -140,6 +141,7 @@ async function uploadTo(bucket, file, prefix){
 async function submitForm(){
   const msg=document.getElementById('msg'); msg.textContent=''; msg.className='msg';
   if(!v('name')||!v('title')||!v('bio')||!v('expertise')){ msg.textContent='Please fill name, title, bio and areas you help with.'; msg.className='msg err'; return; }
+  if(!v('category')){ msg.textContent='Please choose your operator domain.'; msg.className='msg err'; return; }
   const photoFile=fileOf('photo'), idFile=fileOf('id_doc');
   if(!photoFile){ msg.textContent='Please add a profile photo.'; msg.className='msg err'; return; }
   if(!v('tin')){ msg.textContent='Please add your Tax Identification Number (TIN).'; msg.className='msg err'; return; }
@@ -159,6 +161,7 @@ async function submitForm(){
       consent_agreed:true, consent_version:'v1-2026-06-13',
       name:v('name'), title:v('title'), company:v('company')||null, location:v('location')||null,
       photo_url:photoUrl, bio:v('bio'), tin:v('tin'), id_doc_path:idPath,
+      category:v('category')||null,
       expertise:v('expertise').split(',').map(s=>s.trim()).filter(Boolean),
       formats, fees,
       payout:{ method:v('payout-method'), account_name:v('payout-name')||null, account_no:v('payout-no')||null }
