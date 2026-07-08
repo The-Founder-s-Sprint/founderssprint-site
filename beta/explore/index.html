@@ -26,6 +26,45 @@
       radial-gradient(760px 600px at 50% 52%, rgba(165,155,140,0.18), transparent 66%),
       radial-gradient(1250px 850px at 46% 44%, #1f1c17 0%, #120f0b 55%, var(--fsc-bg) 100%);
   }
+  /* L1/L2 breakdown region inside the slide-out (discipline & module panels) */
+  .d-breakdown[hidden] { display: none; }
+  .detail.mode-l1l2 .d-l3 { display: none; }        /* hide the L3 booking region for discipline/module */
+  .d-bd-module { margin: 0 0 15px; }
+  .d-bd-mod-h {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+    width: 100%; background: none; border: 0; border-bottom: 1px solid rgba(255,255,255,0.12);
+    padding: 9px 0; margin: 0; cursor: pointer; text-align: left; font: inherit;
+    transition: border-color .18s ease;
+  }
+  .d-bd-mod-h:hover { border-bottom-color: var(--detail-color); }
+  .d-bd-mod-name {
+    font-family: 'Josefin Sans', sans-serif; font-weight: 600; letter-spacing: .045em;
+    font-size: 13px; color: #f4efe6;
+  }
+  .d-bd-mod-h:hover .d-bd-mod-name { color: var(--detail-color); }
+  .d-bd-mod-n { font-family: 'Inter', sans-serif; font-size: 11px; color: var(--detail-color); opacity: .92; white-space: nowrap; }
+  .d-bd-specs { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 10px; }
+  .d-bd-spec {
+    font-family: 'Inter', sans-serif; font-size: 11.5px; line-height: 1; color: #e7e0d3;
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.13);
+    border-radius: 0 0 10px 0; padding: 6px 11px; cursor: pointer; transition: .18s ease;
+  }
+  .d-bd-spec:hover { background: var(--detail-color); border-color: var(--detail-color); color: #151310; }
+  .d-bd-coach { font-family: 'Inter', sans-serif; font-size: 12px; color: #b9b1a3; margin: 16px 0 0; }
+  .d-bd-coach b { color: #e7e0d3; font-weight: 600; }
+  .d-bd-actions { margin-top: 18px; display: flex; flex-direction: column; gap: 12px; }
+  .d-bd-cta {
+    display: block; text-align: center; font-family: 'Josefin Sans', sans-serif;
+    letter-spacing: .06em; text-transform: uppercase; font-size: 12px; font-weight: 600;
+    background: var(--detail-color); color: #151310; border: 0; border-radius: 0 0 14px 0;
+    padding: 13px 16px; text-decoration: none; cursor: pointer; transition: filter .18s ease;
+  }
+  .d-bd-cta:hover { filter: brightness(1.08); }
+  .d-bd-link {
+    font-family: 'Josefin Sans', sans-serif; letter-spacing: .05em; text-transform: uppercase;
+    font-size: 12px; color: var(--detail-color); text-decoration: none; align-self: flex-start;
+  }
+  .d-bd-link:hover { text-decoration: underline; }
 </style>
 </head>
 <body>
@@ -211,41 +250,48 @@
   <div class="d-path"></div>
   <p class="d-desc">—</p>
   <p class="d-spec-note"></p>
-  <div class="d-rule"></div>
-  <div class="d-section-h">Your coach</div>
-  <div class="coach-card" role="button" tabindex="0">
-    <div class="coach-avatar">—</div>
-    <div>
-      <div class="coach-name">—</div>
-      <div class="coach-role">—</div>
-      <div class="coach-rating">
-        <span class="stars"></span>
-        <span class="rating-num">—</span>
-        <span class="rating-count">—</span>
+
+  <!-- L1 (discipline) / L2 (module) breakdown — shown only for those levels -->
+  <div class="d-breakdown" hidden></div>
+
+  <!-- L3 (specialty) booking region — shown only for a specialty -->
+  <div class="d-l3">
+    <div class="d-rule"></div>
+    <div class="d-section-h">Your coach</div>
+    <div class="coach-card" role="button" tabindex="0">
+      <div class="coach-avatar">—</div>
+      <div>
+        <div class="coach-name">—</div>
+        <div class="coach-role">—</div>
+        <div class="coach-rating">
+          <span class="stars"></span>
+          <span class="rating-num">—</span>
+          <span class="rating-count">—</span>
+        </div>
       </div>
     </div>
+    <div class="d-rule"></div>
+    <div class="d-section-h">Format</div>
+    <div class="d-format">
+      <label>
+        <input type="radio" name="d-format" value="1:1" checked>
+        <span class="fmt-inner">
+          <span class="fmt-h">This specialty · 1:1</span>
+          <span class="fmt-d">one 2-hour deep-dive · private</span>
+        </span>
+      </label>
+      <label>
+        <input type="radio" name="d-format" value="cohort">
+        <span class="fmt-inner">
+          <span class="fmt-h">Full Cohort</span>
+          <span class="fmt-d">all 50 specialties · group</span>
+        </span>
+      </label>
+    </div>
+    <div class="d-section-h" style="margin-top:22px;">Next available</div>
+    <div class="d-slots"></div>
+    <button class="d-book">Book Session →</button>
   </div>
-  <div class="d-rule"></div>
-  <div class="d-section-h">Format</div>
-  <div class="d-format">
-    <label>
-      <input type="radio" name="d-format" value="1:1" checked>
-      <span class="fmt-inner">
-        <span class="fmt-h">This specialty · 1:1</span>
-        <span class="fmt-d">one 2-hour deep-dive · private</span>
-      </span>
-    </label>
-    <label>
-      <input type="radio" name="d-format" value="cohort">
-      <span class="fmt-inner">
-        <span class="fmt-h">Full Cohort</span>
-        <span class="fmt-d">all 50 specialties · group</span>
-      </span>
-    </label>
-  </div>
-  <div class="d-section-h" style="margin-top:22px;">Next available</div>
-  <div class="d-slots"></div>
-  <button class="d-book">Book Session →</button>
 </aside>
 
 
@@ -281,8 +327,8 @@
 <script src="../taxonomy.js?v=1"></script>
 <script src="../testimonials.js?v=2"></script>
 <script src="constellation.js?v=2"></script>
-<script src="explore.js?v=31"></script>
-<script src="constellation-wire.js?v=3"></script>
+<script src="explore.js?v=32"></script>
+<script src="constellation-wire.js?v=4"></script>
 <script src="../sponsors.js?v=2"></script>
 <script src="../auth-nav.js?v=1"></script>
 <script src="/site-chrome.js?v=9" defer></script>

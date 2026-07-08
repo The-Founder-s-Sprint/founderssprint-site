@@ -1326,9 +1326,122 @@
     detailSelectedFormat = '1:1';
     detailEl.querySelector('input[name="d-format"][value="1:1"]').checked = true;
     renderSlots();
+    // specialty mode: hide the L1/L2 breakdown, show the booking region
+    detailEl.querySelector('.d-breakdown').hidden = true;
+    detailEl.classList.remove('mode-l1l2');
     detailEl.classList.add('show');
     updateInfoPanel();
   }
+
+  // ---- L1 (discipline) & L2 (module) slide-out panels -------------------
+  // Same aside, repurposed: the coach/format/slots booking region is hidden
+  // (via .mode-l1l2) and a breakdown of the branch is shown instead. Content
+  // is the existing copy — discipline narrative (MOBILE_L1_DESC), module
+  // tagline (L2_DESC, lifted from the method pages), and the taxonomy tree.
+  const L2_DESC = {
+    'Brand Strategy': "Your brand is the promise the market remembers when you're not in the room.",
+    'Go-to-Market': 'A great product in the wrong channel is just a secret.',
+    'Growth & Discovery': 'Lasting growth is built on understanding the customer — then being found the moment they look.',
+    'Unit Economics': "If a single sale doesn't make sense, a million of them won't either.",
+    'Financial Planning': 'A plan is just a guess until the cash flow proves it.',
+    'Capital Architecture': 'Raising money is the easy part. Structuring it so you keep your company is the craft.',
+    'Pitch Craft': 'An investor decides in the time it takes to read a paragraph. Make it count.',
+    'Investor Relations': "Investors don't back surprises. They back the founder who's already answered every question.",
+    'Funding Strategy': 'The right money at the wrong stage is the wrong money. Know which cheque to chase.',
+    'Competitive Strategy': "Your competitor isn't trying to beat you. They're trying to make you irrelevant.",
+    'Team Architecture': 'A company is just a group of people who agree on what matters. Design that on purpose.',
+    'Operational Systems': "A business that only runs when the founder is in the room isn't a business yet.",
+    'Product-Market Fit': 'The most expensive product to build is the one nobody asked for.',
+    'Product Development': 'Ship the smallest thing that proves the point. Then earn the right to build more.',
+    'Pricing Strategy': 'Price is the fastest lever you have — and the one founders are most afraid to pull.',
+  };
+  const METHOD_KEYS = ['marketing', 'finance', 'investment', 'strategy', 'product'];
+  function methodHref(l1, d) { return '../method/' + (d.key || METHOD_KEYS[l1] || '') + '.html'; }
+
+  function l3ButtonsHTML(l1, l2Idx, specs) {
+    return '<div class="d-bd-specs">' + specs.map(function (s, k) {
+      return '<button class="d-bd-spec" data-open="l3" data-l1="' + l1 + '" data-l2="' + l2Idx + '" data-l3="' + k + '">' + escH(s) + '</button>';
+    }).join('') + '</div>';
+  }
+
+  function openDiscipline(l1) {
+    const d = TAXONOMY[l1]; if (!d) return;
+    detailCurrentNode = null; detailSelectedSlot = null;
+    detailEl.style.setProperty('--detail-color', d.color);
+    detailEl.querySelector('.d-eb').textContent = 'Discipline';
+    detailEl.querySelector('.d-name').textContent = d.l1;
+    detailEl.querySelector('.d-path').innerHTML = '';
+    detailEl.querySelector('.d-desc').textContent = MOBILE_L1_DESC[l1] || '';
+    const specCount = d.l2.reduce(function (s, m) { return s + m.l3.length; }, 0);
+    detailEl.querySelector('.d-spec-note').innerHTML =
+      'The full discipline — <b>' + d.l2.length + ' modules</b>, <b>' + specCount + ' specialties</b>. ' +
+      'Each specialty is one 2-hour 1:1 you can book on its own; the whole discipline is delivered end-to-end only in the cohort.';
+
+    const coach = resolveCoach(l1);
+    let bd = '';
+    d.l2.forEach(function (m, j) {
+      bd += '<div class="d-bd-module">' +
+        '<button class="d-bd-mod-h" data-open="module" data-l1="' + l1 + '" data-l2="' + j + '">' +
+          '<span class="d-bd-mod-name">' + escH(m.name) + '</span>' +
+          '<span class="d-bd-mod-n">' + m.l3.length + ' specialties →</span>' +
+        '</button>' +
+        l3ButtonsHTML(l1, j, m.l3) +
+      '</div>';
+    });
+    bd += '<div class="d-bd-actions">';
+    if (coach) bd += '<p class="d-bd-coach">Led by <b>' + escH(coach.name) + '</b>' + (coach.role ? ' · ' + escH(coach.role) : '') + '</p>';
+    bd += '<a class="d-bd-cta" href="../book/?tier=cohort">Take the whole discipline · Full Cohort →</a>';
+    bd += '<a class="d-bd-link" href="' + methodHref(l1, d) + '">Read the ' + escH(d.l1) + ' method →</a>';
+    bd += '</div>';
+
+    const bdEl = detailEl.querySelector('.d-breakdown');
+    bdEl.innerHTML = bd; bdEl.hidden = false;
+    detailEl.classList.add('mode-l1l2', 'show');
+    updateInfoPanel();
+  }
+
+  function openModule(l1, l2Idx) {
+    const d = TAXONOMY[l1]; if (!d) return;
+    const m = d.l2[l2Idx]; if (!m) return;
+    detailCurrentNode = null; detailSelectedSlot = null;
+    detailEl.style.setProperty('--detail-color', d.color);
+    detailEl.querySelector('.d-eb').textContent = 'Module';
+    detailEl.querySelector('.d-name').textContent = m.name;
+    detailEl.querySelector('.d-path').innerHTML = '<span>' + escH(d.l1) + '</span>';
+    detailEl.querySelector('.d-desc').textContent = L2_DESC[m.name] || ('A track within ' + d.l1 + '.');
+    detailEl.querySelector('.d-spec-note').innerHTML =
+      'A track within <b>' + escH(d.l1) + '</b> — <b>' + m.l3.length + ' specialties</b>, each a 2-hour 1:1 deep-dive. ' +
+      'Take them together as a Pick&nbsp;3, or the whole discipline in the cohort.';
+
+    const coach = resolveCoach(l1, l2Idx);
+    const slugs = m.l3.map(function (s) { return specSlug(s); }).join(',');
+    let bd = '<div class="d-bd-module">' +
+      '<div class="d-bd-specs" style="margin-top:2px">' +
+      m.l3.map(function (s, k) {
+        return '<button class="d-bd-spec" data-open="l3" data-l1="' + l1 + '" data-l2="' + l2Idx + '" data-l3="' + k + '">' + escH(s) + '</button>';
+      }).join('') + '</div></div>';
+    bd += '<div class="d-bd-actions">';
+    if (coach) bd += '<p class="d-bd-coach">Coached by <b>' + escH(coach.name) + '</b>' + (coach.role ? ' · ' + escH(coach.role) : '') + '</p>';
+    bd += '<a class="d-bd-cta" href="../book/?tier=pick3&spec=' + encodeURIComponent(slugs) + '">Take the ' + escH(m.name) + ' track · Pick 3 →</a>';
+    bd += '<a class="d-bd-link" href="' + methodHref(l1, d) + '">Read the ' + escH(d.l1) + ' method →</a>';
+    bd += '</div>';
+
+    const bdEl = detailEl.querySelector('.d-breakdown');
+    bdEl.innerHTML = bd; bdEl.hidden = false;
+    detailEl.classList.add('mode-l1l2', 'show');
+    updateInfoPanel();
+  }
+
+  // Delegated clicks inside the breakdown: specialty → open L3; module → open L2.
+  detailEl.querySelector('.d-breakdown').addEventListener('click', function (e) {
+    const btn = e.target.closest('[data-open]'); if (!btn) return;
+    const l1 = +btn.getAttribute('data-l1');
+    if (btn.getAttribute('data-open') === 'module') { openModule(l1, +btn.getAttribute('data-l2')); return; }
+    const l2 = +btn.getAttribute('data-l2'), l3 = +btn.getAttribute('data-l3');
+    const node = NODES.find(function (n) { return n.level === 3 && n.l1Idx === l1 && n.l2Idx === l2 && n.l3Idx === l3; });
+    if (node) openDetail(node);
+  });
+
   function closeDetail() {
     detailEl.classList.remove('show');
     state.pinnedId = null;
@@ -2736,6 +2849,9 @@
     },
     // open the coach slide-out for a node (resolves to the best L3 if needed)
     openDetail: function (n) { openDetail(n && n.level === 3 ? n : resolveBestL3(n, '')); },
+    // open the discipline (L1) / module (L2) breakdown panels
+    openDiscipline: function (l1) { openDiscipline(l1); },
+    openModule: function (l1, l2) { openModule(l1, l2); },
     resolveBestL3: resolveBestL3
   };
 

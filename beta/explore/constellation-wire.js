@@ -52,10 +52,23 @@
     FSConstellation.highlight(ourIdsFor(host.search(q)));
   });
 
-  // Click a specialty → open our coach slide-out (ratings + booking). Discipline/
-  // module clicks just fan the branch (handled inside the module).
+  // Click any node → fan the branch (handled inside the module) AND open our
+  // slide-out: L3 → coach + booking; L2 → module breakdown; L1 → discipline breakdown.
+  var l1IdxOf = function (dk) {
+    for (var i = 0; i < host.TAXONOMY.length; i++) { if (host.TAXONOMY[i].key === dk) return i; }
+    return -1;
+  };
   FSConstellation.on('nodeClick', function (node) {
-    if (node && node.level === 3) { var our = idToOur[node.id]; if (our) host.openDetail(our); }
+    if (!node) return;
+    if (node.level === 3) { var our = idToOur[node.id]; if (our) host.openDetail(our); return; }
+    var l1 = l1IdxOf(node.disciplineKey);
+    if (l1 < 0) return;
+    if (node.level === 1) { host.openDiscipline(l1); return; }
+    if (node.level === 2) {
+      var l2 = -1, mods = host.TAXONOMY[l1].l2;
+      for (var j = 0; j < mods.length; j++) { if (mods[j].name === node.name) { l2 = j; break; } }
+      if (l2 >= 0) host.openModule(l1, l2);
+    }
   });
 
   // Branch collapsed / Escape / sky click / inactivity → close our panel.
