@@ -149,10 +149,11 @@ section, footer, nav { position: relative; z-index: 2; }
 .card:hover{box-shadow:0 16px 40px rgba(26,26,26,.12);}
 .card.expanded{box-shadow:0 26px 60px rgba(26,26,26,.20);cursor:default;z-index:3;}
 .photo{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background-size:cover;background-position:center;}
-/* Uniform logo plate — same fixed square on every card, logo contained inside.
-   Keeps the board consistent no matter the logo's aspect ratio (wide, tall, or a photo). */
-.photo .logo-plate{width:132px;height:132px;background:rgba(239,231,216,.96);border-radius:10px;padding:18px;position:relative;z-index:1;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 12px rgba(0,0,0,.14);}
-.photo .logo-plate img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;display:block;}
+/* Paid-tier logo panel — the logo fills a clean light band across the top; the
+   category + name sit on the gradient below. Uniform on every card, mentor-consistent. */
+.photo .logo-band{position:absolute;top:0;left:0;right:0;height:62%;background:rgba(239,231,216,.97);display:flex;align-items:center;justify-content:center;padding:22px;z-index:1;}
+.photo .logo-band img{max-width:76%;max-height:78%;width:auto;height:auto;object-fit:contain;display:block;}
+.photo.panel::after{display:none;}   /* no dark scrim over the light logo band */
 .photo .ini{font-family:var(--sans);font-weight:700;font-size:54px;color:rgba(239,231,216,.92);letter-spacing:.02em;}
 .photo::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 45%,rgba(0,0,0,.5) 100%);}
 /* category tile colours */
@@ -433,7 +434,16 @@ function tileClass(cat){ return 'tile-' + (ALLOWED_CATS.indexOf(cat) >= 0 ? cat 
 function catLabel(cat){ return esc(CATEGORY_LABELS[cat] || cat); }
 function cardH(p){ var d = (p.description||'').length; return Math.max(240, Math.min(390, 250 + Math.round(d/4))); }
 
-function tileInner(p){
+function isPaidTier(p){ return p.tier === 'verified' || p.tier === 'featured'; }
+function usesLogoPanel(p){ return isPaidTier(p) && !!p.logo_url; }
+// Board face: paid tier + logo -> light logo band; everyone else -> clean monogram (mentor no-photo style).
+function boardTile(p){
+  return usesLogoPanel(p)
+    ? '<div class="logo-band"><img src="' + esc(p.logo_url) + '" alt="' + esc(p.company_name) + ' logo" loading="lazy"></div>'
+    : '<span class="ini">' + getInitials(p.company_name) + '</span>';
+}
+// Detail view: always show the real logo if the provider has one.
+function detailTile(p){
   return p.logo_url
     ? '<div class="logo-plate"><img src="' + esc(p.logo_url) + '" alt="' + esc(p.company_name) + ' logo" loading="lazy"></div>'
     : '<span class="ini">' + getInitials(p.company_name) + '</span>';
@@ -460,14 +470,14 @@ function boardCard(p, i){
   var verified = p.tier === 'verified';
   var vbadge = verified ? '<span class="vbadge">' + V6_MINI + ' Verified</span>' : '';
   return '<div class="card" data-i="' + i + '" data-h="' + cardH(p) + '">' +
-      '<div class="photo ' + tileClass(cat) + '">' + tileInner(p) + '</div>' +
+      '<div class="photo ' + tileClass(cat) + (usesLogoPanel(p) ? ' panel' : '') + '">' + boardTile(p) + '</div>' +
       '<div class="label">' + vbadge + '<div class="cat">' + lbl + '</div><div class="nm">' + name + '</div></div>' +
       '<div class="reveal">' + (verified ? '<span class="vbadge">' + V6_MINI + ' Verified Partner</span>' : '') +
         '<div class="r-nm">' + name + '</div><div class="r-cat">' + lbl + '</div>' +
         (p.description ? '<div class="r-desc">' + esc(p.description) + '</div>' : '') +
         '<div class="r-more">Click for contact →</div></div>' +
       '<div class="full"><button class="fx" aria-label="Close">×</button>' +
-        '<div class="f-tile ' + tileClass(cat) + '">' + tileInner(p) + '</div>' +
+        '<div class="f-tile ' + tileClass(cat) + '">' + detailTile(p) + '</div>' +
         '<div class="f-body"><div class="f-cat label-' + cat + '">' + (verified ? '✦ Verified Partner · ' : '') + lbl + '</div>' +
           '<div class="f-nm">' + name + '</div>' +
           (p.description ? '<div class="f-desc">' + esc(p.description) + '</div>' : '') +
