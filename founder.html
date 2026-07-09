@@ -589,7 +589,7 @@ const DISCIPLINES = [
     dd:['Financial model','Unit economics'],
     nudge:'Financial Modelling runs Tuesdays with Barry — a model and unit economics are what investors open first.',
     l2:[ {name:'Unit Economics', l3:['CAC & LTV','Payback Period','Contribution Margin']},
-         {name:'Financial Planning', l3:['Revenue Forecasting','Burn Rate & Runway','Cash Flow Management']},
+         {name:'Financial Planning', l3:['Revenue Forecasting','Burn Rate & Runway','Cash Flow Management','Tax & Compliance']},
          {name:'Capital Architecture', l3:['Valuation Methods','Cap Table Design','Term Sheet Analysis']} ] },
   { key:'investment', idx:2, label:'Investment Readiness', day:'Wednesday', dayNum:3, coach:'Joseph', color:'#8AAB5C',
     dd:['Pitch deck','Fundraising strategy','Investor target list'],
@@ -601,13 +601,13 @@ const DISCIPLINES = [
     dd:['Competitive analysis','Team & org plan'],
     nudge:'Strategy & Team runs Thursdays with Moses — map your competition and team structure.',
     l2:[ {name:'Competitive Strategy', l3:['Market Analysis','Positioning & Moats','Scenario Planning']},
-         {name:'Team Architecture', l3:['Hiring Strategy','Culture Design','Org Structure']},
-         {name:'Operational Systems', l3:['Process Design','OKRs & KPIs','Decision Frameworks']} ] },
+         {name:'Team Architecture', l3:['Hiring Strategy','Culture Design','Org Structure','Payroll & HR Compliance']},
+         {name:'Operational Systems', l3:['Process Design','OKRs & KPIs','Decision Frameworks','Legal & Registration']} ] },
   { key:'product', idx:4, label:'Product Development & Pricing', day:'Friday', dayNum:5, coach:'Patrick', color:'#A59B8C',
     dd:['Product roadmap','Pricing strategy','Product-market fit'],
     nudge:'Product Dev & Pricing runs Fridays with Patrick — sharpen your roadmap and pricing.',
     l2:[ {name:'Product-Market Fit', l3:['Problem Validation','Solution Testing','PMF Signals']},
-         {name:'Product Development', l3:['MVP Design','Roadmapping','Iteration Cycles']},
+         {name:'Product Development', l3:['MVP Design','Roadmapping','Iteration Cycles','Payments & Mobile Money']},
          {name:'Pricing Strategy', l3:['Value-Based Pricing','Competitive Pricing','Price Testing']} ] }
 ];
 const DD_TOTAL = DISCIPLINES.reduce((a,d)=>a+d.dd.length,0); // total due-diligence docs across all 5
@@ -917,7 +917,7 @@ function upsellBanner(){
   const trackName = u.track==='single' ? 'single session' : u.track==='pick3' ? 'Pick 3 bundle' : 'current plan';
   return '<div class="card" style="border-left:3px solid var(--ochre);background:linear-gradient(180deg,rgba(201,146,58,.06),transparent)">'
     + '<div style="font-family:var(--display);font-size:20px;font-weight:600;margin-bottom:4px">Complete your whole data room with the Full Cohort</div>'
-    + '<div style="font-size:13px;color:var(--ink-mid);line-height:1.6;margin-bottom:6px">Your '+trackName+' covers part of the picture. The Full Cohort unlocks all five disciplines — roughly <strong>UGX 22.5M of à-la-carte coaching for UGX '+(u.cohortFee/1e6)+'M</strong>. We credit everything you’ve already paid.</div>'
+    + '<div style="font-size:13px;color:var(--ink-mid);line-height:1.6;margin-bottom:6px">Your '+trackName+' covers part of the picture. The Full Cohort unlocks all five disciplines — roughly <strong>UGX 24.5M of à-la-carte coaching for UGX '+(u.cohortFee/1e6)+'M</strong>. We credit everything you’ve already paid.</div>'
     + '<div style="font-size:12px;color:var(--muted);margin-bottom:14px">Full Cohort '+ugx(u.cohortFee)+' − '+ugx(u.paid)+' already paid = <strong style="color:var(--text)">'+ugx(u.upgrade)+' to upgrade</strong></div>'
     + '<a class="btn" href="/beta/explore/index.html" style="text-decoration:none;display:inline-block">Upgrade to Full Cohort</a></div>';
 }
@@ -931,7 +931,7 @@ function trackInfo(){
   return { label, enrolledCount: enrolled.length };
 }
 
-// Linear journey timeline: 45 L3 courses across the 5 disciplines, in teaching-week order.
+// Linear journey timeline: 49 L3 courses across the 5 disciplines, in teaching-week order.
 function renderTimeline(){
   const enrolled = enrolledSet();
   const ti = trackInfo();
