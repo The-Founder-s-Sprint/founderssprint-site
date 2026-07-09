@@ -400,6 +400,7 @@ const MREC_STATUS=['new','reviewing','invited','declined'];
 function mMoney(n){ return n? 'UGX '+Number(n).toLocaleString('en-US') : '—'; }
 const MENTOR_CAT_LABELS={fintech:'Fintech & Payments',agribusiness:'Agribusiness & Exports',marketing:'Marketing & Brand',fundraising:'Fundraising & Capital',product:'Product & Growth',creative:'Creative & Media',ops:'Ops & Supply Chain'};
 function mCatLabel(k){ return MENTOR_CAT_LABELS[k]||'—'; }
+function mDur(mins){ if(!mins) return ''; return (mins%60===0)?((mins/60)+(mins===60?' hour':' hours')):(mins+' min'); }
 function mName(id){ const m=mentorsList.find(x=>x.id===id); return m?(m.name||m.title||'—'):'—'; }
 function mSlugify(s){ return String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,''); }
 async function loadMentors(){
@@ -441,7 +442,7 @@ function renderMentors(){
       + (pstat==='paid' && r.paid_at ? '<div class="sub" style="margin-top:3px">paid '+ago(r.paid_at)+'</div>' : '');
     return '<tr><td>'+esc(r.founder_name||'—')+'<div class="sub">'+esc(r.founder_email||'')+(r.founder_phone?(' · '+esc(r.founder_phone)):'')+(r.founder_company?('<br>'+esc(r.founder_company)):'')+'</div></td>'
       +'<td>'+esc(mName(r.mentor_id))+'</td>'
-      +'<td>'+esc(r.format||'—')+'</td>'
+      +'<td>'+esc(r.format||'—')+(r.quoted_minutes?'<div class="sub">'+esc(mDur(r.quoted_minutes))+'</div>':'')+'</td>'
       +'<td>'+mMoney(r.quoted_fee)+'</td>'
       +'<td>'+payCell+'</td>'
       +(r.message?'<td class="sub" style="max-width:240px">'+esc(r.message)+'</td>':'<td class="sub">—</td>')

@@ -88,6 +88,7 @@
   .prow .pf{font-size:12px;color:var(--muted);}
   .prow .pv{font-family:var(--display);font-size:18px;font-weight:600;color:var(--ink);}
   .pdur{font-size:10.5px;color:var(--paper-dim);margin-top:3px;letter-spacing:.02em;}
+  .prow .pd{font-size:10.5px;color:var(--paper-dim);letter-spacing:.02em;margin-left:4px;}
   /* modal */
   .ov{position:fixed;inset:0;background:rgba(20,18,16,.72);display:none;align-items:flex-start;justify-content:center;z-index:100;overflow-y:auto;padding:40px 18px;}
   .ov.show{display:flex;}
@@ -277,11 +278,15 @@ function initials(s){const a=String(s||'').replace(/[^A-Za-z ]/g,'').trim().spli
 function money(n){return n? 'UGX '+Number(n).toLocaleString('en-US') : 'On request';}
 const FMT_LABEL={coffee:'☕ Coffee',zoom:'🎥 Zoom'};
 const FMT_NOTE={coffee:'In person',zoom:'Remote'};
+// Session length is a platform rule per format (coffee sit-down = 2h; Zoom capped at 1h).
+// Read live from platform_config — never hardcoded. These are only the fallback.
+let DURATIONS={coffee:120,zoom:60};
+function durMins(f){ const m=DURATIONS[f]; return (m!=null?m:60); }
+function durText(f){ const m=durMins(f); return (m%60===0)?((m/60)+(m===60?' hour':' hours')):(m+' min'); }
 function feeFor(m,f){ const x=(m.fees&&m.fees[f]); return (x!=null?x:m.session_fee); }
-function durOf(m){ return m.session_minutes?(Math.round(m.session_minutes/60)+'-hour session'):'session'; }
 function avOf(m){ return m.photo_url?'<img class="av" src="'+esc(m.photo_url)+'" alt="" style="object-fit:cover">':'<div class="av">'+esc(initials(m.name||m.company||m.title))+'</div>'; }
 function pricesOf(m){ return (m.formats||['coffee','zoom']).map(function(f){
-  return '<div class="prow"><span class="pf">'+(FMT_LABEL[f]||esc(f))+'</span><span class="pv">'+money(feeFor(m,f))+'</span></div>'; }).join(''); }
+  return '<div class="prow"><span class="pf">'+(FMT_LABEL[f]||esc(f))+' <span class="pd">'+esc(durText(f))+'</span></span><span class="pv">'+money(feeFor(m,f))+'</span></div>'; }).join(''); }
 
 let MENTORS=[], current=null, fmt=null, expandedIdx=-1, VIEW=[];
 const state={ q:'', filter:'all' };
@@ -313,7 +318,7 @@ function boardCard(m, gi){
         + ((role||co)?'<div class="f-rl">'+[role,co].filter(Boolean).join(' · ')+'</div>':'')
         + (m.bio?'<div class="f-bio">'+bioHTML(m.bio)+'</div>':'')
         + (fTags?'<div class="tags">'+fTags+'</div>':'')
-        + '<div class="f-prices"><div class="prices">'+pricesOf(m)+'<div class="pdur">'+esc(durOf(m))+'</div></div></div>'
+        + '<div class="f-prices"><div class="prices">'+pricesOf(m)+'</div></div>'
         + '<button class="f-cta">Request a session →</button>'
       + '</div></div>'
     + '</div>';
@@ -395,10 +400,21 @@ function render(){
   layout();
 }
 
+async function loadDurations(){
+  // Platform rule, read live (coffee 2h / zoom 1h). Falls back to the defaults above.
+  try{
+    const r=await fetch(SB_URL+"/rest/v1/platform_config?key=eq.mentor_session_durations&select=value",
+      {headers:{apikey:SB_ANON,Authorization:'Bearer '+SB_ANON}});
+    if(r.ok){ const j=await r.json(); if(j&&j[0]&&j[0].value) DURATIONS=Object.assign({},DURATIONS,j[0].value); }
+  }catch(e){}
+}
+
 async function load(){
   let rows=[];
-  try{ const r=await fetch(SB_URL+'/rest/v1/mentors?status=eq.active&select=id,name,slug,title,company,bio,expertise,photo_url,formats,location,session_fee,session_minutes,fees,category&order=sort_order&limit=100',
-    {headers:{apikey:SB_ANON,Authorization:'Bearer '+SB_ANON}}); rows=r.ok?await r.json():[]; }catch(e){}
+  const p=fetch(SB_URL+'/rest/v1/mentors?status=eq.active&select=id,name,slug,title,company,bio,expertise,photo_url,formats,location,session_fee,session_minutes,fees,category&order=sort_order&limit=100',
+    {headers:{apikey:SB_ANON,Authorization:'Bearer '+SB_ANON}});
+  await loadDurations();                       // needed before the cards render their per-format durations
+  try{ const r=await p; rows=r.ok?await r.json():[]; }catch(e){}
   MENTORS=rows;
   renderChips();
   render();
@@ -424,7 +440,7 @@ function openBook(i){
   document.getElementById('who').textContent='With '+(current.name||current.title)+(current.company?' · '+current.company:'');
   document.getElementById('fmt-pick').innerHTML=(current.formats||['coffee','zoom']).map(function(f){
     return '<div class="fmt-opt'+(f===fmt?' on':'')+'" data-f="'+f+'" onclick="pickFmt(this)"><span>'+(FMT_LABEL[f]||f)+'</span>'
-      +'<span class="fo-note">'+(FMT_NOTE[f]||'')+'</span><span class="fo-price">'+money(feeFor(current,f))+'</span></div>';
+      +'<span class="fo-note">'+esc((FMT_NOTE[f]||'')+' · '+durText(f))+'</span><span class="fo-price">'+money(feeFor(current,f))+'</span></div>';
   }).join('');
   renderPrice();
   document.getElementById('book-form').style.display='block';
@@ -432,7 +448,7 @@ function openBook(i){
   document.getElementById('b-msg').textContent='';
   document.getElementById('ov').classList.add('show');
 }
-function renderPrice(){ const el=document.getElementById('b-price'); if(el) el.innerHTML='Session fee · <strong>'+money(feeFor(current,fmt))+'</strong>'; }
+function renderPrice(){ const el=document.getElementById('b-price'); if(el) el.innerHTML=esc(durText(fmt))+' session · <strong>'+money(feeFor(current,fmt))+'</strong>'; }
 function pickFmt(el){ fmt=el.dataset.f; [].forEach.call(document.querySelectorAll('.fmt-opt'),x=>x.classList.toggle('on',x===el)); renderPrice(); }
 function closeBook(){ document.getElementById('ov').classList.remove('show'); }
 // close any overlay on backdrop click
