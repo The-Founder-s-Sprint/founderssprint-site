@@ -128,11 +128,31 @@
     setTimeout(function () { voices = Math.max(0, voices - 1); }, (dur + 0.06) * 1000);
   }
 
+  // constellation.js binds pointerenter to BOTH the node's hit circle and its label,
+  // so crossing from the label onto the star fires nodeHover twice for the same node
+  // (with a nodeHover(null) in between). That's one star, one sound.
+  //
+  // We can't gate on "label only" — the payload carries no source, and silencing the
+  // star itself would feel broken while it still lights up. Instead: ring once per
+  // star, and only re-ring when the pointer has genuinely left it for a beat.
+  var lastId = null, releaseTimer = null;
+
   function hoverBlip(node) {
+    if (releaseTimer) { clearTimeout(releaseTimer); releaseTimer = null; }
+    if (node.id === lastId) return;                 // same star, other sub-target → already rang
+    lastId = node.id;
+
     var now = Date.now();
-    if (now - lastHover < THROTTLE) return;
+    if (now - lastHover < THROTTLE) return;         // fast sweep → arpeggio, not machine-gun
     lastHover = now;
     bell(freqFor(node), HOVER_G, 0.34, 7);
+  }
+
+  // Pointer left a star. Don't forget it immediately — the dot↔label hop passes
+  // through null, and forgetting here would let the star ring a second time.
+  function hoverRelease() {
+    if (releaseTimer) clearTimeout(releaseTimer);
+    releaseTimer = setTimeout(function () { lastId = null; releaseTimer = null; }, 220);
   }
 
   // Click: the star plus its fifth — a small, warm confirmation.
@@ -206,7 +226,7 @@
   }
 
   /* ---- events (the module already emits these) ---------------------- */
-  FSConstellation.on('nodeHover', function (node) { if (node) hoverBlip(node); });
+  FSConstellation.on('nodeHover', function (node) { if (node) hoverBlip(node); else hoverRelease(); });
   FSConstellation.on('nodeClick', function (node) { if (node) { ensureCtx(); clickChime(node); } });
 
   // Round trip. focusChange fires on every node click (the module focuses on click),
