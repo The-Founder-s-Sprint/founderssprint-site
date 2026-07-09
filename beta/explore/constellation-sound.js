@@ -35,17 +35,23 @@
   var MASTER   = 0.11;   // ceiling — subtle, but present
   var HOVER_G  = 0.050;
   var CLICK_G  = 0.085;
-  var SWEEP_G  = 0.055;
+  var SWEEP_G  = 0.110;  // doubled from 0.055 — the whoosh sits with the brighter notes
+  var WHOOSH_MS = 1000;  // full second, both directions
   var THROTTLE = 55;     // ms between hover blips — a fast sweep becomes an arpeggio, not a machine-gun
   var MAX_VOICES = 6;    // hard cap on simultaneous oscillator pairs
 
-  var BASE = 220;                                   // A3
+  // A5. Raised two octaves from A3 on request — the whole map now rings brighter.
+  // NOTE: this puts L3 specialties at 3.5–6.3kHz, the ear's most fatiguing band.
+  // If it reads shrill, the cheapest fix is LEVEL_SPAN below (12 = one octave per
+  // level, 6 = a semitone-tight half-octave) rather than dropping BASE again.
+  var BASE = 880;
+  var LEVEL_SPAN = 12;                              // semitones added per level of depth
   var PENTA = { marketing: 0, finance: 3, investment: 5, strategy: 7, product: 10 };  // minor-pentatonic degrees
   function freqFor(node) {
     var root = PENTA[node && node.disciplineKey];
     if (root == null) root = 0;
     var lvl = (node && node.level) || 1;            // L1 low → L3 two octaves up
-    return BASE * Math.pow(2, (root + 12 * (lvl - 1)) / 12);
+    return BASE * Math.pow(2, (root + LEVEL_SPAN * (lvl - 1)) / 12);
   }
 
   /* ---- audio graph (built lazily, once) ----------------------------- */
@@ -136,54 +142,86 @@
     bell(f * Math.pow(2, 7 / 12), CLICK_G * 0.55, 0.7, -6);
   }
 
-  // Snapback: a subtle whoosh — the map exhaling.
-  // Filtered noise, not a tone: a bandpass sweeping downward reads as air moving
-  // rather than a synth glide. The noise buffer is built ONCE and reused, so a
-  // snapback allocates nothing but a few graph nodes.
-  var noiseBuf = null;
-  function getNoise() {
-    if (noiseBuf) return noiseBuf;
-    var len = Math.floor(ctx.sampleRate * 0.8);
-    noiseBuf = ctx.createBuffer(1, len, ctx.sampleRate);
-    var d = noiseBuf.getChannelData(0);
-    for (var i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * (1 - i / len); // decaying white noise
-    return noiseBuf;
+  // The round trip. Fan-out and snapback are the SAME whoosh played in opposite
+  // directions — filtered noise, not a tone, so it reads as air moving rather than a
+  // synth glide. Two buffers are built once and reused (a decaying one for the exhale,
+  // a swelling one for the inhale), so a whoosh allocates only a few graph nodes.
+  //
+  //   fan out  (branch opens)  → noise swells, bandpass rises dark → bright  (inhale)
+  //   snapback (branch closes) → noise decays, bandpass falls bright → dark  (exhale)
+  //
+  // Sweep raised one octave to sit with the brighter node tones; a full second long.
+  var LO = 520, HI = 3800;
+  var noiseBufs = {};
+  function getNoise(rising) {
+    var k = rising ? 'up' : 'down';
+    if (noiseBufs[k]) return noiseBufs[k];
+    var len = Math.floor(ctx.sampleRate * (WHOOSH_MS / 1000 + 0.2));
+    var buf = ctx.createBuffer(1, len, ctx.sampleRate);
+    var d = buf.getChannelData(0);
+    for (var i = 0; i < len; i++) {
+      var env = rising ? (i / len) : (1 - i / len);   // swelling vs decaying white noise
+      d[i] = (Math.random() * 2 - 1) * env;
+    }
+    noiseBufs[k] = buf;
+    return buf;
   }
 
-  function sweep() {
+  function whoosh(rising) {
     if (!canPlay()) return;
     voices++;
     var t = ctx.currentTime;
+    var dur = WHOOSH_MS / 1000;
 
     var src = ctx.createBufferSource();
-    src.buffer = getNoise();
+    src.buffer = getNoise(rising);
 
-    // the "air": a bandpass falling from bright to dark
+    // the "air" — bandpass travelling in the direction of the animation
     var bp = ctx.createBiquadFilter();
     bp.type = 'bandpass';
     bp.Q.value = 1.1;
-    bp.frequency.setValueAtTime(1900, t);
-    bp.frequency.exponentialRampToValueAtTime(260, t + 0.50);
+    bp.frequency.setValueAtTime(rising ? LO : HI, t);
+    bp.frequency.exponentialRampToValueAtTime(rising ? HI : LO, t + dur * 0.9);
 
-    // shave the hiss so it reads soft, not sibilant
+    // shave the hiss so it stays soft, not sibilant
     var lp = ctx.createBiquadFilter();
     lp.type = 'lowpass';
-    lp.frequency.value = 3200;
+    lp.frequency.value = 5200;
 
     var g = ctx.createGain();
     g.gain.setValueAtTime(0.0001, t);
-    g.gain.exponentialRampToValueAtTime(SWEEP_G, t + 0.06);   // gentle swell, no click
-    g.gain.exponentialRampToValueAtTime(0.0001, t + 0.58);
+    if (rising) {
+      // inhale: slow swell, clipped short as the branch settles
+      g.gain.exponentialRampToValueAtTime(SWEEP_G, t + dur * 0.72);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    } else {
+      // exhale: quick swell, long fall
+      g.gain.exponentialRampToValueAtTime(SWEEP_G, t + 0.07);
+      g.gain.exponentialRampToValueAtTime(0.0001, t + dur * 0.95);
+    }
 
     src.connect(bp); bp.connect(lp); lp.connect(g); g.connect(master);
-    src.start(t); src.stop(t + 0.62);
-    setTimeout(function () { voices = Math.max(0, voices - 1); }, 680);
+    src.start(t); src.stop(t + dur + 0.02);
+    setTimeout(function () { voices = Math.max(0, voices - 1); }, WHOOSH_MS + 80);
   }
 
   /* ---- events (the module already emits these) ---------------------- */
   FSConstellation.on('nodeHover', function (node) { if (node) hoverBlip(node); });
   FSConstellation.on('nodeClick', function (node) { if (node) { ensureCtx(); clickChime(node); } });
-  FSConstellation.on('focusChange', function (node) { if (!node) sweep(); });   // branch collapsed → snapback
+
+  // Round trip. focusChange fires on every node click (the module focuses on click),
+  // so dedupe by focused id — otherwise clicking a second star inside an already-open
+  // branch would re-fan. Only a genuine open/close moves air.
+  var focusedId = null;
+  FSConstellation.on('focusChange', function (node) {
+    var id = node ? node.id : null;
+    if (id === focusedId) return;
+    var wasOpen = focusedId !== null;
+    focusedId = id;
+    if (id && !wasOpen) whoosh(true);        // fan out  — inhale
+    else if (!id && wasOpen) whoosh(false);  // snapback — exhale
+    // branch → branch (both non-null) moves no air: the map never fully closed
+  });
 
   /* ---- toggle -------------------------------------------------------- */
   var btn;
