@@ -126,3 +126,39 @@ RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
 # ─── PREVENT DIRECTORY LISTING ──────────────────────────────────────
 Options -Indexes
+
+# ─── SOURCE / BACKUP EXPOSURE ───────────────────────────────────────
+# The repo root IS the docroot, so anything uploaded is fetchable. Deny the
+# things that should never be served even if they get uploaded by accident:
+#   * editor/backup copies (founder.html.bak etc. leak full dashboard source)
+#   * the explore test harness (its own README says "repo only")
+#   * docs, SQL, logs, dotfiles, and the git directory
+# Belt + braces: also delete these from the server — this only stops them
+# being *served*, it doesn't remove them from disk.
+<FilesMatch "(\.(bak|old|orig|save|swp|swo|sql|log|md|yml|yaml|ini|sh|env)|~)$">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+  </IfModule>
+</FilesMatch>
+
+<IfModule mod_rewrite.c>
+  # /beta/explore/tests/** and any other tests directory
+  RewriteRule (^|/)tests/ - [F,L]
+  # never expose the git directory
+  RewriteRule (^|/)\.git(/|$) - [F,L]
+</IfModule>
+
+# Dotfiles stay private — except .well-known (security.txt, ACME), allowed above.
+<FilesMatch "^\.(?!well-known)">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+  </IfModule>
+</FilesMatch>
