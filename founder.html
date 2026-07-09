@@ -332,6 +332,10 @@
       </div>
       <div class="page-sub">Your data room grows with every coaching session. Each completed discipline is a vetted, investor-ready signal — the gaps below are your roadmap.</div>
 
+      <!-- ── READINESS CHECK — self-assessment. Deliberately NOT the investor-facing
+           data-room completeness signal, and never shown to investors. ── -->
+      <div id="rdy-card" style="display:none;background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--ochre);border-radius:0 0 20px 0;padding:20px;margin-bottom:22px"></div>
+
       <!-- ── JOURNEY TIMELINE ── -->
       <div class="timeline-card">
         <div class="tl-head">
@@ -850,6 +854,7 @@ async function loadAll(user){
 
   applyAvatar();
   renderTimeline(); renderOverview(); renderDataRoom(); renderSessions(); renderPayments(); fillProfile();
+  loadReadiness();   // async, non-blocking: imports any anonymous run taken before signup
 }
 
 // ════ RENDER ════
@@ -1600,6 +1605,103 @@ async function renderInvestorDir(){
 }
 function emptyState(title, sub){ return '<div class="empty"><div class="empty-mark">◇</div><div style="font-weight:600;color:var(--ink-mid)">'+esc(title)+'</div>'+(sub?'<div style="margin-top:4px">'+esc(sub)+'</div>':'')+'</div>'; }
 function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+
+/* ── READINESS CHECK ─────────────────────────────────────────────────────────
+   A founder can take the Check anonymously, then create a free account. Their
+   answers sit in localStorage (same origin), so on first arrival here we import
+   the run into `readiness_runs` — nothing is lost between the check and signup.
+   This is a SELF-ASSESSMENT. It is not the data-room completeness % that gates
+   investor visibility, and it is never exposed to investors. */
+const RDY_LS = 'fs_readiness_v1';
+const RDY_DISC = [
+  { key:'marketing',  label:'Marketing & Branding',  color:'#C8531F' },
+  { key:'finance',    label:'Financial Modelling',   color:'#C9923A' },
+  { key:'investment', label:'Investment Readiness',  color:'#8AAB5C' },
+  { key:'strategy',   label:'Strategy & Team',       color:'#5F7A45' },
+  { key:'product',    label:'Product Dev & Pricing', color:'#A59B8C' }
+];
+function rdyBand(m){ return m<1?'Not started':m<2?'Forming':m<3?'Documented':'Validated'; }
+
+async function loadReadiness(){
+  const card = document.getElementById('rdy-card'); if(!card) return;
+  let runs = [];
+  try{
+    const r = await sb.from('readiness_runs').select('id,scores,outputs,created_at').order('created_at',{ascending:false}).limit(2);
+    if(r && !r.error) runs = r.data || [];
+  }catch(e){ return; }
+
+  // Nothing saved yet? Import the anonymous run they just took, if there is one.
+  if(!runs.length){
+    const pend = rdyPending();
+    if(pend){
+      try{
+        const ins = await sb.from('readiness_runs').insert(pend).select('id,scores,outputs,created_at');
+        if(ins && !ins.error && ins.data && ins.data.length){ runs = ins.data; }
+      }catch(e){}
+    }
+  }
+  if(!runs.length){ renderReadinessEmpty(card); return; }
+  renderReadiness(card, runs[0], runs[1] || null);
+}
+
+// Rebuild a saveable run from the answers the module stored on this device.
+function rdyPending(){
+  let o; try{ o = JSON.parse(localStorage.getItem(RDY_LS)||'null'); }catch(e){ return null; }
+  if(!o || !o.a) return null;
+  const a = o.a, keys = Object.keys(a);
+  if(keys.length < 15) return null;                 // only import a completed check
+  // question index -> discipline (3 questions each, in module order)
+  const scores = {};
+  RDY_DISC.forEach((d,di)=>{
+    let s=0; for(let k=0;k<3;k++) s += Number(a[di*3+k]||0);
+    scores[d.key] = +(s/3).toFixed(2);
+  });
+  return { answers:a, scores:scores, outputs:{ stage:(o.p&&o.p.stage)||null, registered:(o.p&&o.p.registered)||null, imported:true } };
+}
+
+function renderReadinessEmpty(card){
+  card.style.display='block';
+  card.innerHTML = '<div style="font-family:var(--display);font-size:20px;font-weight:600;margin-bottom:4px">Where is your business weak?</div>'
+    + '<div style="font-size:13px;color:var(--muted);line-height:1.55;margin-bottom:14px;max-width:560px">Fifteen questions, about five minutes. You’ll see where you stand across the five disciplines — and which sessions close the gaps you actually have.</div>'
+    + '<a href="/modules/readiness.html" style="display:inline-block;background:var(--terra);color:#fff;padding:11px 20px;font-family:var(--sans);font-weight:700;font-size:11px;letter-spacing:.14em;text-transform:uppercase;text-decoration:none">Take the Readiness Check →</a>';
+}
+
+function renderReadiness(card, run, prev){
+  const s = run.scores || {}, ps = (prev && prev.scores) || null;
+  const gaps = (run.outputs && run.outputs.gaps) || [];
+  const when = run.created_at ? new Date(run.created_at).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}) : '';
+
+  let bars = RDY_DISC.map(function(d){
+    const m = Number(s[d.key]||0);
+    let delta = '';
+    if(ps && ps[d.key]!=null){
+      const dv = m - Number(ps[d.key]);
+      if(Math.abs(dv) >= 0.05) delta = '<span style="font-size:11px;color:'+(dv>0?'#0A8F64':'var(--muted)')+';margin-left:6px">'+(dv>0?'▲ +':'▼ ')+Math.abs(dv).toFixed(1)+'</span>';
+    }
+    return '<div style="margin-bottom:11px">'
+      + '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px;margin-bottom:4px">'
+        + '<span style="font-family:var(--sans);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase">'+esc(d.label)+'</span>'
+        + '<span style="font-size:11px;color:var(--muted);white-space:nowrap">'+rdyBand(m)+' · '+m.toFixed(1)+'/4'+delta+'</span></div>'
+      + '<div style="height:10px;background:rgba(26,26,26,.07);overflow:hidden"><div style="height:100%;width:'+(m/4*100)+'%;background:'+d.color+'"></div></div>'
+      + '</div>';
+  }).join('');
+
+  let gapHtml = '';
+  if(gaps.length){
+    gapHtml = '<div style="margin-top:14px;font-size:12.5px;color:var(--muted)"><strong style="color:var(--text)">Your biggest gaps:</strong> '
+      + gaps.map(g=>esc(g.module)).join(' · ') + '</div>';
+  }
+
+  card.style.display='block';
+  card.innerHTML = '<div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:12px">'
+      + '<div style="font-family:var(--display);font-size:20px;font-weight:600">Your Readiness Check</div>'
+      + '<div style="font-size:11px;color:var(--muted)">Self-assessed · '+esc(when)+'</div></div>'
+    + bars + gapHtml
+    + '<div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">'
+      + '<a href="/modules/readiness.html" style="font-family:var(--sans);font-weight:700;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--terra);text-decoration:none">Re-take the check →</a>'
+      + '<a href="/beta/book/" style="font-family:var(--sans);font-weight:700;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);text-decoration:none">Book a session →</a></div>'
+    + '<div style="margin-top:12px;font-size:11px;color:var(--muted);line-height:1.5">This is your own assessment of your business. It’s separate from your data room completeness — the coach-vetted signal investors see.</div>';
+}
 // Only allow http/https hrefs — blocks javascript:/data: URLs (e.g. from an investor firm profile).
 function safeUrl(u){ u=String(u==null?'':u).trim(); return /^https?:\/\//i.test(u)?u:'#'; }
 function ugx(n){ n=Number(n)||0; return 'UGX ' + n.toLocaleString('en-US'); }

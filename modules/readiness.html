@@ -9,6 +9,7 @@
 <meta name="description" content="A free 5-minute check for Ugandan founders. Answer 15 questions and see where your business is weak across marketing, finance, investment readiness, strategy and product — then exactly which sessions close the gaps.">
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="/beta/taxonomy.js"></script>
 <style>
   :root{--ink:#1A1A1A;--paper:#EFE7D8;--paper-deep:#E6DCC7;--muted:#5A564F;--paper-dim:#9a917f;
@@ -108,7 +109,10 @@
   .acct p{font-size:13px;color:var(--muted);max-width:480px;margin:0 auto 14px;line-height:1.55;}
   .acct a{display:inline-block;background:var(--ochre);color:var(--ink);padding:12px 22px;font-family:var(--sans);font-weight:700;font-size:11px;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;}
   .acct a:hover{background:#b8842f;}
+  .savebtn{background:var(--ochre);color:var(--ink);border:none;padding:12px 22px;font-family:var(--sans);font-weight:700;font-size:11px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;}
+  .savebtn:hover{background:#b8842f;} .savebtn:disabled{opacity:.55;cursor:not-allowed;}
   .fine{font-size:11px;color:var(--paper-dim);margin-top:12px;line-height:1.5;}
+  .fine a{color:var(--paper-dim);}
 
   @media(max-width:600px){
     h1{font-size:31px;} .rhead{font-size:25px;}
@@ -201,6 +205,27 @@
   var answers = {};          // index -> 0..4
   var profile = { stage: null, registered: null };
 
+  // Answers live on the device so that leaving to create an account (or simply
+  // coming back later) never throws away 15 questions of work. P2 reads this
+  // same payload to write the run into `readiness_runs` after sign-in.
+  var LS_KEY = 'fs_readiness_v1';
+  function persist() {
+    try { localStorage.setItem(LS_KEY, JSON.stringify({ a: answers, p: profile, ts: Date.now() })); } catch (e) {}
+  }
+  function restore() {
+    try {
+      var raw = localStorage.getItem(LS_KEY); if (!raw) return;
+      var o = JSON.parse(raw) || {};
+      if (o.a && typeof o.a === 'object') answers = o.a;
+      if (o.p && typeof o.p === 'object') profile = { stage: o.p.stage || null, registered: o.p.registered || null };
+    } catch (e) {}
+  }
+  function startOver() {
+    try { localStorage.removeItem(LS_KEY); } catch (e) {}
+    location.reload();
+  }
+  window.startOver = startOver;
+
   function $(id) { return document.getElementById(id); }
   function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
   function discMeta(k) { for (var i = 0; i < DISC.length; i++) if (DISC[i].key === k) return DISC[i]; return DISC[0]; }
@@ -264,6 +289,13 @@
     });
     $('questions').innerHTML = html;
 
+    // rehydrate any saved answers
+    Object.keys(answers).forEach(function (i) {
+      var v = answers[i];
+      var b = $('questions').querySelector('.opt[data-i="' + i + '"][data-v="' + v + '"]');
+      if (b) { b.classList.add('on'); var a = $('a' + i); if (a) a.textContent = ANCHORS[v]; }
+    });
+
     $('questions').addEventListener('click', function (e) {
       var b = e.target.closest('.opt'); if (!b) return;
       var i = +b.getAttribute('data-i'), v = +b.getAttribute('data-v');
@@ -271,6 +303,7 @@
       var sibs = b.parentNode.querySelectorAll('.opt');
       for (var k = 0; k < sibs.length; k++) sibs[k].classList.toggle('on', sibs[k] === b);
       $('a' + i).textContent = ANCHORS[v];
+      persist();
       updateProgress();
     });
   }
@@ -278,15 +311,21 @@
   function renderSegs() {
     $('segStage').innerHTML = STAGES.map(function (s) { return '<button type="button" data-s="' + esc(s) + '">' + esc(s) + '</button>'; }).join('');
     $('segReg').innerHTML = ['Yes', 'Not yet'].map(function (s) { return '<button type="button" data-r="' + esc(s) + '">' + esc(s) + '</button>'; }).join('');
+    // rehydrate profile answers
+    if (profile.stage) { var sb = $('segStage').querySelector('[data-s="' + profile.stage + '"]'); if (sb) sb.classList.add('on'); }
+    if (profile.registered) { var rb = $('segReg').querySelector('[data-r="' + profile.registered + '"]'); if (rb) rb.classList.add('on'); }
+
     $('segStage').addEventListener('click', function (e) {
       var b = e.target.closest('button'); if (!b) return;
       profile.stage = b.getAttribute('data-s');
       [].forEach.call(this.children, function (c) { c.classList.toggle('on', c === b); });
+      persist();
     });
     $('segReg').addEventListener('click', function (e) {
       var b = e.target.closest('button'); if (!b) return;
       profile.registered = b.getAttribute('data-r');
       [].forEach.call(this.children, function (c) { c.classList.toggle('on', c === b); });
+      persist();
     });
   }
 
@@ -431,23 +470,82 @@
 
     // free account = the reward, not the toll
     html += '<div class="acct"><h3>Keep this.</h3>'
-      + '<p>Create a free account to save your report, watch the gaps close as you work, and re-take the check in 90 days to see the difference.</p>'
-      + '<a href="/login-founder.html">Create a free account →</a>'
-      + '<div class="fine">Free to create. Your data room and saved work unlock when you book your first course. This check is a self-assessment — it is separate from the coach-vetted data room completeness investors see.</div>'
+      + '<p id="acctCopy">Create a free account to save this report to your dashboard, watch the gaps close as you work, and re-take the check in 90 days to see the difference.</p>'
+      + '<a id="acctBtn" href="' + LOGIN_HREF + '">Create a free account →</a>'
+      + '<button id="saveBtn" class="savebtn" style="display:none" onclick="saveRun()">Save to my dashboard →</button>'
+      + '<div id="saveMsg" class="fine" style="color:var(--moss);font-weight:600"></div>'
+      + '<div class="fine">Free to create. Your answers are already kept on this device, so nothing is lost. This check is a self-assessment — separate from the coach-vetted data room completeness that investors see.</div>'
+      + '<div class="fine"><a href="#" onclick="startOver();return false;" style="color:var(--paper-dim)">Start the check over</a></div>'
       + '</div>';
 
     var r = $('results');
     r.innerHTML = html;
     r.style.display = 'block';
+    lastRun = { answers: answers, profile: profile, scores: discMeans, gaps: gaps };
+    initSave();
     r.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
 
+  /* ---- persistence: a FREE account can save. No company, no payment required.
+         Stored in `readiness_runs` (never `module_runs` — that one is paid-gated). ---- */
+  var SB_URL = 'https://ivedeivyotwevjxvcuoe.supabase.co';
+  var SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss';
+  // login-founder.html always lands on the dashboard (it ignores ?next=, and adding an
+  // unvalidated redirect param would be an open-redirect surface). Instead the dashboard
+  // reads this same localStorage key on load and imports the run — see founder.html.
+  var LOGIN_HREF = '/login-founder.html';
+  var sbc = (window.supabase && window.supabase.createClient) ? window.supabase.createClient(SB_URL, SB_ANON) : null;
+  var lastRun = null;
+
+  async function initSave() {
+    if (!sbc || !lastRun) return;
+    try {
+      var s = await sbc.auth.getSession();
+      if (!(s && s.data && s.data.session)) return;   // logged out → keep the create-account link
+      // signed in: swap the account CTA for a real save
+      var a = $('acctBtn'); if (a) a.style.display = 'none';
+      var c = $('acctCopy'); if (c) c.textContent = 'Save this report to your dashboard. Re-take the check in 90 days and we’ll show you what moved.';
+      var b = $('saveBtn'); if (b) b.style.display = 'inline-block';
+    } catch (e) {}
+  }
+
+  window.saveRun = async function () {
+    if (!sbc || !lastRun) return;
+    var btn = $('saveBtn'), msg = $('saveMsg');
+    btn.disabled = true; msg.style.color = 'var(--muted)'; msg.textContent = 'Saving…';
+    try {
+      var scores = {};
+      lastRun.scores.forEach(function (d) { scores[d.key] = +d.mean.toFixed(2); });
+      var outputs = { gaps: lastRun.gaps.map(function (g) { return { discipline: g.d, module: g.l2, score: g.v }; }),
+                      stage: lastRun.profile.stage, registered: lastRun.profile.registered };
+      // company_id is optional — a brand-new free account has none yet.
+      var co = null;
+      try {
+        var r = await sbc.from('companies').select('id').order('is_primary', { ascending: false }).limit(1);
+        if (r && r.data && r.data.length) co = r.data[0].id;
+      } catch (e) {}
+      var res = await sbc.from('readiness_runs').insert({
+        company_id: co, answers: lastRun.answers, scores: scores, outputs: outputs
+      });
+      if (res && res.error) throw new Error(res.error.message);
+      msg.style.color = 'var(--moss)'; msg.textContent = 'Saved to your dashboard ✓';
+      btn.style.display = 'none';
+    } catch (e) {
+      msg.style.color = 'var(--terra-deep)'; msg.textContent = 'Could not save — ' + e.message;
+      btn.disabled = false;
+    }
+  };
+
   window.computeResults = computeResults;
 
+  restore();          // bring back any answers from a previous visit / pre-signup
   renderLegend();
   renderQuestions();
   renderSegs();
   updateProgress();
+  if (Object.keys(answers).length) {
+    $('goHint').textContent = 'Picked up where you left off — your answers are saved on this device.';
+  }
 })();
 </script>
 </body>
