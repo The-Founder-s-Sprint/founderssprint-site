@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<!-- Deliberately INDEXABLE (unlike the other modules + the noindex decks):
+     this is the top-of-funnel authority surface. See FS_Readiness_Check_Spec.md §2. -->
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Readiness Check · Where is your business weak? · The Founder's Sprint</title>
+<meta name="description" content="A free 5-minute check for Ugandan founders. Answer 15 questions and see where your business is weak across marketing, finance, investment readiness, strategy and product — then exactly which sessions close the gaps.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script src="/beta/taxonomy.js"></script>
+<style>
+  :root{--ink:#1A1A1A;--paper:#EFE7D8;--paper-deep:#E6DCC7;--muted:#5A564F;--paper-dim:#9a917f;
+    --terra:#C8531F;--terra-deep:#9A3E16;--ochre:#C9923A;--moss:#3D4A2E;--sage:#8AAB5C;
+    --border:rgba(26,26,26,0.16);--sans:'Josefin Sans',sans-serif;--display:'Cormorant Garamond',serif;--font:'Inter',sans-serif;}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--paper);color:var(--ink);font-family:var(--font);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;}
+  .bar{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;background:var(--ink);}
+  .brand{display:flex;align-items:center;gap:10px;text-decoration:none;}
+  .brand svg{width:22px;height:22px;}
+  .brand .wm{font-family:var(--sans);font-weight:700;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--paper);}
+  .bar .disc{font-family:var(--sans);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--sage);}
+  .wrap{max-width:920px;margin:0 auto;padding:34px 22px 70px;}
+  .eyebrow{font-family:var(--sans);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--terra-deep);font-weight:600;margin-bottom:10px;}
+  h1{font-family:var(--display);font-size:42px;font-weight:600;line-height:1.05;margin-bottom:10px;}
+  .lede{font-size:15px;color:var(--muted);max-width:640px;line-height:1.6;margin-bottom:8px;}
+  .pamphlet{font-size:12px;color:var(--paper-dim);font-style:italic;margin-bottom:26px;}
+
+  /* evidence-ladder legend */
+  .legend{background:var(--paper-deep);border:1px solid var(--border);border-top:3px solid var(--ochre);padding:15px 17px;border-radius:0 0 18px 0;margin-bottom:24px;}
+  .legend b{font-family:var(--sans);font-size:11px;letter-spacing:.14em;text-transform:uppercase;display:block;margin-bottom:9px;}
+  .lrow{display:flex;flex-wrap:wrap;gap:8px 16px;}
+  .lrow span{font-size:12px;color:var(--muted);}
+  .lrow i{font-style:normal;display:inline-flex;align-items:center;justify-content:center;width:19px;height:19px;border-radius:50%;background:var(--ink);color:var(--paper);font-size:10.5px;font-weight:600;margin-right:6px;}
+
+  .prog{position:sticky;top:0;z-index:5;background:var(--paper);padding:11px 0 12px;border-bottom:1px solid var(--border);margin-bottom:8px;}
+  .ptrack{height:5px;background:rgba(26,26,26,.09);overflow:hidden;}
+  .pfill{height:100%;width:0;background:var(--terra);transition:width .3s ease;}
+  .ptxt{font-family:var(--sans);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:6px;}
+
+  .sec{margin-top:26px;}
+  .sec h2{font-family:var(--display);font-size:24px;font-weight:600;display:flex;align-items:center;gap:9px;margin-bottom:2px;}
+  .dot{width:9px;height:9px;flex:none;}
+  .sec .coach{font-size:12px;color:var(--paper-dim);margin-bottom:14px;}
+
+  .q{background:var(--paper-deep);border:1px solid var(--border);padding:15px 16px;border-radius:0 0 16px 0;margin-bottom:10px;}
+  .q .txt{font-size:14px;line-height:1.5;margin-bottom:11px;}
+  .q .txt em{font-style:normal;font-family:var(--sans);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--paper-dim);display:block;margin-bottom:4px;}
+  .opts{display:flex;gap:6px;}
+  .opt{flex:1;background:rgba(255,255,255,.45);border:1px solid var(--border);padding:11px 0;font-family:var(--sans);font-weight:600;font-size:13px;color:var(--muted);cursor:pointer;transition:.15s;min-height:42px;}
+  .opt:hover{border-color:var(--terra);color:var(--terra-deep);}
+  .opt.on{background:var(--ink);border-color:var(--ink);color:var(--paper);}
+  .anchor{font-size:11.5px;color:var(--terra-deep);margin-top:7px;min-height:15px;font-weight:500;}
+
+  .profile{background:var(--paper-deep);border:1px solid var(--border);border-top:3px solid var(--moss);padding:18px;border-radius:0 0 18px 0;margin-top:26px;}
+  .profile h2{font-family:var(--display);font-size:22px;font-weight:600;margin-bottom:12px;}
+  .pq{margin-bottom:14px;}
+  .pq .txt{font-size:13.5px;margin-bottom:8px;}
+  .seg{display:flex;flex-wrap:wrap;gap:6px;}
+  .seg button{background:rgba(255,255,255,.45);border:1px solid var(--border);padding:9px 14px;font-family:var(--sans);font-weight:600;font-size:11px;letter-spacing:.06em;text-transform:uppercase;cursor:pointer;color:var(--muted);}
+  .seg button.on{background:var(--ink);border-color:var(--ink);color:var(--paper);}
+
+  .go{display:block;width:100%;margin-top:24px;background:var(--terra);color:#fff;border:none;padding:16px;font-family:var(--sans);font-weight:700;font-size:12px;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;}
+  .go:hover{background:var(--terra-deep);} .go:disabled{opacity:.4;cursor:not-allowed;}
+  .gohint{text-align:center;font-size:11.5px;color:var(--paper-dim);margin-top:8px;}
+
+  /* results */
+  #results{display:none;margin-top:34px;scroll-margin-top:70px;}
+  .rhead{font-family:var(--display);font-size:30px;font-weight:600;margin-bottom:4px;}
+  .rsub{font-size:13px;color:var(--muted);margin-bottom:20px;}
+  .bars{background:var(--paper-deep);border:1px solid var(--border);padding:20px;border-radius:0 0 22px 0;margin-bottom:22px;}
+  .brow{margin-bottom:15px;} .brow:last-child{margin-bottom:0;}
+  .bhead{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:5px;gap:10px;}
+  .bhead .nm{font-family:var(--sans);font-size:11px;letter-spacing:.12em;text-transform:uppercase;}
+  .bhead .bd{font-size:11.5px;color:var(--muted);white-space:nowrap;}
+  .btrack{height:12px;background:rgba(26,26,26,.07);overflow:hidden;}
+  .bfill{height:100%;transition:width .5s ease;}
+
+  .gaps{margin-bottom:22px;}
+  .gaps h3{font-family:var(--display);font-size:23px;font-weight:600;margin-bottom:10px;}
+  .gcard{background:var(--paper-deep);border:1px solid var(--border);border-left:3px solid var(--terra);padding:15px 16px;margin-bottom:10px;}
+  .gcard .gt{font-family:var(--sans);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--paper-dim);margin-bottom:3px;}
+  .gcard .gn{font-family:var(--display);font-size:20px;font-weight:600;margin-bottom:6px;}
+  .gcard p{font-size:13px;color:var(--muted);line-height:1.55;margin-bottom:10px;}
+  .gcard .specs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:11px;}
+  .gcard .specs span{font-size:11px;background:rgba(26,26,26,.05);border:1px solid var(--border);padding:5px 9px;color:var(--ink);}
+  .gcard a{font-family:var(--sans);font-weight:700;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--terra-deep);text-decoration:none;}
+  .gcard a:hover{text-decoration:underline;}
+
+  .rec{background:var(--ink);color:var(--paper);padding:24px 22px;border-radius:0 0 22px 0;overflow:hidden;margin-bottom:22px;}
+  .rec .e{font-family:var(--sans);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--ochre);margin-bottom:8px;}
+  .rec h3{font-family:var(--display);font-size:26px;font-weight:600;margin-bottom:8px;line-height:1.15;}
+  .rec p{font-size:13.5px;color:rgba(239,231,216,.82);line-height:1.6;max-width:580px;margin-bottom:16px;}
+  .rec .btns{display:flex;gap:10px;flex-wrap:wrap;}
+  .rec a{font-family:var(--sans);font-weight:700;font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:12px 20px;text-decoration:none;}
+  .rec a.primary{background:var(--terra);color:#fff;} .rec a.primary:hover{background:var(--terra-deep);}
+  .rec a.ghost{border:1px solid rgba(239,231,216,.35);color:var(--paper);}
+
+  .side{background:rgba(201,146,58,.13);border-left:3px solid var(--ochre);padding:14px 16px;font-size:13px;line-height:1.6;margin-bottom:14px;}
+  .side b{display:block;font-family:var(--sans);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:5px;color:#7a5a12;}
+  .side a{color:var(--terra-deep);font-weight:600;}
+  .methods{font-size:12.5px;color:var(--muted);line-height:1.9;}
+  .methods a{color:var(--terra-deep);font-weight:600;text-decoration:none;} .methods a:hover{text-decoration:underline;}
+
+  .acct{background:var(--paper-deep);border:1px solid var(--border);border-top:3px solid var(--sage);padding:20px;border-radius:0 0 20px 0;margin-top:22px;text-align:center;}
+  .acct h3{font-family:var(--display);font-size:22px;font-weight:600;margin-bottom:6px;}
+  .acct p{font-size:13px;color:var(--muted);max-width:480px;margin:0 auto 14px;line-height:1.55;}
+  .acct a{display:inline-block;background:var(--ochre);color:var(--ink);padding:12px 22px;font-family:var(--sans);font-weight:700;font-size:11px;letter-spacing:.14em;text-transform:uppercase;text-decoration:none;}
+  .acct a:hover{background:#b8842f;}
+  .fine{font-size:11px;color:var(--paper-dim);margin-top:12px;line-height:1.5;}
+
+  @media(max-width:600px){
+    h1{font-size:31px;} .rhead{font-size:25px;}
+    .opt{font-size:12.5px;padding:12px 0;}
+    .lrow{flex-direction:column;gap:6px;}
+    .wrap{padding:26px 16px 60px;}
+  }
+</style>
+</head>
+<body>
+<div class="bar">
+  <a class="brand" href="/index.html">
+    <svg viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.85"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.8" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.78" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.82" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+    <span class="wm">The Founder's Sprint</span>
+  </a>
+  <span class="disc">All five disciplines · Self-guided</span>
+</div>
+
+<div class="wrap">
+  <div class="eyebrow">Readiness Check</div>
+  <h1>Where is your business weak?</h1>
+  <p class="lede">Fifteen questions, about five minutes. No account, no email. You'll see where you stand across the five disciplines — and exactly which sessions close the gaps you actually have.</p>
+  <p class="pamphlet">This is a self-assessment, not a verdict. It's the pamphlet — your coach is the professor.</p>
+
+  <div class="legend">
+    <b>Answer honestly — we're asking what exists, not how you feel</b>
+    <div class="lrow" id="legendRow"></div>
+  </div>
+
+  <div class="prog">
+    <div class="ptrack"><div class="pfill" id="pfill"></div></div>
+    <div class="ptxt" id="ptxt">0 of 15 answered</div>
+  </div>
+
+  <div id="questions"></div>
+
+  <div class="profile">
+    <h2>Two last things</h2>
+    <div class="pq">
+      <div class="txt">Where is the business today?</div>
+      <div class="seg" id="segStage"></div>
+    </div>
+    <div class="pq" style="margin-bottom:0">
+      <div class="txt">Is the company formally registered?</div>
+      <div class="seg" id="segReg"></div>
+    </div>
+  </div>
+
+  <button class="go" id="goBtn" disabled onclick="computeResults()">See my gaps</button>
+  <div class="gohint" id="goHint">Answer all 15 questions to see your results.</div>
+
+  <div id="results" aria-live="polite"></div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  var ANCHORS = ['Not started', "It's in my head", 'Drafted somewhere', 'Documented, and I use it', 'Tested with outsiders'];
+
+  // Discipline meta — keys match taxonomy.js
+  var DISC = [
+    { key: 'marketing',  label: 'Marketing & Branding',   coach: 'Teddy Ruge',         color: '#C8531F' },
+    { key: 'finance',    label: 'Financial Modelling',    coach: 'Barry Wojega',       color: '#C9923A' },
+    { key: 'investment', label: 'Investment Readiness',   coach: 'Joseph Kalema',      color: '#8AAB5C' },
+    { key: 'strategy',   label: 'Strategy & Team',        coach: 'Moses Engwau Okudu', color: '#5F7A45' },
+    { key: 'product',    label: 'Product Dev & Pricing',  coach: 'Patrick Ngolobe',    color: '#A59B8C' }
+  ];
+
+  // 15 questions — one per L2 module. `l2` MUST match taxonomy.js module names exactly.
+  var QUESTIONS = [
+    { d: 'marketing',  l2: 'Brand Strategy',      q: 'Can you say in one sentence who you’re for and why you’re the obvious choice — and is it written down?' },
+    { d: 'marketing',  l2: 'Go-to-Market',        q: 'Do you know which channel actually brings you customers, and what one customer costs to acquire through it?' },
+    { d: 'marketing',  l2: 'Growth & Discovery',  q: 'Do you have a repeatable way of being found that doesn’t depend on paying for every lead?' },
+    { d: 'finance',    l2: 'Unit Economics',      q: 'Do you know what it costs to win one customer, and what that customer is worth over time?' },
+    { d: 'finance',    l2: 'Financial Planning',  q: 'Do you keep a cash-flow forecast you actually update — and do you know your runway in months?' },
+    { d: 'finance',    l2: 'Capital Architecture',q: 'Is there a cap table showing who owns what, and do you know what your valuation rests on?' },
+    { d: 'investment', l2: 'Pitch Craft',         q: 'Do you have a deck a stranger could understand without you in the room?' },
+    { d: 'investment', l2: 'Investor Relations',  q: 'If an investor asked today, could you hand them a data room?' },
+    { d: 'investment', l2: 'Funding Strategy',    q: 'Do you know which kind of money fits your stage (grant, pre-seed, seed, DFI) — and have a target list?' },
+    { d: 'strategy',   l2: 'Competitive Strategy',q: 'Do you know who you’d lose a deal to, and the reason you’d win?' },
+    { d: 'strategy',   l2: 'Team Architecture',   q: 'Do you know your next three hires and how you’d pay for them?' },
+    { d: 'strategy',   l2: 'Operational Systems', q: 'Would the business keep running for two weeks without you in the room?' },
+    { d: 'product',    l2: 'Product-Market Fit',  q: 'Have you validated the problem with real customers who aren’t friends or family?' },
+    { d: 'product',    l2: 'Product Development', q: 'Do you ship on a cadence, and decide what to build from evidence rather than instinct?' },
+    { d: 'product',    l2: 'Pricing Strategy',    q: 'Is your price based on the value you create, rather than your costs or what competitors charge?' }
+  ];
+
+  var STAGES = ['Idea', 'MVP', 'Revenue', 'Growth'];
+  var answers = {};          // index -> 0..4
+  var profile = { stage: null, registered: null };
+
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  function discMeta(k) { for (var i = 0; i < DISC.length; i++) if (DISC[i].key === k) return DISC[i]; return DISC[0]; }
+
+  /* ---- taxonomy: L2 -> its L3 specialties (+ booking slugs). Single source of truth. ---- */
+  var TAX = window.FS_TAXONOMY || null;
+  function slugify(n) {
+    if (TAX && TAX.slugify) return TAX.slugify(n);
+    return String(n).toLowerCase().replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+  }
+  function specialtiesFor(discKey, l2Name) {
+    if (!TAX || !TAX.disciplines) return [];
+    for (var i = 0; i < TAX.disciplines.length; i++) {
+      var d = TAX.disciplines[i];
+      if (d.key !== discKey) continue;
+      for (var j = 0; j < d.l2.length; j++) if (d.l2[j].name === l2Name) return d.l2[j].l3.slice();
+    }
+    return [];
+  }
+
+  // A Pick 3 is EXACTLY three specialties. Four modules (Financial Planning, Team
+  // Architecture, Operational Systems, Product Development) carry four L3s — booking
+  // would silently truncate to the first three, choosing for the founder. So we only
+  // pre-select when the track is exactly three; otherwise send them to pick the three.
+  function pick3Link(specs) {
+    if (specs.length === 3) {
+      return { exact: true, href: '/beta/book/?tier=pick3&amp;spec=' + specs.map(slugify).join(',') };
+    }
+    return { exact: false, href: '/beta/book/?tier=pick3' };
+  }
+  function trackCopy(specs, coach) {
+    if (specs.length === 3) return 'These three sessions build it properly with ' + coach + '.';
+    if (specs.length > 3) return 'This track has ' + specs.length + ' specialties — pick any three to build it with ' + coach + '.';
+    return 'Build it properly with ' + coach + '.';
+  }
+
+  /* ---- render ---- */
+  function renderLegend() {
+    $('legendRow').innerHTML = ANCHORS.map(function (a, i) {
+      return '<span><i>' + i + '</i>' + esc(a) + '</span>';
+    }).join('');
+  }
+
+  function renderQuestions() {
+    var html = '';
+    DISC.forEach(function (d) {
+      html += '<div class="sec">'
+        + '<h2><span class="dot" style="background:' + d.color + '"></span>' + esc(d.label) + '</h2>'
+        + '<div class="coach">Coached by ' + esc(d.coach) + '</div>';
+      QUESTIONS.forEach(function (q, i) {
+        if (q.d !== d.key) return;
+        html += '<div class="q">'
+          + '<div class="txt"><em>' + esc(q.l2) + '</em>' + esc(q.q) + '</div>'
+          + '<div class="opts" role="group" aria-label="' + esc(q.l2) + '">'
+          + ANCHORS.map(function (a, v) {
+              return '<button type="button" class="opt" data-i="' + i + '" data-v="' + v + '" aria-label="' + esc(a) + '">' + v + '</button>';
+            }).join('')
+          + '</div><div class="anchor" id="a' + i + '"></div></div>';
+      });
+      html += '</div>';
+    });
+    $('questions').innerHTML = html;
+
+    $('questions').addEventListener('click', function (e) {
+      var b = e.target.closest('.opt'); if (!b) return;
+      var i = +b.getAttribute('data-i'), v = +b.getAttribute('data-v');
+      answers[i] = v;
+      var sibs = b.parentNode.querySelectorAll('.opt');
+      for (var k = 0; k < sibs.length; k++) sibs[k].classList.toggle('on', sibs[k] === b);
+      $('a' + i).textContent = ANCHORS[v];
+      updateProgress();
+    });
+  }
+
+  function renderSegs() {
+    $('segStage').innerHTML = STAGES.map(function (s) { return '<button type="button" data-s="' + esc(s) + '">' + esc(s) + '</button>'; }).join('');
+    $('segReg').innerHTML = ['Yes', 'Not yet'].map(function (s) { return '<button type="button" data-r="' + esc(s) + '">' + esc(s) + '</button>'; }).join('');
+    $('segStage').addEventListener('click', function (e) {
+      var b = e.target.closest('button'); if (!b) return;
+      profile.stage = b.getAttribute('data-s');
+      [].forEach.call(this.children, function (c) { c.classList.toggle('on', c === b); });
+    });
+    $('segReg').addEventListener('click', function (e) {
+      var b = e.target.closest('button'); if (!b) return;
+      profile.registered = b.getAttribute('data-r');
+      [].forEach.call(this.children, function (c) { c.classList.toggle('on', c === b); });
+    });
+  }
+
+  function updateProgress() {
+    var n = Object.keys(answers).length;
+    $('pfill').style.width = (n / QUESTIONS.length * 100) + '%';
+    $('ptxt').textContent = n + ' of ' + QUESTIONS.length + ' answered';
+    var done = n === QUESTIONS.length;
+    $('goBtn').disabled = !done;
+    $('goHint').textContent = done ? 'Nothing is sent anywhere — this runs entirely in your browser.'
+                                   : 'Answer all 15 questions to see your results.';
+  }
+
+  /* ---- scoring: per-discipline mean, banded. NO overall percentage (by design). ---- */
+  function band(mean) {
+    if (mean < 1) return 'Not started';
+    if (mean < 2) return 'Forming';
+    if (mean < 3) return 'Documented';
+    return 'Validated';
+  }
+
+  function computeResults() {
+    var byDisc = {}, l2Scores = [];
+    QUESTIONS.forEach(function (q, i) {
+      var v = answers[i] || 0;
+      (byDisc[q.d] = byDisc[q.d] || []).push(v);
+      l2Scores.push({ d: q.d, l2: q.l2, v: v });
+    });
+
+    var discMeans = DISC.map(function (d) {
+      var a = byDisc[d.key] || [0];
+      var mean = a.reduce(function (s, x) { return s + x; }, 0) / a.length;
+      return { key: d.key, label: d.label, color: d.color, coach: d.coach, mean: mean };
+    });
+
+    var weakDiscs = discMeans.filter(function (d) { return d.mean < 2; });
+    var meanBy = {}; discMeans.forEach(function (d) { meanBy[d.key] = d.mean; });
+
+    // A gap is a module that isn't yet "documented and in use" (score <= 2).
+    // Never present a module scoring 3–4 as a gap just to fill three slots.
+    var candidates = l2Scores.filter(function (x) { return x.v <= 2; });
+
+    // Ties are common (e.g. all 2s). A plain sort would return three modules from
+    // whichever discipline happens to be first in question order — a false signal.
+    // So take each discipline's weakest module first, then fill from the rest.
+    var cmp = function (a, b) { return (a.v - b.v) || (meanBy[a.d] - meanBy[b.d]); };
+    var firstOf = {};
+    candidates.forEach(function (c) { if (!firstOf[c.d] || c.v < firstOf[c.d].v) firstOf[c.d] = c; });
+    var firsts = Object.keys(firstOf).map(function (k) { return firstOf[k]; }).sort(cmp);
+    var rest = candidates.filter(function (c) { return firsts.indexOf(c) < 0; }).sort(cmp);
+    var gaps = firsts.concat(rest).slice(0, 3);
+
+    var html = '<div class="rhead">Here’s where you stand.</div>'
+      + '<div class="rsub">Five disciplines, scored on what exists — not on confidence. There is no single overall score, on purpose: readiness is uneven, and the gaps are the useful part.</div>';
+
+    // bars
+    html += '<div class="bars">';
+    discMeans.forEach(function (d) {
+      html += '<div class="brow"><div class="bhead"><span class="nm">' + esc(d.label) + '</span>'
+        + '<span class="bd">' + band(d.mean) + ' · ' + d.mean.toFixed(1) + '/4</span></div>'
+        + '<div class="btrack"><div class="bfill" style="width:' + (d.mean / 4 * 100) + '%;background:' + d.color + '"></div></div></div>';
+    });
+    html += '</div>';
+
+    // biggest gaps → each a Pick 3 track. Only real gaps (≤2); never padded to three.
+    var gapHead = gaps.length === 0 ? 'No obvious gaps'
+                : gaps.length === 1 ? 'Your biggest gap'
+                : gaps.length === 2 ? 'Your two biggest gaps'
+                : 'Your three biggest gaps';
+    html += '<div class="gaps"><h3>' + gapHead + '</h3>';
+    if (!gaps.length) {
+      html += '<div class="gcard" style="border-left-color:' + DISC[3].color + '">'
+        + '<div class="gn">Everything you told us is documented and in use.</div>'
+        + '<p>Nothing here scored below “documented.” That’s rare — and it means a single session won’t move you much. What’s left is depth and outside pressure: the full programme, or an operator who has already done what you’re about to do.</p>'
+        + '<a href="/mentors.html">Talk to an operator →</a></div>';
+    }
+    gaps.forEach(function (g) {
+      var m = discMeta(g.d);
+      var specs = specialtiesFor(g.d, g.l2);
+      var p3 = pick3Link(specs);
+      html += '<div class="gcard" style="border-left-color:' + m.color + '">'
+        + '<div class="gt">' + esc(m.label) + ' · scored ' + g.v + '/4</div>'
+        + '<div class="gn">' + esc(g.l2) + '</div>'
+        + '<p>' + esc(ANCHORS[g.v]) + '. ' + esc(trackCopy(specs, m.coach)) + '</p>';
+      if (specs.length) {
+        html += '<div class="specs">' + specs.map(function (s) { return '<span>' + esc(s) + '</span>'; }).join('') + '</div>'
+          + '<a href="' + p3.href + '">' + (p3.exact ? 'Complete the ' + esc(g.l2) + ' track · Pick 3 →'
+                                                     : 'Choose any 3 from the ' + esc(g.l2) + ' track →') + '</a>';
+      } else {
+        html += '<a href="/beta/book/">See booking options →</a>';
+      }
+      html += '</div>';
+    });
+    html += '</div>';
+
+    // primary recommendation
+    if (!gaps.length && weakDiscs.length < 3) {
+      html += '<div class="rec"><div class="e">Our recommendation</div>'
+        + '<h3>You’re past the point single sessions fix.</h3>'
+        + '<p>Nothing scored below “documented.” The Full Cohort is the only track that takes a discipline end-to-end — and it comes with the founder data room and a cohort of peers to pressure-test you. Otherwise, a mentor who has already built and exited is the better next hour.</p>'
+        + '<div class="btns"><a class="primary" href="/beta/book/?tier=cohort">Take the Full Cohort · UGX 2.5M →</a>'
+        + '<a class="ghost" href="/mentors.html">Talk to an operator</a></div></div>';
+    } else if (weakDiscs.length >= 3) {
+      html += '<div class="rec"><div class="e">Our recommendation</div>'
+        + '<h3>You have gaps in ' + weakDiscs.length + ' of the five disciplines.</h3>'
+        + '<p>Picking single sessions here would be patching. The Full Cohort covers all <strong>49 specialties</strong> across every discipline as group coaching — plus the founder data room and the cohort around you. It is the only track that delivers a discipline end-to-end.</p>'
+        + '<div class="btns"><a class="primary" href="/beta/book/?tier=cohort">Take the Full Cohort · UGX 2.5M →</a>'
+        + '<a class="ghost" href="/mentors.html">Or talk to an operator first</a></div></div>';
+    } else {
+      var top = gaps[0], topMeta = discMeta(top.d);
+      var specs = specialtiesFor(top.d, top.l2), p3 = pick3Link(specs);
+      var lead = (specs.length === 3)
+        ? 'Take the three ' + top.l2 + ' specialties as a Pick 3 with ' + topMeta.coach
+        : 'Pick any three of the ' + specs.length + ' ' + top.l2 + ' specialties with ' + topMeta.coach;
+      html += '<div class="rec"><div class="e">Start here</div>'
+        + '<h3>' + esc(top.l2) + ' is your weakest link.</h3>'
+        + '<p>You’re stronger elsewhere, so you don’t need the whole programme yet. ' + esc(lead) + ' — each one a two-hour deep-dive you leave with a deliverable from.</p>'
+        + '<div class="btns">'
+        + '<a class="primary" href="' + (specs.length ? p3.href : '/beta/book/') + '">Book the Pick 3 · UGX 1M →</a>'
+        + '<a class="ghost" href="/beta/method/' + esc(top.d) + '.html">Read the method first</a>'
+        + '</div></div>';
+    }
+
+    // non-coaching gaps → Directory / mentors
+    var side = [];
+    if (profile.registered === 'Not yet') side.push('You’re not registered yet. That’s a lawyer’s job, not a coach’s — find a vetted one under <b>Legal</b> in the <a href="/beta/directory.html">Directory</a>.');
+    var fp = l2Scores.filter(function (x) { return x.l2 === 'Financial Planning'; })[0];
+    if (fp && fp.v <= 1) side.push('Your books need a bookkeeper before they need a model. See <b>Accounting</b> in the <a href="/beta/directory.html">Directory</a>.');
+    var gd = l2Scores.filter(function (x) { return x.l2 === 'Growth & Discovery'; })[0];
+    if (gd && gd.v <= 1) side.push('If customers can’t find you online, a developer or designer may help faster than a session. See <b>Digital</b> in the <a href="/beta/directory.html">Directory</a>.');
+    if (side.length) {
+      html += '<div class="side"><b>Not everything is a coaching gap</b>' + side.join('<br><br>') + '</div>';
+    }
+
+    // method pages for every weak discipline
+    var weakLinks = discMeans.filter(function (d) { return d.mean < 3; });
+    if (weakLinks.length) {
+      html += '<div class="methods"><strong>Go deeper on the method:</strong><br>'
+        + weakLinks.map(function (d) { return '<a href="/beta/method/' + esc(d.key) + '.html">' + esc(d.label) + ' →</a>'; }).join(' &nbsp;·&nbsp; ')
+        + '</div>';
+    }
+
+    // free account = the reward, not the toll
+    html += '<div class="acct"><h3>Keep this.</h3>'
+      + '<p>Create a free account to save your report, watch the gaps close as you work, and re-take the check in 90 days to see the difference.</p>'
+      + '<a href="/login-founder.html">Create a free account →</a>'
+      + '<div class="fine">Free to create. Your data room and saved work unlock when you book your first course. This check is a self-assessment — it is separate from the coach-vetted data room completeness investors see.</div>'
+      + '</div>';
+
+    var r = $('results');
+    r.innerHTML = html;
+    r.style.display = 'block';
+    r.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  window.computeResults = computeResults;
+
+  renderLegend();
+  renderQuestions();
+  renderSegs();
+  updateProgress();
+})();
+</script>
+</body>
+</html>
