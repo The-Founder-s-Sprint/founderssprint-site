@@ -20,7 +20,9 @@
     config: {
       // Idle map stays at default size; only the FANNED branch is enlarged (~22%) to fill the screen.
       layout: { fanSpreadDeg: 44, focusR2: 410, focusR3: 685 },
-      atmosphere: { cloudIntensity: 0.14 }   // ease the clouds back so the discipline colour fields read
+      // Clouds dimmed 25% (0.14 → 0.105): the lane now carries real star detail, so the
+      // haze can recede and the title/labels gain presence against it.
+      atmosphere: { cloudIntensity: 0.105 }
     }
   });
 

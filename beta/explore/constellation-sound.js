@@ -61,7 +61,12 @@
   var stored = null;
   try { stored = localStorage.getItem(LS_KEY); } catch (e) {}
   // ON by default — unless the visitor asked for reduced motion, or muted it before.
+  // NOTE: this preference survives cache clears and re-uploads. It is the #1 reason
+  // "the sound stopped working" after someone once clicked the toggle off.
   var enabled = stored ? (stored === 'on') : !reduced;
+  if (stored === 'off') {
+    console.info('[fs-sound] muted by a saved preference. Click the speaker, or run: __fsSound.on()');
+  }
 
   function ensureCtx() {
     if (!ctx) {
@@ -253,6 +258,27 @@
     else if (!id && wasOpen) whoosh(false);  // snapback — exhale
     // branch → branch (both non-null) moves no air: the map never fully closed
   });
+
+  /* ---- diagnostics ---------------------------------------------------
+     Every gate that can silence this thing, readable from the console:
+       __fsSound.why()   → the first reason nothing is audible
+       __fsSound.on()    → force-unmute and clear the saved preference
+       __fsSound.test()  → ring a note right now
+     Costs nothing; ships because "no sound" is otherwise unfalsifiable. */
+  window.__fsSound = {
+    why: function () {
+      if (!enabled) return 'MUTED — saved preference is "' + stored + '". Run __fsSound.on()';
+      if (!ctx) return 'NO CONTEXT — click the page once (audio needs a user gesture)';
+      if (ctx.state !== 'running') return 'CONTEXT ' + ctx.state.toUpperCase() + ' — click the page once';
+      if (!master || master.gain.value === 0) return 'MASTER GAIN IS 0 — run __fsSound.on()';
+      if (voices >= MAX_VOICES) return 'VOICE CAP hit (' + voices + ') — transient, try again';
+      return 'OK — audible. enabled=' + enabled + ' state=' + ctx.state + ' gain=' + master.gain.value.toFixed(3);
+    },
+    on: function () { ensureCtx(); setEnabled(true); return this.why(); },
+    off: function () { setEnabled(false); return 'muted'; },
+    test: function () { ensureCtx(); bell(freqFor({ disciplineKey: 'investment', level: 2 }), HOVER_G, 0.4, 7); return this.why(); },
+    state: function () { return { enabled: enabled, stored: stored, ctx: ctx && ctx.state, gain: master && master.gain.value, voices: voices }; }
+  };
 
   /* ---- toggle -------------------------------------------------------- */
   var btn;
