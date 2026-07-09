@@ -1,0 +1,17 @@
+; The Founder's Sprint — vulnerability disclosure
+; https://founderssprint.co  ·  RFC 9116
+;
+; If you believe you have found a security vulnerability affecting
+; founderssprint.co or any of our services, please report it to the
+; contact below. We will acknowledge your report and work with you on
+; a fix. Please do not publicly disclose before we have responded.
+;
+; Please do NOT run automated scans or load tests against production,
+; and never access, modify, or exfiltrate data belonging to founders,
+; coaches, mentors, or investors.
+
+Contact: mailto:hello@founderssprint.co
+Expires: 2027-07-09T23:59:59.000Z
+Preferred-Languages: en
+Canonical: https://founderssprint.co/.well-known/security.txt
+Policy: https://founderssprint.co/beta/privacy.html

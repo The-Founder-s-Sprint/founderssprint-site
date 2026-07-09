@@ -76,6 +76,26 @@ RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
   Header always set Referrer-Policy "strict-origin-when-cross-origin"
   Header always set Permissions-Policy "camera=(), microphone=(), geolocation=()"
 
+  # HSTS — 6 months, THIS hostname only.
+  # Deliberately NO includeSubDomains and NO preload:
+  #   * Several subdomains (webmail, cpanel, whm, webdisk, ftp, ssh…) do not
+  #     serve HTTPS on :443. includeSubDomains would make browsers refuse to
+  #     reach them at all — locking us out of webmail/cPanel.
+  #   * preload is baked into browsers and is effectively irreversible.
+  # Ramp (raise max-age → includeSubDomains → preload) only AFTER the unused
+  # cPanel/mail DNS records are deleted. See CLOUDFLARE_SECURITY_PLAN.md.
+  Header always set Strict-Transport-Security "max-age=15552000"
+
+  # security.txt must be served as plain text (RFC 9116)
+  <Files "security.txt">
+    Header set Content-Type "text/plain; charset=utf-8"
+  </Files>
+
+</IfModule>
+
+# ─── .well-known — always reachable (RFC 9116 security.txt, ACME) ────
+<IfModule mod_rewrite.c>
+  RewriteRule ^\.well-known/ - [L]
 </IfModule>
 
 # ─── SHARED UI MODULES — always fresh, ZERO per-page cache-bust ─────
