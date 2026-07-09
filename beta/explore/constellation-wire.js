@@ -75,4 +75,32 @@
   FSConstellation.on('focusChange', function (node) {
     if (!node) { var c = document.querySelector('#detail .d-close'); if (c) c.click(); }
   });
+
+  // ---- idle reset: a query left sitting for 30s clears itself ----
+  // Keeps the map from being stranded in a highlighted state after someone
+  // searches and walks away. Clearing the field re-uses the module's own
+  // 'input' path, so the 'search' handler above drops the highlight for us.
+  var IDLE_MS = 30000;
+  var idleTO = null;
+  var searchInput = el.querySelector('.fsc-search-input');
+
+  function clearSearchField() {
+    idleTO = null;
+    if (!searchInput || !searchInput.value) return;
+    searchInput.value = '';
+    searchInput.dispatchEvent(new Event('input', { bubbles: true }));  // → 'search' '' → clearHighlight()
+  }
+  function armIdle() {
+    if (idleTO) { clearTimeout(idleTO); idleTO = null; }
+    if (!searchInput || !searchInput.value.trim()) return;   // nothing to reset — don't arm
+    idleTO = setTimeout(clearSearchField, IDLE_MS);
+  }
+
+  if (searchInput) {
+    searchInput.addEventListener('input', armIdle);
+    // Any interaction with the map counts as activity and restarts the clock.
+    ['pointerdown', 'pointermove', 'wheel', 'keydown'].forEach(function (evt) {
+      el.addEventListener(evt, armIdle, { passive: true });
+    });
+  }
 })();
