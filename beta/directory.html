@@ -173,6 +173,19 @@ section, footer, nav { position: relative; z-index: 2; }
     rgba(0,0,0,0.70) 82%,
     rgba(0,0,0,0.88) 100%);
 }
+/* ── Free (basic) listings: compact monogram tile, ~half height ──────────────
+   Type scales down to match — a 54px monogram would collide with the label at
+   150px. The expanded card is unaffected (layout() fixes its height). */
+.card.compact .photo{padding-bottom:36px;}
+.card.compact .photo .ini{font-size:31px;}
+.card.compact .label{bottom:12px;}
+.card.compact .label .cat{font-size:8.5px;letter-spacing:.15em;margin-bottom:3px;}
+.card.compact .label .nm{font-size:16px;line-height:1.1;}
+.card.compact .reveal{padding:14px 14px;}
+.card.compact .reveal .r-nm{font-size:17px;}
+.card.compact .reveal .r-cat{margin:4px 0 6px;}
+.card.compact .reveal .r-desc{-webkit-line-clamp:2;font-size:12px;line-height:1.45;}
+.card.compact .reveal .r-more{margin-top:8px;font-size:9px;}
 /* category tile colours */
 .tile-legal,.tile-design{background:linear-gradient(155deg,var(--terra) 0%,#241d17 130%);}
 .tile-accounting,.tile-banking{background:linear-gradient(155deg,var(--ochre) 0%,#241d17 130%);}
@@ -450,7 +463,16 @@ var expandedIdx = -1;
 
 function tileClass(cat){ return 'tile-' + (ALLOWED_CATS.indexOf(cat) >= 0 ? cat : 'digital'); }
 function catLabel(cat){ return esc(CATEGORY_LABELS[cat] || cat); }
-function cardH(p){ var d = (p.description||'').length; return Math.max(240, Math.min(390, 250 + Math.round(d/4))); }
+// Paid listings size to their description (240–390). Free listings are monogram-only,
+// so they get roughly half the height — the board then reads at a glance as
+// paid = large image card, free = compact tile. Keyed on TIER, not on whether an image
+// exists, so card size signals what a provider paid for. Expanded height is fixed in
+// layout() (560/470) and unaffected by this.
+function cardH(p){
+  var d = (p.description||'').length;
+  var full = Math.max(240, Math.min(390, 250 + Math.round(d/4)));
+  return isPaidTier(p) ? full : Math.max(150, Math.round(full / 2));
+}
 
 function isPaidTier(p){ return p.tier === 'verified' || p.tier === 'featured'; }
 // Free listing → monogram. Paid listing with an image → that image fills the frame.
@@ -491,7 +513,7 @@ function boardCard(p, i){
   var lbl = catLabel(cat);
   var verified = p.tier === 'verified';
   var vbadge = verified ? '<span class="vbadge">' + V6_MINI + ' Verified</span>' : '';
-  return '<div class="card" data-i="' + i + '" data-h="' + cardH(p) + '">' +
+  return '<div class="card' + (isPaidTier(p) ? '' : ' compact') + '" data-i="' + i + '" data-h="' + cardH(p) + '">' +
       '<div class="photo ' + tileClass(cat) + (usesFill(p) ? ' fill' : '') + '">' + boardTile(p) + '</div>' +
       '<div class="label">' + vbadge + '<div class="cat">' + lbl + '</div><div class="nm">' + name + '</div></div>' +
       '<div class="reveal">' + (verified ? '<span class="vbadge">' + V6_MINI + ' Verified Partner</span>' : '') +
