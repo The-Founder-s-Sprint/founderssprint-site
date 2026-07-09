@@ -1136,18 +1136,14 @@
           </div>
           <div class="dir-form-row">
             <label>Logo</label>
-            <input type="file" id="prov-logo" accept="image/png,image/jpeg,image/svg+xml" onchange="onProvLogoPick(this)" style="font-size:13px">
-            <div style="font-size:11px;color:var(--muted);margin-top:4px">Square <strong>800×800px</strong>, transparent PNG or SVG, logo centred with ~15% padding (wordmark/horizontal logos are fine — they're centred). Sits on a light panel, so use a dark or full-colour version — a white/reversed logo would disappear. Used on the directory card and sponsor strips. <strong>Upload the company logo, not a headshot.</strong></div>
+            <input type="file" id="prov-logo" accept="image/png,image/svg+xml,image/webp" onchange="onProvLogoPick(this)" style="font-size:13px">
+            <div style="font-size:11px;color:var(--muted);margin-top:4px">Square <strong>800×800px</strong>, <strong>transparent PNG or SVG</strong> (WebP ok), logo centred with ~15% padding. <strong>JPEGs are rejected</strong> — the format cannot carry transparency, so it always arrives with a baked-in background. Sits on a light panel, so use a dark or full-colour version — a white/reversed logo would disappear. <strong>Upload the company logo, not a headshot.</strong></div>
             <div id="prov-logo-warn" style="font-size:11px;margin-top:4px"></div>
             <div id="prov-logo-current" style="font-size:11px;color:var(--terra);margin-top:4px"></div>
           </div>
           <div class="dir-form-row">
-            <label>Board display</label>
-            <select id="prov-fit" style="font-size:13px">
-              <option value="contain">Contain — logo on a light panel (default)</option>
-              <option value="cover">Fill frame — image covers the whole card (for photos / brand shots)</option>
-            </select>
-            <div style="font-size:11px;color:var(--muted);margin-top:4px">Applies to <strong>verified/featured</strong> listings with an image. "Fill frame" is for a photo or full-bleed brand image; keep "Contain" for a logo. Basic listings always show a monogram on the board.</div>
+            <label>How it shows</label>
+            <div style="font-size:11px;color:var(--muted)"><strong>Free (basic)</strong> listings show a clean monogram on the directory board. <strong>Paid (verified/featured)</strong> listings show this image scaled to fill the card frame — same treatment whether it's a logo or a profile photo. The expanded card always shows the image in full, uncropped.</div>
           </div>
           <div class="dir-form-row two-col">
             <div>
@@ -3817,6 +3813,15 @@ function onProvLogoPick(input){
   var warn = document.getElementById('prov-logo-warn'); if(!warn) return;
   warn.textContent=''; warn.style.color='';
   var f = input.files && input.files[0]; if(!f) return;
+
+  // A JPEG cannot carry an alpha channel, so a JPEG "logo" always arrives with a
+  // baked-in background — which is exactly what breaks the directory board. Reject it.
+  if (f.type === 'image/jpeg' || /\.jpe?g$/i.test(f.name)){
+    input.value = '';
+    warn.style.color = 'var(--danger)';
+    warn.textContent = '✗ JPEG rejected — it cannot be transparent, so it will always render with a background box. Export the logo as a transparent PNG or SVG.';
+    return;
+  }
   if (f.type === 'image/svg+xml'){ warn.style.color='var(--muted)'; warn.textContent='SVG — scales cleanly.'; return; }
   var url = URL.createObjectURL(f);
   var img = new Image();
@@ -4103,7 +4108,6 @@ function editProvider(id){
   document.getElementById('prov-phone').value   = pr.phone || '';
   document.getElementById('prov-website').value = pr.website || '';
   document.getElementById('prov-tier').value    = pr.tier || 'basic';
-  document.getElementById('prov-fit').value     = pr.image_fit === 'cover' ? 'cover' : 'contain';
   document.getElementById('prov-tagline').value = pr.banner_tagline || '';
   document.getElementById('prov-start').value   = pr.starts_at ? pr.starts_at.split('T')[0] : '';
   document.getElementById('prov-expiry').value  = pr.expires_at ? pr.expires_at.split('T')[0] : '';
@@ -4163,7 +4167,6 @@ async function addProvider() {
       price_ugx: TIER_PRICES[tier] || 0,
       banner_tagline: tagline,
       featured: tier === 'verified' || tier === 'corporate',
-      image_fit: (document.getElementById('prov-fit') || {}).value === 'cover' ? 'cover' : 'contain',
     };
     if (logoProvided) payload.logo_url = logoUrl;   // only overwrite the logo when a new one is uploaded
 
@@ -4211,7 +4214,6 @@ function clearProviderForm() {
   });
   document.getElementById('prov-category').value = 'legal';
   document.getElementById('prov-tier').value = 'basic';
-  document.getElementById('prov-fit').value = 'contain';
   document.getElementById('prov-logo').value = '';
   var _pw = document.getElementById('prov-logo-warn'); if(_pw) _pw.textContent = '';
   // reset date defaults (today → +3 months) for a fresh add

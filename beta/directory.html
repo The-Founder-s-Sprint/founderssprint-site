@@ -149,14 +149,15 @@ section, footer, nav { position: relative; z-index: 2; }
 .card:hover{box-shadow:0 16px 40px rgba(26,26,26,.12);}
 .card.expanded{box-shadow:0 26px 60px rgba(26,26,26,.20);cursor:default;z-index:3;}
 .photo{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;background-size:cover;background-position:center;}
-/* Paid-tier logo panel — the logo fills a clean light band across the top; the
-   category + name sit on the gradient below. Uniform on every card, mentor-consistent. */
-.photo .logo-band{position:absolute;top:0;left:0;right:0;height:62%;background:rgba(239,231,216,.97);display:flex;align-items:center;justify-content:center;padding:22px;z-index:1;}
-.photo .logo-band img{max-width:76%;max-height:78%;width:auto;height:auto;object-fit:contain;display:block;}
-.photo.panel::after{display:none;}   /* no dark scrim over the light logo band */
-/* Fill-frame (verified opt-in) — image covers the whole card, label overlaid (mentor-photo style) */
+/* ONE image treatment. Free listings → monogram. Paid listings → the image
+   (logo file or profile photo) scales to FILL the card frame, edge-to-edge,
+   with the label overlaid — exactly like a mentor photo card. No plates, no
+   panels, nothing floating. */
 .photo .fill-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;}
-.full .f-tile .fill-img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+/* Expanded card: the tile becomes the image's own panel — contained, so a wordmark
+   is never cropped when the founder is actually looking at it. */
+.full .f-tile.haslogo{background:rgba(239,231,216,.97);}
+.full .f-tile .detail-img{max-width:78%;max-height:72%;width:auto;height:auto;object-fit:contain;display:block;}
 .photo .ini{font-family:var(--sans);font-weight:700;font-size:54px;color:rgba(239,231,216,.92);letter-spacing:.02em;}
 .photo::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 45%,rgba(0,0,0,.5) 100%);}
 /* category tile colours */
@@ -184,8 +185,6 @@ section, footer, nav { position: relative; z-index: 2; }
 .full{position:absolute;inset:0;z-index:4;display:none;grid-template-columns:42% 58%;background:var(--paper-2);}
 .card.expanded .full{display:grid;}
 .full .f-tile{position:relative;display:flex;align-items:center;justify-content:center;}
-.full .f-tile .logo-plate{width:158px;height:158px;background:rgba(239,231,216,.96);border-radius:10px;padding:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 12px rgba(0,0,0,.14);}
-.full .f-tile .logo-plate img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;display:block;}
 .full .f-tile .ini{font-family:var(--sans);font-weight:700;font-size:60px;color:rgba(239,231,216,.92);}
 .full .f-body{padding:26px 26px 22px;display:flex;flex-direction:column;overflow:auto;}
 .full .fx{position:absolute;top:12px;right:12px;z-index:6;width:30px;height:30px;border-radius:50%;border:none;background:rgba(239,231,216,.92);color:var(--ink);font-size:18px;cursor:pointer;line-height:1;}
@@ -426,7 +425,7 @@ function formatWhatsApp(phone) {
 /* ===== Cascading board (matches mentors.html) ===== */
 var PAGE_SIZE = 24;
 var ALLOWED_CATS = ['legal','accounting','design','unbs','banking','insurance','ip','digital'];
-var SELECT = 'company_name,category,description,contact_name,email,phone,website,logo_url,tier,featured,banner_tagline,status,image_fit';
+var SELECT = 'company_name,category,description,contact_name,email,phone,website,logo_url,tier,featured,banner_tagline,status';
 var verifiedCache = [];
 var ITEMS = [];          // providers currently on the board (verified + loaded basic)
 var basicLoaded = 0;     // basic rows appended so far (for the active filter)
@@ -438,19 +437,21 @@ function catLabel(cat){ return esc(CATEGORY_LABELS[cat] || cat); }
 function cardH(p){ var d = (p.description||'').length; return Math.max(240, Math.min(390, 250 + Math.round(d/4))); }
 
 function isPaidTier(p){ return p.tier === 'verified' || p.tier === 'featured'; }
-function usesFill(p){ return isPaidTier(p) && !!p.logo_url && p.image_fit === 'cover'; }
-function usesLogoPanel(p){ return isPaidTier(p) && !!p.logo_url && p.image_fit !== 'cover'; }
-// Board face: fill-frame image (verified opt-in), or logo panel, or a clean monogram.
+// Free listing → monogram. Paid listing with an image → that image fills the frame.
+// Same treatment whether the asset is a logo file or a profile photo.
+function usesFill(p){ return isPaidTier(p) && !!p.logo_url; }
+
+// Board face: a frame-filling image, or a clean monogram. Nothing else.
 function boardTile(p){
-  if (usesFill(p)) return '<img class="fill-img" src="' + esc(p.logo_url) + '" alt="' + esc(p.company_name) + '" loading="lazy">';
-  if (usesLogoPanel(p)) return '<div class="logo-band"><img src="' + esc(p.logo_url) + '" alt="' + esc(p.company_name) + ' logo" loading="lazy"></div>';
-  return '<span class="ini">' + getInitials(p.company_name) + '</span>';
+  return usesFill(p)
+    ? '<img class="fill-img" src="' + esc(p.logo_url) + '" alt="' + esc(p.company_name) + '" loading="lazy">'
+    : '<span class="ini">' + getInitials(p.company_name) + '</span>';
 }
-// Detail view: fill-frame providers fill the panel; otherwise show the logo on a plate.
+// Expanded card: show the real asset contained on a light tile (so a wide wordmark
+// isn't cropped up close), for any provider that has one — paid or free.
 function detailTile(p){
-  if (usesFill(p)) return '<img class="fill-img" src="' + esc(p.logo_url) + '" alt="' + esc(p.company_name) + '" loading="lazy">';
   return p.logo_url
-    ? '<div class="logo-plate"><img src="' + esc(p.logo_url) + '" alt="' + esc(p.company_name) + ' logo" loading="lazy"></div>'
+    ? '<img class="detail-img" src="' + esc(p.logo_url) + '" alt="' + esc(p.company_name) + '" loading="lazy">'
     : '<span class="ini">' + getInitials(p.company_name) + '</span>';
 }
 
@@ -475,14 +476,14 @@ function boardCard(p, i){
   var verified = p.tier === 'verified';
   var vbadge = verified ? '<span class="vbadge">' + V6_MINI + ' Verified</span>' : '';
   return '<div class="card" data-i="' + i + '" data-h="' + cardH(p) + '">' +
-      '<div class="photo ' + tileClass(cat) + (usesFill(p) ? ' fill' : (usesLogoPanel(p) ? ' panel' : '')) + '">' + boardTile(p) + '</div>' +
+      '<div class="photo ' + tileClass(cat) + (usesFill(p) ? ' fill' : '') + '">' + boardTile(p) + '</div>' +
       '<div class="label">' + vbadge + '<div class="cat">' + lbl + '</div><div class="nm">' + name + '</div></div>' +
       '<div class="reveal">' + (verified ? '<span class="vbadge">' + V6_MINI + ' Verified Partner</span>' : '') +
         '<div class="r-nm">' + name + '</div><div class="r-cat">' + lbl + '</div>' +
         (p.description ? '<div class="r-desc">' + esc(p.description) + '</div>' : '') +
         '<div class="r-more">Click for contact →</div></div>' +
       '<div class="full"><button class="fx" aria-label="Close">×</button>' +
-        '<div class="f-tile ' + tileClass(cat) + '">' + detailTile(p) + '</div>' +
+        '<div class="f-tile ' + tileClass(cat) + (p.logo_url ? ' haslogo' : '') + '">' + detailTile(p) + '</div>' +
         '<div class="f-body"><div class="f-cat label-' + cat + '">' + (verified ? '✦ Verified Partner · ' : '') + lbl + '</div>' +
           '<div class="f-nm">' + name + '</div>' +
           (p.description ? '<div class="f-desc">' + esc(p.description) + '</div>' : '') +
