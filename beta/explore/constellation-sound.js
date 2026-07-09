@@ -64,13 +64,18 @@
   var enabled = stored ? (stored === 'on') : !reduced;
 
   function ensureCtx() {
-    if (ctx) { if (ctx.state === 'suspended') ctx.resume(); return ctx; }
-    try {
-      ctx = new (window.AudioContext || window.webkitAudioContext)();
-      master = ctx.createGain();
-      master.gain.value = enabled ? MASTER : 0;
-      master.connect(ctx.destination);
-    } catch (e) { ctx = null; }
+    if (!ctx) {
+      try {
+        ctx = new (window.AudioContext || window.webkitAudioContext)();
+        master = ctx.createGain();
+        master.gain.value = enabled ? MASTER : 0;
+        master.connect(ctx.destination);
+      } catch (e) { ctx = null; return null; }
+    }
+    // Safari (and Firefox) construct the context SUSPENDED even inside a user gesture.
+    // Without this resume() on the creation path, canPlay() never sees 'running' and
+    // the whole thing is silent forever. This was the regression.
+    if (ctx.state === 'suspended' && ctx.resume) { var p = ctx.resume(); if (p && p.catch) p.catch(function () {}); }
     return ctx;
   }
 
@@ -96,7 +101,13 @@
   }
 
   /* ---- voices ------------------------------------------------------- */
-  function canPlay() { return enabled && ctx && ctx.state === 'running' && voices < MAX_VOICES; }
+  function canPlay() {
+    if (!enabled || !ctx) return false;
+    // A context can fall back to 'suspended' (tab hidden, OS audio change). Nudge it
+    // and stay quiet this once, rather than going permanently mute.
+    if (ctx.state === 'suspended') { if (ctx.resume) ctx.resume(); return false; }
+    return ctx.state === 'running' && voices < MAX_VOICES;
+  }
 
   // A glass bell: two detuned sines through a lowpass, fast attack, long shimmer.
   function bell(freq, gain, dur, detune) {

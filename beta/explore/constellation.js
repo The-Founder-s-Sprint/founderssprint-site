@@ -147,7 +147,11 @@
       cloudIntensity: 0.26,   // master opacity for the three cloud plates
       driftSecondsA: 150, driftSecondsB: 216, driftSecondsC: 264,
       images: null,           // { a, b, c } URL overrides; null → constellation.css defaults
-      stars: { scatter: 150, lane: 230, bright: 26, laneAngleRad: -0.42 }
+      // `dust`, `clumps` and `rifts` are STATIC — they live in their own group whose
+      // opacity is animated with ONE attribute write per frame, not one per star. That
+      // is how the lane gets dense without costing smoothness. Only scatter/lane/bright
+      // twinkle individually (≈520 per-frame writes, up from 406).
+      stars: { scatter: 190, lane: 300, bright: 34, dust: 900, clumps: 9, rifts: 4, laneAngleRad: -0.42 }
     },
 
     chrome: {
@@ -532,6 +536,68 @@
           transform: 'translate(' + gx.toFixed(1) + ',' + gy.toFixed(1) + ') rotate(' + BAD.toFixed(1) + ')'
         }, this.gStars);
       });
+
+      /* ---- STATIC dust layer -------------------------------------------------
+         A uniform smear reads as spray paint; a real lane is granular and clumpy.
+         These never twinkle, so they cost nothing per frame — the whole group's
+         opacity is driven by a single setAttribute in the render loop. */
+      this.gDust = mk('g', { 'pointer-events': 'none', opacity: 0 }, this.gStars);
+
+      // Bright knots — the lane thickens and thins along its length.
+      const clumpGrad = mk('radialGradient', { id: this.uid + '-clump' }, defs);
+      mk('stop', { offset: '0%', 'stop-color': '#efe7d8', 'stop-opacity': 0.16 }, clumpGrad);
+      mk('stop', { offset: '60%', 'stop-color': '#e2d7c4', 'stop-opacity': 0.06 }, clumpGrad);
+      mk('stop', { offset: '100%', 'stop-color': '#d8cdbb', 'stop-opacity': 0 }, clumpGrad);
+
+      // Dark rifts — the dust clouds that OCCLUDE the lane. Without these it's a streak.
+      const riftGrad = mk('radialGradient', { id: this.uid + '-rift' }, defs);
+      mk('stop', { offset: '0%', 'stop-color': '#0f0d0a', 'stop-opacity': 0.55 }, riftGrad);
+      mk('stop', { offset: '70%', 'stop-color': '#0f0d0a', 'stop-opacity': 0.22 }, riftGrad);
+      mk('stop', { offset: '100%', 'stop-color': '#0f0d0a', 'stop-opacity': 0 }, riftGrad);
+
+      const onLane = (t, off) => [
+        vw / 2 + Math.cos(BA) * t - Math.sin(BA) * off,
+        cy + Math.sin(BA) * t + Math.cos(BA) * off
+      ];
+
+      for (let i = 0; i < (S.clumps || 0); i++) {
+        const t = (Math.random() * 2 - 1) * 980 * sf;
+        const off = (Math.random() * 2 - 1) * 42 * sf;
+        const [gx, gy] = onLane(t, off);
+        mk('ellipse', {
+          rx: ((90 + Math.random() * 150) * sf).toFixed(1),
+          ry: ((34 + Math.random() * 46) * sf).toFixed(1),
+          fill: 'url(#' + this.uid + '-clump)',
+          transform: 'translate(' + gx.toFixed(1) + ',' + gy.toFixed(1) + ') rotate(' + (BAD + (Math.random() * 30 - 15)).toFixed(1) + ')'
+        }, this.gDust);
+      }
+
+      // Granular dust: a gaussian-ish scatter hugging the lane, denser at its spine.
+      for (let i = 0; i < (S.dust || 0); i++) {
+        const t = (Math.random() * 2 - 1) * 1080 * sf;
+        const off = (Math.random() + Math.random() + Math.random() + Math.random() - 2) * 74 * sf;
+        const [x, y] = onLane(t, off);
+        const edge = Math.min(1, Math.abs(off) / (74 * sf));          // fade at the lane's edges
+        mk('circle', {
+          cx: x.toFixed(1), cy: y.toFixed(1),
+          r: (0.28 + Math.random() * 0.5).toFixed(2),
+          fill: '#efe7d8',
+          opacity: (0.06 + Math.random() * 0.15 * (1 - edge * 0.7)).toFixed(3)
+        }, this.gDust);
+      }
+
+      // Rifts last, so they occlude the dust beneath them.
+      for (let i = 0; i < (S.rifts || 0); i++) {
+        const t = (Math.random() * 2 - 1) * 860 * sf;
+        const off = (Math.random() * 2 - 1) * 30 * sf;
+        const [gx, gy] = onLane(t, off);
+        mk('ellipse', {
+          rx: ((70 + Math.random() * 130) * sf).toFixed(1),
+          ry: ((16 + Math.random() * 26) * sf).toFixed(1),
+          fill: 'url(#' + this.uid + '-rift)',
+          transform: 'translate(' + gx.toFixed(1) + ',' + gy.toFixed(1) + ') rotate(' + (BAD + (Math.random() * 24 - 12)).toFixed(1) + ')'
+        }, this.gDust);
+      }
 
       const addStar = (x, y, rr, base, lane) => {
         const el = mk('circle', {
@@ -1106,6 +1172,11 @@
       this.gStars.setAttribute('transform',
         'rotate(' + this.starRot.toFixed(2) + ' ' + (this.vw / 2) + ' ' + cy + ')');
       if (IT < 4000) for (const g of this.mwGlow) g.setAttribute('opacity', mwK.toFixed(3));
+      // The whole static dust field (dust + clumps + rifts) breathes with ONE write.
+      if (this.gDust) {
+        const dustBreath = this.reduced ? 1 : (0.88 + 0.12 * Math.sin(ts * 0.00021));
+        this.gDust.setAttribute('opacity', (mwK * dustBreath).toFixed(3));
+      }
       if (!this.reduced) {
         const breath = 0.9 + 0.1 * Math.sin(ts * 0.00025);
         for (const s of this.stars) {
