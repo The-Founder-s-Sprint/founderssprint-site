@@ -80,6 +80,23 @@
   .full .f-prices{margin:14px 0 0;}
   .full .f-cta{width:100%;background:var(--terra);color:#fff;border:none;padding:13px;font-family:var(--sans);font-weight:700;font-size:11px;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;border-radius:0 0 14px 0;margin-top:16px;}
   .full .f-cta:hover{background:var(--terra-deep);}
+  /* Share affordance — top-right of the expanded card, beside the close × */
+  .full .f-share-btn{position:absolute;top:14px;right:52px;z-index:3;display:inline-flex;align-items:center;gap:6px;
+    background:rgba(26,26,26,.06);border:1px solid var(--border);color:var(--ink);
+    font-family:var(--sans);font-weight:600;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+    padding:6px 11px 6px 9px;cursor:pointer;border-radius:40px;transition:.18s;}
+  .full .f-share-btn:hover{border-color:var(--terra);color:var(--terra-deep);}
+  .full .f-share-btn svg{flex-shrink:0;}
+  .full .f-share-menu{position:absolute;top:46px;right:52px;z-index:4;display:none;flex-direction:column;min-width:150px;
+    background:var(--paper);border:1px solid var(--border-hi);border-radius:0 0 12px 0;overflow:hidden;
+    box-shadow:0 18px 40px -12px rgba(26,26,26,.4);}
+  .full .f-share-menu.open{display:flex;}
+  .full .fsm{background:none;border:none;text-align:left;font-family:var(--body);font-size:13px;color:var(--ink);
+    padding:11px 14px;cursor:pointer;transition:background .15s;border-bottom:1px solid var(--border);}
+  .full .fsm:last-child{border-bottom:none;}
+  .full .fsm:hover{background:rgba(200,83,31,.08);color:var(--terra-deep);}
+  .full .fsm-copy.copied{color:var(--success);font-weight:600;}
+  @media(max-width:560px){.full .f-share-btn,.full .f-share-menu{right:48px;}}
   /* shared bits reused by the panel */
   .tags{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0 0;}
   .tag{font-size:10.5px;font-family:var(--sans);font-weight:600;letter-spacing:.04em;color:var(--moss);border:1px solid rgba(61,74,46,.3);padding:3px 8px;border-radius:2px;}
@@ -343,7 +360,7 @@ function boardCard(m, gi){
   const hasPhoto=!!m.photo_url;
   const photoCss = hasPhoto ? "background-image:url('"+esc(m.photo_url)+"')" : "background:linear-gradient(155deg,"+cardColor(gi)+" 0%, #241d17 130%)";
   const photo = '<div class="photo'+(hasPhoto?'':' tile')+'" style="'+photoCss+'">'+(hasPhoto?'':'<span class="ini">'+esc(initials(m.name||m.title))+'</span>')+'</div>';
-  return '<div class="card'+(hasPhoto?' has-photo':'')+'" data-i="'+gi+'" data-h="'+cardH(m)+'">'
+  return '<div class="card'+(hasPhoto?' has-photo':'')+'" data-i="'+gi+'" data-slug="'+esc(m.slug||'')+'" data-h="'+cardH(m)+'">'
     + photo + '<div class="scrim"></div>'
     + '<div class="label"><div class="nm">'+name+'</div>'+(role?'<div class="rl">'+role+'</div>':'')+'</div>'
     + '<div class="reveal"><div class="r-nm">'+name+'</div>'+(role?'<div class="r-rl">'+role+'</div>':'')
@@ -351,6 +368,14 @@ function boardCard(m, gi){
       + (rTags?'<div class="r-tags">'+rTags+'</div>':'')
       + '<div class="r-more">Click to open →</div></div>'
     + '<div class="full"><button class="fx" aria-label="Close">×</button>'
+      + '<button class="f-share-btn" type="button" aria-label="Share this profile" aria-haspopup="true">'
+      +   '<svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><path d="M8.6 13.5l6.8 4M15.4 6.5l-6.8 4"/></svg> Share</button>'
+      + '<div class="f-share-menu" role="menu">'
+      +   '<button class="fsm" data-net="wa" type="button" role="menuitem">WhatsApp</button>'
+      +   '<button class="fsm" data-net="li" type="button" role="menuitem">LinkedIn</button>'
+      +   '<button class="fsm" data-net="x"  type="button" role="menuitem">X</button>'
+      +   '<button class="fsm fsm-copy" data-net="copy" type="button" role="menuitem">Copy link</button>'
+      + '</div>'
       + '<div class="f-photo" style="'+photoCss+'"></div>'
       + '<div class="f-body"><div class="f-nm">'+name+'</div>'
         + ((role||co)?'<div class="f-rl">'+[role,co].filter(Boolean).join(' · ')+'</div>':'')
@@ -384,7 +409,38 @@ function layout(){
   });
   board.style.height=Math.max.apply(null,heights.concat(0))+'px';
 }
-function setExpanded(gi){ expandedIdx=(expandedIdx===gi?-1:gi); layout(); }
+function setExpanded(gi){ expandedIdx=(expandedIdx===gi?-1:gi); layout(); syncShareURL(); }
+
+// ---- shareable deep links --------------------------------------------------
+// The expanded card becomes an addressable profile: mentors.html?m=<slug>.
+// Expanding a card writes the slug into the URL bar (replaceState — no history
+// spam), so anyone can just copy the address. On load, ?m=<slug> auto-opens
+// and scrolls to that mentor. (Rich social previews come next, via a Cloudflare
+// Worker on /m/<slug> — see FS notes; this layer is front-end only.)
+function mentorShareURL(slug){ return location.origin + '/mentors.html?m=' + encodeURIComponent(slug); }
+function mentorShareText(m){ return 'Book a session with ' + (m && m.name ? m.name : 'this mentor') + ' on The Founder’s Sprint'; }
+
+function syncShareURL(){
+  try{
+    var m = (expandedIdx>=0) ? MENTORS[expandedIdx] : null;
+    if(m && m.slug) history.replaceState(null,'', location.pathname + '?m=' + encodeURIComponent(m.slug));
+    else history.replaceState(null,'', location.pathname);
+  }catch(e){}
+}
+
+function openFromURL(){
+  var slug;
+  try{ slug = new URLSearchParams(location.search).get('m'); }catch(e){ return; }
+  if(!slug) return;
+  var idx = MENTORS.findIndex(function(x){ return x.slug === slug; });
+  if(idx < 0) return;
+  // a filter could hide the deep-linked mentor — always reveal them
+  if(state.filter !== 'all'){ state.filter = 'all'; renderChips(); render(); }
+  expandedIdx = idx;             // set AFTER any render() (render resets it to -1)
+  layout();
+  var card = document.querySelector('.card[data-i="'+idx+'"]');
+  if(card) setTimeout(function(){ card.scrollIntoView({behavior:'smooth', block:'center'}); }, 80);
+}
 
 // Controlled operator-domain categories — the ONLY filter vocabulary (bounded,
 // never grows with what mentors type). Free-text expertise stays on the cards
@@ -456,6 +512,7 @@ async function load(){
   MENTORS=rows;
   renderChips();
   render();
+  openFromURL();   // ?m=<slug> → auto-open + scroll to that mentor
 }
 
 // ---- board interaction (bound once; survives innerHTML re-renders) ----
@@ -465,13 +522,49 @@ async function load(){
     const card=e.target.closest('.card'); if(!card) return;
     const gi=+card.dataset.i;
     if(e.target.closest('.f-cta')){ e.stopPropagation(); openBook(gi); return; }
+    if(e.target.closest('.f-share-btn')){ e.stopPropagation(); onShareClick(card); return; }
+    if(e.target.closest('.fsm')){ e.stopPropagation(); onShareNet(card, e.target.closest('.fsm')); return; }
     if(e.target.closest('.fx')){ e.stopPropagation(); setExpanded(-1); return; }
     if(card.classList.contains('expanded')) return;
     setExpanded(gi);
   });
+  // click anywhere else closes an open share menu
+  document.addEventListener('click', function(e){
+    if(e.target.closest('.f-share-btn')||e.target.closest('.f-share-menu')) return;
+    document.querySelectorAll('.f-share-menu.open').forEach(function(o){ o.classList.remove('open'); });
+  });
   let rt; window.addEventListener('resize', function(){ clearTimeout(rt); rt=setTimeout(layout,120); });
   document.addEventListener('keydown', function(e){ if(e.key==='Escape' && expandedIdx>=0) setExpanded(-1); });
 })();
+
+function onShareClick(card){
+  var m = MENTORS[+card.dataset.i]; if(!m || !m.slug) return;
+  // Mobile: the OS share sheet (this IS the WhatsApp/IG/X picker). Desktop: our menu.
+  if(navigator.share){
+    navigator.share({ title:'The Founder’s Sprint', text: mentorShareText(m), url: mentorShareURL(m.slug) }).catch(function(){});
+    return;
+  }
+  var menu = card.querySelector('.f-share-menu'); if(!menu) return;
+  document.querySelectorAll('.f-share-menu.open').forEach(function(o){ if(o!==menu) o.classList.remove('open'); });
+  menu.classList.toggle('open');
+}
+
+function onShareNet(card, item){
+  var m = MENTORS[+card.dataset.i]; if(!m || !m.slug) return;
+  var url = mentorShareURL(m.slug), text = mentorShareText(m), net = item.getAttribute('data-net'), dest = null;
+  if(net==='wa')      dest = 'https://wa.me/?text=' + encodeURIComponent(text + ' — ' + url);
+  else if(net==='li') dest = 'https://www.linkedin.com/sharing/share-offsite/?url=' + encodeURIComponent(url);
+  else if(net==='x')  dest = 'https://twitter.com/intent/tweet?text=' + encodeURIComponent(text) + '&url=' + encodeURIComponent(url);
+  else if(net==='copy'){
+    var flash=function(){ var t=item.textContent; item.classList.add('copied'); item.textContent='Copied ✓';
+      setTimeout(function(){ item.classList.remove('copied'); item.textContent=t; }, 1600); };
+    if(navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(url).then(flash).catch(function(){ window.prompt('Copy this link:', url); });
+    else window.prompt('Copy this link:', url);
+    return;
+  }
+  if(dest) window.open(dest, '_blank', 'noopener');
+  var menu = card.querySelector('.f-share-menu'); if(menu) menu.classList.remove('open');
+}
 
 function openBook(i){
   current=MENTORS[i]; fmt=(current.formats&&current.formats[0])||'coffee';
