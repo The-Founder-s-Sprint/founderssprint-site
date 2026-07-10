@@ -315,6 +315,44 @@ footer .bottom {
 </head>
 <body>
 
+<!-- ============================================================
+     BRAND PAGE LOADER — rotating V6 mark, fades on load.
+     Inline + first-in-body so it paints in frame 1, before the deferred
+     site-chrome.js runs. That also masks the FOUC where the eyebrow .v6-mark
+     briefly renders un-sized (its width is set by deferred CSS). Self-removing,
+     with a failsafe so it can never trap the visitor. Reusable as-is on any page.
+     ============================================================ -->
+<style>
+  #fs-preload{position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;
+    background:#1A1A1A;transition:opacity .42s ease;}
+  #fs-preload.gone{opacity:0;pointer-events:none;}
+  #fs-preload svg{width:56px;height:56px;transform-origin:50% 50%;animation:fsplspin 2.6s linear infinite;}
+  @keyframes fsplspin{to{transform:rotate(360deg);}}
+  @media(prefers-reduced-motion:reduce){#fs-preload svg{animation:none;}}
+</style>
+<div id="fs-preload" role="status" aria-label="Loading">
+  <svg viewBox="0 0 100 100" aria-hidden="true">
+    <polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.9"/>
+    <polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.85" transform="rotate(72,50,50)"/>
+    <polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.82" transform="rotate(144,50,50)"/>
+    <polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.85" transform="rotate(216,50,50)"/>
+    <polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.78" transform="rotate(288,50,50)"/>
+    <circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/>
+  </svg>
+</div>
+<script>
+  (function(){
+    var p=document.getElementById('fs-preload'); if(!p) return;
+    var done=false;
+    function hide(){ if(done) return; done=true; p.classList.add('gone');
+      setTimeout(function(){ p.parentNode && p.parentNode.removeChild(p); },480); }
+    if(document.readyState==='complete') hide();
+    else window.addEventListener('load', hide, {once:true});
+    setTimeout(hide, 2600);   // failsafe — never trap the visitor on a slow asset
+  })();
+</script>
+
+
 <div class="noise" aria-hidden="true"></div>
 
 <!-- NAV -->
