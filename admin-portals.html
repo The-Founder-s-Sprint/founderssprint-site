@@ -402,6 +402,8 @@ const MENTOR_CAT_LABELS={fintech:'Fintech & Payments',agribusiness:'Agribusiness
 function mCatLabel(k){ return MENTOR_CAT_LABELS[k]||'—'; }
 function mDur(mins){ if(!mins) return ''; return (mins%60===0)?((mins/60)+(mins===60?' hour':' hours')):(mins+' min'); }
 function mName(id){ const m=mentorsList.find(x=>x.id===id); return m?(m.name||m.title||'—'):'—'; }
+function mTierTag(m){ if(!m||!m.tier) return ''; const C={senior:'#C9923A',chief:'#C8531F',captain:'#8AAB5C'},L={senior:'Senior',chief:'Chief',captain:'Captain'}; const c=C[m.tier]; if(!c) return '';
+  return ' <span style="display:inline-flex;align-items:center;gap:5px;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:'+c+';vertical-align:middle"><i style="display:inline-block;width:6px;height:6px;background:'+c+';transform:rotate(45deg)"></i>'+L[m.tier]+'</span>'; }
 function mSlugify(s){ return String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,''); }
 async function loadMentors(){
   const roster=document.getElementById('roster'); roster.innerHTML='<div class="empty">Loading…</div>';
@@ -455,7 +457,7 @@ function renderMentors(){
     const fees=m.fees||{};
     const act = su ? '<button class="btn-sm" style="background:none;border:1px solid var(--border-hi);color:var(--ink-mid);padding:5px 10px" onclick="editMentor(\''+m.id+'\')">Edit</button> '
       +'<button class="btn-sm" style="background:none;border:1px solid var(--border-hi);color:var(--ink-mid);padding:5px 10px" onclick="toggleMentor(\''+m.id+'\',\''+(m.status==='active'?'inactive':'active')+'\')">'+(m.status==='active'?'Deactivate':'Activate')+'</button>' : '';
-    return '<tr><td>'+esc(m.name||'—')+'<div class="sub">'+esc(m.title||'')+(m.company?(' · '+esc(m.company)):'')+'</div></td>'
+    return '<tr><td>'+esc(m.name||'—')+mTierTag(m)+'<div class="sub">'+esc(m.title||'')+(m.company?(' · '+esc(m.company)):'')+'</div></td>'
       +'<td>'+esc((m.formats||[]).join(', '))+'</td>'
       +'<td>'+mMoney(fees.coffee)+'</td><td>'+mMoney(fees.zoom)+'</td>'
       +'<td>'+pill(m.status)+'</td>'
@@ -613,6 +615,12 @@ function editMentor(id){
         var L={'':'— select a domain —',fintech:'Fintech & Payments',agribusiness:'Agribusiness & Exports',marketing:'Marketing & Brand',fundraising:'Fundraising & Capital',product:'Product & Growth',creative:'Creative & Media',ops:'Ops & Supply Chain'};
         return '<option value="'+k+'"'+(((m.category||'')===k)?' selected':'')+'>'+L[k]+'</option>';
       }).join('')+'</select>'
+    +lbl('Tier — honorific badge shown on the card (Senior · Chief · Captain)')
+    +'<select id="mf-tier" class="m-sel" style="width:100%">'
+    +['','senior','chief','captain'].map(function(k){
+        var L={'':'— no tier —',senior:'Senior · retired or 20+ yrs (the revered elder)',chief:'Chief · currently leading an org or division',captain:'Captain · 10+ yrs, hands-on operator'};
+        return '<option value="'+k+'"'+(((m.tier||'')===k)?' selected':'')+'>'+L[k]+'</option>';
+      }).join('')+'</select>'
     +lbl('Expertise tags (comma-separated — shown on the card, searchable, not a filter)')+_mfInput('mf-expertise','Fundraising, Unit economics, Scaling',(m.expertise||[]).join(', '))
     +lbl('Bio')+'<textarea id="mf-bio" style="width:100%;padding:9px 10px;border:1px solid var(--border-hi);background:rgba(255,255,255,.5);font-family:inherit;font-size:14px;min-height:64px">'+esc(m.bio||'')+'</textarea>'
     +'<div style="display:flex;gap:18px;align-items:center;margin-top:12px;flex-wrap:wrap">'
@@ -635,7 +643,7 @@ async function saveMentor(id){
   const body={ name, title:val('mf-title')||null, company:val('mf-company')||null, bio:val('mf-bio')||null,
     expertise, location:val('mf-location')||null, formats:formats.length?formats:['coffee','zoom'],
     fees:{coffee:coffee,zoom:zoom}, session_fee:coffee||zoom||null, photo_url:val('mf-photo-url')||null,
-    category:val('mf-category')||null,
+    category:val('mf-category')||null, tier:val('mf-tier')||null,
     status:val('mf-status')||'active', featured:document.getElementById('mf-featured').checked };
   if(!id) body.slug=mSlugify(name);
   try{

@@ -62,6 +62,12 @@
   .card.expanded .reveal,.card.expanded:hover .reveal{opacity:0;pointer-events:none;}
   .reveal .r-nm{font-family:var(--display);font-weight:600;font-size:23px;color:var(--paper);line-height:1.05;}
   .reveal .r-rl{font-family:var(--sans);font-size:9.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ochre);margin:6px 0 10px;}
+  /* honorific tier badge (Senior · Chief · Captain) — Option A: colour in the diamond, word in cream */
+  .tier-badge{position:absolute;top:12px;left:12px;z-index:3;display:inline-flex;align-items:center;gap:6px;background:rgba(16,14,11,.5);padding:5px 9px 5px 8px;font-family:var(--sans);font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--paper);pointer-events:none;}
+  .tier-badge .tdia{width:7px;height:7px;flex:none;transform:rotate(45deg);}
+  .f-tier{display:inline-flex;align-items:center;gap:6px;font-family:var(--sans);font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;margin-bottom:8px;}
+  .f-tier .tdia{width:7px;height:7px;flex:none;transform:rotate(45deg);}
+  .chip .cdia{display:inline-block;width:6px;height:6px;margin-right:7px;vertical-align:middle;transform:rotate(45deg);}
   .reveal .r-bio{font-size:13px;line-height:1.55;color:rgba(239,231,216,.94);display:-webkit-box;-webkit-line-clamp:5;-webkit-box-orient:vertical;overflow:hidden;}
   .r-tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:12px;}
   .r-tags span{font-family:var(--sans);font-size:9.5px;font-weight:600;letter-spacing:.05em;color:var(--paper);border:1px solid rgba(239,231,216,.45);padding:3px 8px;border-radius:2px;}
@@ -347,6 +353,19 @@ let MENTORS=[], current=null, fmt=null, expandedIdx=-1, VIEW=[];
 const state={ q:'', filter:'all' };
 const PALETTE=['#C8531F','#C9923A','#8AAB5C','#3D4A2E','#777770'];   // tile colours (photo-less cards)
 function cardColor(i){ return PALETTE[i % PALETTE.length]; }
+
+// Honorific tiers — culturally an African mark of respect, not a corporate ladder.
+// Colour signals the tier (never a rank-count), so no tier reads as "lesser".
+// bright = the diamond on dark cards; deep = legible text on the paper (expanded) view.
+const TIERS={
+  senior : {label:'Senior',  bright:'#C9923A', deep:'#8A5A12'},  // ochre — the revered elder
+  chief  : {label:'Chief',   bright:'#C8531F', deep:'#9A3E16'},  // terracotta — the sitting authority
+  captain: {label:'Captain', bright:'#8AAB5C', deep:'#3D4A2E'},  // sage — the seasoned operator
+};
+function tierBadge(m){ const t=TIERS[m&&m.tier]; if(!t) return '';
+  return '<span class="tier-badge"><i class="tdia" style="background:'+t.bright+'"></i>'+t.label+'</span>'; }
+function tierTag(m){ const t=TIERS[m&&m.tier]; if(!t) return '';
+  return '<div class="f-tier" style="color:'+t.deep+'"><i class="tdia" style="background:'+t.bright+'"></i>'+t.label+'</div>'; }
 function cardH(m){ const b=(m.bio||'').length; return Math.max(260, Math.min(430, 262 + Math.round(b/3.2))); }
 // bio → paragraphs (each newline-separated block becomes its own <p>, escaped)
 function bioHTML(t){ return String(t||'').split(/\n+/).map(s=>s.trim()).filter(Boolean).map(s=>'<p>'+esc(s)+'</p>').join(''); }
@@ -361,7 +380,7 @@ function boardCard(m, gi){
   const photoCss = hasPhoto ? "background-image:url('"+esc(m.photo_url)+"')" : "background:linear-gradient(155deg,"+cardColor(gi)+" 0%, #241d17 130%)";
   const photo = '<div class="photo'+(hasPhoto?'':' tile')+'" style="'+photoCss+'">'+(hasPhoto?'':'<span class="ini">'+esc(initials(m.name||m.title))+'</span>')+'</div>';
   return '<div class="card'+(hasPhoto?' has-photo':'')+'" data-i="'+gi+'" data-slug="'+esc(m.slug||'')+'" data-h="'+cardH(m)+'">'
-    + photo + '<div class="scrim"></div>'
+    + photo + '<div class="scrim"></div>' + tierBadge(m)
     + '<div class="label"><div class="nm">'+name+'</div>'+(role?'<div class="rl">'+role+'</div>':'')+'</div>'
     + '<div class="reveal"><div class="r-nm">'+name+'</div>'+(role?'<div class="r-rl">'+role+'</div>':'')
       + (m.bio?'<div class="r-bio">'+esc(m.bio)+'</div>':'')
@@ -377,7 +396,7 @@ function boardCard(m, gi){
       +   '<button class="fsm fsm-copy" data-net="copy" type="button" role="menuitem">Copy link</button>'
       + '</div>'
       + '<div class="f-photo" style="'+photoCss+'"></div>'
-      + '<div class="f-body"><div class="f-nm">'+name+'</div>'
+      + '<div class="f-body">'+tierTag(m)+'<div class="f-nm">'+name+'</div>'
         + ((role||co)?'<div class="f-rl">'+[role,co].filter(Boolean).join(' · ')+'</div>':'')
         + (m.bio?'<div class="f-bio">'+bioHTML(m.bio)+'</div>':'')
         + (fTags?'<div class="tags">'+fTags+'</div>':'')
@@ -459,25 +478,38 @@ function matches(m){
   if(q){ const hay=[m.name,m.title,m.company,m.bio,(m.expertise||[]).join(' '),m.location].join(' ').toLowerCase(); if(hay.indexOf(q)<0) return false; }
   const f=state.filter;
   if(f && f!=='all'){
+    if(f.indexOf('tier:')===0) return m.tier===f.slice(5);
     if(f==='fmt:coffee') return (m.formats||[]).indexOf('coffee')>=0;
     if(f==='fmt:zoom')   return (m.formats||[]).indexOf('zoom')>=0;
     return m.category===f;
   }
   return true;
 }
+// Tier filter chips — carry the same three colours as the card badges.
+const TIER_CHIPS=[
+  {k:'tier:senior',  tier:'senior',  label:'Senior',  color:'#C9923A', onText:'#3a2606'},
+  {k:'tier:chief',   tier:'chief',   label:'Chief',   color:'#C8531F', onText:'#fff'},
+  {k:'tier:captain', tier:'captain', label:'Captain', color:'#8AAB5C', onText:'#1c2a12'},
+];
 
 function renderChips(){
   const wrap=document.getElementById('chips');
   // Only show categories that actually have an active mentor — bounded to the fixed set, no dead pills.
   const present=new Set(MENTORS.map(m=>m.category).filter(Boolean));
+  const tiersPresent=new Set(MENTORS.map(m=>m.tier).filter(Boolean));
   const chips=[{k:'all',label:'All'}]
+    .concat(TIER_CHIPS.filter(c=>tiersPresent.has(c.tier)))
     .concat(MENTOR_CATS.filter(c=>present.has(c.k)))
     .concat([{k:'fmt:coffee',label:'Coffee'},{k:'fmt:zoom',label:'Zoom'}]);
   wrap.innerHTML='';
   chips.forEach(c=>{
     const b=document.createElement('button');
-    b.className='chip'+(state.filter===c.k?' on':'');
-    b.textContent=c.label;
+    const on=state.filter===c.k;
+    b.className='chip'+(on?' on':'');
+    if(c.color){
+      b.innerHTML='<i class="cdia" style="background:'+c.color+'"></i>'+c.label;
+      if(on){ b.style.background=c.color; b.style.borderColor=c.color; b.style.color=c.onText||'#fff'; }
+    } else { b.textContent=c.label; }
     b.addEventListener('click',()=>{ state.filter=c.k; renderChips(); render(); });
     wrap.appendChild(b);
   });
@@ -505,7 +537,7 @@ async function loadDurations(){
 
 async function load(){
   let rows=[];
-  const p=fetch(SB_URL+'/rest/v1/mentors?status=eq.active&select=id,name,slug,title,company,bio,expertise,photo_url,formats,location,session_fee,session_minutes,fees,category&order=sort_order&limit=100',
+  const p=fetch(SB_URL+'/rest/v1/mentors?status=eq.active&select=id,name,slug,title,company,bio,expertise,photo_url,formats,location,session_fee,session_minutes,fees,category,tier&order=sort_order&limit=100',
     {headers:{apikey:SB_ANON,Authorization:'Bearer '+SB_ANON}});
   await loadDurations();                       // needed before the cards render their per-format durations
   try{ const r=await p; rows=r.ok?await r.json():[]; }catch(e){}
