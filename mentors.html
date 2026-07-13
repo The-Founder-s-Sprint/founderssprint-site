@@ -83,7 +83,6 @@
   .full .f-bio{font-size:14px;line-height:1.6;color:#3D3B35;}
   .full .f-bio p{margin:0 0 0.85em;}
   .full .f-bio p:last-child{margin-bottom:0;}
-  .full .f-prices{margin:14px 0 0;}
   .full .f-cta{width:100%;background:var(--terra);color:#fff;border:none;padding:13px;font-family:var(--sans);font-weight:700;font-size:11px;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;border-radius:0 0 14px 0;margin-top:16px;}
   .full .f-cta:hover{background:var(--terra-deep);}
   /* Share affordance — top-right of the expanded card, beside the close × */
@@ -346,8 +345,6 @@ function durMins(f){ const m=DURATIONS[f]; return (m!=null?m:60); }
 function durText(f){ const m=durMins(f); return (m%60===0)?((m/60)+(m===60?' hour':' hours')):(m+' min'); }
 function feeFor(m,f){ const x=(m.fees&&m.fees[f]); return (x!=null?x:m.session_fee); }
 function avOf(m){ return m.photo_url?'<img class="av" src="'+esc(m.photo_url)+'" alt="" style="object-fit:cover">':'<div class="av">'+esc(initials(m.name||m.company||m.title))+'</div>'; }
-function pricesOf(m){ return (m.formats||['coffee','zoom']).map(function(f){
-  return '<div class="prow"><span class="pf">'+(FMT_LABEL[f]||esc(f))+' <span class="pd">'+esc(durText(f))+'</span></span><span class="pv">'+money(feeFor(m,f))+'</span></div>'; }).join(''); }
 
 let MENTORS=[], current=null, fmt=null, expandedIdx=-1, VIEW=[];
 const state={ q:'', filter:'all' };
@@ -400,7 +397,6 @@ function boardCard(m, gi){
         + ((role||co)?'<div class="f-rl">'+[role,co].filter(Boolean).join(' · ')+'</div>':'')
         + (m.bio?'<div class="f-bio">'+bioHTML(m.bio)+'</div>':'')
         + (fTags?'<div class="tags">'+fTags+'</div>':'')
-        + '<div class="f-prices"><div class="prices">'+pricesOf(m)+'</div></div>'
         + '<button class="f-cta">Request a session →</button>'
       + '</div></div>'
     + '</div>';
