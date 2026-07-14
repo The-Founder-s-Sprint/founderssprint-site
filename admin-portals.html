@@ -429,6 +429,7 @@ async function loadMentors(){
     // applications carry payout PII → super/finance only (RLS enforces; gate the fetch too)
     mentorApps = canDD() ? (await _q('mentor_applications','select=*&order=created_at.desc&limit=200').catch(()=>[])) : [];
     if(!window.__taxList){ try{ const t=await _q('taxonomy_specialties','select=slug,name,discipline_label,color,sort_order&order=sort_order&limit=100'); window.__taxList=t||[]; window.__taxMap={}; window.__taxList.forEach(x=>window.__taxMap[x.slug]=x.name); }catch(_){ window.__taxList=[]; window.__taxMap={}; } }
+    try{ const mc=await _q('mentor_contacts','select=mentor_id,email,phone,whatsapp,notes'); window.__mContacts={}; (mc||[]).forEach(x=>window.__mContacts[x.mentor_id]=x); }catch(_){ window.__mContacts=window.__mContacts||{}; }
     portalCounts.mentors = mentorReqs.filter(r=>r.status==='new').length || mentorsList.length;
     renderTabs(); renderMentors();
   }catch(e){ roster.innerHTML='<div class="empty">Could not load — '+esc(e.message)+'</div>'; }
@@ -460,7 +461,7 @@ function renderMentors(){
       +'<td>'+mMoney(r.quoted_fee)+'</td>'
       +'<td>'+payCell+'</td>'
       +(r.message?'<td class="sub" style="max-width:240px">'+esc(r.message)+'</td>':'<td class="sub">—</td>')
-      +'<td>'+ctrl+'</td>'
+      +'<td>'+ctrl+schedBlock(r)+'</td>'
       +'<td class="sub">'+ago(r.created_at)+'</td></tr>';
   });
   // roster
@@ -556,9 +557,95 @@ function renderMentors(){
     + onboard
     + recSection
     + '<h3 style="'+H+';margin:24px 0 10px">Booking requests</h3>'
+    + '<div id="req-panel"></div>'
     + tbl(['Founder','Mentor','Format','Quoted fee','Payment','Message','Status','When'], reqRows)
     + '<div style="display:flex;align-items:center;justify-content:space-between;margin:26px 0 10px"><h3 style="'+H+'">Mentor roster</h3>'+addBtn+'</div>'
     + tbl(['Mentor','Formats','Coffee','Zoom','Status','Actions'], mRows);
+}
+
+// ── Session scheduling (concierge) ──────────────────────────────────────────
+function schedBlock(r){
+  if(!isSuper()) return '';
+  if(r.scheduled_at){
+    const when=new Date(r.scheduled_at).toLocaleString([], {dateStyle:'medium',timeStyle:'short'});
+    const where = r.format==='coffee' ? esc(r.location||'location TBC')
+      : (r.meet_link?('<a href="'+esc(r.meet_link)+'" target="_blank" rel="noopener" style="color:var(--terra)">video link</a>'):'link TBC');
+    return '<div style="margin-top:6px"><div class="sub" style="color:var(--moss);font-weight:600">📅 '+esc(when)+' · '+where+'</div>'
+      +'<button class="btn-sm" style="background:none;border:1px solid var(--border-hi);color:var(--ink-mid);padding:4px 9px;font-size:10.5px;text-transform:none;letter-spacing:0;margin-top:4px" onclick="scheduleReq(\''+r.id+'\')">Reschedule</button> '
+      +'<button class="btn-sm" style="background:var(--moss);border:none;color:#fff;padding:4px 9px;font-size:10.5px;text-transform:none;letter-spacing:0;margin-top:4px" onclick="confirmPacket(\''+r.id+'\')">Confirmation packet</button></div>';
+  }
+  return '<div style="margin-top:6px"><button class="btn-sm" style="background:none;border:1px solid var(--terra);color:var(--terra);padding:4px 9px;font-size:10.5px;text-transform:none;letter-spacing:0" onclick="scheduleReq(\''+r.id+'\')">Schedule</button></div>';
+}
+function toLocalInput(iso){ const d=new Date(iso); const p=n=>String(n).padStart(2,'0'); return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'T'+p(d.getHours())+':'+p(d.getMinutes()); }
+function scheduleReq(id){
+  const r=mentorReqs.find(x=>x.id===id); if(!r) return;
+  const mc=(window.__mContacts||{})[r.mentor_id]||{}; const isCoffee=r.format==='coffee';
+  const contact = mc.email?esc(mc.email):'<span style="color:#C0392B">no email on file — add one in the roster</span>';
+  const secondField = isCoffee
+    ? '<div><div class="sub" style="margin-bottom:4px">Location (coffee)</div><input type="text" id="sc-loc" placeholder="Café / address" value="'+esc(r.location||'')+'" style="width:100%;padding:9px;border:1px solid var(--border-hi);background:rgba(255,255,255,.5)"></div>'
+    : '<div><div class="sub" style="margin-bottom:4px">Video link</div><input type="text" id="sc-link" placeholder="https://meet.google.com/…" value="'+esc(r.meet_link||'')+'" style="width:100%;padding:9px;border:1px solid var(--border-hi);background:rgba(255,255,255,.5)"></div>';
+  const html='<div class="app-card" style="margin-bottom:14px">'
+    +'<div style="font-family:var(--display);font-size:18px;font-weight:600;margin-bottom:2px">Schedule — '+esc(r.founder_name||'founder')+' × '+esc(mName(r.mentor_id))+'</div>'
+    +'<div class="sub" style="margin-bottom:2px">'+esc(r.format)+' · '+mMoney(r.quoted_fee)+' · founder '+esc(r.founder_email||'')+(r.founder_phone?(' · '+esc(r.founder_phone)):'')+'</div>'
+    +'<div class="sub" style="margin-bottom:10px">Mentor contact: '+contact+(mc.phone?(' · '+esc(mc.phone)):'')+(mc.whatsapp?(' · WA '+esc(mc.whatsapp)):'')+'</div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'
+    +'<div><div class="sub" style="margin-bottom:4px">Date &amp; time (EAT)</div><input type="datetime-local" id="sc-dt" value="'+(r.scheduled_at?toLocalInput(r.scheduled_at):'')+'" style="width:100%;padding:9px;border:1px solid var(--border-hi);background:rgba(255,255,255,.5)"></div>'
+    + secondField + '</div>'
+    +'<div style="margin-top:12px"><button class="btn-sm" style="background:var(--terra);border:none;color:#fff;padding:8px 16px" onclick="saveSchedule(\''+r.id+'\','+isCoffee+')">Save &amp; mark scheduled</button> '
+    +'<button class="btn-sm" style="background:none;border:1px solid var(--border-hi);color:var(--ink-mid);padding:8px 14px" onclick="document.getElementById(\'req-panel\').innerHTML=\'\'">Cancel</button></div></div>';
+  const p=document.getElementById('req-panel'); p.innerHTML=html; p.scrollIntoView({behavior:'smooth',block:'center'});
+}
+async function saveSchedule(id, isCoffee){
+  const dt=document.getElementById('sc-dt').value; if(!dt){ showToast('Pick a date & time','error'); return; }
+  const body={ scheduled_at:new Date(dt).toISOString(), status:'scheduled' };
+  if(isCoffee) body.location=(document.getElementById('sc-loc').value.trim()||null);
+  else body.meet_link=(document.getElementById('sc-link').value.trim()||null);
+  try{ await _w('PATCH','mentor_session_requests','id=eq.'+id,body);
+    const r=mentorReqs.find(x=>x.id===id); if(r) Object.assign(r,body);
+    showToast('Session scheduled','success'); document.getElementById('req-panel').innerHTML=''; renderMentors();
+  }catch(e){ showToast('Failed — '+e.message,'error'); }
+}
+function icsDate(d){ const p=n=>String(n).padStart(2,'0'); return d.getUTCFullYear()+p(d.getUTCMonth()+1)+p(d.getUTCDate())+'T'+p(d.getUTCHours())+p(d.getUTCMinutes())+p(d.getUTCSeconds())+'Z'; }
+function icsEsc(s){ return String(s||'').replace(/\\/g,'\\\\').replace(/;/g,'\\;').replace(/,/g,'\\,').replace(/\n/g,'\\n'); }
+function buildICS(title,desc,loc,start,end){
+  return ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//Founders Sprint//Mentoring//EN','CALSCALE:GREGORIAN','METHOD:PUBLISH','BEGIN:VEVENT',
+    'UID:'+Date.now()+'-'+Math.random().toString(36).slice(2)+'@founderssprint.co','DTSTAMP:'+icsDate(new Date()),
+    'DTSTART:'+icsDate(start),'DTEND:'+icsDate(end),'SUMMARY:'+icsEsc(title),'DESCRIPTION:'+icsEsc(desc),'LOCATION:'+icsEsc(loc),
+    'END:VEVENT','END:VCALENDAR'].join('\r\n');
+}
+function pkICS(){ if(!window.__pk) return; const b=new Blob([window.__pk.ics],{type:'text/calendar'}); const u=URL.createObjectURL(b); const a=document.createElement('a'); a.href=u; a.download=window.__pk.icsName; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(u),2000); }
+function pkCopy(which){ if(!window.__pk) return; const t=which==='m'?window.__pk.mMsg:window.__pk.fMsg; navigator.clipboard.writeText(t).then(()=>showToast('Copied','success'),()=>showToast('Copy failed','error')); }
+function confirmPacket(id){
+  const r=mentorReqs.find(x=>x.id===id); if(!r||!r.scheduled_at) return;
+  const mc=(window.__mContacts||{})[r.mentor_id]||{}; const mentorName=mName(r.mentor_id);
+  const start=new Date(r.scheduled_at); const mins=r.quoted_minutes||(r.format==='coffee'?120:60);
+  const end=new Date(start.getTime()+mins*60000);
+  const where = r.format==='coffee' ? (r.location||'To be confirmed') : (r.meet_link||'Video link to be confirmed');
+  const whenStr=start.toLocaleString([], {dateStyle:'full',timeStyle:'short'});
+  const fmtLabel = r.format==='coffee'?'Coffee sit-down':'Video call';
+  const title='Founder’s Sprint: '+r.founder_name+' × '+mentorName;
+  const desc='Mentoring session ('+fmtLabel+', '+mDur(mins)+') via The Founder’s Sprint.'+(r.format!=='coffee'&&r.meet_link?(' Join: '+r.meet_link):'');
+  const fMsg='Hi '+r.founder_name+',\n\nYour mentoring session with '+mentorName+' is confirmed:\n\n• When: '+whenStr+' (EAT)\n• Format: '+fmtLabel+'\n• '+(r.format==='coffee'?'Where':'Link')+': '+where+'\n\nA calendar invite is attached. See you there.\n\n— The Founder’s Sprint';
+  const mMsg='Hi '+mentorName+',\n\nThank you — your Founder’s Sprint session is confirmed:\n\n• Founder: '+r.founder_name+(r.founder_company?(' ('+r.founder_company+')'):'')+'\n• When: '+whenStr+' (EAT)\n• Format: '+fmtLabel+'\n• '+(r.format==='coffee'?'Where':'Link')+': '+where+'\n\nA calendar invite is attached.\n\n— The Founder’s Sprint';
+  window.__pk={ ics:buildICS(title,desc,where,start,end), icsName:'fs-session-'+String(r.id).slice(0,8)+'.ics', fMsg:fMsg, mMsg:mMsg };
+  const mailtoF = r.founder_email ? ('mailto:'+encodeURIComponent(r.founder_email)+'?subject='+encodeURIComponent('Your session with '+mentorName+' is confirmed')+'&body='+encodeURIComponent(fMsg)) : '';
+  const mailtoM = mc.email ? ('mailto:'+encodeURIComponent(mc.email)+'?subject='+encodeURIComponent('Session confirmed with '+r.founder_name)+'&body='+encodeURIComponent(mMsg)) : '';
+  const BTN='class="btn-sm" style="padding:7px 12px;text-transform:none;letter-spacing:0;font-size:11px"';
+  const html='<div class="app-card" style="margin-bottom:14px">'
+    +'<div style="font-family:var(--display);font-size:18px;font-weight:600;margin-bottom:4px">Confirmation packet</div>'
+    +'<div class="sub" style="margin-bottom:10px">'+esc(whenStr)+' · '+esc(fmtLabel)+' · '+esc(where)+'</div>'
+    +'<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">'
+    +'<button '+BTN+' style="background:var(--moss);border:none;color:#fff;padding:7px 12px" onclick="pkICS()">⬇ Calendar .ics</button>'
+    +(mailtoF?'<a '+BTN+' style="background:var(--terra);color:#fff;text-decoration:none" href="'+mailtoF+'">✉ Email founder</a>':'')
+    +(mailtoM?'<a '+BTN+' style="background:var(--terra);color:#fff;text-decoration:none" href="'+mailtoM+'">✉ Email mentor</a>':'<span class="sub" style="color:#C0392B;align-self:center">no mentor email — add one in the roster</span>')
+    +'</div>'
+    +'<div class="sub" style="margin-bottom:3px">Founder message · <a href="#" onclick="pkCopy(\'f\');return false" style="color:var(--terra)">copy</a></div>'
+    +'<textarea readonly style="width:100%;min-height:118px;font-size:12px;padding:8px;border:1px solid var(--border-hi);background:rgba(255,255,255,.5)">'+esc(fMsg)+'</textarea>'
+    +'<div class="sub" style="margin:8px 0 3px">Mentor message · <a href="#" onclick="pkCopy(\'m\');return false" style="color:var(--terra)">copy</a></div>'
+    +'<textarea readonly style="width:100%;min-height:118px;font-size:12px;padding:8px;border:1px solid var(--border-hi);background:rgba(255,255,255,.5)">'+esc(mMsg)+'</textarea>'
+    +'<div class="sub" style="margin-top:8px">Attach the .ics to both emails. Mentor WhatsApp: '+(mc.whatsapp?esc(mc.whatsapp):'—')+'</div>'
+    +'<div style="margin-top:10px"><button class="btn-sm" style="background:none;border:1px solid var(--border-hi);color:var(--ink-mid);padding:6px 12px" onclick="document.getElementById(\'req-panel\').innerHTML=\'\'">Close</button></div></div>';
+  const p=document.getElementById('req-panel'); p.innerHTML=html; p.scrollIntoView({behavior:'smooth',block:'center'});
 }
 async function inviteMentor(){
   const email=(document.getElementById('mi-email').value||'').trim();
@@ -604,6 +691,7 @@ async function toggleMentor(id,status){
 function _mfInput(id,ph,val,extra){ return '<input id="'+id+'" placeholder="'+ph+'" value="'+esc(val==null?'':String(val))+'" style="width:100%;padding:9px 10px;border:1px solid var(--border-hi);background:rgba(255,255,255,.5);font-family:inherit;font-size:14px" '+(extra||'')+'>'; }
 function editMentor(id){
   const m = id ? (mentorsList.find(x=>x.id===id)||{}) : {}; const fees=m.fees||{};
+  const c=(window.__mContacts||{})[id]||{};
   const lbl=t=>'<div class="sub" style="margin:10px 0 4px">'+t+'</div>';
   const fmts=m.formats||['coffee','zoom'];
   const html='<div class="app-card" style="margin-bottom:20px">'
@@ -622,6 +710,13 @@ function editMentor(id){
     +'<div style="flex:1;min-width:200px"><input type="file" id="mf-photo-file" accept="image/png,image/jpeg,image/webp" onchange="onMentorPhotoPick(this)" style="font-size:12px;width:auto;background:none;border:none;padding:0">'
     +'<div id="mf-photo-msg" class="sub" style="margin-top:4px">PNG, JPG, or WebP · up to 5MB. Shown on the public mentor card.</div></div>'
     +'<input type="hidden" id="mf-photo-url" value="'+esc(m.photo_url||'')+'" data-folder="'+esc(id||('new-'+Date.now()))+'">'
+    +'</div>'
+    +lbl('Private contact — staff-only, never shown publicly (how the concierge reaches the mentor)')
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'
+    +'<div>'+_mfInput('mf-cemail','mentor@email.com',c.email)+'</div>'
+    +'<div>'+_mfInput('mf-cphone','+256…',c.phone)+'</div>'
+    +'<div>'+_mfInput('mf-cwa','WhatsApp (optional)',c.whatsapp)+'</div>'
+    +'<div>'+_mfInput('mf-cnotes','Coordination notes (optional)',c.notes)+'</div>'
     +'</div>'
     +lbl('Specialties — the shared taxonomy the mentor is booked for (maps to coach disciplines)')
     +'<div id="mf-specs" style="border:1px solid var(--border-hi);padding:10px 12px;max-height:280px;overflow:auto;background:rgba(255,255,255,.4)">'+mfSpecsHTML(m.specialties||[])+'</div>'
@@ -657,8 +752,14 @@ async function saveMentor(id){
     status:val('mf-status')||'active', featured:document.getElementById('mf-featured').checked };
   if(!id) body.slug=mSlugify(name);
   try{
+    let mid=id;
     if(id) await _w('PATCH','mentors','id=eq.'+id,body);
-    else   await _w('POST','mentors','',body);
+    else { const res=await _w('POST','mentors','',body); mid=(res&&res[0]&&res[0].id)||null; }
+    if(mid){
+      const c={ mentor_id:mid, email:val('mf-cemail')||null, phone:val('mf-cphone')||null,
+        whatsapp:val('mf-cwa')||null, notes:val('mf-cnotes')||null, updated_at:new Date().toISOString() };
+      try{ await _w('POST','mentor_contacts','on_conflict=mentor_id',c,{Prefer:'resolution=merge-duplicates,return=minimal'}); }catch(_){}
+    }
     showToast('Mentor saved','success'); document.getElementById('mentor-form').innerHTML=''; loadMentors();
   }catch(e){ showToast('Save failed — '+e.message,'error'); }
 }
