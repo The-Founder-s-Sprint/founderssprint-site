@@ -317,6 +317,14 @@
     }
 
     applyAuth();
+
+    // Universal "Report a problem" widget on every public page (self-contained; anon-safe).
+    if (!window.__fsReport && !document.getElementById('fsx-report-js')) {
+      var rs = document.createElement('script');
+      rs.id = 'fsx-report-js'; rs.src = '/report-widget.js'; rs.defer = true;
+      rs.setAttribute('data-area', 'Public site');
+      document.body.appendChild(rs);
+    }
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', inject);

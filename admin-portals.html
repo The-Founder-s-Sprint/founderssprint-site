@@ -1229,10 +1229,49 @@ function renderAdmins(q){
     + '<div id="presence-panel" style="margin:6px 0 18px"></div>'
     + tbl(['Account','Roles',''],rows)
     + '<div class="page-sub" style="margin-top:16px;font-size:12.5px"><b>What each role can do:</b> <b>Super admin</b> — everything, incl. role management. <b>Finance</b> — payments/pricing, sees payout/bank, final coach approval. <b>Coach support</b> — coaches, applications (suitability only), materials. <b>Investor support</b> — investors. <b>Founder support</b> — founder accounts. <b>Partner</b> — partner cohorts.</div>'
+    + '<div id="bug-reports" style="margin-top:24px"></div>'
     + '<div id="search-gaps" style="margin-top:24px"></div>'
     + '<div id="provider-activation" style="margin-top:24px"></div>'
     + '<div id="audit-feed" style="margin-top:22px"></div>';
-  paintPresence(); loadAudit(); loadSearchGaps(); loadProviderActivation();
+  paintPresence(); loadAudit(); loadSearchGaps(); loadProviderActivation(); loadBugReports();
+}
+let bugList=null;
+async function loadBugReports(){
+  const el=document.getElementById('bug-reports'); if(!el) return;
+  let rows=[]; try{ rows=await _q('bug_reports','select=id,created_at,reporter_email,reporter_role,area,page,severity,summary,details,console_error,status,admin_notes&order=created_at.desc&limit=100')||[]; }
+  catch(_){ el.innerHTML=''; return; }
+  bugList=rows;
+  const isOpen=s=>['new','triaged','in_progress'].includes(s);
+  const newCt=rows.filter(r=>r.status==='new').length, openCt=rows.filter(r=>isOpen(r.status)).length;
+  const hi=rows.filter(r=>['high','critical'].includes(r.severity)&&isOpen(r.status)).length;
+  const SEV={low:'#8a8378',normal:'#C9923A',high:'#C8531F',critical:'#9A3E16'};
+  const STAT=['new','triaged','in_progress','resolved','wont_fix','duplicate'];
+  const body=rows.map(r=>{
+    const who=esc(r.reporter_email||'anonymous')+(r.reporter_role?(' · '+esc(r.reporter_role)):'');
+    const sev='<span style="color:'+(SEV[r.severity]||'#8a8378')+';font-weight:700;font-size:10px;letter-spacing:.08em;text-transform:uppercase">'+esc(r.severity||'')+'</span>';
+    const err=r.console_error?' <span title="'+esc(r.console_error)+'" style="color:#C0392B;font-size:10px;font-weight:700;cursor:help">⚠ error</span>':'';
+    const path=esc((r.page||'').replace(/^https?:\/\/[^/]+/,''));
+    const sum='<div style="max-width:380px"><div style="font-weight:600">'+esc(r.summary||'')+err+'</div>'
+      +(r.details?'<div class="sub" style="white-space:normal;margin-top:2px">'+esc(r.details)+'</div>':'')
+      +'<div class="sub" style="font-size:10.5px;margin-top:2px">'+esc(r.area||'—')+' · '+path+'</div>'
+      +(r.admin_notes?'<div class="sub" style="font-size:10.5px;color:#9a6;margin-top:2px">note: '+esc(r.admin_notes)+'</div>':'')+'</div>';
+    const sel='<select onchange="setBugStatus(\''+r.id+'\',this.value)" style="width:auto;font-size:11px">'+STAT.map(s=>'<option value="'+s+'"'+(r.status===s?' selected':'')+'>'+s+'</option>').join('')+'</select>';
+    return '<tr'+(isOpen(r.status)?'':' style="opacity:.55"')+'><td style="white-space:nowrap">'+ago(r.created_at)+'</td><td>'+who+'</td><td>'+sev+'</td><td>'+sum+'</td><td style="white-space:nowrap">'+sel+' <a href="#" onclick="bugNote(\''+r.id+'\');return false" style="font-size:11px;color:var(--terra)">note</a></td></tr>';
+  });
+  el.innerHTML='<div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:8px">'
+    +'<div style="font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-mid)">Bug &amp; error reports</div>'
+    +'<div class="sub">'+newCt+' new · '+openCt+' open · '+hi+' high/critical</div></div>'
+    +(rows.length?tbl(['When','Reporter','Severity','What','Status'],body):'<div class="sub">No reports yet.</div>');
+}
+async function setBugStatus(id,status){
+  const patch={status}; if(['resolved','wont_fix','duplicate'].includes(status)) patch.resolved_at=new Date().toISOString();
+  try{ await _w('PATCH','bug_reports','id=eq.'+id,patch); showToast('Report marked “'+status+'”','success'); const b=bugList&&bugList.find(x=>x.id===id); if(b)b.status=status; loadBugReports(); }
+  catch(e){ showToast('Update failed — '+e.message,'error'); }
+}
+async function bugNote(id){
+  const note=await fsPrompt('Internal triage note (saved on the report):',{title:'Add note',okText:'Save'}); if(note===null) return;
+  try{ await _w('PATCH','bug_reports','id=eq.'+id,{admin_notes:note}); showToast('Note saved','success'); loadBugReports(); }
+  catch(e){ showToast('Save failed — '+e.message,'error'); }
 }
 async function loadProviderActivation(){
   const el=document.getElementById('provider-activation'); if(!el||!isSuper()) return;
@@ -1372,5 +1411,6 @@ function showToast(m,t){const e=document.getElementById('toast');e.textContent=m
   setTimeout(init,700);
 })();
 </script>
+<script src="/report-widget.js" data-area="Command Centre" data-role="staff" defer></script>
 </body>
 </html>

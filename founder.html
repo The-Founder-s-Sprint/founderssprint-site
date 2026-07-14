@@ -12,6 +12,9 @@
 <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600;1,700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
 <script src="ui-dialogs.js?v=2"></script>
+<!-- Single source of truth for the 5→15→49 taxonomy. The journey timeline derives
+     its L2/L3 structure from this file — never hardcode it again (it drifted to 45). -->
+<script src="/beta/taxonomy.js"></script>
 <style>
   :root {
   --radius-card: 0 0 24px 0;
@@ -578,38 +581,44 @@ const FA_TRACK={single:'1:1 Session',oneOnOne:'1:1 Session',pick3:'Pick 3 Bundle
 // dd = the due-diligence documents that make up the investor data room for this discipline.
 // LOCKED cohort schedule: each discipline has a fixed weekday + lead coach (group sessions 10:00–12:00 EAT,
 // every weekday). Display order is by dayNum (Mon→Fri). See CLAUDE.md "Cohort Coaching Schedule (LOCKED)".
-const DISCIPLINES = [
-  { key:'marketing', idx:0, label:'Marketing & Branding', day:'Monday', dayNum:1, coach:'Teddy', color:'#C8531F',
+// Founder-local metadata only: the weekday map, lead coach, colour, DD docs, nudge copy.
+// The L2/L3 tree is NOT stored here — it is derived from taxonomy.js below, so it can
+// never drift again (this list silently sat at 45 specialties while the taxonomy moved to 49).
+//
+// ⚠ `key` values are the DB contract (companies.enrolled_disciplines / coach_topics.discipline_key)
+// and use 'financial', whereas taxonomy.js uses 'finance'. `taxKey` bridges the two — do not
+// "tidy" one to match the other without migrating the database.
+const DISC_META = [
+  { key:'marketing',  taxKey:'marketing',  idx:0, label:'Marketing & Branding',        day:'Monday',    dayNum:1, coach:'Teddy',   color:'#C8531F',
     dd:['Go-to-market strategy','Brand positioning'],
-    nudge:'Marketing & Branding runs Mondays with Teddy — define your go-to-market and positioning.',
-    l2:[ {name:'Brand Strategy', l3:['Brand Positioning','Messaging Architecture','Visual Identity']},
-         {name:'Go-to-Market', l3:['Market Entry','Channel Mix','Launch Sequencing']},
-         {name:'Growth & Discovery', l3:['Content Strategy','SEO & Discoverability','Customer Research']} ] },
-  { key:'financial', idx:1, label:'Financial Modelling', day:'Tuesday', dayNum:2, coach:'Barry', color:'#C9923A',
+    nudge:'Marketing & Branding runs Mondays with Teddy — define your go-to-market and positioning.' },
+  { key:'financial',  taxKey:'finance',    idx:1, label:'Financial Modelling',         day:'Tuesday',   dayNum:2, coach:'Barry',   color:'#C9923A',
     dd:['Financial model','Unit economics'],
-    nudge:'Financial Modelling runs Tuesdays with Barry — a model and unit economics are what investors open first.',
-    l2:[ {name:'Unit Economics', l3:['CAC & LTV','Payback Period','Contribution Margin']},
-         {name:'Financial Planning', l3:['Revenue Forecasting','Burn Rate & Runway','Cash Flow Management','Tax & Compliance']},
-         {name:'Capital Architecture', l3:['Valuation Methods','Cap Table Design','Term Sheet Analysis']} ] },
-  { key:'investment', idx:2, label:'Investment Readiness', day:'Wednesday', dayNum:3, coach:'Joseph', color:'#8AAB5C',
+    nudge:'Financial Modelling runs Tuesdays with Barry — a model and unit economics are what investors open first.' },
+  { key:'investment', taxKey:'investment', idx:2, label:'Investment Readiness',        day:'Wednesday', dayNum:3, coach:'Joseph',  color:'#8AAB5C',
     dd:['Pitch deck','Fundraising strategy','Investor target list'],
-    nudge:'Investment Readiness runs Wednesdays with Joseph — produces a pitch deck and target list, and unlocks investor visibility.',
-    l2:[ {name:'Pitch Craft', l3:['Pitch Deck Structure','Investor Narrative','Executive Summary']},
-         {name:'Investor Relations', l3:['Investor Targeting','Due Diligence Prep','Data Room']},
-         {name:'Funding Strategy', l3:['Pre-seed Rounds','Seed Rounds','Grants & DFIs']} ] },
-  { key:'strategy', idx:3, label:'Strategy & Team Building', day:'Thursday', dayNum:4, coach:'Moses', color:'#3D4A2E',
+    nudge:'Investment Readiness runs Wednesdays with Joseph — produces a pitch deck and target list, and unlocks investor visibility.' },
+  { key:'strategy',   taxKey:'strategy',   idx:3, label:'Strategy & Team Building',    day:'Thursday',  dayNum:4, coach:'Moses',   color:'#3D4A2E',
     dd:['Competitive analysis','Team & org plan'],
-    nudge:'Strategy & Team runs Thursdays with Moses — map your competition and team structure.',
-    l2:[ {name:'Competitive Strategy', l3:['Market Analysis','Positioning & Moats','Scenario Planning']},
-         {name:'Team Architecture', l3:['Hiring Strategy','Culture Design','Org Structure','Payroll & HR Compliance']},
-         {name:'Operational Systems', l3:['Process Design','OKRs & KPIs','Decision Frameworks','Legal & Registration']} ] },
-  { key:'product', idx:4, label:'Product Development & Pricing', day:'Friday', dayNum:5, coach:'Patrick', color:'#A59B8C',
+    nudge:'Strategy & Team runs Thursdays with Moses — map your competition and team structure.' },
+  { key:'product',    taxKey:'product',    idx:4, label:'Product Development & Pricing', day:'Friday',  dayNum:5, coach:'Patrick', color:'#A59B8C',
     dd:['Product roadmap','Pricing strategy','Product-market fit'],
-    nudge:'Product Dev & Pricing runs Fridays with Patrick — sharpen your roadmap and pricing.',
-    l2:[ {name:'Product-Market Fit', l3:['Problem Validation','Solution Testing','PMF Signals']},
-         {name:'Product Development', l3:['MVP Design','Roadmapping','Iteration Cycles','Payments & Mobile Money']},
-         {name:'Pricing Strategy', l3:['Value-Based Pricing','Competitive Pricing','Price Testing']} ] }
+    nudge:'Product Dev & Pricing runs Fridays with Patrick — sharpen your roadmap and pricing.' }
 ];
+
+// Merge the shared taxonomy's L2/L3 tree onto the local metadata.
+const DISCIPLINES = (function buildDisciplines(){
+  const T = window.FS_TAXONOMY;
+  if (!T || !Array.isArray(T.disciplines)) {
+    console.error('[founder] taxonomy.js failed to load — the journey timeline will be empty.');
+    return DISC_META.map(m => Object.assign({}, m, { l2: [] }));
+  }
+  return DISC_META.map(function (m) {
+    const d = T.disciplines.find(x => x.key === m.taxKey);
+    if (!d) { console.error('[founder] no taxonomy discipline for', m.taxKey); return Object.assign({}, m, { l2: [] }); }
+    return Object.assign({}, m, { l2: d.l2.map(l => ({ name: l.name, l3: l.l3.slice() })) });
+  });
+})();
 const DD_TOTAL = DISCIPLINES.reduce((a,d)=>a+d.dd.length,0); // total due-diligence docs across all 5
 const INVESTOR_GATE = 75; // % of data room required to unlock investor visibility
 
@@ -1745,5 +1754,6 @@ function showToast(msg, type){ const t=document.getElementById('toast'); t.textC
   setTimeout(init,700);
 })();
 </script>
+<script src="/report-widget.js" data-area="Founder dashboard" data-role="founder" defer></script>
 </body>
 </html>
