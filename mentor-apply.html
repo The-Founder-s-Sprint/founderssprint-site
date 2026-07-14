@@ -38,18 +38,20 @@
   .fmt-opt .fee{margin-top:10px;display:none;}
   .fmt-opt.on .fee{display:block;}
   .fmt-opt .fee label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);}
-  /* specialties */
-  .disc{border:1px solid var(--border);margin-top:10px;background:#fff;}
-  .disc>summary{list-style:none;cursor:pointer;padding:13px 15px;display:flex;align-items:center;justify-content:space-between;font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
-  .disc>summary::-webkit-details-marker{display:none;}
-  .disc .dmark{width:9px;height:9px;transform:rotate(45deg);flex:none;margin-right:9px;}
-  .disc .dcount{font-size:11px;color:var(--terra-deep);font-weight:700;letter-spacing:.04em;}
-  .disc .body{padding:4px 15px 14px;}
-  .l2{margin-top:10px;}
-  .l2 .l2h{font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin:8px 0 4px;}
-  .spec{display:inline-flex;align-items:center;gap:7px;font-size:13px;padding:5px 10px;border:1px solid var(--border);margin:3px 4px 3px 0;cursor:pointer;background:var(--paper);}
-  .spec input{accent-color:var(--terra);}
-  .spec.on{border-color:var(--terra);background:rgba(200,83,31,.06);color:var(--terra-deep);}
+  /* specialties — aligned chip grid grouped by discipline → module */
+  .spx-wrap{border:1px solid var(--border);background:#fff;max-height:440px;overflow:auto;margin-top:8px;}
+  .spx-disc{padding:12px 14px 14px;}
+  .spx-disc + .spx-disc{border-top:1px solid var(--border);}
+  .spx-dhead{display:flex;align-items:center;gap:8px;font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);margin-bottom:9px;}
+  .spx-dhead .dd{width:9px;height:9px;transform:rotate(45deg);flex:none;}
+  .spx-dhead .dc{margin-left:auto;font-size:10.5px;font-weight:700;color:var(--terra-deep);letter-spacing:.03em;}
+  .spx-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:7px;}
+  .spx-l2{grid-column:1/-1;font-family:var(--sans);font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin:8px 0 1px;}
+  .spx-l2:first-child{margin-top:0;}
+  .spx-chip{display:flex;align-items:center;gap:8px;padding:9px 11px;border:1px solid var(--border);background:var(--paper);cursor:pointer;font-size:13px;line-height:1.25;color:var(--ink);}
+  .spx-chip input{flex:none;accent-color:var(--terra);margin:0;}
+  .spx-chip:hover{border-color:var(--ochre);}
+  .spx-chip:has(input:checked){border-color:var(--terra);background:rgba(200,83,31,.08);color:var(--terra-deep);font-weight:600;}
   .pickcount{font-size:12.5px;color:var(--muted);margin-top:10px;}
   /* consent + submit */
   .consent{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:var(--muted);margin:22px 0 6px;cursor:pointer;line-height:1.5;}
@@ -149,31 +151,30 @@
   function renderSpecs(){
     var host=$('specs'); var tax=window.FS_TAXONOMY;
     if(!tax){ host.innerHTML='<div class="hint">Specialty list is loading…</div>'; return; }
-    host.innerHTML=tax.disciplines.map(function(d){
+    host.innerHTML='<div class="spx-wrap">'+tax.disciplines.map(function(d){
       var body=d.l2.map(function(m){
         var chips=m.l3.map(function(name){
           var slug=tax.slugify(name);
-          return '<label class="spec" data-slug="'+slug+'"><input type="checkbox" value="'+slug+'"> '+name+'</label>';
+          return '<label class="spx-chip"><input type="checkbox" value="'+slug+'"'+(picked[slug]?' checked':'')+'>'+name+'</label>';
         }).join('');
-        return '<div class="l2"><div class="l2h">'+m.name+'</div>'+chips+'</div>';
+        return '<div class="spx-l2">'+m.name+'</div>'+chips;
       }).join('');
-      return '<details class="disc" data-d="'+d.key+'"><summary><span><i class="dmark" style="display:inline-block;background:'+d.color+'"></i>'+d.label+'</span><span class="dcount" data-dc="'+d.key+'"></span></summary><div class="body">'+body+'</div></details>';
-    }).join('');
+      return '<div class="spx-disc"><div class="spx-dhead"><i class="dd" style="display:inline-block;background:'+d.color+'"></i>'+d.label+'<span class="dc" data-dc="'+d.key+'"></span></div><div class="spx-grid">'+body+'</div></div>';
+    }).join('')+'</div>';
     host.addEventListener('change', function(e){
-      var cb=e.target; if(cb.tagName!=='INPUT') return;
-      var lab=cb.closest('.spec'); if(!lab) return;
+      var cb=e.target; if(cb.tagName!=='INPUT'||!cb.closest('.spx-chip')) return;
       if(cb.checked) picked[cb.value]=true; else delete picked[cb.value];
-      lab.classList.toggle('on', cb.checked);
       updateCounts();
     });
   }
   function updateCounts(){
-    var tax=window.FS_TAXONOMY, n=Object.keys(picked).length;
+    var tax=window.FS_TAXONOMY; if(!tax) return;
+    var n=Object.keys(picked).length;
     $('pickcount').textContent = n ? (n+' specialt'+(n===1?'y':'ies')+' selected') : 'No specialties selected yet.';
-    if(tax){ tax.disciplines.forEach(function(d){
-      var c=0; d.l2.forEach(function(m){ m.l3.forEach(function(nm){ if(picked[tax.slugify(nm)]) c++; }); });
-      var el=document.querySelector('[data-dc="'+d.key+'"]'); if(el) el.textContent=c?(c+' selected'):'';
-    }); }
+    tax.disciplines.forEach(function(d){
+      var c=0,total=0; d.l2.forEach(function(m){ m.l3.forEach(function(nm){ total++; if(picked[tax.slugify(nm)]) c++; }); });
+      var el=document.querySelector('[data-dc="'+d.key+'"]'); if(el) el.textContent=c+'/'+total;
+    });
   }
 
   // ---- format toggles ----
