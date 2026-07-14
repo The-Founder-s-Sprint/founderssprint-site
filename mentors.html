@@ -10,6 +10,7 @@
 <link rel="preconnect" href="https://ivedeivyotwevjxvcuoe.supabase.co" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="/beta/taxonomy.js"></script>
 <style>
   :root{--ink:#1A1A1A;--ink-soft:#22242B;--paper:#EFE7D8;--paper-deep:#E6DCC7;--muted:#5A564F;--paper-dim:#A09888;
     --terra:#C8531F;--terra-deep:#9A3E16;--ochre:#C9923A;--moss:#3D4A2E;--sage:#8AAB5C;--stone:#777770;
@@ -457,27 +458,25 @@ function openFromURL(){
   if(card) setTimeout(function(){ card.scrollIntoView({behavior:'smooth', block:'center'}); }, 80);
 }
 
-// Controlled operator-domain categories — the ONLY filter vocabulary (bounded,
-// never grows with what mentors type). Free-text expertise stays on the cards
-// and in search, but is no longer the filter row.
-const MENTOR_CATS=[
-  {k:'fintech',      label:'Fintech & Payments'},
-  {k:'agribusiness', label:'Agribusiness & Exports'},
-  {k:'marketing',    label:'Marketing & Brand'},
-  {k:'fundraising',  label:'Fundraising & Capital'},
-  {k:'product',      label:'Product & Growth'},
-  {k:'creative',     label:'Creative & Media'},
-  {k:'ops',          label:'Ops & Supply Chain'},
-];
+// Discipline filter is DERIVED from each mentor's specialties (the shared 49-L3
+// taxonomy) — so mentors and coaches share ONE support vocabulary. A mentor
+// belongs to a discipline if any of their specialties sits under it.
+function mentorDiscs(m){
+  const tax=window.FS_TAXONOMY; if(!tax||!m.specialties) return [];
+  const seen={}, out=[];
+  m.specialties.forEach(function(s){ const t=tax.get(s); if(t && !seen[t.disciplineKey]){ seen[t.disciplineKey]=1; out.push({key:t.disciplineKey,label:t.disciplineLabel,color:t.color}); } });
+  return out;
+}
 function matches(m){
   const q=state.q.trim().toLowerCase();
-  if(q){ const hay=[m.name,m.title,m.company,m.bio,(m.expertise||[]).join(' '),m.location].join(' ').toLowerCase(); if(hay.indexOf(q)<0) return false; }
+  if(q){ const hay=[m.name,m.title,m.company,m.bio,(m.expertise||[]).join(' '),(m.specialties||[]).join(' '),m.location].join(' ').toLowerCase(); if(hay.indexOf(q)<0) return false; }
   const f=state.filter;
   if(f && f!=='all'){
     if(f.indexOf('tier:')===0) return m.tier===f.slice(5);
+    if(f.indexOf('disc:')===0) return mentorDiscs(m).some(function(d){ return d.key===f.slice(5); });
     if(f==='fmt:coffee') return (m.formats||[]).indexOf('coffee')>=0;
     if(f==='fmt:zoom')   return (m.formats||[]).indexOf('zoom')>=0;
-    return m.category===f;
+    return true;
   }
   return true;
 }
@@ -490,12 +489,14 @@ const TIER_CHIPS=[
 
 function renderChips(){
   const wrap=document.getElementById('chips');
-  // Only show categories that actually have an active mentor — bounded to the fixed set, no dead pills.
-  const present=new Set(MENTORS.map(m=>m.category).filter(Boolean));
+  const tax=window.FS_TAXONOMY;
   const tiersPresent=new Set(MENTORS.map(m=>m.tier).filter(Boolean));
+  // disciplines present among mentors — derived from their specialties (no dead pills)
+  const discPresent=new Set(); MENTORS.forEach(m=>mentorDiscs(m).forEach(d=>discPresent.add(d.key)));
+  const discChips = tax ? tax.disciplines.filter(d=>discPresent.has(d.key)).map(d=>({k:'disc:'+d.key,label:d.label,color:d.color,onText:'#fff'})) : [];
   const chips=[{k:'all',label:'All'}]
     .concat(TIER_CHIPS.filter(c=>tiersPresent.has(c.tier)))
-    .concat(MENTOR_CATS.filter(c=>present.has(c.k)))
+    .concat(discChips)
     .concat([{k:'fmt:coffee',label:'Coffee'},{k:'fmt:zoom',label:'Zoom'}]);
   wrap.innerHTML='';
   chips.forEach(c=>{
@@ -533,7 +534,7 @@ async function loadDurations(){
 
 async function load(){
   let rows=[];
-  const p=fetch(SB_URL+'/rest/v1/mentors?status=eq.active&select=id,name,slug,title,company,bio,expertise,photo_url,formats,location,session_fee,session_minutes,fees,category,tier&order=sort_order&limit=100',
+  const p=fetch(SB_URL+'/rest/v1/mentors?status=eq.active&select=id,name,slug,title,company,bio,expertise,photo_url,formats,location,session_fee,session_minutes,fees,category,tier,specialties&order=sort_order&limit=100',
     {headers:{apikey:SB_ANON,Authorization:'Bearer '+SB_ANON}});
   await loadDurations();                       // needed before the cards render their per-format durations
   try{ const r=await p; rows=r.ok?await r.json():[]; }catch(e){}

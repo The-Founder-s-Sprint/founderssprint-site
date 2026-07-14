@@ -405,6 +405,17 @@ function mName(id){ const m=mentorsList.find(x=>x.id===id); return m?(m.name||m.
 function mTierTag(m){ if(!m||!m.tier) return ''; const C={senior:'#C9923A',chief:'#C8531F',captain:'#8AAB5C'},L={senior:'Senior',chief:'Chief',captain:'Captain'}; const c=C[m.tier]; if(!c) return '';
   return ' <span style="display:inline-flex;align-items:center;gap:5px;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:'+c+';vertical-align:middle"><i style="display:inline-block;width:6px;height:6px;background:'+c+';transform:rotate(45deg)"></i>'+L[m.tier]+'</span>'; }
 function mSlugify(s){ return String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,''); }
+function specLabels(arr){ const m=window.__taxMap||{}; return (arr||[]).map(s=>m[s]||s); }
+function mfSpecsHTML(sel){
+  const list=window.__taxList||[]; if(!list.length) return '<div class="sub">Taxonomy not loaded — reopen after the roster finishes loading.</div>';
+  const chosen=new Set(sel||[]); const byDisc={};
+  list.forEach(x=>{ (byDisc[x.discipline_label]=byDisc[x.discipline_label]||[]).push(x); });
+  return Object.keys(byDisc).map(dl=>{
+    const items=byDisc[dl].map(x=>'<label style="display:inline-flex;align-items:center;gap:5px;font-size:12px;margin:2px 10px 2px 0"><input type="checkbox" class="mf-spec" value="'+x.slug+'"'+(chosen.has(x.slug)?' checked':'')+'> '+esc(x.name)+'</label>').join('');
+    return '<div style="margin-bottom:9px"><div style="font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-mid);margin-bottom:3px">'+esc(dl)+'</div>'+items+'</div>';
+  }).join('');
+}
+function mfSpecials(){ return [].slice.call(document.querySelectorAll('#mf-specs .mf-spec:checked')).map(x=>x.value); }
 async function loadMentors(){
   const roster=document.getElementById('roster'); roster.innerHTML='<div class="empty">Loading…</div>';
   try{
@@ -417,6 +428,7 @@ async function loadMentors(){
     mentorRecs = await _q('mentor_recommendations','select=*&order=created_at.desc&limit=200').catch(()=>[]);
     // applications carry payout PII → super/finance only (RLS enforces; gate the fetch too)
     mentorApps = canDD() ? (await _q('mentor_applications','select=*&order=created_at.desc&limit=200').catch(()=>[])) : [];
+    if(!window.__taxList){ try{ const t=await _q('taxonomy_specialties','select=slug,name,discipline_label,color,sort_order&order=sort_order&limit=100'); window.__taxList=t||[]; window.__taxMap={}; window.__taxList.forEach(x=>window.__taxMap[x.slug]=x.name); }catch(_){ window.__taxList=[]; window.__taxMap={}; } }
     portalCounts.mentors = mentorReqs.filter(r=>r.status==='new').length || mentorsList.length;
     renderTabs(); renderMentors();
   }catch(e){ roster.innerHTML='<div class="empty">Could not load — '+esc(e.message)+'</div>'; }
@@ -476,7 +488,7 @@ function renderMentors(){
       +'<input id="mi-name" placeholder="Name (optional)" style="flex:1;min-width:140px;padding:9px 11px;border:1px solid var(--border-hi);background:rgba(255,255,255,.5)">'
       +'<button class="btn-sm" style="background:var(--terra);border:none;color:#fff;padding:9px 16px" onclick="inviteMentor()">Generate link</button></div>'
       +'<div id="mi-out" style="margin-top:10px"></div></div>';
-    const pending = mentorApps.filter(a=>a.status==='submitted'||a.status==='changes_requested');
+    const pending = mentorApps.filter(a=>a.status==='submitted'||a.status==='changes_requested'||a.status==='applied');
     const invited = mentorApps.filter(a=>a.status==='invited');
     const appCards = pending.length ? pending.map(a=>{
       const fees=a.proposed_fees||{}; const pay=a.payout||{};
@@ -485,8 +497,10 @@ function renderMentors(){
         +'<div><div style="font-family:var(--display);font-size:18px;font-weight:600">'+esc(a.name||'—')+(a.title?(' <span class="sub">· '+esc(a.title)+'</span>'):'')+'</div>'
         +'<div class="sub">'+esc(a.email||'')+(a.phone?(' · '+esc(a.phone)):'')+(a.company?(' · '+esc(a.company)):'')+'</div></div>'
         +pill(a.status)+'</div>'
+        +(a.status==='applied'?'<div class="sub" style="margin:6px 0;color:var(--terra-deep);font-weight:600">Public application — no KYC on file yet. Collect TIN, ID &amp; payout before any payout goes live (listing the public profile is fine on consent).</div>':'')
         +(a.bio?'<div style="font-size:13px;margin:8px 0;color:var(--ink-mid)">'+esc(a.bio)+'</div>':'')
-        +'<div class="sub" style="margin:6px 0">Category: <strong>'+esc(mCatLabel(a.category))+'</strong> &nbsp;·&nbsp; Expertise: '+esc((a.expertise||[]).join(', ')||'—')+'</div>'
+        +'<div class="sub" style="margin:6px 0">Specialties: <strong>'+(a.specialties&&a.specialties.length?esc(specLabels(a.specialties).join(', ')):'—')+'</strong>'+(a.tier?(' &nbsp;·&nbsp; Tier: '+esc(a.tier)):'')+'</div>'
+        +(a.expertise&&a.expertise.length?'<div class="sub">Expertise: '+esc(a.expertise.join(', '))+'</div>':'')
         +'<div class="sub">Fees — ☕ '+mMoney(fees.coffee)+' · 🎥 '+mMoney(fees.zoom)+' &nbsp;|&nbsp; Formats: '+esc((a.formats||[]).join(', '))+'</div>'
         +'<div class="sub" style="margin-top:4px">Payout: '+esc(pay.method||'—')+(pay.account_no?(' · '+esc(pay.account_name||'')+' '+esc(pay.account_no)):'')+'</div>'
         +'<div class="sub" style="margin-top:4px">TIN: '+esc(a.tin||'—')+(a.id_doc_path?(' &nbsp;·&nbsp; <a href="#" onclick="openMentorId(\''+esc(a.id_doc_path)+'\');return false" style="color:var(--terra);font-weight:600">Open ID ↗</a>'):' · <span style="color:#C0392B">no ID on file</span>')+'</div>'
@@ -609,12 +623,8 @@ function editMentor(id){
     +'<div id="mf-photo-msg" class="sub" style="margin-top:4px">PNG, JPG, or WebP · up to 5MB. Shown on the public mentor card.</div></div>'
     +'<input type="hidden" id="mf-photo-url" value="'+esc(m.photo_url||'')+'" data-folder="'+esc(id||('new-'+Date.now()))+'">'
     +'</div>'
-    +lbl('Category (the filter domain shown on the public board)')
-    +'<select id="mf-category" class="m-sel" style="width:100%">'
-    +['','fintech','agribusiness','marketing','fundraising','product','creative','ops'].map(function(k){
-        var L={'':'— select a domain —',fintech:'Fintech & Payments',agribusiness:'Agribusiness & Exports',marketing:'Marketing & Brand',fundraising:'Fundraising & Capital',product:'Product & Growth',creative:'Creative & Media',ops:'Ops & Supply Chain'};
-        return '<option value="'+k+'"'+(((m.category||'')===k)?' selected':'')+'>'+L[k]+'</option>';
-      }).join('')+'</select>'
+    +lbl('Specialties — the shared taxonomy the mentor is booked for (maps to coach disciplines)')
+    +'<div id="mf-specs" style="border:1px solid var(--border-hi);padding:10px 12px;max-height:280px;overflow:auto;background:rgba(255,255,255,.4)">'+mfSpecsHTML(m.specialties||[])+'</div>'
     +lbl('Tier — honorific badge shown on the card (Senior · Chief · Captain)')
     +'<select id="mf-tier" class="m-sel" style="width:100%">'
     +['','senior','chief','captain'].map(function(k){
@@ -643,7 +653,7 @@ async function saveMentor(id){
   const body={ name, title:val('mf-title')||null, company:val('mf-company')||null, bio:val('mf-bio')||null,
     expertise, location:val('mf-location')||null, formats:formats.length?formats:['coffee','zoom'],
     fees:{coffee:coffee,zoom:zoom}, session_fee:coffee||zoom||null, photo_url:val('mf-photo-url')||null,
-    category:val('mf-category')||null, tier:val('mf-tier')||null,
+    tier:val('mf-tier')||null, specialties:mfSpecials(),
     status:val('mf-status')||'active', featured:document.getElementById('mf-featured').checked };
   if(!id) body.slug=mSlugify(name);
   try{
@@ -1230,10 +1240,48 @@ function renderAdmins(q){
     + tbl(['Account','Roles',''],rows)
     + '<div class="page-sub" style="margin-top:16px;font-size:12.5px"><b>What each role can do:</b> <b>Super admin</b> — everything, incl. role management. <b>Finance</b> — payments/pricing, sees payout/bank, final coach approval. <b>Coach support</b> — coaches, applications (suitability only), materials. <b>Investor support</b> — investors. <b>Founder support</b> — founder accounts. <b>Partner</b> — partner cohorts.</div>'
     + '<div id="bug-reports" style="margin-top:24px"></div>'
+    + '<div id="deletion-requests" style="margin-top:24px"></div>'
     + '<div id="search-gaps" style="margin-top:24px"></div>'
     + '<div id="provider-activation" style="margin-top:24px"></div>'
     + '<div id="audit-feed" style="margin-top:22px"></div>';
-  paintPresence(); loadAudit(); loadSearchGaps(); loadProviderActivation(); loadBugReports();
+  paintPresence(); loadAudit(); loadSearchGaps(); loadProviderActivation(); loadBugReports(); loadDeletionRequests();
+}
+let delList=null;
+async function loadDeletionRequests(){
+  const el=document.getElementById('deletion-requests'); if(!el) return;
+  let rows=[]; try{ rows=await _q('deletion_requests','select=id,created_at,email,role,reason,status,processed_at,admin_notes,result&order=created_at.desc&limit=100')||[]; }
+  catch(_){ el.innerHTML=''; return; }
+  delList=rows;
+  const open=rows.filter(r=>['new','verifying','approved','processing'].includes(r.status)).length;
+  const SC={new:'#C8531F',verifying:'#C9923A',completed:'#3D4A2E',rejected:'#8a8378',cancelled:'#8a8378'};
+  const canProcess=isSuper();
+  const body=rows.map(r=>{
+    const who=esc(r.email||'—')+(r.role?(' · '+esc(r.role)):'');
+    const st='<span style="font-weight:700;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:'+(SC[r.status]||'#C9923A')+'">'+esc(r.status)+'</span>';
+    let act='';
+    if(canProcess && ['new','verifying','approved'].includes(r.status)){
+      act='<button class="btn-sm" style="background:#9A3E16;border:none;color:#fff;padding:5px 10px;font-size:11px" onclick="processDeletion(\''+r.id+'\')">Anonymize now</button> '
+        +'<a href="#" onclick="rejectDeletion(\''+r.id+'\');return false" style="font-size:11px;color:#C0392B">reject</a>';
+    }
+    const note=r.admin_notes?'<div class="sub" style="font-size:10.5px;color:#9a6">note: '+esc(r.admin_notes)+'</div>':'';
+    const done=(r.status==='completed'&&r.result)?'<div class="sub" style="font-size:10.5px">'+((r.result.companies_archived||0))+' companies archived · '+((r.result.emails_scrubbed||0))+' emails scrubbed</div>':'';
+    return '<tr'+(['completed','rejected','cancelled'].includes(r.status)?' style="opacity:.6"':'')+'><td style="white-space:nowrap">'+ago(r.created_at)+'</td><td>'+who+'</td><td><div style="max-width:320px">'+esc(r.reason||'—')+note+done+'</div></td><td>'+st+'</td><td style="white-space:nowrap">'+act+'</td></tr>';
+  });
+  el.innerHTML='<div style="display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:8px">'
+    +'<div style="font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-mid)">Account deletion requests</div>'
+    +'<div class="sub">'+open+' open</div></div>'
+    +(rows.length?tbl(['When','Requester','Reason','Status',''],body):'<div class="sub">No deletion requests.</div>')
+    +'<div class="sub" style="margin-top:6px;font-size:11px">Anonymizing scrubs personal data platform-wide and retains financial records de-identified. After anonymizing, delete the auth login (Supabase) and purge the company’s data-room storage — see the data-protection procedure.</div>';
+}
+async function processDeletion(id){
+  if(!(await fsConfirm('Permanently anonymize this account? Personal data is scrubbed across the platform; financial records are retained de-identified. This cannot be undone.',{title:'Anonymize account',okText:'Anonymize',danger:true}))) return;
+  try{ await _rpc('process_deletion_request',{p_req:id}); showToast('Account anonymized','success'); loadDeletionRequests(); }
+  catch(e){ showToast('Failed — '+e.message,'error'); }
+}
+async function rejectDeletion(id){
+  const note=await fsPrompt('Reason for rejecting this deletion request:',{title:'Reject request',okText:'Reject'}); if(note===null) return;
+  try{ await _w('PATCH','deletion_requests','id=eq.'+id,{status:'rejected',admin_notes:note,processed_at:new Date().toISOString()}); showToast('Request rejected','success'); loadDeletionRequests(); }
+  catch(e){ showToast('Failed — '+e.message,'error'); }
 }
 let bugList=null;
 async function loadBugReports(){

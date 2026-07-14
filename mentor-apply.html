@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Become a Mentor — The Founder's Sprint</title>
+<meta name="description" content="Apply to mentor Ugandan founders on The Founder's Sprint. Share your experience over a coffee or a video call. Reviewed and approved before listing.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--ink:#1A1A1A;--paper:#EFE7D8;--paper-deep:#E6DCC7;--muted:#5A564F;--dim:#8a8378;--terra:#C8531F;--terra-deep:#9A3E16;--ochre:#C9923A;--moss:#3D4A2E;--sage:#8AAB5C;--border:rgba(26,26,26,.14);--sans:'Josefin Sans',sans-serif;--display:'Cormorant Garamond',serif;--font:'Inter',system-ui,sans-serif;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.6;}
+  .hero{background:#0f0d0a;color:var(--paper);padding:104px 24px 58px;text-align:center;}
+  .hero .eyebrow{font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:var(--terra);margin-bottom:16px;}
+  .hero h1{font-family:var(--display);font-style:italic;font-weight:600;font-size:46px;line-height:1.04;margin:0 0 12px;}
+  .hero p{max-width:600px;margin:0 auto;color:#cbc3b4;font-size:15.5px;}
+  .wrap{max-width:720px;margin:0 auto;padding:46px 24px 90px;}
+  .intro{font-size:15px;color:var(--muted);margin-bottom:8px;}
+  form{margin-top:14px;}
+  .grp{margin-top:20px;}
+  .grp.two{display:grid;grid-template-columns:1fr 1fr;gap:16px;}
+  @media(max-width:560px){.grp.two{grid-template-columns:1fr;}}
+  label.lab{display:block;font-family:var(--sans);font-size:10.5px;font-weight:700;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);margin-bottom:6px;}
+  .req{color:var(--terra);}
+  input[type=text],input[type=email],input[type=tel],input[type=number],textarea,select{width:100%;background:rgba(0,0,0,.03);border:1px solid var(--border);padding:12px 13px;font-size:15px;font-family:inherit;color:var(--ink);border-radius:0;}
+  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--terra);}
+  textarea{min-height:96px;resize:vertical;}
+  .hint{font-size:12px;color:var(--dim);margin-top:5px;}
+  .section-title{font-family:var(--display);font-size:24px;font-weight:600;margin:38px 0 4px;}
+  .section-sub{font-size:13px;color:var(--muted);margin-bottom:6px;}
+  /* formats + fees */
+  .fmt{display:flex;gap:12px;flex-wrap:wrap;margin-top:8px;}
+  .fmt-opt{flex:1;min-width:200px;border:1px solid var(--border);padding:14px;cursor:pointer;background:#fff;}
+  .fmt-opt.on{border-color:var(--terra);background:rgba(200,83,31,.05);}
+  .fmt-opt .fh{display:flex;align-items:center;gap:9px;font-weight:600;font-size:14px;}
+  .fmt-opt .fee{margin-top:10px;display:none;}
+  .fmt-opt.on .fee{display:block;}
+  .fmt-opt .fee label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);}
+  /* specialties */
+  .disc{border:1px solid var(--border);margin-top:10px;background:#fff;}
+  .disc>summary{list-style:none;cursor:pointer;padding:13px 15px;display:flex;align-items:center;justify-content:space-between;font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;}
+  .disc>summary::-webkit-details-marker{display:none;}
+  .disc .dmark{width:9px;height:9px;transform:rotate(45deg);flex:none;margin-right:9px;}
+  .disc .dcount{font-size:11px;color:var(--terra-deep);font-weight:700;letter-spacing:.04em;}
+  .disc .body{padding:4px 15px 14px;}
+  .l2{margin-top:10px;}
+  .l2 .l2h{font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin:8px 0 4px;}
+  .spec{display:inline-flex;align-items:center;gap:7px;font-size:13px;padding:5px 10px;border:1px solid var(--border);margin:3px 4px 3px 0;cursor:pointer;background:var(--paper);}
+  .spec input{accent-color:var(--terra);}
+  .spec.on{border-color:var(--terra);background:rgba(200,83,31,.06);color:var(--terra-deep);}
+  .pickcount{font-size:12.5px;color:var(--muted);margin-top:10px;}
+  /* consent + submit */
+  .consent{display:flex;gap:10px;align-items:flex-start;font-size:13.5px;color:var(--muted);margin:22px 0 6px;cursor:pointer;line-height:1.5;}
+  .consent input{margin-top:3px;accent-color:var(--terra);flex:none;}
+  .btn{background:var(--terra);color:#fff;border:none;padding:15px 26px;font-family:var(--sans);font-weight:700;font-size:12px;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;border-radius:0 0 16px 0;margin-top:16px;}
+  .btn:hover{background:var(--terra-deep);} .btn:disabled{opacity:.5;cursor:default;}
+  #msg{font-size:14px;margin-top:14px;min-height:18px;}
+  .done{display:none;text-align:center;padding:20px 0;}
+  .done h2{font-family:var(--display);font-size:30px;font-weight:600;margin:0 0 8px;}
+  .done p{color:var(--muted);max-width:520px;margin:0 auto;}
+</style>
+</head>
+<body>
+<div id="fs-nav"></div>
+
+<header class="hero">
+  <div class="eyebrow">◇ Mentors</div>
+  <h1>Share what you've learned.</h1>
+  <p>The Founder's Sprint connects Ugandan founders with experienced operators for a coffee sit-down or a video call. Tell us about yourself — we review every application before listing.</p>
+</header>
+
+<main class="wrap">
+  <div id="apply">
+    <p class="intro">Takes about five minutes. You'll set your own session fees, and you decide the specialties you want to be booked for. If approved, we'll follow up to confirm details and payout before you go live.</p>
+
+    <form id="mform" autocomplete="on">
+      <div class="grp two">
+        <div><label class="lab">Full name <span class="req">*</span></label><input type="text" id="f-name" maxlength="120" required></div>
+        <div><label class="lab">Email <span class="req">*</span></label><input type="email" id="f-email" maxlength="160" required></div>
+      </div>
+      <div class="grp two">
+        <div><label class="lab">Phone (optional)</label><input type="tel" id="f-phone" maxlength="40" placeholder="+256…"></div>
+        <div><label class="lab">Location</label><input type="text" id="f-location" maxlength="80" placeholder="Kampala"></div>
+      </div>
+      <div class="grp two">
+        <div><label class="lab">Headline / title</label><input type="text" id="f-title" maxlength="120" placeholder="Founder &amp; former CEO"></div>
+        <div><label class="lab">Company / credential</label><input type="text" id="f-company" maxlength="120" placeholder="Built a pan-African logistics company"></div>
+      </div>
+      <div class="grp"><label class="lab">Short bio</label><textarea id="f-bio" maxlength="1200" placeholder="What have you built and operated? What can founders learn from you?"></textarea>
+        <div class="hint">A few sentences. This appears on your public mentor card once approved.</div></div>
+
+      <div class="section-title">How would you describe your standing?</div>
+      <div class="section-sub">Optional — we'll confirm this with you. It sets the honorific on your card.</div>
+      <div class="grp"><select id="f-tier">
+        <option value="">— prefer not to say —</option>
+        <option value="senior">Senior — retired, or 20+ years (the elder statesperson)</option>
+        <option value="chief">Chief — currently leading an organisation or major division</option>
+        <option value="captain">Captain — 10+ years, hands-on operator</option>
+      </select></div>
+
+      <div class="section-title">How you'd like to meet founders</div>
+      <div class="section-sub">Pick the formats you offer and set your fee for each (UGX).</div>
+      <div class="fmt">
+        <div class="fmt-opt" id="opt-coffee" data-f="coffee">
+          <div class="fh"><input type="checkbox" id="fmt-coffee"> ☕ Coffee sit-down</div>
+          <div class="fee"><label>Fee per session (UGX)</label><input type="number" id="fee-coffee" min="0" step="50000" placeholder="2000000"></div>
+        </div>
+        <div class="fmt-opt" id="opt-zoom" data-f="zoom">
+          <div class="fh"><input type="checkbox" id="fmt-zoom"> 🎥 Video call</div>
+          <div class="fee"><label>Fee per session (UGX)</label><input type="number" id="fee-zoom" min="0" step="50000" placeholder="1200000"></div>
+        </div>
+      </div>
+
+      <div class="section-title">What you can mentor on</div>
+      <div class="section-sub">Choose the specialties you excel in — pick as many as genuinely fit. These map to the same disciplines our coaches teach, so founders find you by exactly what they need.</div>
+      <div id="specs"></div>
+      <div class="pickcount" id="pickcount">No specialties selected yet.</div>
+
+      <div class="grp"><label class="lab">Other expertise (optional)</label><input type="text" id="f-expertise" maxlength="240" placeholder="Comma-separated, e.g. Fundraising, Scaling teams, Coffee export">
+        <div class="hint">Free tags shown on your card and used in search — separate from the specialties above.</div></div>
+
+      <label class="consent"><input type="checkbox" id="f-consent"> I consent to The Founder's Sprint reviewing this application and, if approved, listing my public profile. I understand I'll be asked to provide tax (TIN) and identity details before any payout, and that I can withdraw at any time.</label>
+
+      <button type="submit" class="btn" id="submit">Submit application</button>
+      <div id="msg" role="status"></div>
+    </form>
+  </div>
+
+  <div class="done" id="done">
+    <h2>Thank you.</h2>
+    <p>Your application is in. We review every one personally and will be in touch by email to confirm the details and next steps before your profile goes live. If you don't hear from us within a week, write to <a href="mailto:hello@founderssprint.co" style="color:var(--terra-deep)">hello@founderssprint.co</a>.</p>
+  </div>
+</main>
+
+<div id="fs-footer"></div>
+<script src="/beta/taxonomy.js"></script>
+<script src="/site-chrome.js" defer></script>
+<script>
+(function(){
+  var SB_URL='https://ivedeivyotwevjxvcuoe.supabase.co';
+  var SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss';
+  var $=function(id){return document.getElementById(id);};
+  var picked={};
+
+  // ---- render the specialty picker from the shared taxonomy ----
+  function renderSpecs(){
+    var host=$('specs'); var tax=window.FS_TAXONOMY;
+    if(!tax){ host.innerHTML='<div class="hint">Specialty list is loading…</div>'; return; }
+    host.innerHTML=tax.disciplines.map(function(d){
+      var body=d.l2.map(function(m){
+        var chips=m.l3.map(function(name){
+          var slug=tax.slugify(name);
+          return '<label class="spec" data-slug="'+slug+'"><input type="checkbox" value="'+slug+'"> '+name+'</label>';
+        }).join('');
+        return '<div class="l2"><div class="l2h">'+m.name+'</div>'+chips+'</div>';
+      }).join('');
+      return '<details class="disc" data-d="'+d.key+'"><summary><span><i class="dmark" style="display:inline-block;background:'+d.color+'"></i>'+d.label+'</span><span class="dcount" data-dc="'+d.key+'"></span></summary><div class="body">'+body+'</div></details>';
+    }).join('');
+    host.addEventListener('change', function(e){
+      var cb=e.target; if(cb.tagName!=='INPUT') return;
+      var lab=cb.closest('.spec'); if(!lab) return;
+      if(cb.checked) picked[cb.value]=true; else delete picked[cb.value];
+      lab.classList.toggle('on', cb.checked);
+      updateCounts();
+    });
+  }
+  function updateCounts(){
+    var tax=window.FS_TAXONOMY, n=Object.keys(picked).length;
+    $('pickcount').textContent = n ? (n+' specialt'+(n===1?'y':'ies')+' selected') : 'No specialties selected yet.';
+    if(tax){ tax.disciplines.forEach(function(d){
+      var c=0; d.l2.forEach(function(m){ m.l3.forEach(function(nm){ if(picked[tax.slugify(nm)]) c++; }); });
+      var el=document.querySelector('[data-dc="'+d.key+'"]'); if(el) el.textContent=c?(c+' selected'):'';
+    }); }
+  }
+
+  // ---- format toggles ----
+  ['coffee','zoom'].forEach(function(f){
+    var cb=$('fmt-'+f), opt=$('opt-'+f);
+    opt.addEventListener('click', function(e){ if(e.target.tagName==='INPUT'||e.target.closest('.fee')) return; cb.checked=!cb.checked; cb.dispatchEvent(new Event('change')); });
+    cb.addEventListener('change', function(){ opt.classList.toggle('on', cb.checked); });
+  });
+
+  renderSpecs(); updateCounts();
+
+  // ---- submit ----
+  $('mform').addEventListener('submit', function(e){
+    e.preventDefault();
+    var msg=$('msg'); var name=$('f-name').value.trim(), email=$('f-email').value.trim();
+    if(name.length<2){ msg.style.color='#9A3E16'; msg.textContent='Please enter your name.'; return; }
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ msg.style.color='#9A3E16'; msg.textContent='Please enter a valid email.'; return; }
+    if(!$('f-consent').checked){ msg.style.color='#9A3E16'; msg.textContent='Please confirm consent to proceed.'; return; }
+    var formats=[]; if($('fmt-coffee').checked)formats.push('coffee'); if($('fmt-zoom').checked)formats.push('zoom');
+    var expertise=$('f-expertise').value.split(',').map(function(s){return s.trim();}).filter(Boolean);
+    var payload={ name:name, email:email, phone:$('f-phone').value.trim()||null, location:$('f-location').value.trim()||null,
+      title:$('f-title').value.trim()||null, company:$('f-company').value.trim()||null, bio:$('f-bio').value.trim()||null,
+      tier:$('f-tier').value||null, formats:formats, specialties:Object.keys(picked), expertise:expertise,
+      fee_coffee:$('fee-coffee').value.trim()||null, fee_zoom:$('fee-zoom').value.trim()||null, consent:true, consent_version:'apply-v1' };
+    var btn=$('submit'); btn.disabled=true; msg.style.color='#5A564F'; msg.textContent='Submitting…';
+    fetch(SB_URL+'/rest/v1/rpc/submit_public_mentor_application',{ method:'POST',
+      headers:{ apikey:SB_ANON, Authorization:'Bearer '+SB_ANON, 'Content-Type':'application/json' },
+      body:JSON.stringify({ p: payload })
+    }).then(function(r){
+      if(r.ok){ $('apply').style.display='none'; $('done').style.display='block'; window.scrollTo({top:0,behavior:'smooth'}); }
+      else { return r.text().then(function(t){ throw new Error(t||'failed'); }); }
+    }).catch(function(err){
+      btn.disabled=false; msg.style.color='#9A3E16';
+      msg.textContent='Could not submit — please try again, or email hello@founderssprint.co.';
+    });
+  });
+})();
+</script>
+</body>
+</html>

@@ -19,10 +19,10 @@
   var H = BASE + '/index.html';
 
   var L = {
-    home: H, method: H + '#method', coaches: H + '#coaches', mentors: '/mentors.html',
+    home: H, method: H + '#method', coaches: H + '#coaches', mentors: '/mentors.html', mentorApply: '/mentor-apply.html',
     explore: BASE + '/explore/', pricing: H + '#pricing', directory: BASE + '/directory.html',
     applyDir: BASE + '/apply-directory.html', faq: H + '#faq', contact: BASE + '/contact.html',
-    terms: BASE + '/terms.html', privacy: BASE + '/privacy.html', cookies: '/cookies.html',
+    terms: BASE + '/terms.html', privacy: BASE + '/privacy.html', cookies: '/cookies.html', dataRights: '/data-rights.html',
     login: BASE + '/login/', book: BASE + '/book/'
   };
 
@@ -125,9 +125,9 @@
     +     '</div>'
     +   '</div>'
     +   col('Programme', [['Method', L.method], ['Coaches', L.coaches], ['Explore', L.explore], ['Pricing', L.pricing]])
-    +   col('For Institutions', [['VIP 1-on-1', L.pricing], ['Mentors', L.mentors], ['Custom programmes', L.pricing], ['Partner with us', L.contact]])
+    +   col('For Institutions', [['VIP 1-on-1', L.pricing], ['Mentors', L.mentors], ['Become a Mentor', L.mentorApply], ['Custom programmes', L.pricing], ['Partner with us', L.contact]])
     +   col('Resources', [['Service Directory', L.directory], ['Become a Provider', L.applyDir]])
-    +   col('Company', [['FAQ', L.faq], ['Contact', L.contact], ['Terms of Service', L.terms], ['Privacy Policy', L.privacy], ['Cookie Notice', L.cookies]])
+    +   col('Company', [['FAQ', L.faq], ['Contact', L.contact], ['Terms of Service', L.terms], ['Privacy Policy', L.privacy], ['Cookie Notice', L.cookies], ['Your Data', L.dataRights]])
     + '</div>'
     + '<div class="fsx-bottom"><span>© 2026 · The Founder\'s Sprint · Kampala</span><span>Made in Uganda</span></div>'
     + '</footer>';
