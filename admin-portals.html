@@ -816,7 +816,16 @@ async function onMentorPhotoPick(input){
     const url=sb.storage.from('mentor-photos').getPublicUrl(path).data.publicUrl;
     hidden.value=url;
     const prev=document.getElementById('mf-photo-prev'); prev.src=url; prev.style.display='';
-    msg.textContent='Photo uploaded ✓'; msg.style.color='var(--success)';
+    // For an EXISTING mentor, persist the new photo immediately — the file is
+    // already uploaded, so this stops it being lost by leaving without a Save.
+    if(folder && !/^new-/.test(folder)){
+      try{ await _w('PATCH','mentors','id=eq.'+folder,{photo_url:url});
+        const mm=mentorsList.find(x=>x.id===folder); if(mm) mm.photo_url=url;
+        msg.textContent='Photo updated and saved ✓'; msg.style.color='#3D4A2E';
+      }catch(e){ msg.textContent='Uploaded — but click Save to apply ('+e.message+')'; msg.style.color='#C0392B'; }
+    } else {
+      msg.textContent='Photo uploaded ✓ — click Save to add this mentor.'; msg.style.color='#3D4A2E';
+    }
   }catch(e){ msg.textContent='Upload failed — '+e.message; msg.style.color='#C0392B'; }
 }
 async function resendMentorInvite(appId){
