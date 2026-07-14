@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Your data &amp; privacy rights · The Founder's Sprint</title>
+<meta name="description" content="Your rights over your personal data on The Founder's Sprint — access, correction, and deletion — how we handle requests, and what we retain and why.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{--ink:#1A1A1A;--paper:#EFE7D8;--paper-deep:#E6DCC7;--muted:#5A564F;--dim:#8a8378;--terra:#C8531F;--terra-deep:#9A3E16;--moss:#3D4A2E;--border:rgba(26,26,26,.14);}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,sans-serif;font-size:15px;line-height:1.6;}
+  .dr-hero{background:#0f0d0a;color:var(--paper);padding:96px 24px 54px;text-align:center;}
+  .dr-hero .eyebrow{font-family:'Josefin Sans',sans-serif;font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:var(--terra);margin-bottom:16px;}
+  .dr-hero h1{font-family:'Cormorant Garamond',Georgia,serif;font-style:italic;font-weight:600;font-size:44px;line-height:1.05;margin:0 0 10px;}
+  .dr-hero p{max-width:560px;margin:0 auto;color:#cbc3b4;font-size:15px;}
+  .dr-wrap{max-width:760px;margin:0 auto;padding:52px 24px 80px;}
+  .dr-wrap h2{font-family:'Cormorant Garamond',Georgia,serif;font-size:26px;font-weight:600;margin:38px 0 10px;}
+  .dr-wrap h2:first-child{margin-top:0;}
+  .dr-wrap p{margin:0 0 12px;}
+  .dr-wrap ul{margin:0 0 12px;padding-left:20px;}
+  .dr-wrap li{margin-bottom:7px;}
+  .dr-wrap a{color:var(--terra-deep);}
+  .card{background:#fff;border:1px solid var(--border);border-radius:0 0 24px 0;padding:26px 24px;margin-top:20px;}
+  .card h2{margin-top:0;}
+  label{display:block;font-family:'Josefin Sans',sans-serif;font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin:14px 0 5px;}
+  textarea,input{width:100%;background:rgba(0,0,0,.03);border:1px solid var(--border);padding:11px 12px;font-size:15px;font-family:inherit;color:var(--ink);}
+  textarea:focus,input:focus{outline:none;border-color:var(--terra);}
+  textarea{min-height:80px;resize:vertical;}
+  .consent{display:flex;gap:10px;align-items:flex-start;margin:16px 0 6px;font-size:13px;color:var(--muted);}
+  .consent input{width:auto;margin-top:3px;}
+  .btn{background:var(--terra);color:#fff;border:none;padding:13px 22px;font-family:'Josefin Sans',sans-serif;font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;border-radius:0 0 14px 0;margin-top:16px;}
+  .btn:hover{background:var(--terra-deep);} .btn:disabled{opacity:.5;cursor:default;}
+  .note{font-size:12.5px;color:var(--dim);margin-top:12px;}
+  #dr-msg{font-size:14px;margin-top:12px;min-height:18px;}
+  .signed-out{background:var(--paper-deep);border:1px dashed var(--border);padding:18px 20px;border-radius:0 0 18px 0;font-size:14px;}
+</style>
+</head>
+<body>
+<div id="fs-nav"></div>
+
+<header class="dr-hero">
+  <div class="eyebrow">◇ Data &amp; privacy</div>
+  <h1>Your data, your rights.</h1>
+  <p>The Founder's Sprint holds personal data so we can run your coaching, your data room, and your account. Here's what you can ask of us — and how to do it.</p>
+</header>
+
+<main class="dr-wrap">
+  <h2>Your rights</h2>
+  <p>Under Uganda's Data Protection and Privacy Act (2019) — and the GDPR where it applies to you — you can:</p>
+  <ul>
+    <li><strong>Access</strong> the personal data we hold about you.</li>
+    <li><strong>Correct</strong> anything that's wrong or out of date (you can edit most of this yourself in your dashboard).</li>
+    <li><strong>Delete</strong> your account and personal data (see below).</li>
+    <li><strong>Object</strong> to a particular use, or <strong>withdraw consent</strong> you've given.</li>
+    <li><strong>Export</strong> a copy of your data room and profile before you go.</li>
+  </ul>
+
+  <h2>What we delete — and what we must keep</h2>
+  <p>When you ask us to delete your account, we <strong>anonymize your personal data</strong> across the platform: your name, email, phone, bio, and the contents of your data room are removed or irreversibly scrubbed, and your profile is closed.</p>
+  <p>A small set of records is <strong>retained in de-identified form</strong> because the law requires it — chiefly <strong>financial and transaction records</strong> (payments, deposits, invoices), which tax and accounting rules oblige us to keep, and minimal <strong>security/audit logs</strong>. These no longer identify you: amounts and dates remain, your identity does not.</p>
+  <p>We action verified deletion requests within <strong>30 days</strong>. If a payment is mid-flight, we complete or refund it first.</p>
+
+  <h2>Request account deletion</h2>
+  <div class="card" id="dr-card">
+    <div id="dr-loading" class="note">Checking your session…</div>
+
+    <div id="dr-form" style="display:none">
+      <p style="margin-top:0">You're signed in as <strong id="dr-email"></strong>. Tell us anything you'd like us to know (optional), confirm, and we'll verify and process the request.</p>
+      <label for="dr-reason">Reason (optional)</label>
+      <textarea id="dr-reason" maxlength="1000" placeholder="Anything you'd like us to know…"></textarea>
+      <label class="consent"><input type="checkbox" id="dr-consent"> I understand this closes my account and anonymizes my personal data, and that financial records are retained de-identified as the law requires. This can't be undone.</label>
+      <button class="btn" id="dr-send" disabled>Request deletion</button>
+      <div id="dr-msg" role="status"></div>
+      <div class="note">Prefer email? Write to <a href="mailto:hello@founderssprint.co?subject=Data%20deletion%20request">hello@founderssprint.co</a> from your registered address.</div>
+    </div>
+
+    <div id="dr-guest" class="signed-out" style="display:none">
+      <p style="margin:0 0 6px"><strong>Sign in to request deletion.</strong></p>
+      <p style="margin:0">Log in to your dashboard first so we can verify it's really you — or email <a href="mailto:hello@founderssprint.co?subject=Data%20deletion%20request">hello@founderssprint.co</a> from the email address on your account and we'll verify and action it.</p>
+    </div>
+  </div>
+
+  <h2>Access, correction, or export</h2>
+  <p>For a copy of your data, a correction we can't make from your dashboard, or a data-protection concern, email <a href="mailto:hello@founderssprint.co?subject=Data%20request">hello@founderssprint.co</a>. We reply within 30 days.</p>
+
+  <h2>Contact</h2>
+  <p>Data-protection queries: <a href="mailto:hello@founderssprint.co">hello@founderssprint.co</a>. See also our <a href="/beta/privacy.html">Privacy Policy</a>.</p>
+</main>
+
+<div id="fs-footer"></div>
+<script src="/site-chrome.js" defer></script>
+<script>
+(function(){
+  var SB_URL='https://ivedeivyotwevjxvcuoe.supabase.co';
+  var SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss';
+  var KEY='sb-ivedeivyotwevjxvcuoe-auth-token';
+  function session(){ try{ var raw=localStorage.getItem(KEY); if(!raw) return null; var o=JSON.parse(raw); var s=o.currentSession||o;
+    if(s&&s.access_token) return {token:s.access_token, uid:(s.user&&s.user.id)||null, email:(s.user&&s.user.email)||null}; }catch(e){} return null; }
+  function $(id){ return document.getElementById(id); }
+  function boot(){
+    var s=session(); $('dr-loading').style.display='none';
+    if(!(s&&s.uid)){ $('dr-guest').style.display='block'; return; }
+    $('dr-form').style.display='block'; $('dr-email').textContent=s.email||'your account';
+    var cb=$('dr-consent'), btn=$('dr-send');
+    cb.addEventListener('change', function(){ btn.disabled=!cb.checked; });
+    btn.addEventListener('click', function(){
+      if(!cb.checked) return;
+      btn.disabled=true; var msg=$('dr-msg'); msg.style.color='#5A564F'; msg.textContent='Sending…';
+      fetch(SB_URL+'/rest/v1/deletion_requests',{ method:'POST',
+        headers:{ apikey:SB_ANON, Authorization:'Bearer '+s.token, 'Content-Type':'application/json', Prefer:'return=minimal' },
+        body:JSON.stringify({ user_id:s.uid, email:s.email||null, reason:($('dr-reason').value.trim()||null) })
+      }).then(function(r){
+        if(r.ok){ msg.style.color='#3D4A2E'; msg.textContent='Request received. We’ll verify it and action it within 30 days — you can email us any time to check on it.'; $('dr-reason').disabled=true; cb.disabled=true; }
+        else { btn.disabled=false; msg.style.color='#9A3E16'; msg.textContent='Could not submit — please email hello@founderssprint.co.'; }
+      }).catch(function(){ btn.disabled=false; msg.style.color='#9A3E16'; msg.textContent='Could not submit — please email hello@founderssprint.co.'; });
+    });
+  }
+  if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', boot); else boot();
+})();
+</script>
+</body>
+</html>
