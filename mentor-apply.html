@@ -77,17 +77,18 @@
 
     <form id="mform" autocomplete="on">
       <div class="grp two">
-        <div><label class="lab">Full name <span class="req">*</span></label><input type="text" id="f-name" maxlength="120" required></div>
-        <div><label class="lab">Email <span class="req">*</span></label><input type="email" id="f-email" maxlength="160" required></div>
+        <div><label class="lab">First name <span class="req">*</span></label><input type="text" id="f-first" maxlength="80" required></div>
+        <div><label class="lab">Last name</label><input type="text" id="f-last" maxlength="80" placeholder="(optional)"></div>
       </div>
       <div class="grp two">
+        <div><label class="lab">Email <span class="req">*</span></label><input type="email" id="f-email" maxlength="160" required></div>
         <div><label class="lab">Phone (optional)</label><input type="tel" id="f-phone" maxlength="40" placeholder="+256…"></div>
-        <div><label class="lab">Location</label><input type="text" id="f-location" maxlength="80" placeholder="Kampala"></div>
       </div>
       <div class="grp two">
         <div><label class="lab">Headline / title</label><input type="text" id="f-title" maxlength="120" placeholder="Founder &amp; former CEO"></div>
         <div><label class="lab">Company / credential</label><input type="text" id="f-company" maxlength="120" placeholder="Built a pan-African logistics company"></div>
       </div>
+      <div class="grp"><label class="lab">Location</label><input type="text" id="f-location" maxlength="80" placeholder="Kampala"></div>
       <div class="grp"><label class="lab">Short bio</label><textarea id="f-bio" maxlength="1200" placeholder="What have you built and operated? What can founders learn from you?"></textarea>
         <div class="hint">A few sentences. This appears on your public mentor card once approved.</div></div>
 
@@ -187,13 +188,13 @@
   // ---- submit ----
   $('mform').addEventListener('submit', function(e){
     e.preventDefault();
-    var msg=$('msg'); var name=$('f-name').value.trim(), email=$('f-email').value.trim();
-    if(name.length<2){ msg.style.color='#9A3E16'; msg.textContent='Please enter your name.'; return; }
+    var msg=$('msg'); var first=$('f-first').value.trim(), last=$('f-last').value.trim(), email=$('f-email').value.trim();
+    if(first.length<2){ msg.style.color='#9A3E16'; msg.textContent='Please enter your first name.'; return; }
     if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ msg.style.color='#9A3E16'; msg.textContent='Please enter a valid email.'; return; }
     if(!$('f-consent').checked){ msg.style.color='#9A3E16'; msg.textContent='Please confirm consent to proceed.'; return; }
     var formats=[]; if($('fmt-coffee').checked)formats.push('coffee'); if($('fmt-zoom').checked)formats.push('zoom');
     var expertise=$('f-expertise').value.split(',').map(function(s){return s.trim();}).filter(Boolean);
-    var payload={ name:name, email:email, phone:$('f-phone').value.trim()||null, location:$('f-location').value.trim()||null,
+    var payload={ first_name:first, last_name:last||null, email:email, phone:$('f-phone').value.trim()||null, location:$('f-location').value.trim()||null,
       title:$('f-title').value.trim()||null, company:$('f-company').value.trim()||null, bio:$('f-bio').value.trim()||null,
       tier:$('f-tier').value||null, formats:formats, specialties:Object.keys(picked), expertise:expertise,
       fee_coffee:$('fee-coffee').value.trim()||null, fee_zoom:$('fee-zoom').value.trim()||null, consent:true, consent_version:'apply-v1' };

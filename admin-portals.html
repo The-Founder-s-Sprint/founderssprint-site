@@ -416,6 +416,7 @@ function mfSpecsHTML(sel){
   }).join('');
 }
 function mfSpecials(){ return [].slice.call(document.querySelectorAll('#mf-specs .mf-spec:checked')).map(x=>x.value); }
+function mSplitName(m){ if(m&&(m.first_name||m.last_name)) return {first:m.first_name||'',last:m.last_name||''}; const p=String((m&&m.name)||'').trim().split(/\s+/); return {first:p[0]||'',last:p.slice(1).join(' ')}; }
 async function loadMentors(){
   const roster=document.getElementById('roster'); roster.innerHTML='<div class="empty">Loading…</div>';
   try{
@@ -691,13 +692,14 @@ async function toggleMentor(id,status){
 function _mfInput(id,ph,val,extra){ return '<input id="'+id+'" placeholder="'+ph+'" value="'+esc(val==null?'':String(val))+'" style="width:100%;padding:9px 10px;border:1px solid var(--border-hi);background:rgba(255,255,255,.5);font-family:inherit;font-size:14px" '+(extra||'')+'>'; }
 function editMentor(id){
   const m = id ? (mentorsList.find(x=>x.id===id)||{}) : {}; const fees=m.fees||{};
-  const c=(window.__mContacts||{})[id]||{};
+  const c=(window.__mContacts||{})[id]||{}; const nm=mSplitName(m);
   const lbl=t=>'<div class="sub" style="margin:10px 0 4px">'+t+'</div>';
   const fmts=m.formats||['coffee','zoom'];
   const html='<div class="app-card" style="margin-bottom:20px">'
     +'<div style="font-family:var(--display);font-size:19px;font-weight:600;margin-bottom:6px">'+(id?'Edit mentor':'Add a mentor')+'</div>'
     +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'
-    +'<div>'+lbl('Name / placeholder')+_mfInput('mf-name','e.g. [Mobility Operator] or real name',m.name)+'</div>'
+    +'<div>'+lbl('First name')+_mfInput('mf-first','Grace',nm.first)+'</div>'
+    +'<div>'+lbl('Last name')+_mfInput('mf-last','Nakato (optional)',nm.last)+'</div>'
     +'<div>'+lbl('Headline / title')+_mfInput('mf-title','Founder & former CEO',m.title)+'</div>'
     +'<div>'+lbl('Company / credential')+_mfInput('mf-company','Scaled a pan-African ride-hailing co.',m.company)+'</div>'
     +'<div>'+lbl('Location')+_mfInput('mf-location','Kampala',m.location)+'</div>'
@@ -741,11 +743,12 @@ function editMentor(id){
 }
 async function saveMentor(id){
   const val=x=>{const e=document.getElementById(x);return e?e.value.trim():'';};
-  const name=val('mf-name'); if(!name){ showToast('Name required','error'); return; }
+  const first=val('mf-first'), last=val('mf-last'); const name=(first+' '+last).trim();
+  if(!first){ showToast('First name required','error'); return; }
   const coffee=parseInt(val('mf-coffee')||'0',10)||null, zoom=parseInt(val('mf-zoom')||'0',10)||null;
   const formats=[]; if(document.getElementById('mf-fmt-coffee').checked)formats.push('coffee'); if(document.getElementById('mf-fmt-zoom').checked)formats.push('zoom');
   const expertise=val('mf-expertise').split(',').map(s=>s.trim()).filter(Boolean);
-  const body={ name, title:val('mf-title')||null, company:val('mf-company')||null, bio:val('mf-bio')||null,
+  const body={ name, first_name:first||null, last_name:last||null, title:val('mf-title')||null, company:val('mf-company')||null, bio:val('mf-bio')||null,
     expertise, location:val('mf-location')||null, formats:formats.length?formats:['coffee','zoom'],
     fees:{coffee:coffee,zoom:zoom}, session_fee:coffee||zoom||null, photo_url:val('mf-photo-url')||null,
     tier:val('mf-tier')||null, specialties:mfSpecials(),
