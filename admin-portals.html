@@ -553,7 +553,10 @@ function renderMentors(){
             +'<div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap">'
             +'<div><span style="font-weight:600">'+esc(a.name||'Invited mentor')+'</span> &nbsp;<span class="sub">'+esc(a.email||'')+'</span>'
             +'<div class="sub" style="margin-top:2px">invited '+ago(a.created_at)+(exp?(' · link '+(expired?'<span style="color:#C0392B">expired</span>':'valid to '+exp.toLocaleDateString())):'')+'</div></div>'
+            +'<div style="display:flex;gap:8px;flex-wrap:wrap">'
             +'<button class="btn-sm" style="background:none;border:1px solid var(--border-hi);color:var(--ink-mid);padding:6px 12px;text-transform:none;letter-spacing:0;font-size:11px" onclick="resendMentorInvite(\''+a.id+'\')">Resend invite</button>'
+            +'<button class="btn-sm" style="background:none;border:1px solid var(--border-hi);color:#C0392B;padding:6px 12px;text-transform:none;letter-spacing:0;font-size:11px" onclick="cancelMentorInvite(\''+a.id+'\')">Cancel invite</button>'
+            +'</div>'
             +'</div><div id="mi-resend-'+a.id+'"></div></div>';
         }).join('')) : '';
     onboard = invite
@@ -825,6 +828,12 @@ async function resendMentorInvite(appId){
     if(out) out.innerHTML='<input readonly value="'+esc(link)+'" onclick="this.select()" style="width:100%;margin-top:6px;padding:8px 10px;border:1px solid var(--terra);background:rgba(200,83,31,.05);font-family:monospace;font-size:11px">';
     showToast('Fresh invite link generated for '+email,'success');
   }catch(e){ showToast('Resend failed — '+e.message,'error'); }
+}
+async function cancelMentorInvite(appId){
+  const a=mentorApps.find(x=>x.id===appId); const who=a?(a.name||a.email||'this invitation'):'this invitation';
+  if(!(await fsConfirm('Cancel the invitation for '+who+'? The invite link will stop working immediately.',{title:'Cancel invitation',okText:'Cancel invite',danger:true}))) return;
+  try{ await _w('DELETE','mentor_applications','id=eq.'+appId); showToast('Invitation cancelled','success'); loadMentors(); }
+  catch(e){ showToast('Cancel failed — '+e.message,'error'); }
 }
 async function chargeMentorRequest(id){
   const r=mentorReqs.find(x=>x.id===id); if(!r) return;
