@@ -194,7 +194,7 @@ async function doSignIn(e){
   return false;
 }
 async function doGoogle(){
-  try{ const {error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+'/'+DASHBOARD}}); if(error) throw error; }
+  try{ const {error}=await sb.auth.signInWithOAuth({provider:'google',options:{redirectTo:location.origin+(safeDest()||('/'+DASHBOARD))}}); if(error) throw error; }
   catch(ex){ setMsg('si-msg','Google sign-in isn’t enabled yet — use email and password for now.','err'); }
 }
 async function doReset(e){
@@ -218,7 +218,26 @@ async function doNewPass(e){
   finally{ btn.disabled=false; btn.textContent='Update & continue'; }
   return false;
 }
-function go(){ window.location.href='/'+DASHBOARD; }
+// Optional ?redirect= support (e.g. the mentor booking gate sends founders here
+// and wants them back on the mentor card). NEVER trust it as given — an
+// unvalidated redirect param is an open-redirect/phishing vector. Only a
+// same-origin, path-only destination is honoured; anything else falls back to
+// the dashboard. Login paths are refused so we can't build a login→login loop
+// (see the June stale-session loop bug).
+function safeDest(){
+  try{
+    var r=new URLSearchParams(location.search).get('redirect');
+    if(!r) return null;
+    if(!/^\/[^\/\\]/.test(r)) return null;          // must be "/path" — blocks "//evil.com", schemes, backslashes
+    if(/[\r\n\t]/.test(r)) return null;             // no header/URL injection
+    var u=new URL(r, location.origin);
+    if(u.origin!==location.origin) return null;     // belt and braces: must stay on this origin
+    if(/^\/login-/i.test(u.pathname)) return null;  // never bounce back to a login page
+    return u.pathname+u.search+u.hash;
+  }catch(e){}
+  return null;
+}
+function go(){ window.location.href = safeDest() || ('/'+DASHBOARD); }
 
 // ── Constellation animation over the photo (lightweight; reduced-motion + visibility aware) ──
 (function(){
