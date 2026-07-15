@@ -269,6 +269,12 @@
 <div class="ov" id="ov">
   <div class="modal" id="modal">
     <button class="x" onclick="closeBook()" aria-label="Close">×</button>
+    <div id="book-auth" style="display:none">
+      <h2>Request a session</h2>
+      <div class="who" id="ba-who"></div>
+      <p class="note" style="margin-top:12px">Mentor sessions are booked through your Founder's Sprint account. It's free to create — it's how we confirm the session with you, and how your mentoring record is kept in your data room.</p>
+      <a class="btn" id="ba-link" href="/login-founder.html" style="display:block;text-align:center;text-decoration:none;line-height:1.2">Create a free account / sign in →</a>
+    </div>
     <div id="book-form">
       <h2>Request a session</h2>
       <div class="who" id="who"></div>
@@ -595,14 +601,62 @@ function onShareNet(card, item){
   var menu = card.querySelector('.f-share-menu'); if(menu) menu.classList.remove('open');
 }
 
-function openBook(i){
+// ---- account gate ---------------------------------------------------------
+// A mentor session can only be requested by a signed-in founder. That kills
+// anonymous junk at the source AND is what makes the mentorship verifiable
+// (the request carries a real user_id) for the "Mentored by" investor signal.
+let BOOK_CTX=null;
+function fsSession(){
+  try{
+    var raw=localStorage.getItem('sb-ivedeivyotwevjxvcuoe-auth-token'); if(!raw) return null;
+    var o=JSON.parse(raw); var s=o.currentSession||o;
+    if(s&&s.access_token) return {token:s.access_token, uid:(s.user&&s.user.id)||null, email:(s.user&&s.user.email)||null};
+  }catch(e){}
+  return null;
+}
+async function loadFounderCtx(s){
+  var out={name:'', email:s.email||'', phone:'', company:'', company_id:null};
+  try{
+    var h={apikey:SB_ANON, Authorization:'Bearer '+s.token};
+    var r=await fetch(SB_URL+'/rest/v1/founder_profiles?user_id=eq.'+encodeURIComponent(s.uid)+'&select=id,first_name,last_name,email,phone&limit=1',{headers:h});
+    if(r.ok){ var j=await r.json();
+      if(j&&j[0]){
+        out.name=((j[0].first_name||'')+' '+(j[0].last_name||'')).trim();
+        out.email=j[0].email||out.email; out.phone=j[0].phone||'';
+        var r2=await fetch(SB_URL+'/rest/v1/companies?founder_id=eq.'+encodeURIComponent(j[0].id)+'&select=id,name&order=is_primary.desc&limit=1',{headers:h});
+        if(r2.ok){ var c=await r2.json(); if(c&&c[0]){ out.company=c[0].name||''; out.company_id=c[0].id; } }
+      }
+    }
+  }catch(e){}
+  return out;
+}
+
+async function openBook(i){
   current=MENTORS[i]; fmt=(current.formats&&current.formats[0])||'coffee';
-  document.getElementById('who').textContent='With '+(current.name||current.title)+(current.company?' · '+current.company:'');
+  var whoTxt='With '+(current.name||current.title)+(current.company?' · '+current.company:'');
+  document.getElementById('who').textContent=whoTxt;
+  document.getElementById('ba-who').textContent=whoTxt;
   document.getElementById('fmt-pick').innerHTML=(current.formats||['coffee','zoom']).map(function(f){
     return '<div class="fmt-opt'+(f===fmt?' on':'')+'" data-f="'+f+'" onclick="pickFmt(this)"><span>'+(FMT_LABEL[f]||f)+'</span>'
       +'<span class="fo-note">'+esc((FMT_NOTE[f]||'')+' · '+durText(f))+'</span><span class="fo-price">'+money(feeFor(current,f))+'</span></div>';
   }).join('');
   renderPrice();
+  var s=fsSession();
+  if(!s||!s.uid){
+    // signed out — offer the free account instead of the form
+    document.getElementById('ba-link').href='/login-founder.html?redirect='+encodeURIComponent(location.pathname+'?m='+(current.slug||''));
+    document.getElementById('book-auth').style.display='block';
+    document.getElementById('book-form').style.display='none';
+    document.getElementById('book-done').style.display='none';
+    document.getElementById('ov').classList.add('show');
+    return;
+  }
+  document.getElementById('book-auth').style.display='none';
+  BOOK_CTX=await loadFounderCtx(s);
+  document.getElementById('b-name').value=BOOK_CTX.name||'';
+  document.getElementById('b-email').value=BOOK_CTX.email||'';
+  document.getElementById('b-phone').value=BOOK_CTX.phone||'';
+  document.getElementById('b-company').value=BOOK_CTX.company||'';
   document.getElementById('book-form').style.display='block';
   document.getElementById('book-done').style.display='none';
   document.getElementById('b-msg').textContent='';
@@ -619,14 +673,21 @@ async function submitBooking(){
   const name=v('b-name'), email=v('b-email');
   if(!name||!email){ msg.textContent='Please add your name and email.'; msg.className='msg err'; return; }
   if(!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ msg.textContent='That email looks off.'; msg.className='msg err'; return; }
+  const s=fsSession();
+  if(!s||!s.uid){ msg.textContent='Please sign in to request a session.'; msg.className='msg err'; return; }
   const btn=document.getElementById('b-submit'); btn.disabled=true; btn.textContent='Sending…';
   try{
-    const { error }=await sb.from('mentor_session_requests').insert({
-      mentor_id:current.id, founder_name:name, founder_email:email.toLowerCase(),
-      founder_phone:v('b-phone')||null, founder_company:v('b-company')||null,
-      format:fmt, message:v('b-message')||null, status:'new'
-    });
-    if(error) throw new Error(error.message);
+    // Authenticated insert — the request is stamped with the founder's real
+    // account (RLS: msr_founder_insert requires user_id = auth.uid()).
+    const r=await fetch(SB_URL+'/rest/v1/mentor_session_requests',{ method:'POST',
+      headers:{apikey:SB_ANON, Authorization:'Bearer '+s.token, 'Content-Type':'application/json', Prefer:'return=minimal'},
+      body:JSON.stringify({
+        mentor_id:current.id, founder_name:name, founder_email:email.toLowerCase(),
+        founder_phone:v('b-phone')||null, founder_company:v('b-company')||null,
+        format:fmt, message:v('b-message')||null, status:'new',
+        user_id:s.uid, company_id:(BOOK_CTX&&BOOK_CTX.company_id)||null
+      }) });
+    if(!r.ok) throw new Error((await r.text())||'request failed');
     document.getElementById('book-form').style.display='none';
     document.getElementById('book-done').style.display='block';
   }catch(e){ msg.textContent='Could not send — '+e.message; msg.className='msg err'; btn.disabled=false; btn.textContent='Send request'; }
