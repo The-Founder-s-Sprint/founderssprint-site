@@ -79,19 +79,19 @@
 
     <form id="mform" autocomplete="on">
       <div class="grp two">
-        <div><label class="lab">First name <span class="req">*</span></label><input type="text" id="f-first" maxlength="80" required></div>
-        <div><label class="lab">Last name</label><input type="text" id="f-last" maxlength="80" placeholder="(optional)"></div>
+        <div><label class="lab">First name <span class="req">*</span></label><input type="text" id="f-first" name="given-name" autocomplete="given-name" maxlength="80" required></div>
+        <div><label class="lab">Last name</label><input type="text" id="f-last" name="family-name" autocomplete="family-name" maxlength="80" placeholder="(optional)"></div>
       </div>
       <div class="grp two">
-        <div><label class="lab">Email <span class="req">*</span></label><input type="email" id="f-email" maxlength="160" required></div>
-        <div><label class="lab">Phone (optional)</label><input type="tel" id="f-phone" maxlength="40" placeholder="+256…"></div>
+        <div><label class="lab">Email <span class="req">*</span></label><input type="email" id="f-email" name="email" autocomplete="email" maxlength="160" required></div>
+        <div><label class="lab">Phone (optional)</label><input type="tel" id="f-phone" name="tel" autocomplete="tel" maxlength="40" placeholder="+256…"></div>
       </div>
       <div class="grp two">
-        <div><label class="lab">Headline / title</label><input type="text" id="f-title" maxlength="120" placeholder="Founder &amp; former CEO"></div>
-        <div><label class="lab">Company / credential</label><input type="text" id="f-company" maxlength="120" placeholder="Built a pan-African logistics company"></div>
+        <div><label class="lab">Headline / title</label><input type="text" id="f-title" name="organization-title" autocomplete="organization-title" maxlength="120" placeholder="Founder &amp; former CEO"></div>
+        <div><label class="lab">Company / credential</label><input type="text" id="f-company" name="organization" autocomplete="organization" maxlength="120" placeholder="Built a pan-African logistics company"></div>
       </div>
-      <div class="grp"><label class="lab">Location</label><input type="text" id="f-location" maxlength="80" placeholder="Kampala"></div>
-      <div class="grp"><label class="lab">Short bio</label><textarea id="f-bio" maxlength="1200" placeholder="What have you built and operated? What can founders learn from you?"></textarea>
+      <div class="grp"><label class="lab">Location</label><input type="text" id="f-location" name="address-level2" autocomplete="address-level2" maxlength="80" placeholder="Kampala"></div>
+      <div class="grp"><label class="lab">Short bio</label><textarea id="f-bio" maxlength="1200" autocomplete="off" placeholder="What have you built and operated? What can founders learn from you?"></textarea>
         <div class="hint">A few sentences. This appears on your public mentor card once approved.</div></div>
 
       <div class="section-title">How would you describe your standing?</div>
@@ -108,11 +108,11 @@
       <div class="fmt">
         <div class="fmt-opt" id="opt-coffee" data-f="coffee">
           <div class="fh"><input type="checkbox" id="fmt-coffee"> ☕ Coffee sit-down</div>
-          <div class="fee"><label>Fee per session (UGX)</label><input type="number" id="fee-coffee" min="0" step="50000" placeholder="2000000"></div>
+          <div class="fee"><label>Fee per session (UGX)</label><input type="number" id="fee-coffee" min="0" step="50000" placeholder="2000000" autocomplete="off" inputmode="numeric" data-lpignore="true"></div>
         </div>
         <div class="fmt-opt" id="opt-zoom" data-f="zoom">
           <div class="fh"><input type="checkbox" id="fmt-zoom"> 🎥 Video call</div>
-          <div class="fee"><label>Fee per session (UGX)</label><input type="number" id="fee-zoom" min="0" step="50000" placeholder="1200000"></div>
+          <div class="fee"><label>Fee per session (UGX)</label><input type="number" id="fee-zoom" min="0" step="50000" placeholder="1200000" autocomplete="off" inputmode="numeric" data-lpignore="true"></div>
         </div>
       </div>
 
@@ -121,7 +121,7 @@
       <div id="specs"></div>
       <div class="pickcount" id="pickcount">No specialties selected yet.</div>
 
-      <div class="grp"><label class="lab">Other expertise (optional)</label><input type="text" id="f-expertise" maxlength="240" placeholder="Comma-separated, e.g. Fundraising, Scaling teams, Coffee export">
+      <div class="grp"><label class="lab">Other expertise (optional)</label><input type="text" id="f-expertise" maxlength="240" autocomplete="off" placeholder="Comma-separated, e.g. Fundraising, Scaling teams, Coffee export">
         <div class="hint">Free tags shown on your card and used in search — separate from the specialties above.</div></div>
 
       <label class="consent"><input type="checkbox" id="f-consent"> I consent to The Founder's Sprint reviewing this application and, if approved, listing my public profile. I understand I'll be asked to provide tax (TIN) and identity details before any payout, and that I can withdraw at any time.</label>
