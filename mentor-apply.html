@@ -94,6 +94,15 @@
       <div class="grp"><label class="lab">Short bio</label><textarea id="f-bio" maxlength="1200" autocomplete="off" placeholder="What have you built and operated? What can founders learn from you?"></textarea>
         <div class="hint">A few sentences. This appears on your public mentor card once approved.</div></div>
 
+      <div class="grp"><label class="lab">Profile photo (optional)</label>
+        <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+          <img id="f-photo-prev" alt="" style="width:64px;height:64px;border-radius:50%;object-fit:cover;border:1px solid var(--border);display:none">
+          <input type="file" id="f-photo-file" accept="image/png,image/jpeg,image/webp" autocomplete="off" style="font-size:13px;font-family:inherit">
+        </div>
+        <div class="hint" id="f-photo-msg">PNG, JPG or WebP · up to 5MB. Shown on your public mentor card once approved. You can skip this — we'll ask later.</div>
+        <input type="hidden" id="f-photo-url">
+      </div>
+
       <div class="section-title">How would you describe your standing?</div>
       <div class="section-sub">Optional — we'll confirm this with you. It sets the honorific on your card.</div>
       <div class="grp"><select id="f-tier">
@@ -183,6 +192,32 @@
     cb.addEventListener('change', function(){ opt.classList.toggle('on', cb.checked); });
   });
 
+  // ---- photo upload ---------------------------------------------------------
+  // The API mints a short-lived signed URL (it picks the path, not us), then the
+  // file goes straight to storage — no anonymous write policy on the bucket, and
+  // it sidesteps the ~4.5MB serverless body limit.
+  var photoEl=$('f-photo-file');
+  if(photoEl) photoEl.addEventListener('change', function(){
+    var file=this.files && this.files[0]; if(!file) return;
+    var msg=$('f-photo-msg');
+    if(!/^image\/(png|jpeg|webp)$/.test(file.type)){ msg.textContent='Use a PNG, JPG or WebP image.'; msg.style.color='#9A3E16'; return; }
+    if(file.size>5*1024*1024){ msg.textContent='Image must be under 5MB.'; msg.style.color='#9A3E16'; return; }
+    msg.style.color=''; msg.textContent='Uploading…';
+    fetch(API_BASE+'/api/mentor-apply-photo',{ method:'POST', headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({ contentType:file.type, size:file.size }) })
+      .then(function(r){ if(!r.ok) throw new Error('sign'); return r.json(); })
+      .then(function(s){
+        return fetch(s.signedUrl,{ method:'PUT', headers:{'content-type':file.type}, body:file })
+          .then(function(up){ if(!up.ok) throw new Error('upload'); return s; });
+      })
+      .then(function(s){
+        $('f-photo-url').value=s.publicUrl;
+        var prev=$('f-photo-prev'); prev.src=s.publicUrl; prev.style.display='';
+        msg.textContent='Photo uploaded ✓'; msg.style.color='#3D4A2E';
+      })
+      .catch(function(){ msg.textContent='Could not upload that photo — you can skip it and we’ll ask later.'; msg.style.color='#9A3E16'; });
+  });
+
   renderSpecs(); updateCounts();
 
   // ---- submit ----
@@ -197,6 +232,7 @@
     var payload={ first_name:first, last_name:last||null, email:email, phone:$('f-phone').value.trim()||null, location:$('f-location').value.trim()||null,
       title:$('f-title').value.trim()||null, company:$('f-company').value.trim()||null, bio:$('f-bio').value.trim()||null,
       tier:$('f-tier').value||null, formats:formats, specialties:Object.keys(picked), expertise:expertise,
+      photo_url:$('f-photo-url').value||null,
       fee_coffee:$('fee-coffee').value.trim()||null, fee_zoom:$('fee-zoom').value.trim()||null, consent:true, consent_version:'apply-v1' };
     var btn=$('submit'); btn.disabled=true; msg.style.color='#5A564F'; msg.textContent='Submitting…';
     // Through the rate-limited API (5/min/IP) — the browser→Supabase path bypassed
