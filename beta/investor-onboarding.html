@@ -119,7 +119,12 @@ async function submitForm(){
     accreditation_note:val('accreditation_note') };
   const btn=document.getElementById('submit'); btn.disabled=true; btn.textContent='Submitting…';
   try{
-    const { error }=await sb.rpc('submit_investor_application', { p });
+    // Through the rate-limited API (5/min/IP) — the direct RPC bypassed both
+    // Cloudflare and the API limiter. status/public stay forced server-side.
+    const _r = await fetch('https://api.founderssprint.co/api/investor-application', {
+      method:'POST', headers:{ 'Content-Type':'application/json' }, body:JSON.stringify({ p })
+    });
+    const error = _r.ok ? null : new Error(((await _r.json().catch(()=>({}))).error) || 'Could not submit. Please try again.');
     if(error) throw new Error(error.message);
     document.getElementById('form-card').style.display='none';
     document.getElementById('done-card').style.display='block';

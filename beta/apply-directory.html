@@ -697,15 +697,11 @@ form.addEventListener('submit', async function(e) {
   };
 
   try {
-    // Raw fetch — bypasses slow Supabase client init on Safari
-    var res = await fetch(SUPABASE_URL + '/rest/v1/directory_applications', {
+    // Through the rate-limited API (5/min/IP). The old browser→Supabase insert
+    // bypassed both Cloudflare and the API limiter; status is forced server-side.
+    var res = await fetch('https://api.founderssprint.co/api/directory-application', {
       method: 'POST',
-      headers: {
-        'apikey': SUPABASE_ANON_KEY,
-        'Authorization': 'Bearer ' + SUPABASE_ANON_KEY,
-        'Content-Type': 'application/json',
-        'Prefer': 'return=minimal',
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),
     });
     if (!res.ok) {

@@ -12,8 +12,9 @@
   var ME = document.currentScript || (function(){ var s=document.getElementsByTagName('script'); return s[s.length-1]; })();
   var AREA = (ME && ME.dataset && ME.dataset.area) || (window.FS_REPORT_CONTEXT && window.FS_REPORT_CONTEXT.area) || '';
   var ROLE = (ME && ME.dataset && ME.dataset.role) || (window.FS_REPORT_CONTEXT && window.FS_REPORT_CONTEXT.role) || '';
-  var SB_URL = 'https://ivedeivyotwevjxvcuoe.supabase.co';
-  var SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss';
+  // Reports go through the rate-limited API (5/min/IP), not browser→Supabase —
+  // that path bypassed both Cloudflare and the API's limiter.
+  var API_BASE = 'https://api.founderssprint.co';
   var STORE_KEY = 'sb-ivedeivyotwevjxvcuoe-auth-token';
 
   // ---- capture the most recent JS error (only used if the user reports) ----
@@ -113,7 +114,6 @@
         kind:'bug', page:location.href, area:AREA||null, reporter_role:ROLE||null,
         reporter_email:($('fsr-email').value.trim()||(s&&s.email)||null),
         user_agent:(navigator.userAgent||'').slice(0,500), console_error:lastError||null };
-      if(s && s.uid) body.reporter_user_id=s.uid;
       $('fsr-send').disabled=true; msg.style.color='#5A564F'; msg.textContent='Sending…';
       post(body, s).then(function(){
         msg.style.color='#3D4A2E'; msg.textContent='Thank you — your report was sent.';
@@ -126,23 +126,14 @@
     });
   }
 
-  function insert(body, bearer){
-    return fetch(SB_URL+'/rest/v1/bug_reports', { method:'POST',
-      headers:{ apikey:SB_ANON, Authorization:'Bearer '+bearer, 'Content-Type':'application/json', Prefer:'return=minimal' },
-      body:JSON.stringify(body) });
-  }
   function post(body, s){
-    // Attributed insert when signed in; fall back to an anonymous report if the
-    // token is stale/expired (strip the user id so bug_anon_insert accepts it).
-    if(s && s.token){
-      return insert(body, s.token).then(function(r){
-        if(r.ok) return r;
-        var anon=Object.assign({}, body); delete anon.reporter_user_id;
-        return insert(anon, SB_ANON).then(function(r2){ if(!r2.ok) throw new Error('failed'); return r2; });
-      });
-    }
-    var anon=Object.assign({}, body); delete anon.reporter_user_id;
-    return insert(anon, SB_ANON).then(function(r){ if(!r.ok) throw new Error('failed'); return r; });
+    var headers={ 'Content-Type':'application/json' };
+    // Signed in? Pass the access token so the API can attribute the report to the
+    // real account — it verifies the token server-side. We never claim an id
+    // ourselves (a client-supplied reporter_user_id would be forgeable).
+    if(s && s.token) headers.Authorization = 'Bearer ' + s.token;
+    return fetch(API_BASE+'/api/bug-report', { method:'POST', headers:headers, body:JSON.stringify(body) })
+      .then(function(r){ if(!r.ok) throw new Error('failed'); return r; });
   }
 
   if(document.readyState==='loading') document.addEventListener('DOMContentLoaded', build); else build();

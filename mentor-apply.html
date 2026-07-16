@@ -142,8 +142,7 @@
 <script src="/site-chrome.js" defer></script>
 <script>
 (function(){
-  var SB_URL='https://ivedeivyotwevjxvcuoe.supabase.co';
-  var SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss';
+  var API_BASE='https://api.founderssprint.co';
   var $=function(id){return document.getElementById(id);};
   var picked={};
 
@@ -200,8 +199,10 @@
       tier:$('f-tier').value||null, formats:formats, specialties:Object.keys(picked), expertise:expertise,
       fee_coffee:$('fee-coffee').value.trim()||null, fee_zoom:$('fee-zoom').value.trim()||null, consent:true, consent_version:'apply-v1' };
     var btn=$('submit'); btn.disabled=true; msg.style.color='#5A564F'; msg.textContent='Submitting…';
-    fetch(SB_URL+'/rest/v1/rpc/submit_public_mentor_application',{ method:'POST',
-      headers:{ apikey:SB_ANON, Authorization:'Bearer '+SB_ANON, 'Content-Type':'application/json' },
+    // Through the rate-limited API (5/min/IP) — the browser→Supabase path bypassed
+    // both Cloudflare and the API limiter.
+    fetch(API_BASE+'/api/mentor-apply',{ method:'POST',
+      headers:{ 'Content-Type':'application/json' },
       body:JSON.stringify({ p: payload })
     }).then(function(r){
       if(r.ok){ $('apply').style.display='none'; $('done').style.display='block'; window.scrollTo({top:0,behavior:'smooth'}); }
