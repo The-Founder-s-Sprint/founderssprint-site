@@ -321,17 +321,6 @@
     $('#magic-sent').style.display = 'none';
   });
 
-  // Skip verification (prototype)
-  $('#btn-skip-verify').addEventListener('click', () => {
-    // If login mode, we need name/phone — use placeholder data for prototype
-    if (authMode === 'login' && !state.name) {
-      state.name = 'Returning User';
-      state.phone = state.phone || '7XX XXX XXX';
-      state.phoneCode = state.phoneCode || '+256';
-    }
-    goToStep(3);
-  });
-
   // ── Session detection (already logged in) ──────────────────
   // Checks for an existing Supabase session. If found, shows the
   // "Continue as [name]" card instead of create/login forms.
@@ -661,10 +650,9 @@
   function fullPhone() { return (state.phoneCode || '') + String(state.phone || '').replace(/\s+/g, ''); }
 
   async function startPaymentProcessing() {
-    // Show the "check your phone" state; hide prototype + success
+    // Show the "check your phone" state
     $('#state-processing').style.display = 'flex';
     $('#state-success').style.display = 'none';
-    const proto = $('#proto-payment-skip'); if (proto) proto.style.display = 'none';
     $('#provider-name').textContent = providerNames[state.provider] || 'Mobile Money';
     $('#processing-phone').textContent = (state.phoneCode || '') + ' ' + state.phone;
     const fill = $('#timer-fill'); if (fill) fill.style.width = '0%';
