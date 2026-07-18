@@ -1143,7 +1143,16 @@
           </div>
           <div class="dir-form-row">
             <label>How it shows</label>
-            <div style="font-size:11px;color:var(--muted)"><strong>Free (basic)</strong> listings show a clean monogram on the directory board. <strong>Paid (verified/featured)</strong> listings show this image scaled to fill the card frame — same treatment whether it's a logo or a profile photo. The expanded card always shows the image in full, uncropped.</div>
+            <div style="font-size:11px;color:var(--muted)"><strong>Basic (free)</strong> and <strong>Verified</strong> providers appear as rows in the directory list — Verified carry a badge. <strong>Featured</strong> providers get a display-ad card at the top, with the photo below as its hero banner (falling back to the logo).</div>
+          </div>
+          <div class="dir-form-row">
+            <label>Featured photo <span style="font-weight:400;color:var(--muted)">— display-ad hero</span></label>
+            <input type="file" id="prov-photo" accept="image/png,image/jpeg,image/webp" style="font-size:13px">
+            <div style="font-size:11px;color:var(--muted);margin-top:4px">Landscape photo (≈1200×630) shown as the hero banner on a <strong>Featured</strong> card — a real photo of the team, office or work, not the logo. JPEG is fine here. Leave empty to fall back to the logo.</div>
+            <div id="prov-photo-current" style="font-size:11px;color:var(--terra);margin-top:4px"></div>
+          </div>
+          <div class="dir-form-row">
+            <label style="display:flex;align-items:center;gap:9px;cursor:pointer;font-weight:400"><input type="checkbox" id="prov-featured" style="width:auto"> <span><strong>Featured — paid display ad</strong>. Shows as a hero card at the top of the directory. Requires a paid tier (Verified or higher).</span></label>
           </div>
           <div class="dir-form-row two-col">
             <div>
@@ -3989,7 +3998,7 @@ async function approveApplication(id) {
         website: app.website || null,
         tier: tier,
         price_ugx: TIER_PRICES[tier] || 0,
-        featured: tier !== 'basic',
+        featured: false,   // Featured is a deliberate paid display-ad upgrade, set later via Edit — not auto-applied on approval
         status: 'active',
         starts_at: now.toISOString(),
         expires_at: expiresAt,
@@ -4112,11 +4121,15 @@ function editProvider(id){
   document.getElementById('prov-start').value   = pr.starts_at ? pr.starts_at.split('T')[0] : '';
   document.getElementById('prov-expiry').value  = pr.expires_at ? pr.expires_at.split('T')[0] : '';
   document.getElementById('prov-logo').value = '';
+  document.getElementById('prov-photo').value = '';
+  document.getElementById('prov-featured').checked = !!pr.featured;
   updateProvPrice();
   const t = document.getElementById('dir-add-title'); if(t) t.textContent = 'Edit Provider — ' + (pr.company_name || '');
   const b = document.getElementById('prov-submit-btn'); if(b) b.textContent = 'Save Changes';
   const lc = document.getElementById('prov-logo-current');
   if(lc) lc.innerHTML = pr.logo_url ? 'A logo is on file — leave the file empty to keep it, or choose a new one to replace it.' : 'No logo on file yet.';
+  const pc = document.getElementById('prov-photo-current');
+  if(pc) pc.innerHTML = pr.photo_url ? 'A featured photo is on file — leave empty to keep it, or choose a new one to replace it.' : 'No featured photo on file yet.';
   switchDirTab('add');
   window.scrollTo({ top: 0, behavior: 'smooth' });
 }
@@ -4129,8 +4142,11 @@ async function addProvider() {
   const startDate = document.getElementById('prov-start').value;
   const expiryDate = document.getElementById('prov-expiry').value;
 
+  const featured = document.getElementById('prov-featured').checked;
+
   if (!name) { showToast('Company name is required', 'error'); return; }
   if (tier !== 'basic' && (!startDate || !expiryDate)) { showToast('Start and expiry dates are required for paid tiers', 'error'); return; }
+  if (featured && tier === 'basic') { showToast('Featured is a paid display ad — set the tier to Verified or higher first.', 'error'); return; }
 
   const TIER_PRICES = { basic: 0, verified: 500000, corporate: 25000000, programme_partner: 50000000, strategic_partner: 100000000 };
   const editing = editingProviderId;
@@ -4154,6 +4170,24 @@ async function addProvider() {
       logoProvided = true;
     }
 
+    // 1b. Upload featured hero photo if a new file was chosen
+    let photoUrl = null, photoProvided = false;
+    const photoFile = document.getElementById('prov-photo').files?.[0];
+    if (photoFile) {
+      const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+      const ext = (photoFile.name.split('.').pop() || 'jpg').toLowerCase();
+      const storagePath = `sponsors/${slug}-photo.${ext}`;
+      const token = await _getValidToken();
+      const uploadRes = await fetch(SUPABASE_URL + '/storage/v1/object/coach-profiles/' + storagePath, {
+        method: 'POST',
+        headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + token, 'Content-Type': photoFile.type, 'x-upsert': 'true' },
+        body: photoFile,
+      });
+      if (!uploadRes.ok) throw new Error('Photo upload failed: ' + uploadRes.status);
+      photoUrl = SUPABASE_URL + '/storage/v1/object/public/coach-profiles/' + storagePath;
+      photoProvided = true;
+    }
+
     // 2. Build the record payload (fields shared by add + edit)
     const payload = {
       company_name: name,
@@ -4166,9 +4200,10 @@ async function addProvider() {
       tier,
       price_ugx: TIER_PRICES[tier] || 0,
       banner_tagline: tagline,
-      featured: tier === 'verified' || tier === 'corporate',
+      featured: featured,   // explicit — a Featured display ad, not auto-derived from tier
     };
-    if (logoProvided) payload.logo_url = logoUrl;   // only overwrite the logo when a new one is uploaded
+    if (logoProvided) payload.logo_url = logoUrl;    // only overwrite the logo when a new one is uploaded
+    if (photoProvided) payload.photo_url = photoUrl; // only overwrite the hero photo when a new one is uploaded
 
     const token = await _getValidToken();
     let res;
@@ -4185,6 +4220,7 @@ async function addProvider() {
       // ADD — new row
       payload.status = 'active';
       payload.logo_url = logoProvided ? logoUrl : null;
+      payload.photo_url = photoProvided ? photoUrl : null;
       payload.starts_at = startDate ? new Date(startDate).toISOString() : new Date().toISOString();
       payload.expires_at = expiryDate ? new Date(expiryDate).toISOString() : (tier === 'basic' ? new Date('2099-12-31').toISOString() : null);
       res = await fetch(SUPABASE_URL + '/rest/v1/directory_providers', {
@@ -4215,7 +4251,10 @@ function clearProviderForm() {
   document.getElementById('prov-category').value = 'legal';
   document.getElementById('prov-tier').value = 'basic';
   document.getElementById('prov-logo').value = '';
+  document.getElementById('prov-photo').value = '';
+  document.getElementById('prov-featured').checked = false;
   var _pw = document.getElementById('prov-logo-warn'); if(_pw) _pw.textContent = '';
+  var _pc = document.getElementById('prov-photo-current'); if(_pc) _pc.innerHTML = '';
   // reset date defaults (today → +3 months) for a fresh add
   const today = new Date().toISOString().split('T')[0];
   const d = new Date(); d.setMonth(d.getMonth() + 3);
