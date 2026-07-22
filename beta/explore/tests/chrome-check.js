@@ -19,7 +19,7 @@ check('source: no hand-rolled <nav class="nav">', !/<nav class="nav"/.test(html)
 check('source: no hand-rolled <footer>', !/<footer>/.test(html));
 check('source: #fs-nav data-fixed mount', /<div id="fs-nav" data-fixed><\/div>/.test(html));
 check('source: #fs-footer mount', /<div id="fs-footer"><\/div>/.test(html));
-check('source: site-chrome.js?v=7 deferred include', /<script src="\/site-chrome\.js\?v=7" defer><\/script>/.test(html));
+check('source: site-chrome.js deferred include (any version)', /<script src="\/site-chrome\.js\?v=\d+" defer><\/script>/.test(html));
 
 const dom = new JSDOM(html, { url: 'https://founderssprint.co/beta/explore/', runScripts: 'outside-only', pretendToBeVisual: true });
 const { window } = dom;

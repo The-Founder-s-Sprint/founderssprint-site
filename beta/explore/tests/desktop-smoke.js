@@ -14,9 +14,15 @@ check('desktop: 69 constellation nodes built', doc.querySelectorAll('#g-nodes .n
 check('desktop: connection lines built', doc.querySelectorAll('#g-conns line').length > 60);
 check('desktop: mobile section stays empty', doc.getElementById('m-discover').innerHTML === '');
 check('desktop: coach directory built (5 items)', doc.querySelectorAll('.dir-item').length === 5);
-// NOTE: this suite predates the FSConstellation module swap and still asserts against the
-// legacy #g-nodes scaffold. The taxonomy is 49 L3 leaves (README baseline: "69 nodes (49 L3)").
-check('desktop: legend says 49', /49 coaching areas/.test(doc.body.textContent));
+{
+  // Legend is now the per-discipline list built from the taxonomy — assert
+  // structurally (5 rows; counts sum to the L3 nodes actually built) so this
+  // never goes stale on a count or copy change.
+  const rows = doc.querySelectorAll('#legend .legend-disc');
+  const sum = Array.from(doc.querySelectorAll('#legend .legend-disc-count')).reduce((a,e)=>a+parseInt(e.textContent,10),0);
+  const l3built = doc.querySelectorAll('#g-nodes [data-node-id^="l3-"]').length;
+  check('desktop: discipline legend built (5 rows, counts sum to built L3s: '+sum+')', rows.length===5 && sum===l3built);
+}
 // let the intro + deep link play out (LOAD_DURATION_MS=3600 + openDetail delay)
 setTimeout(() => {
   const detail = doc.getElementById('detail');

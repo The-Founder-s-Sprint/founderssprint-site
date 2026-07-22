@@ -336,6 +336,13 @@
 <!-- ============================================================
      COACH DIRECTORY (scrollable, accordion)
      ============================================================ -->
+<!-- Founding launch promo (15% off) — banner rendered by /promo.js into this
+     mount, date-gated 1 Aug–30 Sep 2026 (renders nothing outside the window).
+     Placed at the content break below the constellation hero, NOT at the top
+     of <body>, because the fixed module nav overlays the full-screen hero.
+     QA: append ?promo=preview to force it on for this viewer. -->
+<div id="fs-promo" data-promo-cta="/beta/book/?tier=single"></div>
+
 <!-- Programme sponsors — above coach directory -->
 <div data-sponsors style="max-width:1440px;margin:0 auto;padding:0 56px;border-bottom:1px solid rgba(26,26,26,0.1)"></div>
 
@@ -370,6 +377,7 @@
 <script src="constellation-sound.js?v=4"></script>
 <script src="../sponsors.js?v=2"></script>
 <script src="../auth-nav.js?v=1"></script>
+<script src="/promo.js?v=1" defer></script>
 <script src="/site-chrome.js?v=9" defer></script>
 </body>
 </html>
