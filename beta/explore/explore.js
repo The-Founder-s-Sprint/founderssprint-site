@@ -57,7 +57,7 @@
       id: 'barry-wojega',
       name: 'Barry Wojega',
       role: 'Lead Financial Modelling Coach',
-      photo: null,
+      photo: '../images/coach-barry.jpg',
       color: '#c9923a',
       rating: 4.8,
       sessions: 27,
