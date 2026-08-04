@@ -434,7 +434,7 @@ async function handleRSVP(e) {
   };
 
   try {
-    var resp = await fetch('https://api.founderssprint.co/api/rsvp', {
+    var resp = await fetch('/api/rsvp', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),

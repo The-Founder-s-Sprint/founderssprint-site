@@ -10,7 +10,8 @@
 <link rel="preconnect" href="https://ivedeivyotwevjxvcuoe.supabase.co" crossorigin>
 <link rel="dns-prefetch" href="https://ivedeivyotwevjxvcuoe.supabase.co">
 <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600;1,700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="/vendor/supabase-js.min.js?v=2110"></script>
+<script>window.supabase||document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"><\/script>')</script>
 <script src="ui-dialogs.js?v=2"></script>
 <!-- Single source of truth for the 5→15→49 taxonomy. The journey timeline derives
      its L2/L3 structure from this file — never hardcode it again (it drifted to 45). -->
@@ -550,11 +551,12 @@
 
 <script>
 const SUPABASE_URL  = 'https://ivedeivyotwevjxvcuoe.supabase.co';
+const SB_API='/sb';   // same-origin authed proxy (Cloudflare Worker) → Supabase
 const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss';
 
-const API_BASE = 'https://api.founderssprint.co';
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
-  auth: { detectSessionInUrl: true, autoRefreshToken: true, persistSession: true }
+const API_BASE = '';  // same-origin → Cloudflare /api/* proxy → api.founderssprint.co
+const sb = supabase.createClient(location.origin+'/sb', SUPABASE_ANON, {
+  auth: { detectSessionInUrl: true, autoRefreshToken: true, persistSession: true, storageKey: 'sb-ivedeivyotwevjxvcuoe-auth-token' }
 });
 
 window.requestIdleCallback = window.requestIdleCallback || function(cb, opts){ return setTimeout(() => cb({didTimeout:false,timeRemaining:()=>50}), opts?.timeout||1); };
@@ -650,7 +652,7 @@ async function _refreshToken(){
     const stored = _getStoredSession();
     const rt = stored.refresh_token;
     if(!rt) throw new Error('No refresh token — please sign in again');
-    const res = await fetch(SUPABASE_URL + '/auth/v1/token?grant_type=refresh_token', {
+    const res = await fetch(SB_API + '/auth/v1/token?grant_type=refresh_token', {
       method:'POST', headers:{ 'apikey':SUPABASE_ANON, 'Content-Type':'application/json' },
       body: JSON.stringify({ refresh_token: rt })
     });
@@ -680,7 +682,7 @@ async function _getValidToken(){
 
 async function _pgQuery(table, params){
   const token = await _getValidToken();
-  const res = await fetch(SUPABASE_URL + '/rest/v1/' + table + '?' + params, {
+  const res = await fetch(SB_API + '/rest/v1/' + table + '?' + params, {
     headers: { 'apikey':SUPABASE_ANON, 'Authorization':'Bearer '+token }
   });
   if(!res.ok){ const txt = await res.text(); throw new Error('Query failed ('+res.status+'): '+txt); }
@@ -689,7 +691,7 @@ async function _pgQuery(table, params){
 
 async function _pgWrite(method, table, params, body){
   const token = await _getValidToken();
-  const res = await fetch(SUPABASE_URL + '/rest/v1/' + table + (params?('?'+params):''), {
+  const res = await fetch(SB_API + '/rest/v1/' + table + (params?('?'+params):''), {
     method,
     headers: { 'apikey':SUPABASE_ANON, 'Authorization':'Bearer '+token, 'Content-Type':'application/json', 'Prefer':'return=representation' },
     body: body ? JSON.stringify(body) : undefined
@@ -1247,7 +1249,7 @@ async function uploadDoc(catKey,itemKey,input){
     const token = await _getValidToken();
     const safe = file.name.replace(/[^A-Za-z0-9._-]/g,'_');
     const path = company.id+'/'+catKey+'/'+Date.now()+'-'+safe;
-    const res = await fetch(SUPABASE_URL+'/storage/v1/object/data-room/'+encodeURI(path), { method:'POST', headers:{ apikey:SUPABASE_ANON, Authorization:'Bearer '+token, 'Content-Type':file.type||'application/octet-stream', 'x-upsert':'true' }, body:file });
+    const res = await fetch(SB_API+'/storage/v1/object/data-room/'+encodeURI(path), { method:'POST', headers:{ apikey:SUPABASE_ANON, Authorization:'Bearer '+token, 'Content-Type':file.type||'application/octet-stream', 'x-upsert':'true' }, body:file });
     if(!res.ok) throw new Error(await res.text());
     const rec = await _pgWrite('POST','data_room_files','',{ company_id:company.id, category_key:catKey, item_key:itemKey, title:file.name, storage_path:path, mime_type:file.type||null, file_size:file.size, source:'founder', status:'uploaded', uploaded_by:profile.user_id });
     const r = Array.isArray(rec)?rec[0]:rec; if(r) drFiles.unshift(r);
@@ -1259,9 +1261,9 @@ async function uploadDoc(catKey,itemKey,input){
 async function openDoc(path){
   try {
     const token = await _getValidToken();
-    const res = await fetch(SUPABASE_URL+'/storage/v1/object/sign/data-room/'+encodeURI(path), { method:'POST', headers:{ apikey:SUPABASE_ANON, Authorization:'Bearer '+token, 'Content-Type':'application/json' }, body:JSON.stringify({ expiresIn:300 }) });
+    const res = await fetch(SB_API+'/storage/v1/object/sign/data-room/'+encodeURI(path), { method:'POST', headers:{ apikey:SUPABASE_ANON, Authorization:'Bearer '+token, 'Content-Type':'application/json' }, body:JSON.stringify({ expiresIn:300 }) });
     const j = await res.json();
-    if(j && j.signedURL){ window.open(SUPABASE_URL+'/storage/v1'+j.signedURL, '_blank'); }
+    if(j && j.signedURL){ window.open(SB_API+'/storage/v1'+j.signedURL, '_blank'); }
     else throw new Error('not available');
   } catch(e){ showToast('Could not open file — '+(e.message||e),'error'); }
 }
@@ -1450,11 +1452,11 @@ async function uploadAvatar(file){
     const token = await _getValidToken();
     const ext = file.type==='image/png' ? 'png' : file.type==='image/webp' ? 'webp' : 'jpg';
     const path = profile.user_id + '/avatar-' + Date.now() + '.' + ext;
-    const res = await fetch(SUPABASE_URL + '/storage/v1/object/founder-avatars/' + path, {
+    const res = await fetch(SB_API + '/storage/v1/object/founder-avatars/' + path, {
       method:'POST', headers:{ apikey:SUPABASE_ANON, Authorization:'Bearer '+token, 'Content-Type':file.type, 'x-upsert':'true' }, body:file
     });
     if(!res.ok) throw new Error(await res.text());
-    const url = SUPABASE_URL + '/storage/v1/object/public/founder-avatars/' + path;
+    const url = SB_API + '/storage/v1/object/public/founder-avatars/' + path;
     await _pgWrite('PATCH', 'founder_profiles', 'id=eq.'+profile.id, { avatar_url:url, updated_at:new Date().toISOString() });
     profile.avatar_url = url; applyAvatar();
     msg.textContent = 'Photo updated.'; showToast('Profile photo updated','success');

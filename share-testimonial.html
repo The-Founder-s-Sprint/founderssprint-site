@@ -9,7 +9,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://ivedeivyotwevjxvcuoe.supabase.co" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="/vendor/supabase-js.min.js?v=2110"></script>
+<script>window.supabase||document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"><\/script>')</script>
 <style>
   :root{
   --radius-card: 0 0 24px 0;--ink:#1A1A1A;--ink-soft:#22242B;--paper:#EFE7D8;--paper-deep:#E6DCC7;--muted:#5A564F;--paper-dim:#A09888;
@@ -138,7 +139,7 @@
 const SUPABASE_URL='https://ivedeivyotwevjxvcuoe.supabase.co';
 const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss';
 const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON,{auth:{persistSession:false}});
-const API_BASE='https://api.founderssprint.co';
+const API_BASE='';  // same-origin → Cloudflare /api/* proxy → api.founderssprint.co
 
 /* Deep-link pre-targeting: /share-testimonial.html?for=<slug> (from coach profiles, courses, etc.) */
 (function(){

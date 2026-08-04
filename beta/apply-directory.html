@@ -699,7 +699,7 @@ form.addEventListener('submit', async function(e) {
   try {
     // Through the rate-limited API (5/min/IP). The old browser→Supabase insert
     // bypassed both Cloudflare and the API limiter; status is forced server-side.
-    var res = await fetch('https://api.founderssprint.co/api/directory-application', {
+    var res = await fetch('/api/directory-application', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(data),

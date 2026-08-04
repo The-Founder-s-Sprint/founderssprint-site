@@ -46,6 +46,9 @@
   </div>
 </nav>
 
+<!-- Launch promo banner (date-gated: appears 1 Aug via /promo.js) -->
+<div id="fs-promo"></div>
+
 <!-- ============================================================
      STEP 1 — TIER SELECTION
      ============================================================ -->
@@ -63,7 +66,7 @@
         <div class="tier-accent" style="background: var(--stone)"></div>
         <div class="tier-top">
           <span class="tier-eyebrow">One-on-One</span>
-          <div class="tier-price"><span class="ccy">UGX</span><span class="amt">500K</span></div>
+          <div class="tier-price"><span class="ccy">UGX</span><span class="amt" data-promo-tier="single">500K</span></div>
           <p class="tier-desc">1 coach. 1 discipline. 1 vetted deliverable.</p>
         </div>
         <ul class="tier-features">
@@ -85,7 +88,7 @@
         <div class="tier-accent" style="background: var(--ochre)"></div>
         <div class="tier-top">
           <span class="tier-eyebrow">Pick 3 Bundle</span>
-          <div class="tier-price"><span class="ccy">UGX</span><span class="amt">1M</span></div>
+          <div class="tier-price"><span class="ccy">UGX</span><span class="amt" data-promo-tier="pick3">1M</span></div>
           <p class="tier-desc">3 coaches. 3 disciplines. 3 deliverables. Save 33%.</p>
         </div>
         <ul class="tier-features">
@@ -106,7 +109,7 @@
         <div class="tier-accent" style="background: var(--terra)"></div>
         <div class="tier-top">
           <span class="tier-eyebrow">Full Cohort</span>
-          <div class="tier-price"><span class="ccy">UGX</span><span class="amt">2.5M</span></div>
+          <div class="tier-price"><span class="ccy">UGX</span><span class="amt" data-promo-tier="cohort">2.5M</span></div>
           <p class="tier-desc">All 5 coaches. 5 weeks. 50 hours. Complete data room.</p>
         </div>
         <ul class="tier-features">
@@ -128,7 +131,7 @@
         <div class="tier-accent" style="background: var(--moss)"></div>
         <div class="tier-top">
           <span class="tier-eyebrow">VIP 1-on-1</span>
-          <div class="tier-price"><span class="ccy">UGX</span><span class="amt">5M</span></div>
+          <div class="tier-price"><span class="ccy">UGX</span><span class="amt" data-promo-tier="vip1on1">5M</span></div>
           <p class="tier-desc">Private, dedicated coaching across all five disciplines.</p>
         </div>
         <ul class="tier-features">
@@ -566,8 +569,10 @@
   </div>
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="/vendor/supabase-js.min.js?v=2110"></script>
+<script>window.supabase||document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"><\/script>')</script>
 <script src="../taxonomy.js?v=1"></script>
-<script src="book.js?v=6"></script>
+<script src="/promo.js?v=1"></script>
+<script src="book.js?v=8"></script>
 </body>
 </html>

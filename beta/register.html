@@ -426,7 +426,7 @@
 <script>
   var yrEl = document.getElementById('yr'); if (yrEl) yrEl.textContent = new Date().getFullYear();  // null-safe: footer year now lives in the site-chrome module
 
-  const API = 'https://api.founderssprint.co';
+  const API = '';  // same-origin → Cloudflare /api/* proxy → api.founderssprint.co
   const SUPABASE_URL  = 'https://ivedeivyotwevjxvcuoe.supabase.co';
   const SUPABASE_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss';
 

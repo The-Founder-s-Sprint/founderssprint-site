@@ -1507,7 +1507,7 @@
 
     /* ── Form submit ── */
     /* TODO: RE-ENABLE VALIDATION BEFORE PRODUCTION LAUNCH */
-    var API_BASE = 'https://api.founderssprint.co';
+    var API_BASE = '';  // same-origin → Cloudflare /api/* proxy → api.founderssprint.co
 
     var form = document.getElementById('coachForm');
     var submitBtn = form.querySelector('.btn-submit');

@@ -11,7 +11,7 @@
   var SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss';
   var sb = (window.supabase && window.supabase.createClient) ? window.supabase.createClient(SB_URL, SB_ANON) : null;
   var LOGGED_IN = false;
-  var API = 'https://api.founderssprint.co';
+  var API = '';  // same-origin → Cloudflare /api/* proxy → api.founderssprint.co
 
   // ── State ──────────────────────────────────────────────────
   const state = {
@@ -67,6 +67,14 @@
     cohort:  { name: 'Full Cohort',         price: 2500000,  priceLabel: 'UGX 2,500,000', max: ALL_SPECS.length, shortPrice: 'UGX 2.5M' },
     vip1on1: { name: 'VIP 1-on-1',          price: 5000000,  priceLabel: 'UGX 5,000,000', max: 0,                shortPrice: 'UGX 5M' },
   };
+
+  // ── Launch promo (date-gated via /promo.js) ────────────────
+  // Tier/marketing displays show the discounted OFFER price. The deposit charged
+  // now stays FULL (server-computed, matches the MoMo prompt); the 15% is realised
+  // on the balance, collected once payment-layer enforcement is wired.
+  function promo()       { return (window.FS_PROMO && window.FS_PROMO.active && window.FS_PROMO.active()) ? window.FS_PROMO : null; }
+  function offerTotal(t) { var P = promo(); return P ? P.discount(TIER_DATA[t].price) : TIER_DATA[t].price; }
+  function offerShort(t) { var P = promo(); return P ? ('UGX ' + P.compact(P.discount(TIER_DATA[t].price))) : TIER_DATA[t].shortPrice; }
 
   const DISC_NAMES = {
     marketing:  'Marketing & Branding',
@@ -202,12 +210,12 @@
     const t = TIER_DATA[state.tier];
     if (!t) return;
     $('#badge-tier-name').textContent = t.name;
-    $('#badge-tier-price').textContent = t.shortPrice;
+    $('#badge-tier-price').textContent = offerShort(state.tier);
     // Also update login form badge
     const loginName = $('#badge-tier-name-login');
     const loginPrice = $('#badge-tier-price-login');
     if (loginName) loginName.textContent = t.name;
-    if (loginPrice) loginPrice.textContent = t.shortPrice;
+    if (loginPrice) loginPrice.textContent = offerShort(state.tier);
   }
 
   // Auth toggle tabs
@@ -558,9 +566,14 @@
   function setupStep4() {
     const t = TIER_DATA[state.tier];
 
-    // Tier
+    // Tier — show the discounted offer price (struck list price) when the promo is live
     $('.review-tier-name').textContent = t.name;
-    $('.review-tier-price').textContent = t.shortPrice;
+    if (promo()) {
+      $('.review-tier-price').innerHTML = offerShort(state.tier)
+        + ' <s style="opacity:.5;font-weight:400;font-size:.82em">was ' + t.shortPrice + '</s>';
+    } else {
+      $('.review-tier-price').textContent = t.shortPrice;
+    }
 
     // Specialties (the bookable L3 units)
     const discContainer = $('#review-disciplines');
@@ -615,16 +628,29 @@
       schedSection.style.display = 'none';
     }
 
-    // Payment — 10% non-refundable deposit reserves the booking; balance due 48h before start
+    // Payment — 10% non-refundable deposit reserves the booking; balance due 48h before start.
+    // Deposit stays 10% of the LIST price (server-computed, matches the MoMo prompt).
+    // When the founding offer is live, the 15% comes off the balance, so the TOTAL is discounted.
     const deposit = Math.round(t.price * 0.10);
-    const balance = t.price - deposit;
+    const total   = offerTotal(state.tier);     // discounted if promo live, else list
+    const balance = total - deposit;
+    const P = promo();
     const instNote = $('#review-instalment');
     $('#review-pay-label').textContent = 'Deposit due now (10%)';
     $('#review-amount').textContent = 'UGX ' + deposit.toLocaleString('en-UG');
     $('#btn-pay-amount').textContent = deposit.toLocaleString('en-UG');
     instNote.style.display = 'block';
-    instNote.textContent = 'Balance of UGX ' + balance.toLocaleString('en-UG') + ' is due in full 48 hours before your '
-      + (state.tier === 'cohort' ? 'cohort starts' : 'first session') + '. The 10% deposit is non-refundable.';
+    const whenTxt = (state.tier === 'cohort' ? 'cohort starts' : 'first session');
+    if (P) {
+      const listBalance = t.price - deposit;
+      instNote.innerHTML = '<strong>Founding offer applied — 15% off</strong> (first 100 founders, 20 per coach). '
+        + 'Your balance is <strong>UGX ' + balance.toLocaleString('en-UG') + '</strong> '
+        + '<s style="opacity:.5">was UGX ' + listBalance.toLocaleString('en-UG') + '</s>, due in full 48 hours before your '
+        + whenTxt + '. The 10% deposit is non-refundable.';
+    } else {
+      instNote.textContent = 'Balance of UGX ' + balance.toLocaleString('en-UG') + ' is due in full 48 hours before your '
+        + whenTxt + '. The 10% deposit is non-refundable.';
+    }
 
     // MoMo phone
     $('#momo-phone-display').textContent = state.phoneCode + ' ' + state.phone;

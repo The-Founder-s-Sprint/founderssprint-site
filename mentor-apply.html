@@ -40,6 +40,12 @@
   .fmt-opt .fee label{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);}
   /* specialties — aligned chip grid grouped by discipline → module */
   .spx-wrap{border:1px solid var(--border);background:#fff;max-height:440px;overflow:auto;margin-top:8px;}
+  /* per-specialty info affordance + floating tooltip (tooltip is position:fixed so
+     the scroll container's overflow:auto never clips it) */
+  .spx-i{display:inline-flex;align-items:center;justify-content:center;width:15px;height:15px;margin-left:6px;border:1px solid var(--dim,#9a8f7d);border-radius:50%;font:italic 700 10px/1 Georgia,serif;color:var(--dim,#7a7060);cursor:help;flex:0 0 auto;vertical-align:middle;user-select:none;-webkit-user-select:none;}
+  .spx-i:hover,.spx-i:focus{border-color:var(--terra,#C8531F);color:var(--terra,#C8531F);outline:none;}
+  #spx-tip{position:fixed;z-index:99999;max-width:260px;background:#1A1A1A;color:#EFE7D8;font:400 12.5px/1.45 var(--font,system-ui,-apple-system,sans-serif);padding:9px 11px;border-top:2px solid #C8531F;box-shadow:0 8px 30px rgba(0,0,0,.35);pointer-events:none;opacity:0;transform:translateY(4px);transition:opacity .12s ease,transform .12s ease;}
+  #spx-tip.on{opacity:1;transform:none;}
   .spx-disc{padding:12px 14px 14px;}
   .spx-disc + .spx-disc{border-top:1px solid var(--border);}
   .spx-dhead{display:flex;align-items:center;gap:8px;font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);margin-bottom:9px;}
@@ -147,11 +153,11 @@
 </main>
 
 <div id="fs-footer"></div>
-<script src="/beta/taxonomy.js"></script>
+<script src="/beta/taxonomy.js?v=2"></script>
 <script src="/site-chrome.js" defer></script>
 <script>
 (function(){
-  var API_BASE='https://api.founderssprint.co';
+  var API_BASE='';  // same-origin → Cloudflare /api/* proxy → api.founderssprint.co (Ugandan networks can't reach the API cross-origin)
   var $=function(id){return document.getElementById(id);};
   var picked={};
 
@@ -163,7 +169,7 @@
       var body=d.l2.map(function(m){
         var chips=m.l3.map(function(name){
           var slug=tax.slugify(name);
-          return '<label class="spx-chip"><input type="checkbox" value="'+slug+'"'+(picked[slug]?' checked':'')+'>'+name+'</label>';
+          return '<label class="spx-chip"><input type="checkbox" value="'+slug+'"'+(picked[slug]?' checked':'')+'>'+name+'<span class="spx-i" tabindex="0" role="button" aria-label="What this covers" data-slug="'+slug+'">i</span></label>';
         }).join('');
         return '<div class="spx-l2">'+m.name+'</div>'+chips;
       }).join('');
@@ -175,6 +181,39 @@
       updateCounts();
     });
   }
+  // ---- specialty tooltips: hover (desktop), focus (keyboard), tap (mobile) ----
+  (function(){
+    var tip=null, pinned=false;
+    function el(){ if(!tip){ tip=document.createElement('div'); tip.id='spx-tip'; document.body.appendChild(tip);} return tip; }
+    function icoOf(e){ return (e.target && e.target.closest) ? e.target.closest('.spx-i') : null; }
+    function show(icon){
+      var tax=window.FS_TAXONOMY; if(!tax||!tax.describe) return;
+      var d=tax.describe(icon.getAttribute('data-slug')); if(!d){ hide(); return; }
+      var t=el(); t.textContent=d; t.classList.add('on');
+      var r=icon.getBoundingClientRect(), tw=t.offsetWidth, th=t.offsetHeight, pad=8;
+      var left=Math.max(pad, Math.min(r.left+r.width/2-tw/2, window.innerWidth-tw-pad));
+      var top=r.top-th-8; if(top<pad) top=r.bottom+8;
+      t.style.left=left+'px'; t.style.top=top+'px';
+    }
+    function hide(){ if(tip) tip.classList.remove('on'); pinned=false; }
+    document.addEventListener('mouseover', function(e){ var i=icoOf(e); if(i && !pinned) show(i); });
+    document.addEventListener('mouseout',  function(e){ var i=icoOf(e); if(i && !pinned) hide(); });
+    document.addEventListener('focusin',   function(e){ var i=icoOf(e); if(i) show(i); });
+    document.addEventListener('focusout',  function(e){ var i=icoOf(e); if(i && !pinned) hide(); });
+    // capture phase: intercept before the <label> toggles its checkbox
+    document.addEventListener('click', function(e){
+      var i=icoOf(e);
+      if(i){ e.preventDefault(); e.stopPropagation(); if(pinned){ hide(); } else { show(i); pinned=true; } return; }
+      if(pinned) hide();
+    }, true);
+    document.addEventListener('keydown', function(e){
+      if(e.key!=='Enter' && e.key!==' ') return;
+      var i=icoOf(e); if(!i) return;
+      e.preventDefault(); if(pinned) hide(); else { show(i); pinned=true; }
+    });
+    window.addEventListener('scroll', hide, true);
+    window.addEventListener('resize', hide);
+  })();
   function updateCounts(){
     var tax=window.FS_TAXONOMY; if(!tax) return;
     var n=Object.keys(picked).length;
@@ -192,24 +231,44 @@
     cb.addEventListener('change', function(){ opt.classList.toggle('on', cb.checked); });
   });
 
+  // Downscale + compress an image client-side before upload (EXIF-corrected).
+  // Non-images or any failure → original file returned unchanged.
+  function downscaleImage(file, maxDim, quality){
+    if(!file || !/^image\//.test(file.type) || file.type==='image/gif') return Promise.resolve(file);
+    return createImageBitmap(file,{imageOrientation:'from-image'}).then(function(bmp){
+      var scale=Math.min(1, maxDim/Math.max(bmp.width,bmp.height));
+      var w=Math.round(bmp.width*scale), h=Math.round(bmp.height*scale);
+      var cv=document.createElement('canvas'); cv.width=w; cv.height=h;
+      cv.getContext('2d').drawImage(bmp,0,0,w,h);
+      return new Promise(function(res){ cv.toBlob(function(b){
+        if(!b || b.size>=file.size) return res(file);
+        res(new File([b], file.name.replace(/\.\w+$/,'')+'.jpg', {type:'image/jpeg'}));
+      },'image/jpeg',quality); });
+    }).catch(function(){ return file; });
+  }
+
   // ---- photo upload ---------------------------------------------------------
   // The API mints a short-lived signed URL (it picks the path, not us), then the
   // file goes straight to storage — no anonymous write policy on the bucket, and
-  // it sidesteps the ~4.5MB serverless body limit.
+  // it sidesteps the ~4.5MB serverless body limit. We downscale FIRST so the
+  // signed URL is minted for the optimised file's content-type and size.
   var photoEl=$('f-photo-file');
   if(photoEl) photoEl.addEventListener('change', function(){
     var file=this.files && this.files[0]; if(!file) return;
     var msg=$('f-photo-msg');
     if(!/^image\/(png|jpeg|webp)$/.test(file.type)){ msg.textContent='Use a PNG, JPG or WebP image.'; msg.style.color='#9A3E16'; return; }
     if(file.size>5*1024*1024){ msg.textContent='Image must be under 5MB.'; msg.style.color='#9A3E16'; return; }
-    msg.style.color=''; msg.textContent='Uploading…';
-    fetch(API_BASE+'/api/mentor-apply-photo',{ method:'POST', headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({ contentType:file.type, size:file.size }) })
-      .then(function(r){ if(!r.ok) throw new Error('sign'); return r.json(); })
-      .then(function(s){
-        return fetch(s.signedUrl,{ method:'PUT', headers:{'content-type':file.type}, body:file })
-          .then(function(up){ if(!up.ok) throw new Error('upload'); return s; });
-      })
+    msg.style.color=''; msg.textContent='Optimising…';
+    downscaleImage(file,1200,0.82).then(function(up){
+      msg.textContent='Uploading…';
+      return fetch(API_BASE+'/api/mentor-apply-photo',{ method:'POST', headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({ contentType:up.type, size:up.size }) })
+        .then(function(r){ if(!r.ok) throw new Error('sign'); return r.json(); })
+        .then(function(s){
+          return fetch(s.signedUrl,{ method:'PUT', headers:{'content-type':up.type}, body:up })
+            .then(function(res){ if(!res.ok) throw new Error('upload'); return s; });
+        });
+    })
       .then(function(s){
         $('f-photo-url').value=s.publicUrl;
         var prev=$('f-photo-prev'); prev.src=s.publicUrl; prev.style.display='';

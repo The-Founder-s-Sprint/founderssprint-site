@@ -14,7 +14,7 @@
   var ROLE = (ME && ME.dataset && ME.dataset.role) || (window.FS_REPORT_CONTEXT && window.FS_REPORT_CONTEXT.role) || '';
   // Reports go through the rate-limited API (5/min/IP), not browser→Supabase —
   // that path bypassed both Cloudflare and the API's limiter.
-  var API_BASE = 'https://api.founderssprint.co';
+  var API_BASE = '';  // same-origin → Cloudflare /api/* proxy → api.founderssprint.co
   var STORE_KEY = 'sb-ivedeivyotwevjxvcuoe-auth-token';
 
   // ---- capture the most recent JS error (only used if the user reports) ----
@@ -59,7 +59,8 @@
     + '#fsr-cancel{background:none;border:none;color:#5A564F;font-size:12px;cursor:pointer;text-decoration:underline;}'
     + '#fsr-msg{font-size:12px;margin-top:10px;min-height:16px;}'
     + '#fsr-ctx{font-size:11px;color:#8a8378;margin-top:12px;line-height:1.5;}'
-    + '@media print{#fsr-btn{display:none;}}';
+    + '@media print{#fsr-btn{display:none;}}'
+    + '@media(max-width:700px){#fsr-btn{padding:6px 9px;font-size:10px;letter-spacing:.04em;opacity:.55;box-shadow:none;}#fsr-btn:hover,#fsr-btn:active{opacity:1;}}';
 
   function el(html){ var d=document.createElement('div'); d.innerHTML=html; return d.firstChild; }
 

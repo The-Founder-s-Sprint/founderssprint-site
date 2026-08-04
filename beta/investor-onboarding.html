@@ -7,7 +7,8 @@
 <link rel="icon" href="../favicon.svg" type="image/svg+xml">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="/vendor/supabase-js.min.js?v=2110"></script>
+<script>window.supabase||document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"><\/script>')</script>
 <style>
   :root{--bg:#EFE7D8;--surface:#E6DCC7;--card:#EFE7D8;--ink:#1A1A1A;--ink-mid:#444;--muted:#5A564F;--text:#1A1A1A;
     --border:rgba(26,26,26,0.18);--border-hi:rgba(26,26,26,0.35);
@@ -121,7 +122,7 @@ async function submitForm(){
   try{
     // Through the rate-limited API (5/min/IP) — the direct RPC bypassed both
     // Cloudflare and the API limiter. status/public stay forced server-side.
-    const _r = await fetch('https://api.founderssprint.co/api/investor-application', {
+    const _r = await fetch('/api/investor-application', {
       method:'POST', headers:{ 'Content-Type':'application/json' }, body:JSON.stringify({ p })
     });
     const error = _r.ok ? null : new Error(((await _r.json().catch(()=>({}))).error) || 'Could not submit. Please try again.');
