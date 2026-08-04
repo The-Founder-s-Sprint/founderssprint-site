@@ -543,8 +543,7 @@
     if (!gaps.length) {
       html += '<div class="gcard" style="border-left-color:' + DISC[3].color + '">'
         + '<div class="gn">Everything you told us is documented and in use.</div>'
-        + '<p>Nothing here scored below “documented.” That’s rare — and it means a single session won’t move you much. What’s left is depth and outside pressure: the full programme, or an operator who has already done what you’re about to do.</p>'
-        + '<a href="/mentors.html">Talk to an operator →</a></div>';
+        + '<p>Nothing here scored below “documented” — that’s rare. A single session won’t move you much from here; the real levers now are depth and outside pressure.</p></div>';
     }
     gaps.forEach(function (g) {
       var m = discMeta(g.d);
@@ -569,7 +568,7 @@
     if (!gaps.length && weakDiscs.length < 3) {
       html += '<div class="rec"><div class="e">Our recommendation</div>'
         + '<h3>You’re past the point single sessions fix.</h3>'
-        + '<p>Nothing scored below “documented.” The Full Cohort is the only track that takes a discipline end-to-end — and it comes with the founder data room and a cohort of peers to pressure-test you. Otherwise, a mentor who has already built and exited is the better next hour.</p>'
+        + '<p>The Full Cohort is the only track that takes a discipline end-to-end — with the founder data room and a cohort of peers to pressure-test you. Or, for one focused hour, a mentor who has already built and exited.</p>'
         + '<div class="btns"><a class="primary" href="/beta/book/?tier=cohort">Take the Full Cohort · UGX 2.5M →</a>'
         + '<a class="ghost" href="/mentors.html">Talk to an operator</a></div></div>';
     } else if (weakDiscs.length >= 3) {
