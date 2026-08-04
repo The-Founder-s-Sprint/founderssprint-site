@@ -99,8 +99,11 @@
   .rec a.primary{background:var(--terra);color:#fff;} .rec a.primary:hover{background:var(--terra-deep);}
   .rec a.ghost{border:1px solid rgba(239,231,216,.35);color:var(--paper);}
 
-  .side{background:rgba(201,146,58,.13);border-left:3px solid var(--ochre);padding:14px 16px;font-size:13px;line-height:1.6;margin-bottom:14px;}
-  .side b{display:block;font-family:var(--sans);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:5px;color:#7a5a12;}
+  .side{background:rgba(201,146,58,.13);border-left:3px solid var(--ochre);padding:15px 17px;font-size:13px;line-height:1.6;margin-bottom:14px;}
+  .side-h{font-family:var(--sans);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;margin-bottom:10px;color:#7a5a12;font-weight:700;}
+  .side-item{margin:0 0 10px;}
+  .side-item:last-child{margin-bottom:0;}
+  .side-item b{font-weight:600;color:#7a5a12;}   /* inline category name, not a block eyebrow */
   .side a{color:var(--terra-deep);font-weight:600;}
   .methods{font-size:12.5px;color:var(--muted);line-height:1.9;}
   .methods a{color:var(--terra-deep);font-weight:600;text-decoration:none;} .methods a:hover{text-decoration:underline;}
@@ -596,7 +599,8 @@
     var gd = l2Scores.filter(function (x) { return x.l2 === 'Growth & Discovery'; })[0];
     if (gd && gd.v <= 1) side.push('If customers can’t find you online, a developer or designer may help faster than a session. See <b>Digital</b> in the <a href="/beta/directory.html">Directory</a>.');
     if (side.length) {
-      html += '<div class="side"><b>Not everything is a coaching gap</b>' + side.join('<br><br>') + '</div>';
+      html += '<div class="side"><div class="side-h">Not everything is a coaching gap</div>'
+        + side.map(function (s) { return '<p class="side-item">' + s + '</p>'; }).join('') + '</div>';
     }
 
     // method pages for every weak discipline
