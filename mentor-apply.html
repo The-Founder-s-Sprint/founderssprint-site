@@ -265,7 +265,11 @@
         body:JSON.stringify({ contentType:up.type, size:up.size }) })
         .then(function(r){ if(!r.ok) throw new Error('sign'); return r.json(); })
         .then(function(s){
-          return fetch(s.signedUrl,{ method:'PUT', headers:{'content-type':up.type}, body:up })
+          // PUT the file through the same-origin /sb proxy — the signed URL is a
+          // cross-origin supabase.co URL that fails on some Ugandan networks (same
+          // reason the API is proxied). The signed token in the URL is preserved.
+          var putUrl = String(s.signedUrl||'').replace(/^https:\/\/[a-z0-9-]+\.supabase\.co/i, location.origin + '/sb');
+          return fetch(putUrl,{ method:'PUT', headers:{'content-type':up.type}, body:up })
             .then(function(res){ if(!res.ok) throw new Error('upload'); return s; });
         });
     })
