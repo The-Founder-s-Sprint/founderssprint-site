@@ -115,8 +115,10 @@
   .acct a:hover{background:#b8842f;}
   .savebtn{background:var(--ochre);color:var(--ink);border:none;padding:12px 22px;font-family:var(--sans);font-weight:700;font-size:11px;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;}
   .savebtn:hover{background:#b8842f;} .savebtn:disabled{opacity:.55;cursor:not-allowed;}
-  .fine{font-size:11px;color:var(--paper-dim);margin-top:12px;line-height:1.5;}
-  .fine a{color:var(--paper-dim);}
+  .fine{font-size:11px;color:var(--paper-dim);margin:12px auto 0;line-height:1.55;max-width:520px;text-wrap:balance;}
+  /* fine-print links must stay plain text — never inherit the .acct ochre button style */
+  .fine a{color:var(--paper-dim);background:none;padding:0;font:inherit;letter-spacing:normal;text-transform:none;display:inline;text-decoration:underline;}
+  .fine a:hover{color:var(--ink);background:none;}
 
   @media(max-width:600px){
     h1{font-size:31px;} .rhead{font-size:25px;}
@@ -618,7 +620,7 @@
       + '<button id="saveBtn" class="savebtn" style="display:none" onclick="saveRun()">Save to my dashboard →</button>'
       + '<div id="saveMsg" class="fine" style="color:var(--moss);font-weight:600"></div>'
       + '<div class="fine">Free to create. Your answers are already kept on this device, so nothing is lost. This check is a self-assessment — separate from the coach-vetted data room completeness that investors see.</div>'
-      + '<div class="fine"><a href="#" onclick="startOver();return false;" style="color:var(--paper-dim)">Start the check over</a></div>'
+      + '<div class="fine"><a href="#" onclick="startOver();return false;">Start the check over</a></div>'
       + '</div>';
 
     var r = $('results');
