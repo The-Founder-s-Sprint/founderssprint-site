@@ -103,7 +103,11 @@
   .full .fsm:last-child{border-bottom:none;}
   .full .fsm:hover{background:rgba(200,83,31,.08);color:var(--terra-deep);}
   .full .fsm-copy.copied{color:var(--success);font-weight:600;}
-  @media(max-width:560px){.full .f-share-btn,.full .f-share-menu{right:48px;}}
+  /* mobile: move Share to the top-LEFT so it can't collide with the × close button */
+  @media(max-width:560px){
+    .full .f-share-btn{right:auto;left:14px;top:12px;}
+    .full .f-share-menu{right:auto;left:14px;top:46px;}
+  }
   /* shared bits reused by the panel */
   .tags{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0 0;}
   .tag{font-size:10.5px;font-family:var(--sans);font-weight:600;letter-spacing:.04em;color:var(--moss);border:1px solid rgba(61,74,46,.3);padding:3px 8px;border-radius:2px;}
