@@ -151,7 +151,14 @@
   .m-search input{width:100%;background:rgba(0,0,0,.03);border:1px solid var(--border);padding:13px 14px 13px 42px;font-size:15px;font-family:var(--font);color:var(--ink);border-radius:0 0 14px 0;}
   .m-search input:focus{outline:none;border-color:var(--terra);}
   .m-search svg{position:absolute;left:14px;top:50%;transform:translateY(-50%);width:17px;height:17px;color:var(--muted);pointer-events:none;}
-  .chips{display:flex;flex-wrap:wrap;gap:8px;}
+  /* Filters collapse into the search bar — revealed on focus/click, kept open while a filter is active. */
+  .chips{display:flex;flex-wrap:wrap;gap:8px;max-height:0;opacity:0;overflow:hidden;margin-top:0;transition:max-height .3s ease,opacity .2s ease,margin-top .3s ease;}
+  .m-tools.filters-open .chips{max-height:360px;opacity:1;margin-top:14px;}
+  .m-search input{padding-right:44px;}
+  .m-filter-btn{position:absolute;right:6px;top:50%;transform:translateY(-50%);width:34px;height:34px;display:flex;align-items:center;justify-content:center;background:none;border:none;color:var(--muted);cursor:pointer;}
+  .m-filter-btn svg{width:16px;height:16px;transition:transform .25s ease;}
+  .m-tools.filters-open .m-filter-btn svg{transform:rotate(180deg);}
+  .m-filter-btn:hover{color:var(--terra);}
   /* Match the Directory filter-btn exactly (shared marketplace-filter style) */
   .chip{font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--stone);background:transparent;border:1px solid var(--border);padding:9px 16px;cursor:pointer;transition:all .2s;}
   .chip:hover{border-color:var(--terra);color:var(--terra);}
@@ -264,6 +271,7 @@
     <div class="m-search">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
       <input id="m-q" type="search" placeholder="Search by name, expertise, or company…" aria-label="Search mentors" oninput="onSearch(this.value)">
+      <button type="button" class="m-filter-btn" id="m-filter-btn" aria-label="Show filters" aria-expanded="false" aria-controls="chips"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg></button>
     </div>
     <div class="chips" id="chips"></div>
   </div>
@@ -549,6 +557,23 @@ function renderChips(){
   });
 }
 function onSearch(val){ state.q=val||''; render(); }
+
+// Collapse filter chips into the search bar: reveal on focus/click, collapse on
+// outside click / Esc, but keep open while a non-'all' filter is active.
+function setupFilterReveal(){
+  var mtools=document.querySelector('.m-tools');
+  var q=document.getElementById('m-q');
+  var fbtn=document.getElementById('m-filter-btn');
+  if(!mtools||!q) return;
+  function openF(){ mtools.classList.add('filters-open'); if(fbtn) fbtn.setAttribute('aria-expanded','true'); }
+  function closeF(force){ if(force || state.filter==='all'){ mtools.classList.remove('filters-open'); if(fbtn) fbtn.setAttribute('aria-expanded','false'); } }
+  q.addEventListener('focus', openF);
+  q.addEventListener('mousedown', openF);
+  if(fbtn) fbtn.addEventListener('click', function(e){ e.stopPropagation(); if(mtools.classList.contains('filters-open')) closeF(true); else { openF(); q.focus(); } });
+  document.addEventListener('click', function(e){ if(!mtools.contains(e.target)) closeF(false); });
+  q.addEventListener('keydown', function(e){ if(e.key==='Escape'){ closeF(true); q.blur(); } });
+}
+setupFilterReveal();
 
 function render(){
   const board=document.getElementById('board');
