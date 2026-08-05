@@ -90,7 +90,7 @@
       </div>
       <div class="grp two">
         <div><label class="lab">Email <span class="req">*</span></label><input type="email" id="f-email" name="email" autocomplete="email" maxlength="160" required></div>
-        <div><label class="lab">Phone (optional)</label><input type="tel" id="f-phone" name="tel" autocomplete="tel" maxlength="40" placeholder="+256…"></div>
+        <div><label class="lab">Phone <span class="req">*</span></label><input type="tel" id="f-phone" name="tel" autocomplete="tel" maxlength="40" placeholder="+256…" required></div>
       </div>
       <div class="grp two">
         <div><label class="lab">Headline / title</label><input type="text" id="f-title" name="organization-title" autocomplete="organization-title" maxlength="120" placeholder="Founder &amp; former CEO"></div>
@@ -100,12 +100,12 @@
       <div class="grp"><label class="lab">Short bio</label><textarea id="f-bio" maxlength="1200" autocomplete="off" placeholder="What have you built and operated? What can founders learn from you?"></textarea>
         <div class="hint">A few sentences. This appears on your public mentor card once approved.</div></div>
 
-      <div class="grp"><label class="lab">Profile photo (optional)</label>
+      <div class="grp"><label class="lab">Profile photo <span class="req">*</span></label>
         <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
           <img id="f-photo-prev" alt="" style="width:64px;height:64px;border-radius:50%;object-fit:cover;border:1px solid var(--border);display:none">
           <input type="file" id="f-photo-file" accept="image/png,image/jpeg,image/webp" autocomplete="off" style="font-size:13px;font-family:inherit">
         </div>
-        <div class="hint" id="f-photo-msg">PNG, JPG or WebP · up to 5MB. Shown on your public mentor card once approved. You can skip this — we'll ask later.</div>
+        <div class="hint" id="f-photo-msg">PNG, JPG or WebP · up to 5MB. Shown on your public mentor card once approved.</div>
         <input type="hidden" id="f-photo-url">
       </div>
 
@@ -119,7 +119,7 @@
       </select></div>
 
       <div class="section-title">How you'd like to meet founders</div>
-      <div class="section-sub">Pick the formats you offer and set your fee for each (UGX).</div>
+      <div class="section-sub">Pick at least one format you offer and set your fee for each (UGX). <span class="req">*</span></div>
       <div class="fmt">
         <div class="fmt-opt" id="opt-coffee" data-f="coffee">
           <div class="fh"><input type="checkbox" id="fmt-coffee"> ☕ Coffee sit-down</div>
@@ -278,7 +278,7 @@
         var prev=$('f-photo-prev'); prev.src=s.publicUrl; prev.style.display='';
         msg.textContent='Photo uploaded ✓'; msg.style.color='#3D4A2E';
       })
-      .catch(function(){ msg.textContent='Could not upload that photo — you can skip it and we’ll ask later.'; msg.style.color='#9A3E16'; });
+      .catch(function(){ msg.textContent='Could not upload that photo — please try again (a listing needs a photo).'; msg.style.color='#9A3E16'; });
   });
 
   renderSpecs(); updateCounts();
@@ -286,11 +286,21 @@
   // ---- submit ----
   $('mform').addEventListener('submit', function(e){
     e.preventDefault();
-    var msg=$('msg'); var first=$('f-first').value.trim(), last=$('f-last').value.trim(), email=$('f-email').value.trim();
-    if(first.length<2){ msg.style.color='#9A3E16'; msg.textContent='Please enter your first name.'; return; }
-    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ msg.style.color='#9A3E16'; msg.textContent='Please enter a valid email.'; return; }
-    if(!$('f-consent').checked){ msg.style.color='#9A3E16'; msg.textContent='Please confirm consent to proceed.'; return; }
-    var formats=[]; if($('fmt-coffee').checked)formats.push('coffee'); if($('fmt-zoom').checked)formats.push('zoom');
+    var msg=$('msg'); var first=$('f-first').value.trim(), last=$('f-last').value.trim(), email=$('f-email').value.trim(), phone=$('f-phone').value.trim();
+    function fail(m,el){ msg.style.color='#9A3E16'; msg.textContent=m; if(el){ try{ el.focus(); el.scrollIntoView({behavior:'smooth',block:'center'}); }catch(_){} } }
+    // A listing needs: name, contact (email + phone), a photo, at least one rate, and a specialty — mandatory so we don't have to chase details later.
+    if(first.length<2){ fail('Please enter your first name.', $('f-first')); return; }
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ fail('Please enter a valid email.', $('f-email')); return; }
+    if(phone.replace(/\D/g,'').length<7){ fail('Please add a phone number we can reach you on.', $('f-phone')); return; }
+    if(!$('f-photo-url').value){ fail('Please add a profile photo — it’s shown on your mentor card.', $('f-photo-file')); return; }
+    // Rates: at least one format, and every chosen format needs a fee.
+    var formats=[], fc=$('fee-coffee').value.trim(), fz=$('fee-zoom').value.trim();
+    if($('fmt-coffee').checked){ if(!(parseInt(fc,10)>0)){ fail('Add your fee for the coffee sit-down.', $('fee-coffee')); return; } formats.push('coffee'); }
+    if($('fmt-zoom').checked){ if(!(parseInt(fz,10)>0)){ fail('Add your fee for the video call.', $('fee-zoom')); return; } formats.push('zoom'); }
+    if(formats.length===0){ fail('Pick at least one way to meet founders and set your fee.', $('opt-coffee')); return; }
+    // Categorisation: at least one specialty.
+    if(Object.keys(picked).length===0){ fail('Select at least one specialty you can mentor on.', $('specs')); return; }
+    if(!$('f-consent').checked){ fail('Please confirm consent to proceed.', $('f-consent')); return; }
     var expertise=$('f-expertise').value.split(',').map(function(s){return s.trim();}).filter(Boolean);
     var payload={ first_name:first, last_name:last||null, email:email, phone:$('f-phone').value.trim()||null, location:$('f-location').value.trim()||null,
       title:$('f-title').value.trim()||null, company:$('f-company').value.trim()||null, bio:$('f-bio').value.trim()||null,
