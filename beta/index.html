@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="description" content="Five coaches. Five disciplines. Expert coaching for East African founders — walk away with an investor-ready data room.">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Josefin+Sans:wght@300;400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="homepage.css?v=14">
+<link rel="stylesheet" href="homepage.css?v=20">
 
 </head>
 <body>
@@ -83,7 +83,7 @@
   <canvas class="hero-constellation-canvas" id="hero-constellation" aria-hidden="true"></canvas>
 
   <div class="lockup">
-    <span class="eyebrow">Cohort 1 · September 2026 · Kampala</span>
+    <span class="eyebrow">Cohort 1 · Coaching begins 1 September 2026 · Kampala</span>
     <h1>The market doesn't care<br>how hard you worked.</h1>
     <p class="sub-headline">What's missing isn't hustle — it's the expertise to turn it into traction.</p>
     <div class="tag">Build with direction<span class="period">.</span></div>
@@ -151,20 +151,11 @@
       </article>
 
       <article class="coach-card c-ochre">
-        <div class="frame">
-          <svg viewBox="0 0 280 360" preserveAspectRatio="xMidYMid slice">
-            <defs><radialGradient id="cg2" cx="40%" cy="32%" r="55%"><stop offset="0%" stop-color="rgba(239,231,216,0.20)"/><stop offset="100%" stop-color="rgba(239,231,216,0)"/></radialGradient></defs>
-            <rect width="280" height="360" fill="url(#cg2)"/>
-            <ellipse cx="140" cy="138" rx="56" ry="62" fill="rgba(0,0,0,0.28)"/>
-            <path d="M 140 198 C 90 198 56 240 50 300 L 50 360 L 230 360 L 230 300 C 224 240 190 198 140 198 Z" fill="rgba(0,0,0,0.32)"/>
-          </svg>
-          <span class="ph-tag">Photo · placeholder</span>
-          <span class="ini">BW</span>
-        </div>
+        <div class="frame has-photo" style="background-image:url('images/coach-barry.jpg')"></div>
         <div class="meta">
           <div class="n">Barry Wojega</div>
           <div class="d">Financial Modelling</div>
-          <div class="b">Ex-CFO, two exits. Builds models VCs actually open on the first scroll.</div>
+          <div class="b">Pressure-tests the numbers, then builds the case that gets founders funded.</div>
           <a class="coach-cta" href="explore/#finance">Explore his discipline <span class="arrow">→</span></a>
         </div>
       </article>
@@ -261,7 +252,7 @@
       </a>
     </div>
 
-    <p class="promise">Barry ran the numbers on his own startups before he built yours. Joseph raised capital across East Africa before he reviewed your deck. Every coach earned their expertise building real businesses — not studying them.</p>
+    <p class="promise">Barry has built the financial case behind real ventures across Uganda before he builds yours. Joseph raised capital across East Africa before he reviewed your deck. Every coach earned their expertise building real businesses — not studying them.</p>
   </div>
 </section>
 
@@ -424,6 +415,9 @@
       </div>
     </div>
 
+    <!-- Launch promo banner (date-gated: appears 1 Aug via /promo.js) -->
+    <div id="fs-promo" data-promo-cta="book/?tier=single"></div>
+
     <!-- ============== STAGE A — Bundle Builder ============== -->
     <div class="stage active" id="stage-bundle">
       <div class="bb-wrap">
@@ -508,23 +502,23 @@
               <th></th>
               <th class="tier-col" data-tier="single">
                 <div class="tn">One-on-One Coaching</div>
-                <div class="tp"><span class="ccy">UGX</span>500K</div>
+                <div class="tp"><span class="ccy">UGX</span><span data-promo-tier="single">500K</span></div>
                 <div class="tc">1 × 2-hour session</div>
               </th>
               <th class="tier-col popular" data-tier="pick3">
                 <div class="ribbon">Most popular</div>
                 <div class="tn">Pick 3 Bundle</div>
-                <div class="tp"><span class="ccy">UGX</span>1M</div>
+                <div class="tp"><span class="ccy">UGX</span><span data-promo-tier="pick3">1M</span></div>
                 <div class="tc">3 × 2-hour sessions · save 33%</div>
               </th>
               <th class="tier-col" data-tier="cohort">
                 <div class="tn">Full Cohort</div>
-                <div class="tp"><span class="ccy">UGX</span>2.5M</div>
+                <div class="tp"><span class="ccy">UGX</span><span data-promo-tier="cohort">2.5M</span></div>
                 <div class="tc">5 weeks · 50 hours of group coaching</div>
               </th>
               <th class="tier-col" data-tier="vip1on1">
                 <div class="tn">VIP 1-on-1</div>
-                <div class="tp"><span class="ccy">UGX</span>5M</div>
+                <div class="tp"><span class="ccy">UGX</span><span data-promo-tier="vip1on1">5M</span></div>
                 <div class="tc">All coaches · dedicated · 3-month advisory</div>
               </th>
             </tr>
@@ -557,15 +551,15 @@
           <div class="nodes" id="ladder-nodes">
             <div class="node reached active c-stone" data-step="0">
               <div class="ball"></div>
-              <div class="info"><div class="lbl">One-on-One</div><div class="nm">1 × 2-hr session</div><div class="pr"><span class="ccy">UGX</span>500K</div></div>
+              <div class="info"><div class="lbl">One-on-One</div><div class="nm">1 × 2-hr session</div><div class="pr"><span class="ccy">UGX</span><span data-promo-tier="single">500K</span></div></div>
             </div>
             <div class="node c-ochre" data-step="1">
               <div class="ball"></div>
-              <div class="info"><div class="lbl">Pick 3</div><div class="nm">3 × 2-hr sessions</div><div class="pr"><span class="ccy">UGX</span>1M</div></div>
+              <div class="info"><div class="lbl">Pick 3</div><div class="nm">3 × 2-hr sessions</div><div class="pr"><span class="ccy">UGX</span><span data-promo-tier="pick3">1M</span></div></div>
             </div>
             <div class="node c-terra" data-step="2">
               <div class="ball"></div>
-              <div class="info"><div class="lbl">Full Cohort</div><div class="nm">5 weeks · 50 hours</div><div class="pr"><span class="ccy">UGX</span>2.5M</div></div>
+              <div class="info"><div class="lbl">Full Cohort</div><div class="nm">5 weeks · 50 hours</div><div class="pr"><span class="ccy">UGX</span><span data-promo-tier="cohort">2.5M</span></div></div>
             </div>
           </div>
         </div>
@@ -581,7 +575,7 @@
             </ul>
           </div>
           <div class="right">
-            <div class="pri" id="ld-price"><span class="ccy">UGX</span>500K</div>
+            <div class="pri" id="ld-price"><span class="ccy">UGX</span><span data-promo-tier="single">500K</span></div>
             <div class="sub" id="ld-sub">Single session</div>
             <a class="cta" id="ld-cta" href="book/?tier=single">Book a Session →</a>
           </div>
@@ -662,7 +656,7 @@
       </div>
       <div class="item">
         <button class="q" type="button"><span class="num">08</span><span>When does the cohort run, and how do I book?</span><span class="icn"></span></button>
-        <div class="a"><div><div class="a-inner">The programme opens <strong>1 September 2026</strong>. The cohort teaches all five disciplines every week on a fixed rhythm — <em>Marketing Monday, Finance Tuesday, Investment Wednesday, Strategy Thursday, Product Friday</em>, 10:00–12:00 EAT. Choose a single specialty, a Pick 3, or the Full Cohort; a <strong>10% deposit</strong> reserves your seat and the balance is due 48 hours before you start. 1:1 sessions are booked into each coach's own availability.</div></div></div>
+        <div class="a"><div><div class="a-inner">Booking opens <strong>1 August 2026</strong> and coaching begins <strong>1 September 2026</strong>. The cohort teaches all five disciplines every week on a fixed rhythm — <em>Marketing Monday, Finance Tuesday, Investment Wednesday, Strategy Thursday, Product Friday</em>, 10:00–12:00 EAT. Choose a single specialty, a Pick 3, or the Full Cohort; a <strong>10% deposit</strong> reserves your seat and the balance is due 48 hours before you start. 1:1 sessions are booked into each coach's own availability.</div></div></div>
       </div>
       <div class="item">
         <button class="q" type="button"><span class="num">09</span><span>Can you connect me to a lawyer, accountant, or designer?</span><span class="icn"></span></button>
@@ -694,8 +688,9 @@
 <div id="fs-footer"></div>
 
 
+<script src="/promo.js?v=1"></script>
 <script src="testimonials.js?v=2"></script>
-<script src="homepage.js?v=10"></script>
+<script src="homepage.js?v=11"></script>
 <script src="sponsors.js?v=2"></script>
 <script src="/site-chrome.js?v=9" defer></script>
 </body>

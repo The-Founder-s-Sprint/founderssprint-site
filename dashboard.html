@@ -9,7 +9,8 @@
 <link rel="preconnect" href="https://ivedeivyotwevjxvcuoe.supabase.co" crossorigin>
 <link rel="dns-prefetch" href="https://ivedeivyotwevjxvcuoe.supabase.co">
 <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600;1,700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="/vendor/supabase-js.min.js?v=2110"></script>
+<script>window.supabase||document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"><\/script>')</script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
 <script src="ui-dialogs.js?v=2"></script>
 <style>
@@ -1930,15 +1931,17 @@
 <script>
 // ── CONFIG ────────────────────────────────────────────────────────────────────
 const SUPABASE_URL    = 'https://ivedeivyotwevjxvcuoe.supabase.co';
+const SB_API='/sb';   // same-origin authed proxy (Cloudflare Worker) → Supabase
 const SUPABASE_ANON   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss';
 const API_BASE        = 'https://founders-sprint-api.vercel.app';
 const STORAGE_BUCKET  = 'course-materials';
 
-const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON, {
+const sb = supabase.createClient(location.origin+'/sb', SUPABASE_ANON, {
   auth: {
     detectSessionInUrl: false,   // dashboard uses password login, not magic links — skip slow URL scan
     autoRefreshToken: true,      // refresh runs in background — secondary tabs use sb.from() after init
     persistSession: true,
+    storageKey: 'sb-ivedeivyotwevjxvcuoe-auth-token',  // shared key so the session hands off from login
   }
 });
 
@@ -2188,7 +2191,7 @@ async function _refreshToken() {
     const refreshToken = stored.refresh_token;
     if (!refreshToken) throw new Error('No refresh token — please sign in again');
 
-    const res = await fetch(SUPABASE_URL + '/auth/v1/token?grant_type=refresh_token', {
+    const res = await fetch(SB_API + '/auth/v1/token?grant_type=refresh_token', {
       method: 'POST',
       headers: { 'apikey': SUPABASE_ANON, 'Content-Type': 'application/json' },
       body: JSON.stringify({ refresh_token: refreshToken }),
@@ -2249,7 +2252,7 @@ async function _getValidToken() {
 // Raw PostgREST fetch with automatic token refresh
 async function _pgQuery(table, params) {
   const token = await _getValidToken();
-  const url = SUPABASE_URL + '/rest/v1/' + table + '?' + params;
+  const url = SB_API + '/rest/v1/' + table + '?' + params;
   const res = await fetch(url, {
     headers: {
       'apikey': SUPABASE_ANON,
@@ -2279,7 +2282,7 @@ async function _pgQuery(table, params) {
 // Paged PostgREST fetch — returns { rows, total } using an exact count header.
 async function _pgPaged(table, params, from, to) {
   const token = await _getValidToken();
-  const url = SUPABASE_URL + '/rest/v1/' + table + '?' + params;
+  const url = SB_API + '/rest/v1/' + table + '?' + params;
   const doFetch = (t) => fetch(url, {
     headers: {
       'apikey': SUPABASE_ANON,
@@ -2308,7 +2311,7 @@ async function _pgPaged(table, params, from, to) {
 // SECURITY DEFINER RPC call (POST /rpc/<fn>)
 async function _pgRpc(fn, body) {
   const token = await _getValidToken();
-  const url = SUPABASE_URL + '/rest/v1/rpc/' + fn;
+  const url = SB_API + '/rest/v1/rpc/' + fn;
   const opts = (t) => ({
     method: 'POST',
     headers: {
@@ -3644,13 +3647,13 @@ async function saveProfile() {
     if (photoFile) {
       const ext = photoFile.name.split('.').pop().toLowerCase();
       const storagePath = `${coachId}/photo.${ext}`;
-      const uploadRes = await fetch(SUPABASE_URL + '/storage/v1/object/coach-profiles/' + storagePath, {
+      const uploadRes = await fetch(SB_API + '/storage/v1/object/coach-profiles/' + storagePath, {
         method: 'POST',
         headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + token, 'Content-Type': photoFile.type, 'x-upsert': 'true' },
         body: photoFile,
       });
       if (!uploadRes.ok) throw new Error('Photo upload failed: ' + uploadRes.status);
-      avatarUrl = SUPABASE_URL + '/storage/v1/object/public/coach-profiles/' + storagePath;
+      avatarUrl = SB_API + '/storage/v1/object/public/coach-profiles/' + storagePath;
     }
 
     // 1. Update coach profile fields (raw fetch)
@@ -3664,13 +3667,13 @@ async function saveProfile() {
     };
     if (avatarUrl) updateFields.avatar_url = avatarUrl;
 
-    const profileRes = await fetch(SUPABASE_URL + '/rest/v1/coaches?id=eq.' + coachId, {
+    const profileRes = await fetch(SB_API + '/rest/v1/coaches?id=eq.' + coachId, {
       method: 'PATCH', headers, body: JSON.stringify(updateFields),
     });
     if (!profileRes.ok) throw new Error('Profile update failed: ' + profileRes.status);
 
     // 2. Sync availability: delete existing, insert current slots
-    const delRes = await fetch(SUPABASE_URL + '/rest/v1/coach_availability?coach_id=eq.' + coachId, {
+    const delRes = await fetch(SB_API + '/rest/v1/coach_availability?coach_id=eq.' + coachId, {
       method: 'DELETE', headers,
     });
     if (!delRes.ok) throw new Error('Failed to clear old availability');
@@ -3688,7 +3691,7 @@ async function saveProfile() {
         start_time: s.start_time, end_time: s.end_time, is_active: true,
       }));
 
-      const insRes = await fetch(SUPABASE_URL + '/rest/v1/coach_availability', {
+      const insRes = await fetch(SB_API + '/rest/v1/coach_availability', {
         method: 'POST', headers, body: JSON.stringify(inserts),
       });
       if (!insRes.ok) throw new Error('Failed to save availability');
@@ -3977,7 +3980,7 @@ async function approveApplication(id) {
     const token = await _getValidToken();
 
     // Step 1: Mark application as approved
-    const approveRes = await fetch(SUPABASE_URL + '/rest/v1/directory_applications?id=eq.' + id, {
+    const approveRes = await fetch(SB_API + '/rest/v1/directory_applications?id=eq.' + id, {
       method: 'PATCH',
       headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
       body: JSON.stringify({ status: 'approved', reviewed_at: now.toISOString() }),
@@ -3985,7 +3988,7 @@ async function approveApplication(id) {
     if (!approveRes.ok) throw new Error('Failed to update application status');
 
     // Step 2: Auto-create the provider listing
-    const insertRes = await fetch(SUPABASE_URL + '/rest/v1/directory_providers', {
+    const insertRes = await fetch(SB_API + '/rest/v1/directory_providers', {
       method: 'POST',
       headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
       body: JSON.stringify({
@@ -4020,7 +4023,7 @@ async function rejectApplication(id) {
   if (!(await fsConfirm('Reject this application?',{title:'Reject application',okText:'Reject',danger:true}))) return;
   try {
     const token = await _getValidToken();
-    const res = await fetch(SUPABASE_URL + '/rest/v1/directory_applications?id=eq.' + id, {
+    const res = await fetch(SB_API + '/rest/v1/directory_applications?id=eq.' + id, {
       method: 'PATCH',
       headers: {
         'apikey': SUPABASE_ANON,
@@ -4160,13 +4163,13 @@ async function addProvider() {
       const ext = logoFile.name.split('.').pop().toLowerCase();
       const storagePath = `sponsors/${slug}.${ext}`;
       const token = await _getValidToken();
-      const uploadRes = await fetch(SUPABASE_URL + '/storage/v1/object/coach-profiles/' + storagePath, {
+      const uploadRes = await fetch(SB_API + '/storage/v1/object/coach-profiles/' + storagePath, {
         method: 'POST',
         headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + token, 'Content-Type': logoFile.type, 'x-upsert': 'true' },
         body: logoFile,
       });
       if (!uploadRes.ok) throw new Error('Logo upload failed: ' + uploadRes.status);
-      logoUrl = SUPABASE_URL + '/storage/v1/object/public/coach-profiles/' + storagePath;
+      logoUrl = SB_API + '/storage/v1/object/public/coach-profiles/' + storagePath;
       logoProvided = true;
     }
 
@@ -4178,13 +4181,13 @@ async function addProvider() {
       const ext = (photoFile.name.split('.').pop() || 'jpg').toLowerCase();
       const storagePath = `sponsors/${slug}-photo.${ext}`;
       const token = await _getValidToken();
-      const uploadRes = await fetch(SUPABASE_URL + '/storage/v1/object/coach-profiles/' + storagePath, {
+      const uploadRes = await fetch(SB_API + '/storage/v1/object/coach-profiles/' + storagePath, {
         method: 'POST',
         headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + token, 'Content-Type': photoFile.type, 'x-upsert': 'true' },
         body: photoFile,
       });
       if (!uploadRes.ok) throw new Error('Photo upload failed: ' + uploadRes.status);
-      photoUrl = SUPABASE_URL + '/storage/v1/object/public/coach-profiles/' + storagePath;
+      photoUrl = SB_API + '/storage/v1/object/public/coach-profiles/' + storagePath;
       photoProvided = true;
     }
 
@@ -4211,7 +4214,7 @@ async function addProvider() {
       // EDIT — patch the existing row; keep its status; only change dates if provided
       if (startDate)  payload.starts_at  = new Date(startDate).toISOString();
       if (expiryDate) payload.expires_at = new Date(expiryDate).toISOString();
-      res = await fetch(SUPABASE_URL + '/rest/v1/directory_providers?id=eq.' + encodeURIComponent(editing), {
+      res = await fetch(SB_API + '/rest/v1/directory_providers?id=eq.' + encodeURIComponent(editing), {
         method: 'PATCH',
         headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
         body: JSON.stringify(payload),
@@ -4223,7 +4226,7 @@ async function addProvider() {
       payload.photo_url = photoProvided ? photoUrl : null;
       payload.starts_at = startDate ? new Date(startDate).toISOString() : new Date().toISOString();
       payload.expires_at = expiryDate ? new Date(expiryDate).toISOString() : (tier === 'basic' ? new Date('2099-12-31').toISOString() : null);
-      res = await fetch(SUPABASE_URL + '/rest/v1/directory_providers', {
+      res = await fetch(SB_API + '/rest/v1/directory_providers', {
         method: 'POST',
         headers: { 'apikey': SUPABASE_ANON, 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' },
         body: JSON.stringify(payload),

@@ -7,7 +7,8 @@
 <title>Mentor onboarding · The Founder's Sprint</title>
 <link rel="icon" href="/favicon.svg" type="image/svg+xml">
 <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="/vendor/supabase-js.min.js?v=2110"></script>
+<script>window.supabase||document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"><\/script>')</script>
 <style>
   :root{--ink:#1A1A1A;--paper:#EFE7D8;--paper-deep:#E6DCC7;--muted:#5A564F;--paper-dim:#9a917f;
     --terra:#C8531F;--terra-deep:#9A3E16;--ochre:#C9923A;--moss:#3D4A2E;--sage:#8AAB5C;--success:#0A8F64;
@@ -138,6 +139,22 @@ async function uploadTo(bucket, file, prefix){
   if(error) throw new Error(error.message);
   return path;
 }
+
+// Downscale + compress an image client-side before upload (EXIF-corrected).
+// Non-images (e.g. the ID PDF) or any failure → original file returned unchanged.
+async function downscaleImage(file, maxDim, quality){
+  if(!file || !/^image\//.test(file.type) || file.type==='image/gif') return file;
+  try{
+    const bmp=await createImageBitmap(file,{imageOrientation:'from-image'});
+    const scale=Math.min(1, maxDim/Math.max(bmp.width,bmp.height));
+    const w=Math.round(bmp.width*scale), h=Math.round(bmp.height*scale);
+    const cv=document.createElement('canvas'); cv.width=w; cv.height=h;
+    cv.getContext('2d').drawImage(bmp,0,0,w,h);
+    const blob=await new Promise(res=>cv.toBlob(res,'image/jpeg',quality));
+    if(!blob || blob.size>=file.size) return file;
+    return new File([blob], file.name.replace(/\.\w+$/,'')+'.jpg', {type:'image/jpeg'});
+  }catch(e){ return file; }
+}
 async function submitForm(){
   const msg=document.getElementById('msg'); msg.textContent=''; msg.className='msg';
   if(!v('name')||!v('title')||!v('bio')||!v('expertise')){ msg.textContent='Please fill name, title, bio and areas you help with.'; msg.className='msg err'; return; }
@@ -153,7 +170,7 @@ async function submitForm(){
   if(isFinite(fc)&&fc>0) fees.coffee=fc; if(isFinite(fz)&&fz>0) fees.zoom=fz;
   const btn=document.getElementById('submit'); btn.disabled=true; btn.textContent='Uploading…';
   try{
-    const photoPath=await uploadTo('mentor-photos', photoFile, 'photo');
+    const photoPath=await uploadTo('mentor-photos', await downscaleImage(photoFile,1200,0.82), 'photo');
     const photoUrl=sb.storage.from('mentor-photos').getPublicUrl(photoPath).data.publicUrl;
     const idPath=await uploadTo('mentor-documents', idFile, 'id');
     btn.textContent='Submitting…';

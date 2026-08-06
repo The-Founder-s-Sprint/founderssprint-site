@@ -148,6 +148,7 @@
   .coach .inner{display:grid;grid-template-columns:340px 1fr;gap:56px;align-items:center;}
   .coach .portrait{position:relative;}
   .coach .portrait svg{width:100%;height:auto;display:block;}
+  .coach .portrait image{filter:grayscale(1) contrast(1.05) brightness(1.06);}
   .coach .eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--disc);}
   .coach h3{font-family:var(--sans);font-weight:400;font-size:clamp(28px,3.8vw,40px);letter-spacing:-.022em;margin:8px 0 2px;}
   .coach .role{font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:rgba(239,231,216,.6);}
@@ -177,6 +178,7 @@
 <body>
 
 <div id="fs-nav"></div>
+<div id="fs-promo" data-promo-cta="/beta/book/?tier=single"></div>
 
 <!-- ===== HERO ===== -->
 <section class="fsx-hero">
@@ -326,7 +328,8 @@
   <div class="shell inner">
     <div class="portrait">
       <svg viewBox="0 0 340 360" aria-label="Barry Wojega leads the Financial Modelling constellation">
-        <!-- constellation of the discipline's 10 specialties, around a gold monogram medallion (no portrait on file) -->
+        <defs><clipPath id="pclip"><circle cx="170" cy="165" r="92"/></clipPath></defs>
+        <!-- constellation of the discipline's 10 specialties, with Barry's portrait clipped into the medallion -->
         <g class="c-spokes" stroke="#C9923A" stroke-width="1" opacity=".4" fill="none">
           <line x1="170" y1="165" x2="40" y2="60"/><line x1="170" y1="165" x2="300" y2="60"/>
           <line x1="170" y1="165" x2="20" y2="180"/><line x1="170" y1="165" x2="320" y2="180"/>
@@ -336,15 +339,15 @@
         </g>
         <g class="c-nodes" fill="#C9923A"><circle cx="40" cy="60" r="3"/><circle cx="300" cy="60" r="3"/><circle cx="20" cy="180" r="3"/><circle cx="320" cy="180" r="3"/><circle cx="55" cy="300" r="3"/><circle cx="285" cy="300" r="3"/><circle cx="120" cy="30" r="3"/><circle cx="220" cy="30" r="3"/><circle cx="110" cy="330" r="3"/><circle cx="230" cy="330" r="3"/></g>
         <circle cx="170" cy="165" r="96" fill="none" stroke="#C9923A" stroke-width="1.5" opacity=".7"/>
-        <circle cx="170" cy="165" r="84" fill="#15110a" stroke="#6E4E14" stroke-width="1.4"/>
-        <text x="170" y="185" text-anchor="middle" font-family="Josefin Sans,sans-serif" font-weight="300" font-size="58" letter-spacing="2" fill="#C9923A">BW</text>
+        <image href="/beta/images/coach-barry-square.jpg" x="78" y="73" width="184" height="184" clip-path="url(#pclip)" preserveAspectRatio="xMidYMid slice"/>
+        <circle cx="170" cy="165" r="92" fill="#0f0d0a" opacity="0.04"/>
       </svg>
     </div>
     <div>
       <div class="eyebrow">Discipline lead</div>
       <h3>Barry Wojega</h3>
       <div class="role">Financial Modelling &amp; Business Finance</div>
-      <p class="bio">Barry leads the discipline of turning a founder's ambition into numbers <em>an investor can trust</em>. He coaches founders to know their economics cold — what a customer costs, what the cash can carry, and what the company is truly worth. To him, financial discipline isn't the brake on a business; it's what lets a founder drive it fast without crashing.</p>
+      <p class="bio">Barry is a business and finance development consultant who has spent years testing whether ventures — from agribusiness value chains to donor-funded programmes — actually hold up financially, then building the case that gets them funded. He leads the discipline of turning a founder's ambition into numbers <em>an investor can trust</em>: knowing your economics cold — what a customer costs, what the cash can carry, what the company is truly worth. To him, financial discipline isn't the brake on a business; it's what lets a founder drive it fast without crashing.</p>
     </div>
   </div>
 </section>
@@ -426,6 +429,7 @@
   })();
 </script>
 <script src="method-fan.js?v=4"></script>
+<script src="/promo.js?v=1" defer></script>
 <script src="/site-chrome.js?v=9" defer></script>
 </body>
 </html>

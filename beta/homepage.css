@@ -1906,3 +1906,63 @@ footer .bottom {
 @media(prefers-reduced-motion:reduce){
   .proof .tw-bubble,.proof .tw-inner{animation:none!important;}
 }
+
+/* ============================================================
+   MOBILE HERO POLISH — 20 Jul 2026 (DESIGN.md §16)
+   Appended last so these win at equal specificity. First pass:
+   declutter + legibility on the hero (the phone's first screen).
+   ============================================================ */
+@media (max-width: 700px) {
+  /* Comfortable edges, sized to the phone, no forced 100vh cram.
+     Uses [data-section] to out-specify `section[data-section]{padding:80px 0}`,
+     which was zeroing the hero's horizontal padding and bleeding text to the edge. */
+  .hero[data-section] { padding: 104px 22px 54px; min-height: auto; }
+  .hero .lockup { max-width: 100%; gap: 14px; }
+  .hero .lockup .eyebrow { margin-bottom: 12px; letter-spacing: .16em; }
+  .hero .lockup h1 { font-size: clamp(32px, 9vw, 44px); line-height: 1.06; }
+  .hero .lockup .sub-headline { font-size: 16px; max-width: 100%; margin-top: 14px; }
+  .hero .lockup .tag { font-size: 23px; margin-top: 14px; }
+  .hero-rule { margin: 16px 0; }
+
+  /* Spec line: shrink + wrap cleanly, and brighten — the darkened photo needs
+     more contrast on low-quality screens for this line to stay readable. */
+  .hero-stat-line { font-size: 9.5px; letter-spacing: .06em; line-height: 1.7;
+    margin-bottom: 20px; overflow-wrap: break-word; color: rgba(239,231,216,0.72); }
+
+  /* Readiness check: break onto three lines (question / link / disclaimer) —
+     reads better than the awkward two-line wrap. width:fit-content keeps the
+     link's underline hugging the text instead of spanning the full row. */
+  .hero .hero-check a { display: block; width: fit-content; }
+  .hero .hero-check span { display: block; }
+
+  /* Full-width, thumb-reachable CTAs stacked (DESIGN.md §16) */
+  .hero .lockup .ctas { flex-direction: column; gap: 12px; width: 100%; }
+  .hero .lockup .ctas .btn { width: 100%; justify-content: center; padding: 17px 20px; }
+
+  /* Declutter: the orbiting discipline labels overlap the headline at phone width */
+  .hero-constellation-canvas { display: none; }
+  /* Scroll cue / explore link are desktop chrome — not needed on touch */
+  .hero .hero-foot { display: none; }
+
+  /* Darken the lower half of the photo so the subcopy stays legible */
+  .hero .video-stage::after {
+    background:
+      radial-gradient(ellipse 80% 55% at 28% 32%, rgba(200,83,31,0.10) 0%, transparent 60%),
+      radial-gradient(ellipse at 50% 44%, rgba(0,0,0,0) 24%, rgba(0,0,0,0.50) 100%),
+      linear-gradient(180deg, rgba(8,7,5,0.74) 0%, rgba(8,7,5,0.10) 30%, rgba(8,7,5,0.44) 60%, rgba(8,7,5,0.94) 100%);
+  }
+
+  /* Pricing: wider tier columns so ~2 tiers show per swipe (readability on small
+     screens) instead of squeezing 3 in. Label column pinned via the sticky rule
+     above; ~3 swipe positions cover all four tiers. */
+  .matrix { min-width: 800px; }
+  .matrix th:first-child, .matrix td:first-child { min-width: 100px; }
+  .matrix .tier-col { min-width: 175px; }
+}
+
+/* Problem stats: single column on the narrowest phones — each stat gets full
+   width and stops wrapping into a tall, cramped two-up. */
+@media (max-width: 560px) {
+  .problem .stats { grid-template-columns: 1fr; }
+  .problem .stats .stat:last-child { grid-column: auto; }
+}

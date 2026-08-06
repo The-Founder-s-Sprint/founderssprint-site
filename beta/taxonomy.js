@@ -77,6 +77,66 @@
       .replace(/^-+|-+$/g, '');
   }
 
+  // One-line description of every L3 specialty — "what it means / what it covers".
+  // Keyed by slug. Additive metadata (no name/slug change), surfaced as tooltips
+  // in the mentor apply picker and reusable by booking/discovery.
+  var DESC = {
+    // Marketing & Branding
+    'brand-positioning': 'How you claim and own a distinct place in customers’ minds versus the alternatives.',
+    'messaging-architecture': 'The structured hierarchy of what you say — core promise, pillars, and proof points.',
+    'visual-identity': 'The logo, colour, type and imagery system that makes a brand instantly recognisable.',
+    'market-entry': 'Choosing where and how to launch into a new market or customer segment.',
+    'channel-mix': 'Selecting and balancing the paid, owned and earned channels that reach your customers.',
+    'launch-sequencing': 'Planning the order and timing of activities for a product or market launch.',
+    'content-strategy': 'Deciding what to publish, for whom, and how it drives real growth.',
+    'seo-and-discoverability': 'Getting found in search and AI answers by the people already looking for you.',
+    'customer-research': 'Learning what customers truly need through interviews, surveys and behaviour.',
+    // Financial Modelling
+    'cac-and-ltv': 'Weighing what it costs to win a customer against what they’re worth over time.',
+    'payback-period': 'How long a customer’s revenue takes to recover the cost of acquiring them.',
+    'contribution-margin': 'What each sale earns after variable costs — the unit-level profit.',
+    'revenue-forecasting': 'Projecting future sales from pipeline, history and grounded assumptions.',
+    'burn-rate-and-runway': 'How fast you spend cash and how many months of runway it leaves you.',
+    'cash-flow-management': 'Timing money in and out so the business never runs dry.',
+    'tax-and-compliance': 'Meeting URA and statutory obligations cleanly, without surprises.',
+    'valuation-methods': 'How a company’s worth is estimated ahead of a raise or sale.',
+    'cap-table-design': 'Structuring ownership, option pools and dilution across shareholders.',
+    'term-sheet-analysis': 'Reading and negotiating the terms an investor puts on the table.',
+    // Investment Readiness
+    'pitch-deck-structure': 'The slides and flow investors expect, in the order that actually lands.',
+    'investor-narrative': 'The story that makes your business compelling and genuinely fundable.',
+    'executive-summary': 'The one-page distillation that earns you the first meeting.',
+    'investor-targeting': 'Finding the right investors by stage, sector and thesis fit.',
+    'due-diligence-prep': 'Getting the business ready to withstand investor scrutiny.',
+    'data-room': 'Organising the documents investors review before they commit.',
+    'pre-seed-rounds': 'Raising the earliest capital on idea and first signs of traction.',
+    'seed-rounds': 'Raising to prove the model and reach product-market fit.',
+    'grants-and-dfis': 'Winning non-dilutive money from grants and development finance.',
+    // Strategy & Team Building
+    'market-analysis': 'Sizing a market and reading its trends, segments and dynamics.',
+    'positioning-and-moats': 'Building durable advantages rivals can’t easily copy.',
+    'scenario-planning': 'Preparing for multiple futures and the moves each one demands.',
+    'hiring-strategy': 'Deciding who to hire, when, and how to attract them.',
+    'culture-design': 'Shaping the values and behaviours that define how a team works.',
+    'org-structure': 'Designing roles, teams and reporting lines as you scale.',
+    'payroll-and-hr-compliance': 'Paying people correctly and meeting employment law.',
+    'process-design': 'Turning how work gets done into repeatable, reliable systems.',
+    'okrs-and-kpis': 'Setting goals and the metrics that track progress toward them.',
+    'decision-frameworks': 'Structured ways to make faster, clearer decisions under uncertainty.',
+    'legal-and-registration': 'Incorporating and meeting the legal basics of running a company.',
+    // Product Dev & Pricing
+    'problem-validation': 'Confirming the problem is real and worth solving before you build.',
+    'solution-testing': 'Checking your solution actually solves it, with real users.',
+    'pmf-signals': 'Reading the signals that show you’ve reached product-market fit.',
+    'mvp-design': 'Scoping the smallest product that delivers value and teaches you most.',
+    'roadmapping': 'Sequencing what to build, and when, against clear priorities.',
+    'iteration-cycles': 'Building, measuring and learning in tight, repeating loops.',
+    'payments-and-mobile-money': 'Integrating MTN, Airtel and other payment rails founders rely on.',
+    'value-based-pricing': 'Pricing to the value customers receive, not just your costs.',
+    'competitive-pricing': 'Setting price against what the market and rivals charge.',
+    'price-testing': 'Experimenting to find the price that maximises uptake and margin.',
+  };
+
   // Flat index of every L3 specialty with its parents — the bookable catalogue.
   var SPECIALTIES = [];
   DISCIPLINES.forEach(function (d) {
@@ -85,6 +145,7 @@
         SPECIALTIES.push({
           slug: slugify(name),
           name: name,
+          desc: DESC[slugify(name)] || '',
           l2: m.name,
           disciplineKey: d.key,
           disciplineLabel: d.label,
@@ -104,6 +165,8 @@
     bySlug: BY_SLUG,
     slugify: slugify,
     get: function (slug) { return BY_SLUG[slug] || null; },
+    descriptions: DESC,
+    describe: function (slug) { return DESC[slug] || (BY_SLUG[slug] && BY_SLUG[slug].desc) || ''; },
     count: SPECIALTIES.length,
   };
 })(window);

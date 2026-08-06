@@ -548,7 +548,14 @@
       ldPrice.innerHTML = 'Quote';
     } else {
       const num = tier.price.replace('UGX ', '');
-      ldPrice.innerHTML = `<span class="ccy">UGX</span>${num}`;
+      // Launch promo (date-gated via /promo.js): show struck list price → 15%-off.
+      const P = window.FS_PROMO;
+      const pkey = { 'One-on-One': 'single', 'Pick 3 Bundle': 'pick3', 'Full Cohort': 'cohort' }[tier.eb];
+      if (P && P.active && P.active() && pkey && P.base[pkey] != null) {
+        ldPrice.innerHTML = `<span class="ccy">UGX</span><span class="fsp-now">${P.compact(P.discount(P.base[pkey]))}</span><s class="fsp-was">was ${num}</s>`;
+      } else {
+        ldPrice.innerHTML = `<span class="ccy">UGX</span>${num}`;
+      }
     }
     ldSub.textContent = tier.sub;
     ldCta.textContent = tier.cta;
@@ -596,7 +603,9 @@
     function meta(q){ return [q.role_title,q.company].filter(Boolean).map(esc).join(' · '); }
     var Q=[], qi=0;
     function nextQ(){ var q=Q[qi%Q.length]; qi++; return q; }
-    fetch(SB_URL+'/rest/v1/testimonial_submissions?status=eq.approved&select=name,role_title,company,for_target,testimonial,photo_path&order=created_at.desc&limit=60',{headers:{apikey:SB_ANON,Authorization:'Bearer '+SB_ANON}})
+    // Prefer the same-origin /db proxy (no CORS preflight); fall back to direct Supabase.
+    function twFetch(path,o){ return fetch('/db'+path,o).then(function(r){ var ct=r.headers.get('content-type')||''; if(r.ok&&ct.indexOf('json')!==-1) return r; throw 0; }).catch(function(){ return fetch(SB_URL+path,o); }); }
+    twFetch('/rest/v1/testimonial_submissions?status=eq.approved&select=name,role_title,company,for_target,testimonial,photo_path&order=created_at.desc&limit=60',{headers:{apikey:SB_ANON,Authorization:'Bearer '+SB_ANON}})
       .then(function(r){ return r.ok?r.json():[]; }).catch(function(){ return []; })
       .then(function(rows){
         Q=rows||[];

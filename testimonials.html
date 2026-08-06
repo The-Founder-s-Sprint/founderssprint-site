@@ -159,15 +159,27 @@ function meta(q){ return [q.role_title,q.company].filter(Boolean).map(esc).join(
 let QUOTES=[], qi=0;
 function nextQuote(){ const q=QUOTES[qi%QUOTES.length]; qi++; return q; }
 
+function fetchT(u,o,ms){ const c=new AbortController(); const t=setTimeout(()=>c.abort(), ms||12000);
+  return fetch(u,Object.assign({},o||{},{signal:c.signal})).finally(()=>clearTimeout(t)); }
+// Prefer the same-origin Cloudflare proxy (/db → Supabase): same-origin = NO CORS preflight,
+// which sidesteps the cross-origin leg that fails on some mobile networks. Falls back to direct.
+const DATA_BASE='/db';
+async function fetchData(path,o,ms){
+  try{ const r=await fetchT(DATA_BASE+path,o,ms); const ct=r.headers.get('content-type')||'';
+    if(r.ok && ct.indexOf('json')!==-1) return r; throw new Error('proxy miss'); }
+  catch(e){ return fetchT(SB_URL+path,o,ms); }
+}
 async function load(){
+  let failed=false;
   try{
-    const r=await fetch(SB_URL+'/rest/v1/testimonial_submissions?status=eq.approved&select=name,role_title,company,for_target,testimonial,photo_path&order=created_at.desc&limit=60',
-      {headers:{apikey:SB_ANON,Authorization:'Bearer '+SB_ANON}});
-    QUOTES=r.ok?await r.json():[];
-  }catch(e){ QUOTES=[]; }
+    const r=await fetchData('/rest/v1/testimonial_submissions?status=eq.approved&select=name,role_title,company,for_target,testimonial,photo_path&order=created_at.desc&limit=60',
+      {headers:{apikey:SB_ANON,Authorization:'Bearer '+SB_ANON}}, 12000);
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    QUOTES=await r.json();
+  }catch(e){ QUOTES=[]; failed=true; }
   // light shuffle so the wall varies between visits
   for(let i=QUOTES.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [QUOTES[i],QUOTES[j]]=[QUOTES[j],QUOTES[i]]; }
-  if(!QUOTES.length){ renderEmpty(); return; }
+  if(!QUOTES.length){ failed ? renderError() : renderEmpty(); return; }
   buildField(); buildMobile(); startHighlight();
 }
 
@@ -175,6 +187,12 @@ function renderEmpty(){
   document.getElementById('stage').innerHTML=
     '<div class="empty"><div class="m">◇</div><div style="font-family:var(--display);font-size:26px;color:var(--paper);margin-bottom:8px">Founders’ stories, coming soon.</div>'
     +'<div>The first testimonials are being reviewed. <a href="/share-testimonial.html">Share yours</a> to be among them.</div></div>';
+}
+
+function renderError(){
+  document.getElementById('stage').innerHTML=
+    '<div class="empty"><div class="m">◇</div><div style="font-family:var(--display);font-size:26px;color:var(--paper);margin-bottom:8px">Couldn’t load stories just now.</div>'
+    +'<div>Usually a brief network hiccup. <a href="#" onclick="load();return false;">Retry</a></div></div>';
 }
 
 /* ── floating field ── */

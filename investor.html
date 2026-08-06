@@ -8,7 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://ivedeivyotwevjxvcuoe.supabase.co" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="/vendor/supabase-js.min.js?v=2110"></script>
+<script>window.supabase||document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"><\/script>')</script>
 <style>
   :root{
   --radius-card: 0 0 24px 0;
@@ -147,8 +148,9 @@
 
 <script>
 const SUPABASE_URL='https://ivedeivyotwevjxvcuoe.supabase.co';
+const SB_API='/sb';   // same-origin authed proxy (Cloudflare Worker) → Supabase
 const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss';
-const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON,{auth:{detectSessionInUrl:true,autoRefreshToken:true,persistSession:true}});
+const sb=supabase.createClient(location.origin+'/sb',SUPABASE_ANON,{auth:{detectSessionInUrl:true,autoRefreshToken:true,persistSession:true,storageKey:'sb-ivedeivyotwevjxvcuoe-auth-token'}});
 
 // Discipline model (mirrors founder dashboard / explore.js) for data-room scoring + display
 const DISCIPLINES=[
@@ -173,12 +175,12 @@ let _rp=null,currentSession=null,booted=false;
 function _stored(){try{return JSON.parse(localStorage.getItem(_SB_KEY)||'{}');}catch{return{};}}
 function _exp(s){const e=s.expires_at;return !e||(Date.now()/1000)>(e-60);}
 async function _refresh(){if(_rp)return _rp;_rp=(async()=>{const s=_stored();if(!s.refresh_token)throw new Error('Please sign in again');
-  const r=await fetch(SUPABASE_URL+'/auth/v1/token?grant_type=refresh_token',{method:'POST',headers:{apikey:SUPABASE_ANON,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:s.refresh_token})});
+  const r=await fetch(SB_API+'/auth/v1/token?grant_type=refresh_token',{method:'POST',headers:{apikey:SUPABASE_ANON,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:s.refresh_token})});
   if(!r.ok){localStorage.removeItem(_SB_KEY);throw new Error('Session expired');}const j=await r.json();localStorage.setItem(_SB_KEY,JSON.stringify(j));currentSession=j;return j.access_token;})();
   try{return await _rp;}finally{_rp=null;}}
 async function _token(){if(currentSession?.access_token){const e=currentSession.expires_at;if(e&&(Date.now()/1000)<(e-60))return currentSession.access_token;}
   const s=_stored();if(s.access_token&&!_exp(s))return s.access_token;return _refresh();}
-async function _q(table,params){const t=await _token();const r=await fetch(SUPABASE_URL+'/rest/v1/'+table+'?'+params,{headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t}});
+async function _q(table,params){const t=await _token();const r=await fetch(SB_API+'/rest/v1/'+table+'?'+params,{headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t}});
   if(!r.ok)throw new Error('Query failed '+r.status+': '+await r.text());return r.json();}
 
 async function signIn(){
@@ -315,8 +317,8 @@ function renderList(){
 
 async function openDoc(path){
   try{ const t=await _token();
-    const r=await fetch(SUPABASE_URL+'/storage/v1/object/sign/data-room/'+encodeURI(path),{method:'POST',headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify({expiresIn:300})});
-    const j=await r.json(); if(j&&j.signedURL){ window.open(SUPABASE_URL+'/storage/v1'+j.signedURL,'_blank'); } else throw new Error('na');
+    const r=await fetch(SB_API+'/storage/v1/object/sign/data-room/'+encodeURI(path),{method:'POST',headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify({expiresIn:300})});
+    const j=await r.json(); if(j&&j.signedURL){ window.open(SB_API+'/storage/v1'+j.signedURL,'_blank'); } else throw new Error('na');
   }catch(e){ showToast('Could not open file','error'); }
 }
 
