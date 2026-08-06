@@ -8,7 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://ivedeivyotwevjxvcuoe.supabase.co" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="/vendor/supabase-js.min.js?v=2110"></script>
+<script>window.supabase||document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"><\/script>')</script>
 <script src="ui-dialogs.js?v=2"></script>
 <style>
   :root{
@@ -194,8 +195,11 @@
 
 <script>
 const SUPABASE_URL='https://ivedeivyotwevjxvcuoe.supabase.co';
+const SB_API='/sb';   // same-origin authed proxy (Cloudflare Worker) → Supabase
 const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss';
-const sb=supabase.createClient(SUPABASE_URL,SUPABASE_ANON,{auth:{detectSessionInUrl:true,autoRefreshToken:true,persistSession:true}});
+// Auth routes through the same-origin /sb proxy too (login + refresh were dying on the
+// direct cross-origin path). storageKey is pinned to the existing key so sessions persist.
+const sb=supabase.createClient(location.origin+'/sb',SUPABASE_ANON,{auth:{detectSessionInUrl:true,autoRefreshToken:true,persistSession:true,storageKey:'sb-ivedeivyotwevjxvcuoe-auth-token'}});
 const API_BASE='https://founders-sprint-api.vercel.app';
 function ago(ts){ if(!ts) return ''; const s=Math.max(0,(Date.now()-new Date(ts).getTime())/1000);
   if(s<60) return 'just now'; if(s<3600) return Math.floor(s/60)+'m ago'; if(s<86400) return Math.floor(s/3600)+'h ago'; return Math.floor(s/86400)+'d ago'; }
@@ -209,16 +213,16 @@ let _rp=null,currentSession=null,booted=false;
 function _stored(){try{return JSON.parse(localStorage.getItem(_SB_KEY)||'{}');}catch{return{};}}
 function _exp(s){const e=s.expires_at;return !e||(Date.now()/1000)>(e-60);}
 async function _refresh(){if(_rp)return _rp;_rp=(async()=>{const s=_stored();if(!s.refresh_token)throw new Error('Please sign in again');
-  const r=await fetch(SUPABASE_URL+'/auth/v1/token?grant_type=refresh_token',{method:'POST',headers:{apikey:SUPABASE_ANON,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:s.refresh_token})});
+  const r=await fetch(SB_API+'/auth/v1/token?grant_type=refresh_token',{method:'POST',headers:{apikey:SUPABASE_ANON,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:s.refresh_token})});
   if(!r.ok){localStorage.removeItem(_SB_KEY);throw new Error('Session expired');}const j=await r.json();localStorage.setItem(_SB_KEY,JSON.stringify(j));currentSession=j;return j.access_token;})();
   try{return await _rp;}finally{_rp=null;}}
 async function _token(){if(currentSession?.access_token){const e=currentSession.expires_at;if(e&&(Date.now()/1000)<(e-60))return currentSession.access_token;}
   const s=_stored();if(s.access_token&&!_exp(s))return s.access_token;return _refresh();}
-async function _q(table,params){const t=await _token();const r=await fetch(SUPABASE_URL+'/rest/v1/'+table+'?'+params,{headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t}});
+async function _q(table,params){const t=await _token();const r=await fetch(SB_API+'/rest/v1/'+table+'?'+params,{headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t}});
   if(!r.ok)throw new Error('Query failed '+r.status+': '+await r.text());return r.json();}
-async function _w(method,table,params,body,extra){const t=await _token();const r=await fetch(SUPABASE_URL+'/rest/v1/'+table+(params?('?'+params):''),{method,headers:Object.assign({apikey:SUPABASE_ANON,Authorization:'Bearer '+t,'Content-Type':'application/json',Prefer:'return=representation'},extra||{}),body:body?JSON.stringify(body):undefined});
+async function _w(method,table,params,body,extra){const t=await _token();const r=await fetch(SB_API+'/rest/v1/'+table+(params?('?'+params):''),{method,headers:Object.assign({apikey:SUPABASE_ANON,Authorization:'Bearer '+t,'Content-Type':'application/json',Prefer:'return=representation'},extra||{}),body:body?JSON.stringify(body):undefined});
   if(!r.ok)throw new Error('Write failed '+r.status+': '+await r.text());const x=await r.text();return x?JSON.parse(x):null;}
-async function _rpc(fn,args){const t=await _token();const r=await fetch(SUPABASE_URL+'/rest/v1/rpc/'+fn,{method:'POST',headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify(args||{})});
+async function _rpc(fn,args){const t=await _token();const r=await fetch(SB_API+'/rest/v1/rpc/'+fn,{method:'POST',headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify(args||{})});
   if(!r.ok)throw new Error('RPC '+r.status+': '+await r.text());const x=await r.text();return x?JSON.parse(x):null;}
 
 async function signIn(){
@@ -258,7 +262,7 @@ let _searchTimer=null;
 function onSearchInput(){ clearTimeout(_searchTimer); _searchTimer=setTimeout(()=>{ fState.page=0; iState.page=0; renderActive(); }, 300); }
 async function pagedFetch(table, params){
   const t=await _token();
-  const r=await fetch(SUPABASE_URL+'/rest/v1/'+table+'?'+params,{headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t,Prefer:'count=exact'}});
+  const r=await fetch(SB_API+'/rest/v1/'+table+'?'+params,{headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t,Prefer:'count=exact'}});
   if(!r.ok) throw new Error('Query failed '+r.status+': '+await r.text());
   const rows=await r.json();
   const cr=r.headers.get('content-range')||''; const tot=cr.includes('/')?parseInt(cr.split('/')[1],10):rows.length;
@@ -266,7 +270,7 @@ async function pagedFetch(table, params){
 }
 async function countOnly(table, filter){
   try{ const t=await _token();
-    const r=await fetch(SUPABASE_URL+'/rest/v1/'+table+'?select=id&limit=1'+(filter?('&'+filter):''),{headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t,Prefer:'count=exact'}});
+    const r=await fetch(SB_API+'/rest/v1/'+table+'?select=id&limit=1'+(filter?('&'+filter):''),{headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t,Prefer:'count=exact'}});
     const cr=r.headers.get('content-range')||''; const tot=cr.includes('/')?parseInt(cr.split('/')[1],10):0; return isNaN(tot)?0:tot;
   }catch(e){ return 0; }
 }
@@ -420,6 +424,26 @@ function mTierTag(m){ if(!m||!m.tier) return ''; const C={senior:'#C9923A',chief
   return ' <span style="display:inline-flex;align-items:center;gap:5px;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:'+c+';vertical-align:middle"><i style="display:inline-block;width:6px;height:6px;background:'+c+';transform:rotate(45deg)"></i>'+L[m.tier]+'</span>'; }
 function mSlugify(s){ return String(s||'').toLowerCase().replace(/[^a-z0-9]+/g,'-').replace(/(^-|-$)/g,''); }
 function specLabels(arr){ const m=window.__taxMap||{}; return (arr||[]).map(s=>m[s]||s); }
+
+// ── Mentor roster: sortable columns (name · seniority · price · status) ──
+let mentorSort={key:'name',dir:1};
+const TIER_RANK={senior:3,chief:2,captain:1};   // elder-statesperson → hands-on operator
+function mSortVal(m,key){ const f=m.fees||{};
+  if(key==='coffee') return Number(f.coffee||0);
+  if(key==='zoom')   return Number(f.zoom||0);
+  if(key==='tier')   return TIER_RANK[m.tier]||0;
+  if(key==='status') return String(m.status||'');
+  return String(m.name||m.title||'').toLowerCase(); }
+function sortMentors(list){ const {key,dir}=mentorSort;
+  return list.slice().sort((a,b)=>{ const va=mSortVal(a,key), vb=mSortVal(b,key);
+    if(va<vb) return -dir; if(va>vb) return dir;
+    const na=String(a.name||'').toLowerCase(), nb=String(b.name||'').toLowerCase();
+    return na<nb?-1:(na>nb?1:0); }); }
+function setMentorSort(key){ if(mentorSort.key===key) mentorSort.dir*=-1;
+  else mentorSort={key,dir:(key==='name'||key==='status')?1:-1}; renderMentors(); }
+function mHead(label,key){ const on=mentorSort.key===key; const ar=on?(mentorSort.dir===1?' ▲':' ▼'):'';
+  return '<th style="cursor:pointer;user-select:none;white-space:nowrap" onclick="setMentorSort(\''+key+'\')" title="Sort by '+label+'">'+label+'<span style="color:var(--terra)">'+ar+'</span></th>'; }
+function mSeniorityCell(m){ const t=mTierTag(m); return t?t.trim():'<span class="sub">—</span>'; }
 function mfSpecsHTML(sel){
   const list=window.__taxList||[]; if(!list.length) return '<div class="sub">Taxonomy not loaded — reopen after the roster finishes loading.</div>';
   const chosen=new Set(sel||[]);
@@ -493,21 +517,29 @@ function renderMentors(){
       +'<td>'+mMoney(r.quoted_fee)+'</td>'
       +'<td>'+payCell+'</td>'
       +(r.message?'<td class="sub" style="max-width:240px">'+esc(r.message)+'</td>':'<td class="sub">—</td>')
-      +'<td>'+ctrl+schedBlock(r)+'</td>'
+      +'<td>'+ctrl+schedBlock(r)+reqDelete(r)+'</td>'
       +'<td class="sub">'+ago(r.created_at)+'</td></tr>';
   });
-  // roster
-  const mq=mentorsList.filter(m=>!q||[m.name,m.title,m.company].some(x=>String(x||'').toLowerCase().includes(q)));
-  const mRows=mq.map(m=>{
+  // roster — grouped Active vs Deactivated, with sortable columns
+  const mqAll=mentorsList.filter(m=>!q||[m.name,m.title,m.company].some(x=>String(x||'').toLowerCase().includes(q)));
+  const mRow=m=>{
     const fees=m.fees||{};
     const act = su ? '<button class="btn-sm" style="background:none;border:1px solid var(--border-hi);color:var(--ink-mid);padding:5px 10px" onclick="editMentor(\''+m.id+'\')">Edit</button> '
       +'<button class="btn-sm" style="background:none;border:1px solid var(--border-hi);color:var(--ink-mid);padding:5px 10px" onclick="toggleMentor(\''+m.id+'\',\''+(m.status==='active'?'inactive':'active')+'\')">'+(m.status==='active'?'Deactivate':'Activate')+'</button>' : '';
-    return '<tr><td>'+esc(m.name||'—')+mTierTag(m)+'<div class="sub">'+esc(m.title||'')+(m.company?(' · '+esc(m.company)):'')+'</div></td>'
+    return '<tr><td>'+esc(m.name||'—')+'<div class="sub">'+esc(m.title||'')+(m.company?(' · '+esc(m.company)):'')+'</div></td>'
+      +'<td>'+mSeniorityCell(m)+'</td>'
       +'<td>'+esc((m.formats||[]).join(', '))+'</td>'
       +'<td>'+mMoney(fees.coffee)+'</td><td>'+mMoney(fees.zoom)+'</td>'
       +'<td>'+pill(m.status)+'</td>'
       +'<td style="white-space:nowrap">'+act+'</td></tr>';
-  });
+  };
+  const mkRoster=list=>{
+    if(!list.length) return '<div class="tbl-wrap"><div class="empty">None.</div></div>';
+    const head='<tr>'+mHead('Mentor','name')+mHead('Seniority','tier')+'<th>Formats</th>'+mHead('Coffee','coffee')+mHead('Zoom','zoom')+mHead('Status','status')+'<th>Actions</th></tr>';
+    return '<div class="tbl-wrap"><table><thead>'+head+'</thead><tbody>'+sortMentors(list).map(mRow).join('')+'</tbody></table></div>';
+  };
+  const mActive=mqAll.filter(m=>m.status==='active');
+  const mInactive=mqAll.filter(m=>m.status!=='active');
   const addBtn = su ? '<button class="btn-sm" style="background:var(--terra);border:none;color:#fff;padding:7px 14px" onclick="editMentor(null)">+ Add mentor</button>' : '';
   const H='font-family:var(--display);font-size:19px;font-weight:600;margin:0';
 
@@ -594,8 +626,23 @@ function renderMentors(){
     + '<h3 style="'+H+';margin:24px 0 10px">Booking requests</h3>'
     + '<div id="req-panel"></div>'
     + tbl(['Founder','Mentor','Format','Quoted fee','Payment','Message','Status','When'], reqRows)
-    + '<div style="display:flex;align-items:center;justify-content:space-between;margin:26px 0 10px"><h3 style="'+H+'">Mentor roster</h3>'+addBtn+'</div>'
-    + tbl(['Mentor','Formats','Coffee','Zoom','Status','Actions'], mRows);
+    + '<div style="display:flex;align-items:center;justify-content:space-between;margin:26px 0 10px"><h3 style="'+H+'">Mentor roster <span class="sub" style="font-weight:400">· '+mActive.length+' active</span></h3>'+addBtn+'</div>'
+    + mkRoster(mActive)
+    + '<h3 style="'+H+';margin:24px 0 10px">Deactivated <span class="sub" style="font-weight:400">· '+mInactive.length+'</span></h3>'
+    + mkRoster(mInactive);
+}
+
+// Junk/test rows only — a genuine request you turn down should be marked
+// 'declined' (keeps the record), not deleted.
+function reqDelete(r){
+  if(!isSuper()) return '';
+  return '<div style="margin-top:5px"><a href="#" onclick="deleteMentorRequest(\''+r.id+'\');return false" style="font-size:10.5px;color:#C0392B">Delete request</a></div>';
+}
+async function deleteMentorRequest(id){
+  const r=mentorReqs.find(x=>x.id===id); const who=r?(r.founder_name||r.founder_email||'this request'):'this request';
+  if(!(await fsConfirm('Permanently delete the booking request from '+who+'? Use this for junk or test rows — a genuine request you’re turning down should be marked “declined” instead, which keeps the record.',{title:'Delete request',okText:'Delete',danger:true}))) return;
+  try{ await _w('DELETE','mentor_session_requests','id=eq.'+id); showToast('Request deleted','success'); loadMentors(); }
+  catch(e){ showToast('Delete failed — '+e.message,'error'); }
 }
 
 // ── Session scheduling (concierge) ──────────────────────────────────────────
@@ -800,18 +847,35 @@ async function saveMentor(id){
     showToast('Mentor saved','success'); document.getElementById('mentor-form').innerHTML=''; loadMentors();
   }catch(e){ showToast('Save failed — '+e.message,'error'); }
 }
+// Downscale + compress an image client-side before upload (EXIF-corrected).
+// Non-images or any failure → original file is returned unchanged.
+async function downscaleImage(file, maxDim, quality){
+  if(!file || !/^image\//.test(file.type) || file.type==='image/gif') return file;
+  try{
+    const bmp=await createImageBitmap(file,{imageOrientation:'from-image'});
+    const scale=Math.min(1, maxDim/Math.max(bmp.width,bmp.height));
+    const w=Math.round(bmp.width*scale), h=Math.round(bmp.height*scale);
+    const cv=document.createElement('canvas'); cv.width=w; cv.height=h;
+    cv.getContext('2d').drawImage(bmp,0,0,w,h);
+    const blob=await new Promise(res=>cv.toBlob(res,'image/jpeg',quality));
+    if(!blob || blob.size>=file.size) return file;
+    return new File([blob], file.name.replace(/\.\w+$/,'')+'.jpg', {type:'image/jpeg'});
+  }catch(e){ return file; }
+}
 async function onMentorPhotoPick(input){
   const file=input.files&&input.files[0]; if(!file) return;
   const msg=document.getElementById('mf-photo-msg');
   if(!/^image\/(png|jpe?g|webp)$/.test(file.type)){ msg.textContent='Use a PNG, JPG, or WebP image.'; msg.style.color='#C0392B'; return; }
   if(file.size>5*1024*1024){ msg.textContent='Image must be under 5MB.'; msg.style.color='#C0392B'; return; }
-  msg.style.color=''; msg.textContent='Uploading…';
+  msg.style.color=''; msg.textContent='Optimising…';
   try{
     const hidden=document.getElementById('mf-photo-url');
-    const ext=((file.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,''))||'jpg';
+    const up=await downscaleImage(file,1200,0.82);
+    msg.textContent='Uploading…';
+    const ext=((up.name.split('.').pop()||'jpg').toLowerCase().replace(/[^a-z0-9]/g,''))||'jpg';
     const folder=(hidden.dataset.folder||('m-'+Date.now())).replace(/[^A-Za-z0-9_-]/g,'');
     const path=folder+'/photo_'+Date.now()+'.'+ext;
-    const { error }=await sb.storage.from('mentor-photos').upload(path,file,{upsert:true,contentType:file.type});
+    const { error }=await sb.storage.from('mentor-photos').upload(path,up,{upsert:true,contentType:up.type});
     if(error) throw error;
     const url=sb.storage.from('mentor-photos').getPublicUrl(path).data.publicUrl;
     hidden.value=url;
@@ -1104,8 +1168,8 @@ function showInviteCoach(){
 function copyInvite(){ const i=document.getElementById('invite-url'); if(!i)return; i.select(); try{ navigator.clipboard.writeText(i.value); }catch(e){ try{document.execCommand('copy');}catch(_){} } showToast('Link copied','success'); }
 async function openCoachDoc(path){
   try{ const t=await _token();
-    const r=await fetch(SUPABASE_URL+'/storage/v1/object/sign/coach-documents/'+encodeURI(path),{method:'POST',headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify({expiresIn:300})});
-    const j=await r.json(); if(j&&j.signedURL) window.open(SUPABASE_URL+'/storage/v1'+j.signedURL,'_blank'); else throw new Error('na');
+    const r=await fetch(SB_API+'/storage/v1/object/sign/coach-documents/'+encodeURI(path),{method:'POST',headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify({expiresIn:300})});
+    const j=await r.json(); if(j&&j.signedURL) window.open(SB_API+'/storage/v1'+j.signedURL,'_blank'); else throw new Error('na');
   }catch(e){ showToast('Could not open document','error'); }
 }
 async function adminRequestChanges(id){
@@ -1199,7 +1263,7 @@ async function saveMaterial(){
     if(file){
       const path=coach_id+'/'+Date.now()+'-'+file.name.replace(/[^a-zA-Z0-9._-]/g,'_');
       const t=await _token();
-      const up=await fetch(SUPABASE_URL+'/storage/v1/object/course-materials/'+encodeURI(path),{method:'POST',headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t,'x-upsert':'true','Content-Type':file.type||'application/octet-stream'},body:file});
+      const up=await fetch(SB_API+'/storage/v1/object/course-materials/'+encodeURI(path),{method:'POST',headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t,'x-upsert':'true','Content-Type':file.type||'application/octet-stream'},body:file});
       if(!up.ok) throw new Error('upload '+up.status); file_path=path;
     }
     const row=await _w('POST','course_materials','',{coach_id,title,discipline,module_type:type,format:type,source_url,file_path,status,is_active:true,created_at:new Date().toISOString(),updated_at:new Date().toISOString()});
@@ -1216,8 +1280,8 @@ async function deleteMaterial(tbl,id){
 }
 async function openMaterial(path){
   try{ const t=await _token();
-    const r=await fetch(SUPABASE_URL+'/storage/v1/object/sign/course-materials/'+encodeURI(path),{method:'POST',headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify({expiresIn:300})});
-    const j=await r.json(); if(j&&j.signedURL) window.open(SUPABASE_URL+'/storage/v1'+j.signedURL,'_blank'); else throw new Error('na');
+    const r=await fetch(SB_API+'/storage/v1/object/sign/course-materials/'+encodeURI(path),{method:'POST',headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify({expiresIn:300})});
+    const j=await r.json(); if(j&&j.signedURL) window.open(SB_API+'/storage/v1'+j.signedURL,'_blank'); else throw new Error('na');
   }catch(e){ showToast('Could not open file','error'); }
 }
 
@@ -1305,7 +1369,7 @@ async function toggleFirmPublic(id,next){
 
 // ── Testimonials (ops: group approvals + oversight) ──
 let tstRows=[], tstFilter='new', tstLoaded=false;
-const TST_PHOTO_BASE=SUPABASE_URL+'/storage/v1/object/public/testimonial-photos/';
+const TST_PHOTO_BASE=SB_API+'/storage/v1/object/public/testimonial-photos/';
 function tstPhoto(p){ if(!p) return null; return /^https?:\/\//.test(p)?p:TST_PHOTO_BASE+p; }
 function tstTargetLabel(slug){ if(!slug||slug==='group') return 'Whole team'; const c=coaches.find(x=>x.slug===slug); return c?((c.first_name||'')+' '+(c.last_name||'')).trim():slug; }
 const TST_ST={'new':{l:'Pending',c:'#A6741F'},approved:{l:'Approved · live',c:'#0A8F64'},rejected:{l:'Declined',c:'#8A857C'},revoked:{l:'Revoked',c:'#8A857C'}};
