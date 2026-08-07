@@ -1,0 +1,410 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script>document.documentElement.classList.add('has-js');</script>
+<title>Pricing · What you get for each tier · The Founder's Sprint</title>
+<meta name="description" content="A full breakdown of The Founder's Sprint pricing — what a founder actually gets at each tier, from a single 2-hour specialty deep-dive to the full five-week cohort, VIP Leadership, and bespoke corporate programmes. One bookable unit, honest terms, upgrade any time.">
+<link rel="icon" href="/beta/favicon.svg" type="image/svg+xml">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Josefin+Sans:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1A1A1A; --ink-2:#0f0d0a; --paper:#EFE7D8; --paper-2:#F6F0E3; --paper-deep:#E6DCC7;
+    --terra:#C8531F; --terra-deep:#9A3E16; --ochre:#C9923A; --moss:#3D4A2E; --sage:#8AAB5C; --stone:#777770;
+    --muted:#5A564F; --line:rgba(26,26,26,0.12);
+    --sans:'Josefin Sans',system-ui,sans-serif; --display:'Cormorant Garamond',Georgia,serif;
+    --body:'Inter',system-ui,sans-serif; --mono:'JetBrains Mono',monospace;
+    --disc:#C8531F;       /* accent — pricing uses the brand primary, terracotta */
+    --disc-deep:#9A3E16;  /* deep terracotta — light-bg accents, buttons, borders */
+    --radius-card:0 0 24px 0;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);font-size:16px;line-height:1.65;-webkit-font-smoothing:antialiased;}
+  .shell{max-width:1120px;margin:0 auto;padding:0 24px;}
+  em{font-style:italic;}
+
+  /* ===== HERO (uses .fsx-hero from site-chrome) ===== */
+  section.fsx-hero .section-eb{color:var(--disc);}
+  .fsx-hero .hero-photo{position:absolute;inset:0;z-index:0;background-position:center;background-size:cover;background-repeat:no-repeat;filter:grayscale(1) contrast(1.04) brightness(.62);opacity:.72;}
+  .fsx-hero .hero-scrim{position:absolute;inset:0;z-index:0;background:linear-gradient(180deg,rgba(15,13,10,.42),rgba(15,13,10,.58) 60%,rgba(15,13,10,.9)),linear-gradient(90deg,rgba(15,13,10,.78),rgba(15,13,10,.24) 55%,transparent);}
+
+  /* ===== INTRO ===== */
+  .intro{padding:84px 0 34px;}
+  .intro .lede{font-family:var(--display);font-size:clamp(24px,3.4vw,34px);line-height:1.4;font-weight:300;max-width:880px;}
+  .intro .lede em{color:var(--disc-deep);font-style:italic;}
+  .intro p.body{max-width:760px;margin-top:18px;color:#2a2824;}
+
+  /* ===== TIER JUMP NAV ===== */
+  .jumpwrap{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--paper-2);}
+  .tier-jump{display:flex;gap:8px;flex-wrap:wrap;justify-content:center;padding:16px 24px;}
+  .tier-jump a{font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);text-decoration:none;border:1px solid var(--line);padding:9px 15px;border-radius:0 0 12px 0;transition:.2s;background:var(--paper);}
+  .tier-jump a:hover{color:var(--terra);border-color:var(--terra);}
+
+  /* ===== VALUE DATA (dark) ===== */
+  .data{background:var(--ink-2);color:var(--paper);padding:64px 0;margin-top:8px;}
+  .data .eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--disc);}
+  .data h2{font-family:var(--sans);font-weight:400;font-size:clamp(26px,3.6vw,38px);letter-spacing:-.022em;margin:10px 0 6px;}
+  .data .sub{color:rgba(239,231,216,.66);max-width:680px;}
+  .chart{margin:34px 0 10px;}
+  .bar-row{display:grid;grid-template-columns:210px 1fr 120px;align-items:center;gap:14px;margin:13px 0;}
+  .bar-row .lab{font-family:var(--sans);font-size:13px;font-weight:500;color:rgba(239,231,216,.9);text-align:right;}
+  .bar-track{height:26px;background:rgba(239,231,216,.05);position:relative;}
+  .bar-fill{display:block;height:100%;background:rgba(239,231,216,.28);transform:scaleX(1);transform-origin:left;}
+  .bar-row.hi .bar-fill{background:var(--terra);box-shadow:0 0 16px 1px rgba(200,83,31,.55);}
+  .chart.animate .bar-fill{transform:scaleX(0);animation:barGrow 1.05s cubic-bezier(.2,.75,.25,1) both;}
+  .chart.animate .bar-row:nth-child(1) .bar-fill{animation-delay:.05s;}
+  .chart.animate .bar-row:nth-child(2) .bar-fill{animation-delay:.28s;}
+  .bar-row .val{font-family:var(--mono);font-size:12px;color:rgba(239,231,216,.8);}
+  .bar-row.hi .lab,.bar-row.hi .val{color:var(--terra);font-weight:700;}
+  @keyframes barGrow{from{transform:scaleX(0);}to{transform:scaleX(1);}}
+  @media (prefers-reduced-motion:reduce){.bar-fill,.chart.animate .bar-fill{transform:scaleX(1)!important;animation:none!important;}}
+  .data .takeaway{font-family:var(--display);font-size:22px;font-style:italic;line-height:1.5;color:var(--paper);max-width:760px;margin-top:30px;border-left:2px solid var(--disc);padding-left:20px;}
+  .data .takeaway em{color:var(--ochre);}
+
+  /* ===== TIER SECTIONS ===== */
+  .tier-sec{padding:74px 0;border-top:1px solid var(--line);}
+  .tier-sec .inner{display:grid;grid-template-columns:0.92fr 1.08fr;gap:52px;align-items:start;}
+  .tier-sec.alt .copy{order:2;} .tier-sec.alt .incl{order:1;}
+  .sec-eb{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--disc-deep);}
+  .sec-eb .num{color:var(--stone);}
+  .tier-sec h3{font-family:var(--sans);font-weight:400;font-size:clamp(26px,3.4vw,38px);letter-spacing:-.022em;margin:8px 0 0;line-height:1.14;}
+  .tier-sec .stand{font-family:var(--display);font-style:italic;font-size:19px;color:var(--muted);margin:10px 0 0;max-width:44ch;}
+  .pop{display:inline-block;font-family:var(--sans);font-size:9.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--paper);background:var(--disc);padding:3px 9px;border-radius:0 0 8px 0;margin-bottom:12px;}
+  .pop.val{background:var(--moss);}
+  .tier-price{font-family:var(--display);font-weight:300;font-size:clamp(40px,5.6vw,56px);color:var(--disc-deep);line-height:1;margin:20px 0 4px;}
+  .tier-price .ccy{font-family:var(--sans);font-size:13px;font-weight:600;letter-spacing:.1em;color:var(--muted);vertical-align:middle;margin-right:8px;}
+  .tier-price .unit{font-family:var(--body);font-size:14px;color:var(--muted);margin-left:8px;letter-spacing:0;}
+  .tier-note{font-size:13px;color:var(--muted);margin:8px 0 0;}
+  .incl-h{font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--stone);margin:0 0 4px;}
+  .spec{padding:16px 0;border-top:1px solid var(--line);}
+  .spec:first-of-type{border-top:none;}
+  .spec .sn{font-family:var(--sans);font-weight:600;font-size:15.5px;letter-spacing:.01em;display:flex;align-items:baseline;gap:10px;}
+  .spec .sn::before{content:"";width:7px;height:7px;background:var(--disc);border-radius:0 0 4px 0;flex-shrink:0;transform:translateY(-1px);}
+  .spec p{margin:6px 0 0 17px;font-size:14px;color:#33302b;line-height:1.6;}
+  .go{display:inline-flex;align-items:center;gap:8px;margin-top:26px;font-family:var(--sans);font-weight:700;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--paper);background:var(--disc-deep);padding:14px 24px;text-decoration:none;border-radius:0 0 14px 0;transition:opacity .2s;}
+  .go:hover{opacity:.9;}
+  .go.ghost{background:none;color:var(--ink);border:1px solid var(--line);}
+  .go.ghost:hover{border-color:var(--ink);}
+
+  /* ===== PARALLAX ===== */
+  .parallax{position:relative;min-height:300px;display:flex;align-items:center;justify-content:center;text-align:center;background:var(--ink-2) center/cover no-repeat;background-attachment:fixed;}
+  .parallax::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,13,10,.62),rgba(15,13,10,.8));}
+  .parallax .pq{position:relative;z-index:1;max-width:760px;padding:48px 24px;}
+  .parallax .pq q{font-family:var(--display);font-style:italic;font-size:clamp(23px,3.3vw,33px);line-height:1.4;color:var(--paper);quotes:none;}
+  .parallax .pq .who{font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--disc);margin-top:18px;}
+
+  /* ===== DEPOSIT / POLICY ===== */
+  .policy{padding:74px 0;background:var(--paper-2);border-top:1px solid var(--line);}
+  .policy .eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--disc-deep);}
+  .policy h2{font-family:var(--sans);font-weight:400;font-size:clamp(24px,3.2vw,34px);letter-spacing:-.022em;margin:10px 0 4px;}
+  .policy .sub{color:var(--muted);max-width:680px;}
+  .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:22px;margin-top:32px;}
+  .pcard{background:var(--paper);border:1px solid var(--line);border-radius:0 0 24px 0;padding:26px 24px;}
+  .pcard .pn{font-family:var(--display);font-size:30px;color:var(--disc-deep);line-height:1;}
+  .pcard h4{font-family:var(--sans);font-weight:600;font-size:15px;margin:10px 0 8px;letter-spacing:.01em;}
+  .pcard p{font-size:13.5px;color:#33302b;margin:0;line-height:1.56;}
+
+  /* ===== STORAGE ===== */
+  .storage{padding:74px 0;}
+  .storage .eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--disc-deep);}
+  .storage h2{font-family:var(--sans);font-weight:400;font-size:clamp(24px,3.2vw,34px);letter-spacing:-.022em;margin:10px 0 4px;}
+  .storage .sub{color:var(--muted);max-width:700px;}
+  .store-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--line);border:1px solid var(--line);margin-top:30px;}
+  .store{background:var(--paper-2);padding:26px 22px;}
+  .store .sn{font-family:var(--sans);font-weight:700;font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink);}
+  .store .sp{font-family:var(--display);font-size:32px;color:var(--disc-deep);margin:8px 0 0;line-height:1;}
+  .store .sp .u{font-family:var(--body);font-size:13px;color:var(--muted);margin-left:6px;}
+  .store .sd{font-size:13px;color:var(--muted);margin-top:8px;line-height:1.5;}
+  .storage .fine{font-size:13px;color:var(--muted);margin-top:20px;max-width:720px;}
+
+  /* ===== FINAL CTA ===== */
+  .end{padding:84px 0;text-align:center;}
+  .end .eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--disc-deep);}
+  .end h2{font-family:var(--sans);font-weight:300;font-size:clamp(30px,4.6vw,50px);letter-spacing:-.022em;margin:12px 0 8px;}
+  .end p{max-width:560px;margin:0 auto 28px;color:var(--muted);}
+  .cta-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+  .btn{font-family:var(--sans);font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase;padding:15px 28px;text-decoration:none;border-radius:0 0 16px 0;}
+  .btn-fill{background:var(--disc-deep);color:var(--paper);} .btn-fill:hover{opacity:.9;}
+  .btn-ghost{background:none;color:var(--ink);border:1px solid var(--line);} .btn-ghost:hover{border-color:var(--ink);}
+
+  @media (max-width:860px){
+    .tier-sec .inner{grid-template-columns:1fr;gap:24px;}
+    .tier-sec.alt .copy{order:1;} .tier-sec.alt .incl{order:2;}
+    .grid3,.store-grid{grid-template-columns:1fr;}
+    .bar-row{grid-template-columns:120px 1fr 92px;gap:10px;}
+    .parallax{background-attachment:scroll;}
+    .intro{padding:56px 0 28px;}
+  }
+</style>
+</head>
+<body>
+
+<div id="fs-nav"></div>
+<div id="fs-promo" data-promo-cta="/beta/book/?tier=cohort"></div>
+
+<!-- ===== HERO ===== -->
+<section class="fsx-hero">
+  <div class="hero-photo" style="background-image:url('/images/admin-bg-3.jpg')"></div>
+  <div class="hero-scrim"></div>
+  <div class="hero-constellation"></div>
+  <div class="shell">
+    <span class="eyebrow section-eb">
+      <svg class="v6-mark" width="10" height="10" viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,8 57,50 50,92 43,50" fill="currentColor" opacity="0.85"/><polygon points="50,8 57,50 50,92 43,50" fill="currentColor" opacity="0.65" transform="rotate(72 50 50)"/><polygon points="50,8 57,50 50,92 43,50" fill="currentColor" opacity="0.55" transform="rotate(144 50 50)"/><polygon points="50,8 57,50 50,92 43,50" fill="currentColor" opacity="0.65" transform="rotate(216 50 50)"/><polygon points="50,8 57,50 50,92 43,50" fill="currentColor" opacity="0.55" transform="rotate(288 50 50)"/><circle cx="50" cy="50" r="4.5" fill="currentColor" opacity="0.8"/></svg>
+      The Programme · Pricing
+    </span>
+    <h1 class="h-section">What you <em>get</em></h1>
+    <p class="h-sub" style="margin-top:18px;color:rgba(239,231,216,0.66);">Five coaches, five disciplines, forty-nine specialties. You can take one, take three, or take the whole thing. This is exactly what sits behind each price — and where the <em>value</em> is.</p>
+    <div class="hero-rule"></div>
+    <p class="tag">Build with direction.</p>
+  </div>
+</section>
+
+<!-- ===== INTRO ===== -->
+<section class="intro">
+  <div class="shell">
+    <p class="lede">One thing is for sale, at different scales: a <em>two-hour deep-dive</em> on a single specialty, with the coach who owns it, that ends with a deliverable you keep. Everything else is how many of those you buy at once.</p>
+    <p class="body">The programme breaks into 49 specialties across the five disciplines. The atomic unit — the thing you actually book — is one specialty, taught as a focused two-hour session. A single session solves one problem. Three, chosen across disciplines, close your biggest gaps. The full cohort takes you through all of them over five weeks and hands you an investor-ready data room at the end. Start wherever you are; when you upgrade, we credit what you have already paid toward the higher tier. Nothing here is priced to trap you — it is priced so a founder can start small and grow into it.</p>
+  </div>
+</section>
+
+<!-- ===== TIER JUMP ===== -->
+<div class="jumpwrap"><div class="shell"><nav class="tier-jump" aria-label="Jump to a tier">
+  <a href="#single">Single Session</a>
+  <a href="#pick3">Pick 3 Bundle</a>
+  <a href="#cohort">Full Cohort</a>
+  <a href="#vip">VIP Leadership</a>
+  <a href="#corporate">Corporate</a>
+  <a href="#deposit">How payment works</a>
+</nav></div></div>
+
+<!-- ===== VALUE DATA ===== -->
+<section class="data">
+  <div class="shell">
+    <div class="eyebrow">Where the value is · the cohort maths</div>
+    <h2>The whole foundation, for roughly a tenth of the à-la-carte cost.</h2>
+    <p class="sub">Booked one at a time, all forty-nine specialties as private 1:1 sessions come to about UGX&nbsp;24.5M — nearly a hundred hours of coaching. The Full Cohort delivers every one of those disciplines in a five-week group room for UGX&nbsp;2.5M.</p>
+    <div class="chart" data-reveal role="img" aria-label="49 specialties booked à la carte as 1:1 sessions ≈ UGX 24.5M; the Full Cohort covers all five disciplines for UGX 2.5M.">
+      <div class="bar-row"><span class="lab">49 specialties, à la carte 1:1</span><span class="bar-track"><span class="bar-fill" style="width:100%"></span></span><span class="val">≈ UGX 24.5M</span></div>
+      <div class="bar-row hi"><span class="lab">Full Cohort (5 weeks, group)</span><span class="bar-track"><span class="bar-fill" style="width:10.2%"></span></span><span class="val">UGX 2.5M</span></div>
+    </div>
+    <p class="takeaway">You are not buying a discount — you are trading private pace for a <em>peer cohort</em>, the same five coaches across five weeks, and a coach-vetted <em>data room</em> at the end. The 1:1 tiers exist for founders with one sharp need and no time to wait; the cohort is for the founder building the whole thing.</p>
+  </div>
+</section>
+
+<!-- ===== SINGLE ===== -->
+<section class="tier-sec" id="single">
+  <div class="shell inner">
+    <div class="copy">
+      <div class="sec-eb"><span class="num">Tier 01 ·</span> Single Session</div>
+      <h3>One specialty, one afternoon, one thing solved.</h3>
+      <p class="stand">For the founder with a single sharp problem and no time to wait.</p>
+      <div class="tier-price"><span class="ccy">UGX</span><span data-promo-tier="single" data-promo-fmt="full">500,000</span></div>
+      <p class="tier-note">A 2-hour 1:1 deep-dive on one specialty. Reserve with a 10% deposit.</p>
+      <a class="go" href="/beta/book/?tier=single">Book a session →</a>
+    </div>
+    <div class="incl">
+      <div class="incl-h">What you get</div>
+      <div class="spec"><div class="sn">One 2-hour 1:1 session</div><p>Private time with the coach who owns that specialty — not a generalist. You bring the problem; you leave with a plan.</p></div>
+      <div class="spec"><div class="sn">A take-home deliverable</div><p>Every session ends with a vetted artifact — a model, a canvas, a document — that is yours to keep and use.</p></div>
+      <div class="spec"><div class="sn">Pick from any of the 49 specialties</div><p>Marketing, finance, investment, strategy, or product — whichever gap is costing you right now.</p></div>
+      <div class="spec"><div class="sn">A free account &amp; dashboard</div><p>See your session, your deliverable, and what a fuller data room would look like — no obligation to go further.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PARALLAX 1 ===== -->
+<section class="parallax" style="background-image:url('/images/investor-bg-3.jpg')">
+  <div class="pq"><q>Start with the gap that keeps you up at night. You can always come back for the rest.</q><div class="who">The Founder's Sprint</div></div>
+</section>
+
+<!-- ===== PICK 3 ===== -->
+<section class="tier-sec alt" id="pick3">
+  <div class="shell inner">
+    <div class="copy">
+      <span class="pop">Most popular</span>
+      <div class="sec-eb"><span class="num">Tier 02 ·</span> Pick 3 Bundle</div>
+      <h3>Three deep-dives, chosen where it hurts most.</h3>
+      <p class="stand">For the founder who knows their three biggest gaps.</p>
+      <div class="tier-price"><span class="ccy">UGX</span><span data-promo-tier="pick3" data-promo-fmt="full">1,000,000</span></div>
+      <p class="tier-note">Any three specialties — UGX 500K each à la carte, so the bundle saves you a third. 10% deposit.</p>
+      <a class="go" href="/beta/book/?tier=pick3">Build my bundle →</a>
+    </div>
+    <div class="incl">
+      <div class="incl-h">What you get</div>
+      <div class="spec"><div class="sn">Three 2-hour 1:1 sessions</div><p>Three distinct specialties, each a real deep-dive with its coach — not one topic stretched three ways.</p></div>
+      <div class="spec"><div class="sn">Mix across disciplines — or complete a track</div><p>Take one from finance, one from marketing, one from product; or take all three of a single module to master it end to end.</p></div>
+      <div class="spec"><div class="sn">Three take-home deliverables</div><p>Three vetted artifacts, the start of a real data room.</p></div>
+      <div class="spec"><div class="sn">Roughly a third off</div><p>Three à-la-carte sessions would be UGX 1.5M. The bundle is UGX 1M for the same three.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== COHORT ===== -->
+<section class="tier-sec" id="cohort">
+  <div class="shell inner">
+    <div class="copy">
+      <span class="pop val">Best value</span>
+      <div class="sec-eb"><span class="num">Tier 03 ·</span> Full Cohort</div>
+      <h3>Every discipline, over five weeks, with a room full of peers.</h3>
+      <p class="stand">For the founder building the whole thing — and who wants to be investor-ready at the end.</p>
+      <div class="tier-price"><span class="ccy">UGX</span><span data-promo-tier="cohort" data-promo-fmt="full">2,500,000</span></div>
+      <p class="tier-note">All five disciplines · ~50 hours of group coaching · 12 founders per cohort · quarterly intakes. 10% deposit.</p>
+      <a class="go" href="/beta/book/?tier=cohort">Join the cohort →</a>
+    </div>
+    <div class="incl">
+      <div class="incl-h">What you get</div>
+      <div class="spec"><div class="sn">Five weeks, five disciplines, five coaches</div><p>Every weekday covers a discipline — Marketing on Monday through Product on Friday — repeating across five weeks, so you cover the full craft, not a highlight reel.</p></div>
+      <div class="spec"><div class="sn">All five discipline deliverables</div><p>Go-to-market, financial model, competitive and team plan, fundraising materials, and product roadmap — each built under expert supervision.</p></div>
+      <div class="spec"><div class="sn">A coach-vetted, investor-ready data room</div><p>The deliverables land in a structured vault investors can trust — a quality signal, not a self-reported form.</p></div>
+      <div class="spec"><div class="sn">A peer cohort of 12 founders</div><p>You build alongside eleven others solving the same problems — the room is part of the value.</p></div>
+      <div class="spec"><div class="sn">12 months of free data-room hosting</div><p>Up to 5GB, bundled — your vault stays live for a year at no extra cost.</p></div>
+      <div class="spec"><div class="sn">A 30-day post-programme window</div><p>Time after the cohort to finish, revise, and lock in your materials.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== PARALLAX 2 ===== -->
+<section class="parallax" style="background-image:url('/images/admin-bg-4.jpg')">
+  <div class="pq"><q>A data room built under a coach's eye is a different signal to an investor than a form you filled in yourself.</q><div class="who">The Founder's Sprint</div></div>
+</section>
+
+<!-- ===== VIP LEADERSHIP ===== -->
+<section class="tier-sec alt" id="vip">
+  <div class="shell inner">
+    <div class="copy">
+      <div class="sec-eb"><span class="num">Tier 04 ·</span> VIP Leadership</div>
+      <h3>Private, dedicated, and built for your whole leadership team.</h3>
+      <p class="stand">For the company whose leadership needs to be aligned and raise-ready now.</p>
+      <div class="tier-price"><span class="ccy">UGX</span><span data-promo-tier="vip1on1" data-promo-fmt="full">5,000,000</span></div>
+      <p class="tier-note">All five disciplines, delivered privately to your leadership team, plus three months of advisory.</p>
+      <a class="go" href="/beta/book/?tier=vip1on1">Book VIP Leadership →</a>
+    </div>
+    <div class="incl">
+      <div class="incl-h">What you get</div>
+      <div class="spec"><div class="sn">Private sessions for your leadership team</div><p>Not one founder in a group — your whole leadership team, worked through every discipline together, at your own pace.</p></div>
+      <div class="spec"><div class="sn">All five coaches, dedicated</div><p>The full bench, focused on your business specifically rather than shared across a cohort.</p></div>
+      <div class="spec"><div class="sn">Every deliverable, plus advisory documents</div><p>All five discipline deliverables and additional advisory work tailored to where you are in your raise.</p></div>
+      <div class="spec"><div class="sn">A complete data room &amp; warm investor introductions</div><p>The full investor-ready vault, and introductions to investors on the platform when you are ready.</p></div>
+      <div class="spec"><div class="sn">Three months of post-programme advisory</div><p>Ongoing access after the sessions end — the disciplines don't stop mattering when the calendar does.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== CORPORATE ===== -->
+<section class="tier-sec" id="corporate">
+  <div class="shell inner">
+    <div class="copy">
+      <div class="sec-eb"><span class="num">Tier 05 ·</span> Corporate &amp; Partnerships</div>
+      <h3>Cohorts for hubs, accelerators, and organisations at scale.</h3>
+      <p class="stand">For development partners, hubs, and companies enrolling founders in numbers.</p>
+      <div class="tier-price"><span class="ccy">from UGX</span>25,000,000<span class="unit">bespoke</span></div>
+      <p class="tier-note">Custom cohorts, batch onboarding, and impact reporting — scoped to your programme.</p>
+      <a class="go" href="/beta/contact.html">Talk to us →</a>
+    </div>
+    <div class="incl">
+      <div class="incl-h">What's included</div>
+      <div class="spec"><div class="sn">Custom cohorts on your timeline</div><p>Dedicated intakes sized and scheduled around your members, not the public calendar.</p></div>
+      <div class="spec"><div class="sn">Batch onboarding at zero friction</div><p>Enrol your members in one motion; we handle intake, matching, and cohort composition.</p></div>
+      <div class="spec"><div class="sn">Aggregated outcomes &amp; impact reporting</div><p>Completion, deliverables produced, and investor introductions — exportable reports for your funders.</p></div>
+      <div class="spec"><div class="sn">A named point of contact</div><p>A managed partnership, priced to the scope of your programme rather than off a fixed list.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===== DEPOSIT / PAYMENT ===== -->
+<section class="policy" id="deposit">
+  <div class="shell">
+    <div class="eyebrow">How payment works</div>
+    <h2>Reserve for 10%. Pay the rest over time.</h2>
+    <p class="sub">Designed so a cash-strapped founder can hold a place early and pay it down — while protecting the seat for founders who follow through.</p>
+    <div class="grid3">
+      <div class="pcard">
+        <div class="pn">10%</div>
+        <h4>A deposit reserves your place</h4>
+        <p>A 10% non-refundable deposit secures your booking. You can pay the balance in instalments or in full any time up to the deadline.</p>
+      </div>
+      <div class="pcard">
+        <div class="pn">48h</div>
+        <h4>Balance due before you start</h4>
+        <p>The remaining balance is due in full 48 hours before your session or cohort begins. Access to materials and the meeting link unlocks once you are paid up.</p>
+      </div>
+      <div class="pcard">
+        <div class="pn">↑</div>
+        <h4>Upgrade any time, credited</h4>
+        <p>Start with a single session and move up later — we credit what you have already paid toward the higher tier, so nothing is wasted.</p>
+      </div>
+    </div>
+    <p class="sub" style="margin-top:22px;font-size:13.5px">Payment is by MTN and Airtel mobile money. Miss the balance deadline and the deposit is retained and the seat released — so book the tier you will actually use.</p>
+  </div>
+</section>
+
+<!-- ===== STORAGE ===== -->
+<section class="storage">
+  <div class="shell">
+    <div class="eyebrow">Your data room · after the free year</div>
+    <h2>Twelve months of hosting, free with any paid course.</h2>
+    <p class="sub">Your deliverables live in a private, investor-shareable vault. Every paid course includes 12 months of hosting (up to 5GB). After the free year — or if you outgrow 5GB — hosting continues at these rates.</p>
+    <div class="store-grid">
+      <div class="store">
+        <div class="sn">Essential</div>
+        <div class="sp">20K<span class="u">/mo</span></div>
+        <div class="sd">5GB. Enough for a complete data room of documents and models.</div>
+      </div>
+      <div class="store">
+        <div class="sn">Growth</div>
+        <div class="sp">60K<span class="u">/mo</span></div>
+        <div class="sd">25GB. Room for decks, recordings, and a growing document history.</div>
+      </div>
+      <div class="store">
+        <div class="sn">Scale</div>
+        <div class="sp">150K<span class="u">/mo</span></div>
+        <div class="sd">100GB. For companies keeping a deep, active vault across raises.</div>
+      </div>
+    </div>
+    <p class="fine">Annual prepay gives you two months free. Archiving a company to a read-only cold vault is UGX 10K/mo — or take a free one-time full export and remove it. Prices are set in the platform and always shown live at checkout.</p>
+  </div>
+</section>
+
+<!-- ===== FINAL CTA ===== -->
+<section class="end">
+  <div class="shell">
+    <div class="eyebrow">Five coaches · five disciplines · forty-nine specialties</div>
+    <h2>Start where you are.</h2>
+    <p>Not sure which tier fits? Take the five-minute readiness check to see where you actually stand — or explore the disciplines and book the deep-dive you need most.</p>
+    <div class="cta-row">
+      <a class="btn btn-ghost" href="/modules/readiness.html">Take the readiness check →</a>
+      <a class="btn btn-fill" href="/beta/book/">Book a session →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ── Readiness Check invite ── -->
+<section class="rdy-invite" style="background:var(--paper-2);border-top:1px solid rgba(26,26,26,.12);padding:56px 0">
+  <div class="shell" style="text-align:center">
+    <div style="font-family:var(--sans);font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--terra);font-weight:600;margin-bottom:10px">Not sure yet?</div>
+    <h3 style="font-family:var(--display);font-size:clamp(26px,3vw,34px);font-weight:600;line-height:1.15;margin-bottom:12px">See which sessions close the gaps you really have.</h3>
+    <p style="font-size:15px;line-height:1.6;color:var(--stone);max-width:520px;margin:0 auto 22px">Fifteen questions, five minutes. A read on where you stand across all five disciplines — and the tier that fits.</p>
+    <a href="/modules/readiness.html" style="display:inline-block;background:var(--terra);color:#fff;padding:14px 26px;font-family:var(--sans);font-weight:700;font-size:11px;letter-spacing:.16em;text-transform:uppercase;text-decoration:none">Take the check &rarr;</a>
+    <div style="font-family:var(--sans);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--stone);opacity:.7;margin-top:14px">Free &middot; No account &middot; No email</div>
+  </div>
+</section>
+
+<div id="fs-footer"></div>
+<script>
+  (function(){
+    var rm = window.matchMedia && window.matchMedia('(prefers-reduced-motion:reduce)').matches;
+    function fire(el){ el.classList.add('animate'); }
+    var items = document.querySelectorAll('[data-reveal]');
+    if(rm || !('IntersectionObserver' in window)){ items.forEach(fire); return; }
+    var io=new IntersectionObserver(function(entries){
+      entries.forEach(function(e){ if(e.isIntersecting){ fire(e.target); io.unobserve(e.target); } });
+    },{threshold:0.3});
+    items.forEach(function(el){ io.observe(el); });
+  })();
+</script>
+<script src="/promo.js?v=1" defer></script>
+<script src="/site-chrome.js?v=9" defer></script>
+</body>
+</html>

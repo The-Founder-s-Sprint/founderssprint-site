@@ -20,7 +20,7 @@
 
   var L = {
     home: H, method: H + '#method', coaches: H + '#coaches', mentors: '/mentors.html', mentorApply: '/mentor-apply.html',
-    explore: BASE + '/explore/', pricing: H + '#pricing', directory: BASE + '/directory.html',
+    explore: BASE + '/explore/', pricing: BASE + '/pricing.html', directory: BASE + '/directory.html',
     applyDir: BASE + '/apply-directory.html', faq: H + '#faq', contact: BASE + '/contact.html',
     terms: BASE + '/terms.html', privacy: BASE + '/privacy.html', cookies: '/cookies.html', dataRights: '/data-rights.html',
     login: BASE + '/login/', book: BASE + '/book/'
