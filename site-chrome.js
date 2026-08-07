@@ -125,7 +125,7 @@
     +     '</div>'
     +   '</div>'
     +   col('Programme', [['Method', L.method], ['Coaches', L.coaches], ['Explore', L.explore], ['Pricing', L.pricing]])
-    +   col('For Institutions', [['VIP 1-on-1', L.pricing], ['Mentors', L.mentors], ['Become a Mentor', L.mentorApply], ['Custom programmes', L.pricing], ['Partner with us', L.contact]])
+    +   col('For Institutions', [['VIP (leadership team)', L.pricing], ['Mentors', L.mentors], ['Become a Mentor', L.mentorApply], ['Custom programmes', L.pricing], ['Partner with us', L.contact]])
     +   col('Resources', [['Service Directory', L.directory], ['Become a Provider', L.applyDir]])
     +   col('Company', [['FAQ', L.faq], ['Contact', L.contact], ['Terms of Service', L.terms], ['Privacy Policy', L.privacy], ['Cookie Notice', L.cookies], ['Your Data', L.dataRights]])
     + '</div>'
