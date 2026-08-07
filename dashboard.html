@@ -913,7 +913,7 @@
           <option value="single">1-on-1 Session</option>
           <option value="pick3">Pick 3 Bundle</option>
           <option value="cohort">Full Cohort</option>
-          <option value="vip1on1">VIP 1-on-1</option>
+          <option value="vip1on1">VIP Leadership</option>
         </select>
         <select class="filter-select" id="filter-payment" onchange="regFilterChanged()">
           <option value="">All Statuses</option>
@@ -1235,7 +1235,7 @@
               <option value="single">1-on-1 Session</option>
               <option value="pick3">Pick 3 Bundle</option>
               <option value="cohort">Full Cohort</option>
-              <option value="vip1on1">VIP 1-on-1</option>
+              <option value="vip1on1">VIP Leadership</option>
             </select>
           </div>
         </div>
@@ -2766,7 +2766,7 @@ function renderDemographics(a) {
   const topSectors = (a.by_sector || []).map(s => [s.sector || 'Not specified', s.count || 0]).slice(0, 6);
 
   // ── Track Distribution ──
-  const TRACK_LABEL = { single: '1-on-1 Session', pick3: 'Pick 3 Bundle', cohort: 'Full Cohort', vip1on1: 'VIP 1-on-1' };
+  const TRACK_LABEL = { single: '1-on-1 Session', pick3: 'Pick 3 Bundle', cohort: 'Full Cohort', vip1on1: 'VIP Leadership' };
   const trackAgg = {};
   (a.by_track || []).forEach(t => {
     const label = TRACK_LABEL[t.track] || t.track || 'Unknown';

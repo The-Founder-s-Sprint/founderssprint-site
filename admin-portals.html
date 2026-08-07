@@ -205,7 +205,7 @@ function ago(ts){ if(!ts) return ''; const s=Math.max(0,(Date.now()-new Date(ts)
   if(s<60) return 'just now'; if(s<3600) return Math.floor(s/60)+'m ago'; if(s<86400) return Math.floor(s/3600)+'h ago'; return Math.floor(s/86400)+'d ago'; }
 
 const DISC_LABEL={marketing:'Marketing & Branding',financial:'Financial Modelling',investment:'Investment Readiness',strategy:'Strategy & Team',product:'Product Dev & Pricing'};
-const TRACK_LABEL={single:'1:1 Session',pick3:'Pick 3 Bundle',cohort:'Full Cohort',group:'Full Cohort',vip1on1:'VIP 1:1',vip:'VIP Track'};
+const TRACK_LABEL={single:'1:1 Session',pick3:'Pick 3 Bundle',cohort:'Full Cohort',group:'Full Cohort',vip1on1:'VIP Leadership',vip:'VIP Track'};
 
 // ── auth layer (Safari-safe) ──
 const _SB_KEY='sb-'+SUPABASE_URL.split('//')[1].split('.')[0]+'-auth-token';

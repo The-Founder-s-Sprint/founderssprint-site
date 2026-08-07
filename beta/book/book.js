@@ -65,7 +65,7 @@
     single:  { name: 'One-on-One Coaching', price: 500000,   priceLabel: 'UGX 500,000',   max: 1,                shortPrice: 'UGX 500K' },
     pick3:   { name: 'Pick 3 Bundle',       price: 1000000,  priceLabel: 'UGX 1,000,000', max: 3,                shortPrice: 'UGX 1M' },
     cohort:  { name: 'Full Cohort',         price: 2500000,  priceLabel: 'UGX 2,500,000', max: ALL_SPECS.length, shortPrice: 'UGX 2.5M' },
-    vip1on1: { name: 'VIP',                 price: 5000000,  priceLabel: 'UGX 5,000,000', max: 0,                shortPrice: 'UGX 5M' },
+    vip1on1: { name: 'VIP Leadership',      price: 5000000,  priceLabel: 'UGX 5,000,000', max: 0,                shortPrice: 'UGX 5M' },
   };
 
   // ── Launch promo (date-gated via /promo.js) ────────────────

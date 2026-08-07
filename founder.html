@@ -576,7 +576,7 @@ let companies = [], company = null, taxonomy = [], drFiles = [], myAssessments =
 const FA_DISC={marketing:['Marketing & Branding','#C8531F'],financial:['Financial Modelling','#C9923A'],investment:['Investment Readiness','#8AAB5C'],strategy:['Strategy & Team','#3D4A2E'],product:['Product Dev & Pricing','#777770']};
 const FA_SLUG={marketing:'teddy-ruge',financial:'barry-wojega',investment:'joseph-kalema',strategy:'moses-okudu',product:'patrick-ngolobe'};
 const FA_RUBRIC={marketing:[['brand_clarity','Brand clarity'],['gtm','GTM readiness'],['market','Market understanding']],financial:[['model_rigour','Model rigour'],['unit_economics','Unit economics'],['discipline','Financial discipline']],investment:[['narrative','Narrative & pitch'],['fundraising','Fundraising strategy'],['materials','Materials readiness']],strategy:[['team','Team strength'],['clarity','Strategic clarity'],['execution','Execution']],product:[['product_instinct','Product instinct'],['pricing','Pricing strategy'],['pmf','PMF evidence']]};
-const FA_TRACK={single:'1:1 Session',oneOnOne:'1:1 Session',pick3:'Pick 3 Bundle',vip1on1:'VIP 1:1',vip:'VIP',cohort:'Full Cohort',group:'Full Cohort'};
+const FA_TRACK={single:'1:1 Session',oneOnOne:'1:1 Session',pick3:'Pick 3 Bundle',vip1on1:'VIP Leadership',vip:'VIP',cohort:'Full Cohort',group:'Full Cohort'};
 
 // ── DISCIPLINE MODEL (CLAUDE.md §4) ──
 // Full taxonomy mirrors beta/explore/explore.js. idx = explore L1 index (used for course-progress).
@@ -936,7 +936,7 @@ function upsellBanner(){
 function trackInfo(){
   const enrolled = profile.enrolled_disciplines || [];
   const track = (myRegs[0]||{}).track;
-  const labels = { single:'Single Session', pick3:'Pick 3 Bundle', cohort:'Full Cohort', group:'Full Cohort', vip:'VIP Track', vip1on1:'VIP 1-on-1' };
+  const labels = { single:'Single Session', pick3:'Pick 3 Bundle', cohort:'Full Cohort', group:'Full Cohort', vip:'VIP Track', vip1on1:'VIP Leadership' };
   let label = labels[track];
   if(!label){ label = enrolled.length>=5 ? 'Full Cohort' : enrolled.length===3 ? 'Pick 3 Bundle' : enrolled.length===1 ? 'Single Session' : 'Not enrolled'; }
   return { label, enrolledCount: enrolled.length };
@@ -1716,7 +1716,7 @@ function renderReadiness(card, run, prev){
 // Only allow http/https hrefs — blocks javascript:/data: URLs (e.g. from an investor firm profile).
 function safeUrl(u){ u=String(u==null?'':u).trim(); return /^https?:\/\//i.test(u)?u:'#'; }
 function ugx(n){ n=Number(n)||0; return 'UGX ' + n.toLocaleString('en-US'); }
-function trackLabel(t){ return ({ single:'Single Session', pick3:'Pick 3 Bundle', cohort:'Full Cohort', group:'Group Track', vip:'VIP Track', vip1on1:'VIP 1-on-1' })[t] || (t? t.charAt(0).toUpperCase()+t.slice(1) : 'Enrollment'); }
+function trackLabel(t){ return ({ single:'Single Session', pick3:'Pick 3 Bundle', cohort:'Full Cohort', group:'Group Track', vip:'VIP Track', vip1on1:'VIP Leadership' })[t] || (t? t.charAt(0).toUpperCase()+t.slice(1) : 'Enrollment'); }
 function fmtDate(d){ if(!d) return '—'; return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short'}); }
 function fmtDateLong(d){ if(!d) return '—'; return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}); }
 function fmtDateTime(d){ if(!d) return 'Date TBC'; return new Date(d).toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}); }

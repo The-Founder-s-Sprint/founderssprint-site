@@ -440,13 +440,13 @@
     single:  '1-on-1 Session — UGX 500,000',
     pick3:   'Pick 3 Bundle — UGX 1,000,000',
     cohort:  'Full Cohort — UGX 2,500,000',
-    vip1on1: 'VIP 1-on-1 — UGX 5,000,000',
+    vip1on1: 'VIP Leadership — UGX 5,000,000',
   };
   const TRACK_FEES = { single: 500000, pick3: 1000000, cohort: 2500000, vip1on1: 5000000 };
 
   document.getElementById('trackBadge').textContent = TRACK_LABELS[track] || track;
 
-  // VIP 1-on-1 is not cohort-bound — it's all 5 coaches, dedicated sessions
+  // VIP Leadership is not cohort-bound — it's all 5 coaches, dedicated sessions
   const isVIP = (track === 'vip1on1');
 
   // Populate deposit/balance info
