@@ -19,7 +19,8 @@
     tier: null,           // 'single' | 'pick3' | 'cohort'
     specialties: [],      // selected L3 slugs — the atomic bookable unit
     disciplines: [],      // derived: distinct parent disciplines of the selected L3s
-    cohort: 'sep-2026',
+    cohort: null,         // selected cohort id (numeric) — from open_cohorts()
+    cohortsLoaded: false,
     plan: 'full',         // 'full' | '2x' | '3x'
     provider: 'mtn',      // 'mtn' | 'airtel'
     name: '',
@@ -32,27 +33,89 @@
     _registrationId: null,
   };
 
-  // Fetch the real, open cohorts so the cohort track can resolve a numeric cohortId.
+  // Small HTML escaper for values rendered into the cohort cards.
+  function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }
+  // "September 2026" from a YYYY-MM-DD start_date.
+  function monthYear(d){ try { return new Date(d + 'T00:00:00').toLocaleDateString('en-GB',{month:'long',year:'numeric'}); } catch(e){ return d || ''; } }
+
+  // Fetch the open cohorts + live seat counts from the open_cohorts() RPC. Same-origin
+  // /db proxy first (Ugandan networks can't reach Supabase cross-origin), then a direct
+  // supabase-js RPC fallback.
   function loadCohorts() {
-    fetch(API + '/api/cohorts')
-      .then(function (r) { return r.ok ? r.json() : []; })
+    return fetch('/db/rest/v1/rpc/open_cohorts', { headers: { 'Accept': 'application/json' } })
+      .then(function (r) { if (!r.ok) throw new Error('http'); return r.json(); })
       .then(function (list) { state.cohorts = Array.isArray(list) ? list : []; })
-      .catch(function () { state.cohorts = []; });
+      .catch(function () {
+        if (sb) return sb.rpc('open_cohorts').then(function (res) { state.cohorts = (res && res.data) || []; }).catch(function () { state.cohorts = []; });
+        state.cohorts = [];
+      })
+      .then(function () {
+        state.cohortsLoaded = true;
+        if (state.tier === 'cohort' && state.step === 3) renderCohortCards();
+      });
   }
 
-  // Map the selected cohort card ('sep-2026' / 'oct-2026') to a real open cohort id
-  // by matching year + month on start_date. Returns null if none is available.
+  // The selected cohort id, validated against the live list (never a full/closed cohort).
   function resolveCohortId() {
-    var m = /^([a-z]{3})-(\d{4})$/.exec(state.cohort || '');
-    if (!m) return null;
-    var MONTHS = { jan:1, feb:2, mar:3, apr:4, may:5, jun:6, jul:7, aug:8, sep:9, oct:10, nov:11, dec:12 };
-    var mon = MONTHS[m[1]], yr = parseInt(m[2], 10);
-    var match = state.cohorts.filter(function (c) {
-      if (!c.start_date || c.status !== 'open') return false;
-      var d = new Date(c.start_date);
-      return d.getUTCFullYear() === yr && (d.getUTCMonth() + 1) === mon;
+    var id = state.cohort ? Number(state.cohort) : null;
+    if (!id) return null;
+    var c = state.cohorts.filter(function (x) { return x.id === id; })[0];
+    if (!c || c.is_full) return null;
+    return id;
+  }
+
+  // Render the cohort picker from open_cohorts(): dates + seats remaining. Full cohorts
+  // are shown but not selectable, with a one-tap spillover to the next available cohort.
+  function renderCohortCards() {
+    var host = document.getElementById('cohort-list');
+    if (!host) return;
+    if (!state.cohortsLoaded) { host.innerHTML = '<div class="cohort-loading" style="padding:18px;color:var(--ink-mute,#5A564F);font-size:14px">Loading cohort dates…</div>'; return; }
+    var list = state.cohorts || [];
+    if (!list.length) {
+      host.innerHTML = '<div class="cohort-loading" style="padding:18px;color:var(--ink-mute,#5A564F);font-size:14px">No cohorts are open for booking just now. <a href="/beta/contact.html" style="color:var(--terra)">Talk to us</a> and we\'ll tell you the moment the next one opens.</div>';
+      var b0 = document.getElementById('btn-next-3'); if (b0) b0.disabled = true;
+      return;
+    }
+    var firstOpen = list.filter(function (c) { return !c.is_full; })[0];
+    if (state.cohort == null && firstOpen) state.cohort = firstOpen.id;
+    var chk = '<div class="cohort-check"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 10L9 14L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>';
+    var html = '';
+    list.forEach(function (c) {
+      var full = !!c.is_full;
+      var sel = state.cohort === c.id;
+      var isNext = firstOpen && c.id === firstOpen.id;
+      var badge = full ? '<div class="cohort-badge" style="background:#9A3E16">Full</div>'
+                : (isNext ? '<div class="cohort-badge">Next available</div>' : '');
+      var lowSeats = !full && c.seats_remaining <= 3;
+      var spots = full ? '<span class="spots" style="color:#9A3E16">Full</span>'
+                : '<span class="spots"' + (lowSeats ? ' style="color:#9A3E16;font-weight:600"' : '') + '>' + c.seats_remaining + ' of ' + c.seats_total + ' remaining' + (lowSeats ? ' — nearly full' : '') + '</span>';
+      var tail = (full && firstOpen)
+        ? '<button type="button" class="cohort-spill" data-spill="' + firstOpen.id + '" style="margin-top:10px;background:none;border:1px solid var(--line,rgba(26,26,26,.14));color:var(--terra,#C8531F);font-family:inherit;font-size:12px;font-weight:600;padding:9px 12px;cursor:pointer;border-radius:0 0 10px 0;width:100%;text-align:left">Full &mdash; join ' + esc(monthYear(firstOpen.start_date)) + ' instead &rarr;</button>'
+        : chk;
+      html += '<div class="cohort-card' + (sel ? ' selected' : '') + (full ? ' full' : '') + '" data-cohort-id="' + c.id + '"' + (full ? ' style="opacity:.62"' : '') + '>'
+        + badge
+        + '<div class="cohort-date"><span class="cohort-month">' + esc(monthYear(c.start_date)) + '</span><span class="cohort-range">' + esc(c.dates) + '</span></div>'
+        + '<div class="cohort-detail">'
+        +   '<div class="cd-row"><span class="cd-label">Schedule</span><span>Mon&ndash;Fri, 10 AM&ndash;12 PM EAT</span></div>'
+        +   '<div class="cd-row"><span class="cd-label">Format</span><span>Live on Google Meet</span></div>'
+        +   '<div class="cd-row"><span class="cd-label">Spots</span>' + spots + '</div>'
+        + '</div>'
+        + tail
+        + '</div>';
     });
-    return match.length ? match[0].id : null;
+    host.innerHTML = html;
+    Array.prototype.forEach.call(host.querySelectorAll('.cohort-card'), function (card) {
+      if (card.classList.contains('full')) return;
+      card.addEventListener('click', function () {
+        state.cohort = parseInt(card.getAttribute('data-cohort-id'), 10);
+        Array.prototype.forEach.call(host.querySelectorAll('.cohort-card'), function (c) { c.classList.toggle('selected', c === card); });
+        updateStep3Button();
+      });
+    });
+    Array.prototype.forEach.call(host.querySelectorAll('.cohort-spill'), function (btn) {
+      btn.addEventListener('click', function (e) { e.stopPropagation(); state.cohort = parseInt(btn.getAttribute('data-spill'), 10); renderCohortCards(); });
+    });
+    updateStep3Button();
   }
 
   // Single source of truth for the L1/L2/L3 taxonomy (see ../taxonomy.js).
@@ -428,9 +491,10 @@
       discPanel.style.display = 'none';
       cohortPanel.style.display = 'block';
       $('#config-title').textContent = 'Choose your cohort';
-      $('#config-sub').textContent = 'Select a cohort start date. Every specialty across all 5 disciplines is included.';
+      $('#config-sub').textContent = 'Pick a start date — reserve your seat with a 10% deposit, then pay the balance any time up to 48 hours before it begins. Every specialty across all 5 disciplines is included.';
       state.specialties = ALL_SPECS.slice();
       syncDisciplines();
+      renderCohortCards();
       updateStep3Button();
     } else {
       discPanel.style.display = 'block';
@@ -527,14 +591,8 @@
     updateStep3Button();
   }
 
-  // Cohort selection
-  $$('.cohort-card').forEach(card => {
-    card.addEventListener('click', () => {
-      state.cohort = card.dataset.cohort;
-      $$('.cohort-card').forEach(c => c.classList.toggle('selected', c === card));
-      updateStep3Button();
-    });
-  });
+  // Cohort selection is wired inside renderCohortCards() — the cards are rendered live
+  // from open_cohorts() (dates + seats + spillover), so there are no static cards to bind here.
 
   // Instalment picker
   $$('.inst-opt').forEach(btn => {
@@ -619,10 +677,10 @@
     const schedSection = $('#review-schedule-section');
     if (state.tier === 'cohort') {
       schedSection.style.display = 'block';
-      const cohortCard = $(`.cohort-card.selected`);
-      if (cohortCard) {
-        $('#review-cohort').textContent = $('.cohort-month', cohortCard).textContent;
-        $('#review-dates').textContent = $('.cohort-range', cohortCard).textContent;
+      const c = (state.cohorts || []).filter(function (x) { return x.id === state.cohort; })[0];
+      if (c) {
+        $('#review-cohort').textContent = monthYear(c.start_date);
+        $('#review-dates').textContent = c.dates;
       }
     } else {
       schedSection.style.display = 'none';
@@ -760,8 +818,8 @@
     $('#txn-method').textContent = providerNames[state.provider] || 'Mobile Money';
     $('#txn-email').textContent  = state.email;
     if (state.tier === 'cohort') {
-      const cohortCard = $('.cohort-card.selected');
-      const month = cohortCard ? $('.cohort-month', cohortCard).textContent : 'your cohort';
+      const c = (state.cohorts || []).filter(function (x) { return x.id === state.cohort; })[0];
+      const month = c ? monthYear(c.start_date) : 'your cohort';
       $('#ns-schedule-text').textContent = `Your cohort starts ${month}. Calendar invites for all 5 weeks will arrive 48 hours before.`;
     }
     // Point the primary action at the dashboard now that they have an account.

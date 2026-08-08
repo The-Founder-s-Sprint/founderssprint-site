@@ -317,37 +317,9 @@
 
     <!-- Cohort date picker (cohort only) -->
     <div class="config-panel" id="config-cohort" style="display:none">
-      <div class="cohort-options">
-        <div class="cohort-card selected" data-cohort="sep-2026">
-          <div class="cohort-badge">Next available</div>
-          <div class="cohort-date">
-            <span class="cohort-month">September 2026</span>
-            <span class="cohort-range">Mon 7 Sep &ndash; Fri 9 Oct</span>
-          </div>
-          <div class="cohort-detail">
-            <div class="cd-row"><span class="cd-label">Schedule</span><span>Mon&ndash;Fri, 10 AM&ndash;12 PM EAT</span></div>
-            <div class="cd-row"><span class="cd-label">Format</span><span>Live on Google Meet</span></div>
-            <div class="cd-row"><span class="cd-label">Spots</span><span class="spots">8 of 12 remaining</span></div>
-          </div>
-          <div class="cohort-check">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 10L9 14L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </div>
-        </div>
-
-        <div class="cohort-card" data-cohort="oct-2026">
-          <div class="cohort-date">
-            <span class="cohort-month">October 2026</span>
-            <span class="cohort-range">Mon 12 Oct &ndash; Fri 13 Nov</span>
-          </div>
-          <div class="cohort-detail">
-            <div class="cd-row"><span class="cd-label">Schedule</span><span>Mon&ndash;Fri, 10 AM&ndash;12 PM EAT</span></div>
-            <div class="cd-row"><span class="cd-label">Format</span><span>Live on Google Meet</span></div>
-            <div class="cd-row"><span class="cd-label">Spots</span><span class="spots">12 of 12 remaining</span></div>
-          </div>
-          <div class="cohort-check">
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 10L9 14L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
-          </div>
-        </div>
+      <!-- Cohort cards are rendered live from open_cohorts() (dates + seats remaining + spillover) -->
+      <div class="cohort-options" id="cohort-list">
+        <div class="cohort-loading" style="padding:18px;color:var(--ink-mute,#5A564F);font-size:14px">Loading cohort dates&hellip;</div>
       </div>
 
       <!-- How payment works (10% deposit model) -->
@@ -573,6 +545,6 @@
 <script>window.supabase||document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"><\/script>')</script>
 <script src="../taxonomy.js?v=1"></script>
 <script src="/promo.js?v=1"></script>
-<script src="book.js?v=8"></script>
+<script src="book.js?v=9"></script>
 </body>
 </html>
