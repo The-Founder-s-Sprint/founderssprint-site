@@ -898,5 +898,8 @@
     // Logged out → the account step first, then the same routing after sign-in.
     if (state.tier) { proceedFromTier(); }
     else { goToStep(1); }
+    // Route decided + the correct panel is active — reveal now. (The head guard hid the
+    // selector for tier deep-links; this removes the guard so the resolved step shows.)
+    document.documentElement.classList.remove('fs-routing');
   })();
 })();

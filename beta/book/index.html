@@ -7,8 +7,31 @@
 <link rel="icon" href="../favicon.svg" type="image/svg+xml">
 <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Josefin+Sans:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="book.css?v=4">
+<style>
+  /* Deep-linked with a tier: hide the selector + step chrome until book.js routes, so the
+     tier selector never flashes before the account/config/review step. */
+  html.fs-routing .step-panel{display:none !important;}
+  html.fs-routing .nav-progress{visibility:hidden;}
+  #fs-route-loader{display:none;}
+  html.fs-routing #fs-route-loader{display:flex;position:fixed;inset:0;z-index:60;align-items:center;justify-content:center;flex-direction:column;gap:16px;background:#0f0d0a;}
+  #fs-route-loader .fsl-spin{width:34px;height:34px;border:2px solid rgba(239,231,216,.18);border-top-color:#C8531F;border-radius:50%;animation:fslspin .8s linear infinite;}
+  #fs-route-loader .fsl-t{font-family:'Josefin Sans',system-ui,sans-serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:rgba(239,231,216,.5);}
+  @keyframes fslspin{to{transform:rotate(360deg);}}
+</style>
+<script>
+/* Runs during <head> parse (before the selector is even built), so there is no flash. If a tier is
+   deep-linked, hide the selector until book.js decides the route. Safety net reveals it after 6s in
+   case book.js fails to load. */
+(function(){try{
+  if(new URLSearchParams(location.search).get('tier')){
+    document.documentElement.classList.add('fs-routing');
+    setTimeout(function(){document.documentElement.classList.remove('fs-routing');},6000);
+  }
+}catch(e){}})();
+</script>
 </head>
 <body>
+<div id="fs-route-loader" aria-hidden="true"><div class="fsl-spin"></div><div class="fsl-t">Setting up your booking&hellip;</div></div>
 
 <!-- ============================================================
      GLOBAL GRAIN
@@ -545,6 +568,6 @@
 <script>window.supabase||document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"><\/script>')</script>
 <script src="../taxonomy.js?v=1"></script>
 <script src="/promo.js?v=1"></script>
-<script src="book.js?v=9"></script>
+<script src="book.js?v=10"></script>
 </body>
 </html>
