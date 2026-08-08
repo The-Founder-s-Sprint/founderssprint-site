@@ -159,14 +159,36 @@ a { color: inherit; text-decoration: none; }
 @media (max-width: 1080px) { .tier-cards { grid-template-columns: repeat(2, 1fr); } }
 .tier-card {
   position: relative;
+  display: flex; flex-direction: column;
   background: var(--ink-soft);
-  border: 1px solid rgba(239,231,216,0.08);
+  border: 1px solid rgba(239,231,216,0.10);
   border-radius: var(--radius-card);
   padding: 0;
   overflow: hidden;
   cursor: pointer;
   transition: border-color 0.25s, transform 0.2s, box-shadow 0.25s;
+  text-shadow: 0 1px 18px rgba(0,0,0,0.38);
 }
+/* B&W founder-image background + bottom-heavy dark underlay for white-text contrast */
+.tier-card::before {
+  content: ""; position: absolute; inset: 0; z-index: 0;
+  background-image: var(--card-img, none);
+  background-size: cover; background-position: center; background-repeat: no-repeat;
+  background-color: var(--ink-soft);
+  filter: saturate(2.2) grayscale(1) contrast(1.4) brightness(0.62);
+  transform: scale(1.02);
+  transition: transform 0.6s ease, filter 0.35s ease;
+}
+.tier-card::after {
+  content: ""; position: absolute; inset: 0; z-index: 0;
+  background: linear-gradient(180deg, rgba(15,13,10,0.46) 0%, rgba(15,13,10,0.66) 42%, rgba(15,13,10,0.92) 100%);
+}
+.tier-card > *:not(.ribbon) { position: relative; z-index: 1; }
+.tier-card:hover::before { transform: scale(1.06); filter: saturate(2.2) grayscale(1) contrast(1.35) brightness(0.72); }
+.tier-card[data-tier="single"]  { --card-img: url('/images/coach-bg-1.jpg'); }
+.tier-card[data-tier="pick3"]   { --card-img: url('/images/coach-bg-4.jpg'); }
+.tier-card[data-tier="cohort"]  { --card-img: url('/images/investor-bg-2.jpg'); }
+.tier-card[data-tier="vip1on1"] { --card-img: url('/images/investor-bg-1.jpg'); }
 .tier-card:hover {
   border-color: rgba(239,231,216,0.2);
   transform: translateY(-2px);
@@ -184,13 +206,14 @@ a { color: inherit; text-decoration: none; }
 .tier-eyebrow {
   font-family: var(--sans); font-size: 10px; font-weight: 700;
   letter-spacing: 0.28em; text-transform: uppercase;
-  color: rgba(239,231,216,0.55);
+  color: rgba(239,231,216,0.75);
 }
 .tier-price {
   margin-top: 12px;
   font-family: var(--display); font-weight: 300;
   font-size: 52px; line-height: 1;
   letter-spacing: -0.02em;
+  color: var(--paper);
 }
 .tier-price .ccy {
   font-family: var(--sans); font-size: 14px; font-weight: 600;
@@ -200,36 +223,37 @@ a { color: inherit; text-decoration: none; }
 .tier-desc {
   margin-top: 10px;
   font-size: 14px; line-height: 1.5;
-  color: rgba(239,231,216,0.55);
+  color: rgba(239,231,216,0.8);
 }
 .tier-features {
   list-style: none; padding: 0 24px 16px;
   display: flex; flex-direction: column; gap: 8px;
+  flex: 1 0 auto;   /* grow to fill so the "Best for" + CTA bottom-align across cards */
 }
 .tier-features li {
   font-size: 13px; line-height: 1.5;
-  color: rgba(239,231,216,0.65);
+  color: rgba(239,231,216,0.88);
   padding-left: 18px;
   position: relative;
 }
 .tier-features li::before {
   content: ""; position: absolute; left: 0; top: 7px;
   width: 6px; height: 6px; border-radius: 50%;
-  background: rgba(239,231,216,0.25);
+  background: rgba(239,231,216,0.5);
 }
 .tier-card.selected .tier-features li::before { background: var(--terra); opacity: 0.7; }
 .tier-ideal {
   padding: 16px 24px;
-  border-top: 1px solid rgba(239,231,216,0.06);
+  border-top: 1px solid rgba(239,231,216,0.16);
 }
 .ideal-label {
   font-family: var(--mono); font-size: 9px;
   letter-spacing: 0.18em; text-transform: uppercase;
-  color: rgba(239,231,216,0.35);
+  color: rgba(239,231,216,0.58);
 }
 .tier-ideal p {
   font-family: var(--display); font-style: italic; font-size: 15px;
-  line-height: 1.45; color: rgba(239,231,216,0.52);
+  line-height: 1.45; color: rgba(239,231,216,0.78);
   margin-top: 6px;
 }
 .tier-cta {
@@ -238,8 +262,8 @@ a { color: inherit; text-decoration: none; }
   font-family: var(--sans); font-size: 11px; font-weight: 700;
   letter-spacing: 0.16em; text-transform: uppercase;
   text-align: center;
-  border-top: 1px solid rgba(239,231,216,0.06);
-  color: rgba(239,231,216,0.6);
+  border-top: 1px solid rgba(239,231,216,0.16);
+  color: rgba(239,231,216,0.85);
   transition: color 0.2s, background 0.2s;
 }
 .tier-cta:hover { color: var(--paper); background: rgba(239,231,216,0.04); }
@@ -248,11 +272,12 @@ a { color: inherit; text-decoration: none; }
   background: var(--terra); color: var(--paper);
 }
 .ribbon {
-  position: absolute; top: 14px; right: 14px;
+  position: absolute; top: 14px; right: 14px; z-index: 3;
   font-family: var(--sans); font-size: 9px; font-weight: 700;
   letter-spacing: 0.14em; text-transform: uppercase;
   background: var(--ochre); color: var(--ink);
-  padding: 4px 10px; border-radius: 4px;
+  padding: 4px 10px; border-radius: 0 0 8px 0;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.4);
 }
 
 /* Pay strip */
