@@ -275,11 +275,35 @@
     { date: 'Fri 11 Sep', time: '09:00 – 11:00 EAT', dur: '2 hr' },
     { date: 'Mon 14 Sep', time: '10:00 – 12:00 EAT', dur: '2 hr' },
   ];
-  const COHORT_SCHEDULE = [
-    { label: 'Cohort A',  dates: '7 Sep – 9 Oct 2026',   seats: 9,  status: 'open' },
-    { label: 'Cohort B',  dates: '12 Oct – 13 Nov 2026', seats: 12, status: 'open' },
-    { label: 'Cohort C',  dates: '16 Nov – 18 Dec 2026', seats: 12, status: 'open' },
-  ];
+  // Live quarterly cohorts — filled async from the public open_cohorts() RPC
+  // (5 pre-scheduled cohorts, real seat counts, capacity-guarded; Sep 2026
+  // launch then Jan/Apr/Jul/Oct 2027). Fetched via the same-origin /db proxy,
+  // anon + PII-free. Slot model: { id, label, dates, seats, status } — `id`
+  // rides the Reserve deep-link (?tier=cohort&cohort=<id>) so booking lands
+  // on THAT cohort's review, never the selector.
+  const COHORT_SCHEDULE = [];
+  let cohortsReady = false, cohortsFailed = false;
+  function loadCohorts() {
+    fetch('/db/rest/v1/rpc/open_cohorts', { headers: { Accept: 'application/json' } })
+      .then(r => { if (!r.ok) throw new Error('http ' + r.status); return r.json(); })
+      .then(rows => {
+        if (!Array.isArray(rows) || !rows.length) throw new Error('empty');
+        rows.forEach(c => COHORT_SCHEDULE.push({
+          id: c.id,
+          label: c.name,                              // "Cohort 1 · September 2026" — matches the rest of the site
+          dates: c.dates,                             // pre-formatted, e.g. "Sep 7 – Oct 9, 2026"
+          seats: c.seats_remaining,
+          status: c.is_full ? 'full' : 'open',
+        }));
+        cohortsReady = true;
+      })
+      .catch(() => { cohortsFailed = true; })
+      .then(() => {
+        renderAllDirectoryCohorts();                                    // refresh the per-coach availability lists
+        if (typeof detailEl !== 'undefined' && detailEl.classList.contains('show')
+            && detailSelectedFormat === 'cohort') renderSlots();        // refresh an open cohort panel
+      });
+  }
 
   // ============================================================
   //   L3 DESCRIPTIONS
@@ -1239,6 +1263,21 @@
       });
       detailSelectedSlot = ONETOONE_SLOTS[0];
     } else {
+      // Live cohorts may still be in flight (or unreachable) — degrade honestly.
+      if (!cohortsReady) {
+        const note = document.createElement(cohortsFailed ? 'a' : 'div');
+        note.className = 'slot cohort slot-note';
+        if (cohortsFailed) {
+          note.setAttribute('href', '../book/?tier=cohort');
+          note.innerHTML = `<span class="slot-date">See cohort dates in booking →</span>`;
+        } else {
+          note.innerHTML = `<span class="slot-date">Loading cohort dates…</span>`;
+        }
+        slotsEl.appendChild(note);
+        detailSelectedSlot = null;
+        updateBookButton();
+        return;
+      }
       let firstOpenIdx = COHORT_SCHEDULE.findIndex(c => c.status === 'open');
       COHORT_SCHEDULE.forEach((c, i) => {
         const isFull = c.status === 'full';
@@ -1247,8 +1286,8 @@
         row.className = 'slot cohort' + (isFull ? ' full' : '') + (isFirstOpen ? ' selected' : '');
         if (isFull) row.disabled = true;
         row.innerHTML = `
-          <span class="slot-date">${c.label}</span>
-          <span class="slot-time">${c.dates}</span>
+          <span class="slot-date">${escH(c.label)}</span>
+          <span class="slot-time">${escH(c.dates)}</span>
           <span class="slot-dur">${isFull ? 'Full' : c.seats + ' seats'}</span>
           <span class="slot-arrow">${isFull ? '' : '→'}</span>`;
         if (!isFull) {
@@ -1464,7 +1503,12 @@
   // ?tier + ?spec=<slug> — no discipline selection.
   detailEl.querySelector('.d-book').addEventListener('click', () => {
     if (!detailSelectedSlot) return;
-    if (detailSelectedFormat === 'cohort') { window.location.href = '../book/?tier=cohort'; return; }
+    if (detailSelectedFormat === 'cohort') {
+      // Deep-link the chosen cohort → booking confirms THAT cohort (no selector)
+      const cid = detailSelectedSlot && detailSelectedSlot.id;
+      window.location.href = '../book/?tier=cohort' + (cid ? '&cohort=' + cid : '');
+      return;
+    }
     window.location.href = '../book/?tier=single&spec=' + specSlug(detailCurrentNode.name);
   });
 
@@ -1584,21 +1628,7 @@
         });
         list1to1.appendChild(row);
       });
-      const listCohort = item.querySelector('.dir-cohort');
-      COHORT_SCHEDULE.forEach(c => {
-        const isFull = c.status === 'full';
-        const row = document.createElement('button');
-        row.className = 'dir-avail-row' + (isFull ? ' full' : '');
-        if (isFull) row.disabled = true;
-        row.innerHTML = `<div><div class="da-date">${c.label} · ${c.dates}</div><div class="da-time">${isFull ? 'Full' : c.seats + ' seats remaining'}</div></div><div class="da-cta">${isFull ? 'Closed' : 'Reserve →'}</div>`;
-        if (!isFull) {
-          row.addEventListener('click', (e) => {
-            e.stopPropagation();
-            window.location.href = '../book/?tier=cohort';
-          });
-        }
-        listCohort.appendChild(row);
-      });
+      fillDirectoryCohortList(item.querySelector('.dir-cohort'));
 
       // Main "Book Session →" button in directory card
       item.querySelector('.dir-book').addEventListener('click', (e) => {
@@ -1616,6 +1646,42 @@
     });
 
     buildDirectoryFilters();
+  }
+
+  // Cohort availability list (per coach card) — rendered from the live
+  // COHORT_SCHEDULE; re-rendered by loadCohorts() when the RPC lands.
+  function fillDirectoryCohortList(listCohort) {
+    if (!listCohort) return;
+    listCohort.innerHTML = '';
+    if (!cohortsReady) {
+      const note = document.createElement(cohortsFailed ? 'a' : 'div');
+      note.className = 'dir-avail-row dir-avail-note';
+      if (cohortsFailed) {
+        note.setAttribute('href', '../book/?tier=cohort');
+        note.innerHTML = `<div><div class="da-date">See cohort dates in booking</div></div><div class="da-cta">→</div>`;
+      } else {
+        note.innerHTML = `<div><div class="da-date">Loading cohort dates…</div></div>`;
+      }
+      listCohort.appendChild(note);
+      return;
+    }
+    COHORT_SCHEDULE.forEach(c => {
+      const isFull = c.status === 'full';
+      const row = document.createElement('button');
+      row.className = 'dir-avail-row' + (isFull ? ' full' : '');
+      if (isFull) row.disabled = true;
+      row.innerHTML = `<div><div class="da-date">${escH(c.label)}</div><div class="da-time">${escH(c.dates)} · ${isFull ? 'Full' : c.seats + ' seats remaining'}</div></div><div class="da-cta">${isFull ? 'Closed' : 'Reserve →'}</div>`;
+      if (!isFull) {
+        row.addEventListener('click', (e) => {
+          e.stopPropagation();
+          window.location.href = '../book/?tier=cohort&cohort=' + c.id;   // confirm THIS cohort
+        });
+      }
+      listCohort.appendChild(row);
+    });
+  }
+  function renderAllDirectoryCohorts() {
+    dirItemEls.forEach(item => fillDirectoryCohortList(item.querySelector('.dir-cohort')));
   }
 
   function toggleDirectoryItem(item) {
@@ -1666,6 +1732,7 @@
 
   buildDirectory();
   loadCoachTestimonials();
+  loadCohorts();   // live quarterly cohorts (async — panels re-render when it lands)
 
   // Wire coach card click in detail panel → scroll to directory
   detailEl.querySelector('.coach-card').addEventListener('click', () => {

@@ -38,10 +38,14 @@ ck('preview: Book CTA present → /beta/book/?tier=single', !!cta && cta.getAttr
 ck('preview: mount is in normal flow after the hero (no nav overlap)',
    mount.compareDocumentPosition(on.document.getElementById('constellation-hero')) & 2 /* hero precedes mount */);
 
-// runtime: today (pre-1 Aug), no param → nothing
+// runtime: no param → banner state must MATCH the date gate (renders inside
+// the 1 Aug–30 Sep window, nothing outside it) — date-aware so this test
+// stays green before, during and after the promo.
 const off=boot('');
-ck('today: nothing renders without ?promo=preview', off.document.getElementById('fs-promo').innerHTML === '');
-ck('today: API still exists (FS_PROMO defined)', off.eval('typeof window.FS_PROMO') === 'object');
+const gateOn=off.eval('window.FS_PROMO.active()');
+const rendered=off.document.getElementById('fs-promo').innerHTML.length > 40;
+ck('no param: banner matches the date gate (active='+gateOn+')', rendered === gateOn);
+ck('no param: API exists (FS_PROMO defined)', off.eval('typeof window.FS_PROMO') === 'object');
 // runtime: explicit off
 const forced=boot('?promo=off');
 ck('?promo=off: forces nothing', forced.document.getElementById('fs-promo').innerHTML === '');
