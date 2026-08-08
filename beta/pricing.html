@@ -89,6 +89,19 @@
   .go.ghost{background:none;color:var(--ink);border:1px solid var(--line);}
   .go.ghost:hover{border-color:var(--ink);}
 
+  /* Upcoming cohort intakes — live from open_cohorts() */
+  .cohort-dates-h{font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--stone);margin:46px 0 16px;}
+  .cohort-dates{display:grid;grid-template-columns:repeat(auto-fit,minmax(212px,1fr));gap:14px;}
+  .cd-card{border:1px solid var(--line);border-radius:0 0 18px 0;padding:20px;background:var(--paper-2);display:flex;flex-direction:column;}
+  .cd-card .cd-mo{font-family:var(--sans);font-weight:600;font-size:16px;color:var(--ink);}
+  .cd-card .cd-rg{font-family:var(--mono);font-size:11.5px;letter-spacing:.02em;color:var(--muted);margin-top:3px;}
+  .cd-card .cd-seats{font-size:12.5px;color:var(--disc-deep);margin-top:10px;font-weight:600;}
+  .cd-card .cd-seats.full{color:var(--stone);}
+  .cd-card .cd-cta{margin-top:16px;font-family:var(--sans);font-size:10.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--paper);background:var(--disc-deep);text-decoration:none;padding:11px 14px;border-radius:0 0 12px 0;text-align:center;transition:opacity .2s;}
+  .cd-card .cd-cta:hover{opacity:.9;}
+  .cd-card.is-full .cd-cta{background:none;color:var(--disc-deep);border:1px solid var(--line);}
+  .cd-loading{color:var(--muted);font-size:14px;padding:6px 0;}
+
   /* ===== PARALLAX ===== */
   .parallax{position:relative;min-height:300px;display:flex;align-items:center;justify-content:center;text-align:center;background:var(--ink-2) center/cover no-repeat;background-attachment:fixed;}
   .parallax::before{content:"";position:absolute;inset:0;background:linear-gradient(180deg,rgba(15,13,10,.62),rgba(15,13,10,.8));}
@@ -264,6 +277,10 @@
       <div class="spec"><div class="sn">A 30-day post-programme window</div><p>Time after the cohort to finish, revise, and lock in your materials.</p></div>
     </div>
   </div>
+  <div class="shell">
+    <div class="cohort-dates-h">Upcoming intakes — choose the one that fits your schedule</div>
+    <div id="cohort-dates" class="cohort-dates"><div class="cd-loading">Loading cohort dates&hellip;</div></div>
+  </div>
 </section>
 
 <!-- ===== PARALLAX 2 ===== -->
@@ -404,6 +421,33 @@
     },{threshold:0.3});
     items.forEach(function(el){ io.observe(el); });
   })();
+</script>
+<script>
+/* Live upcoming cohort intakes — pick a date that fits, deep-link into booking pre-selected. */
+(function(){
+  var host=document.getElementById('cohort-dates'); if(!host) return;
+  function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function monthYear(d){try{return new Date(d+'T00:00:00').toLocaleDateString('en-GB',{month:'long',year:'numeric'});}catch(e){return d||'';}}
+  fetch('/db/rest/v1/rpc/open_cohorts',{headers:{'Accept':'application/json'}})
+    .then(function(r){if(!r.ok)throw 0;return r.json();})
+    .then(function(list){
+      if(!Array.isArray(list)||!list.length){ host.innerHTML='<div class="cd-loading">Cohort dates are being finalised — <a href="/beta/book/?tier=cohort" style="color:var(--terra)">start a booking</a> to see the latest.</div>'; return; }
+      var firstOpen=list.filter(function(c){return !c.is_full;})[0];
+      host.innerHTML=list.map(function(c){
+        var full=!!c.is_full;
+        var seats=full?'Full':(c.seats_remaining<=3?('Nearly full — '+c.seats_remaining+' left'):(c.seats_remaining+' of '+c.seats_total+' seats open'));
+        var href=full?(firstOpen?('/beta/book/?tier=cohort&cohort='+firstOpen.id):'/beta/book/?tier=cohort'):('/beta/book/?tier=cohort&cohort='+c.id);
+        var cta=full?'Join next open →':'Reserve this cohort →';
+        return '<div class="cd-card'+(full?' is-full':'')+'">'
+          +'<span class="cd-mo">'+esc(monthYear(c.start_date))+'</span>'
+          +'<span class="cd-rg">'+esc(c.dates)+'</span>'
+          +'<span class="cd-seats'+(full?' full':'')+'">'+esc(seats)+'</span>'
+          +'<a class="cd-cta" href="'+href+'">'+cta+'</a>'
+          +'</div>';
+      }).join('');
+    })
+    .catch(function(){ host.innerHTML='<div class="cd-loading"><a href="/beta/book/?tier=cohort" style="color:var(--terra)">See cohort dates in booking →</a></div>'; });
+})();
 </script>
 <script src="/promo.js?v=1" defer></script>
 <script src="/site-chrome.js?v=9" defer></script>

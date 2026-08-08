@@ -77,6 +77,8 @@
       return;
     }
     var firstOpen = list.filter(function (c) { return !c.is_full; })[0];
+    // A preselected cohort (?cohort= from the pricing page) that's missing or full falls back to the next open one.
+    if (state.cohort != null && !list.filter(function (c) { return c.id === state.cohort && !c.is_full; })[0]) state.cohort = null;
     if (state.cohort == null && firstOpen) state.cohort = firstOpen.id;
     var chk = '<div class="cohort-check"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 10L9 14L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>';
     var html = '';
@@ -187,6 +189,9 @@
     if (tier && TIER_DATA[tier]) {
       selectTier(tier);
     }
+    // Deep-link a specific cohort from the pricing page: ?cohort=<id> pre-selects it.
+    const cohortParam = params.get('cohort');
+    if (cohortParam && /^\d+$/.test(cohortParam)) state.cohort = parseInt(cohortParam, 10);
     // Deep-link from discovery: ?spec=slug or ?spec=slug,slug,slug (L3 slugs).
     const spec = params.get('spec');
     if (spec && TAX) {
