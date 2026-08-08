@@ -227,9 +227,9 @@
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
     // Step-specific setup
-    if (n === 2) setupStep2();
-    if (n === 3) setupStep3();
-    if (n === 4) setupStep4();
+    if (n === 2) setupStep3();   // Configure (DOM step-2)
+    if (n === 3) setupStep2();   // Account (DOM step-3)
+    if (n === 4) setupStep4();   // Review & pay
     if (n === 5) startPaymentProcessing();
   }
 
@@ -244,14 +244,16 @@
     var need = TIER_DATA[t] ? TIER_DATA[t].max : 0;     // single = 1 · pick3 = 3 specialties
     return state.specialties.length >= need;
   }
-  // Where a chosen-tier founder lands: review (4) if the selection is complete, else configure (3).
-  function nextConfigStep() { return configComplete() ? 4 : 3; }
-
   function proceedFromTier() {
     if (!state.tier) return;
     updateStep2Badge();
-    goToStep(LOGGED_IN ? nextConfigStep() : 2);
+    // Flow order: Choose → Configure → Account → Pay. A complete deep-link selection
+    // (an L3 via ?spec, a cohort via ?cohort, or VIP) skips the Configure step.
+    if (configComplete()) { afterConfigure(); }
+    else { goToStep(2); }   // Configure: pick specialty / cohort date
   }
+  // After Configure: logged-in founders go straight to Pay; everyone else creates/signs in first.
+  function afterConfigure() { goToStep(LOGGED_IN ? 4 : 3); }   // 4 = Pay · 3 = Account
 
   // ── Step 1: Tier selection ─────────────────────────────────
   function selectTier(tier) {
@@ -343,7 +345,7 @@
       if (pwEl) { pwEl.focus(); pwEl.reportValidity && pwEl.reportValidity(); }
       return;
     }
-    goToStep(nextConfigStep());
+    goToStep(4);   // → Pay (the account is created server-side at the pay step)
   });
 
   // Login form submission — real password sign-in so the returning founder gets a
@@ -382,7 +384,7 @@
             if (ph) { state.phone = ph; state.phoneCode = ''; }
           }
         } catch (e2) {}
-        goToStep(nextConfigStep());
+        goToStep(4);   // signed in → Pay
       } catch (err) {
         if (errEl) { errEl.textContent = (err && err.message) ? err.message : 'Could not sign you in. Check your details.'; errEl.style.display = 'block'; }
       } finally {
@@ -466,7 +468,7 @@
   // Continue as logged-in user
   const btnContinue = $('#btn-continue-session');
   if (btnContinue) {
-    btnContinue.addEventListener('click', () => goToStep(nextConfigStep()));
+    btnContinue.addEventListener('click', () => goToStep(4));   // signed in → Pay
   }
 
   // Switch account
@@ -492,6 +494,8 @@
   // ── Step 3: Session configuration ──────────────────────────
   function setupStep3() {
     const tier = state.tier;
+    const _nb = document.getElementById('btn-next-3');
+    if (_nb) _nb.textContent = LOGGED_IN ? 'Continue to review →' : 'Continue →';
     const discPanel = $('#config-disciplines');
     const cohortPanel = $('#config-cohort');
     const vipPanel = $('#config-vip');
@@ -634,10 +638,10 @@
   }
 
   $('#btn-next-3').addEventListener('click', () => {
-    if (!$('#btn-next-3').disabled) goToStep(4);
+    if (!$('#btn-next-3').disabled) afterConfigure();   // Configure → Account (or Pay if signed in)
   });
 
-  $('#btn-back-3').addEventListener('click', () => goToStep(2));
+  $('#btn-back-3').addEventListener('click', () => goToStep(1));   // Configure → Choose
 
   // ── Step 4: Review & pay ───────────────────────────────────
   function setupStep4() {
@@ -741,7 +745,7 @@
     });
   });
 
-  $('#btn-back-4').addEventListener('click', () => goToStep(3));
+  $('#btn-back-4').addEventListener('click', () => goToStep(LOGGED_IN ? 2 : 3));   // Pay → Account (or Configure if signed in)
 
   $('#btn-pay').addEventListener('click', () => {
     goToStep(5);

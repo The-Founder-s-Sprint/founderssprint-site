@@ -61,9 +61,9 @@
   <div class="nav-progress" id="nav-progress">
     <div class="step done" data-step="1"><span class="num">1</span><span class="label">Choose</span></div>
     <div class="bar"><div class="fill" id="progress-fill"></div></div>
-    <div class="step" data-step="2"><span class="num">2</span><span class="label">Account</span></div>
+    <div class="step" data-step="2"><span class="num">2</span><span class="label">Configure</span></div>
     <div class="bar"><div class="fill"></div></div>
-    <div class="step" data-step="3"><span class="num">3</span><span class="label">Configure</span></div>
+    <div class="step" data-step="3"><span class="num">3</span><span class="label">Account</span></div>
     <div class="bar"><div class="fill"></div></div>
     <div class="step" data-step="4"><span class="num">4</span><span class="label">Pay</span></div>
   </div>
@@ -186,6 +186,74 @@
      STEP 2 — ACCOUNT CREATION (email + magic link)
      ============================================================ -->
 <section class="step-panel" id="step-2">
+  <div class="shell narrow">
+    <div class="step-header">
+      <span class="eyebrow terra">Step 3 of 4</span>
+      <h1 class="h-section" id="config-title">Choose your disciplines</h1>
+      <p class="h-sub" id="config-sub">Select the 3 coaching disciplines you want to focus on.</p>
+    </div>
+
+    <!-- SINGLE: pick 1 discipline -->
+    <!-- PICK 3: pick 3 disciplines -->
+    <!-- COHORT: pick cohort dates -->
+
+    <!-- Specialty picker (single + pick3) — discipline → module → specialty, built from taxonomy.js -->
+    <div class="config-panel" id="config-disciplines">
+      <div class="spec-picker" id="disc-grid">
+        <!-- Populated by JS from window.FS_TAXONOMY -->
+      </div>
+      <div class="disc-counter">
+        <span id="disc-count">0</span> / <span id="disc-max">3</span> selected
+      </div>
+    </div>
+
+    <!-- Cohort date picker (cohort only) -->
+    <div class="config-panel" id="config-cohort" style="display:none">
+      <!-- Cohort cards are rendered live from open_cohorts() (dates + seats remaining + spillover) -->
+      <div class="cohort-options" id="cohort-list">
+        <div class="cohort-loading" style="padding:18px;color:var(--ink-mute,#5A564F);font-size:14px">Loading cohort dates&hellip;</div>
+      </div>
+
+      <!-- How payment works (10% deposit model) -->
+      <div class="instalment-picker">
+        <span class="inst-label">How payment works</span>
+        <p class="inst-note-static" style="font-size:13px;line-height:1.55;color:var(--ink-mute,#5A564F);margin:6px 0 0">
+          Reserve your place with a <strong>10% deposit</strong> — it's non-refundable. The balance is due in full
+          <strong>48 hours before your start</strong>. Pay it in one go, or in instalments any time before the deadline.
+        </p>
+      </div>
+    </div>
+
+    <!-- VIP: no selection — a tailored, private engagement -->
+    <div class="config-panel" id="config-vip" style="display:none">
+      <div class="instalment-picker">
+        <span class="inst-label">Your VIP engagement</span>
+        <p class="inst-note-static" style="font-size:13px;line-height:1.55;color:var(--ink-mute,#5A564F);margin:6px 0 0">
+          Private and tailored — all five disciplines delivered <strong>to your whole leadership team</strong> with dedicated coaches, a complete
+          investor-ready data room, three months of advisory, and warm investor introductions. After your deposit, our team
+          reaches out to schedule your sessions around you.
+        </p>
+      </div>
+      <div class="instalment-picker">
+        <span class="inst-label">How payment works</span>
+        <p class="inst-note-static" style="font-size:13px;line-height:1.55;color:var(--ink-mute,#5A564F);margin:6px 0 0">
+          Reserve your place with a <strong>10% deposit (UGX 500,000)</strong> — non-refundable. The balance is due before
+          your first session; we'll arrange the schedule with you directly.
+        </p>
+      </div>
+    </div>
+
+    <div class="step-actions">
+      <button class="btn-ghost" id="btn-back-3" type="button">&larr; Back</button>
+      <button class="btn-primary" id="btn-next-3" type="button" disabled>Continue to review &rarr;</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     STEP 4 — ORDER REVIEW + PAYMENT
+     ============================================================ -->
+<section class="step-panel" id="step-3">
   <div class="shell narrow">
     <div class="step-header">
       <span class="eyebrow terra">Step 2 of 4</span>
@@ -315,74 +383,6 @@
 
 <!-- ============================================================
      STEP 3 — SESSION CONFIGURATION
-     ============================================================ -->
-<section class="step-panel" id="step-3">
-  <div class="shell narrow">
-    <div class="step-header">
-      <span class="eyebrow terra">Step 3 of 4</span>
-      <h1 class="h-section" id="config-title">Choose your disciplines</h1>
-      <p class="h-sub" id="config-sub">Select the 3 coaching disciplines you want to focus on.</p>
-    </div>
-
-    <!-- SINGLE: pick 1 discipline -->
-    <!-- PICK 3: pick 3 disciplines -->
-    <!-- COHORT: pick cohort dates -->
-
-    <!-- Specialty picker (single + pick3) — discipline → module → specialty, built from taxonomy.js -->
-    <div class="config-panel" id="config-disciplines">
-      <div class="spec-picker" id="disc-grid">
-        <!-- Populated by JS from window.FS_TAXONOMY -->
-      </div>
-      <div class="disc-counter">
-        <span id="disc-count">0</span> / <span id="disc-max">3</span> selected
-      </div>
-    </div>
-
-    <!-- Cohort date picker (cohort only) -->
-    <div class="config-panel" id="config-cohort" style="display:none">
-      <!-- Cohort cards are rendered live from open_cohorts() (dates + seats remaining + spillover) -->
-      <div class="cohort-options" id="cohort-list">
-        <div class="cohort-loading" style="padding:18px;color:var(--ink-mute,#5A564F);font-size:14px">Loading cohort dates&hellip;</div>
-      </div>
-
-      <!-- How payment works (10% deposit model) -->
-      <div class="instalment-picker">
-        <span class="inst-label">How payment works</span>
-        <p class="inst-note-static" style="font-size:13px;line-height:1.55;color:var(--ink-mute,#5A564F);margin:6px 0 0">
-          Reserve your place with a <strong>10% deposit</strong> — it's non-refundable. The balance is due in full
-          <strong>48 hours before your start</strong>. Pay it in one go, or in instalments any time before the deadline.
-        </p>
-      </div>
-    </div>
-
-    <!-- VIP: no selection — a tailored, private engagement -->
-    <div class="config-panel" id="config-vip" style="display:none">
-      <div class="instalment-picker">
-        <span class="inst-label">Your VIP engagement</span>
-        <p class="inst-note-static" style="font-size:13px;line-height:1.55;color:var(--ink-mute,#5A564F);margin:6px 0 0">
-          Private and tailored — all five disciplines delivered <strong>to your whole leadership team</strong> with dedicated coaches, a complete
-          investor-ready data room, three months of advisory, and warm investor introductions. After your deposit, our team
-          reaches out to schedule your sessions around you.
-        </p>
-      </div>
-      <div class="instalment-picker">
-        <span class="inst-label">How payment works</span>
-        <p class="inst-note-static" style="font-size:13px;line-height:1.55;color:var(--ink-mute,#5A564F);margin:6px 0 0">
-          Reserve your place with a <strong>10% deposit (UGX 500,000)</strong> — non-refundable. The balance is due before
-          your first session; we'll arrange the schedule with you directly.
-        </p>
-      </div>
-    </div>
-
-    <div class="step-actions">
-      <button class="btn-ghost" id="btn-back-3" type="button">&larr; Back</button>
-      <button class="btn-primary" id="btn-next-3" type="button" disabled>Continue to review &rarr;</button>
-    </div>
-  </div>
-</section>
-
-<!-- ============================================================
-     STEP 4 — ORDER REVIEW + PAYMENT
      ============================================================ -->
 <section class="step-panel" id="step-4">
   <div class="shell narrow">
@@ -568,6 +568,6 @@
 <script>window.supabase||document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"><\/script>')</script>
 <script src="../taxonomy.js?v=1"></script>
 <script src="/promo.js?v=1"></script>
-<script src="book.js?v=10"></script>
+<script src="book.js?v=11"></script>
 </body>
 </html>
