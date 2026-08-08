@@ -43,7 +43,7 @@ check('runtime: L3 names match shared exactly',
 // --- desktop detail booking: source asserts the L3 spec handler ---
 check('desktop: d-book uses ?tier=single&spec=' + 'specSlug(detailCurrentNode.name)',
   /\.\.\/book\/\?tier=single&spec=' \+ specSlug\(detailCurrentNode\.name\)/.test(js));
-check('desktop: cohort format → ?tier=cohort', /detailSelectedFormat === 'cohort'[\s\S]{0,80}\?tier=cohort/.test(js));
+check('desktop: cohort format → ?tier=cohort', /detailSelectedFormat === 'cohort'[\s\S]{0,300}\?tier=cohort/.test(js));
 check('desktop: detail spec-note framing present', /d-spec-note[\s\S]{0,120}deep-dive/.test(js));
 
 setTimeout(() => {

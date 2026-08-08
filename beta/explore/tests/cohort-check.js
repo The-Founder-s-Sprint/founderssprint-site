@@ -57,7 +57,12 @@ setTimeout(()=>{
     const slots=doc.querySelectorAll('.d-slots .slot');
     ck('detail: 5 live cohort slots', slots.length===5);
     ck('detail: first open pre-selected, full one disabled', slots[0].classList.contains('selected') && slots[1].disabled===true);
-    ck('detail: book button labels the chosen cohort', /Reserve · Cohort 1 · September 2026/.test(doc.querySelector('.d-book').textContent));
+    {
+    // Two-line CTA (no-widow rule): line 1 = action, line 2 = cohort + glued arrow
+    const l1=doc.querySelector('.d-book .cta-l1'), l2=doc.querySelector('.d-book .cta-l2');
+    const l2txt=(l2?l2.textContent:'').replace(/\u00a0/g,' ');
+    ck('detail: book button = two-line "Reserve" / cohort label', !!l1 && /Reserve/.test(l1.textContent) && /Cohort 1 · September 2026 →/.test(l2txt));
+  }
 
     // runtime: failure path → honest fallback links
     const wf=boot(()=>Promise.reject(new Error('down')));

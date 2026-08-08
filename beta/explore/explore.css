@@ -566,6 +566,14 @@ body {
 .detail .d-book:hover:not([disabled]) { filter: brightness(1.08); transform: translateY(-1px); }
 .detail .d-book[disabled] { opacity: 0.6; cursor: not-allowed; }
 
+/* Two-line CTA structure (DESIGN.md: no hanging widows) — action/title on
+   line 1, detail + glued arrow on line 2. Shared by .d-book and .d-bd-cta. */
+.detail .d-book .cta-l1, .d-bd-cta .cta-l1 { display: block; }
+.detail .d-book .cta-l2, .d-bd-cta .cta-l2 {
+  display: block; margin-top: 4px;
+  font-size: 10.5px; letter-spacing: 0.22em; opacity: 0.85;
+}
+
 /* ============================================================
    COACH DIRECTORY (below constellation)
    ============================================================ */

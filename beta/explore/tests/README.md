@@ -18,3 +18,4 @@ Baseline recorded 10 Jun 2026 (explore.js?v=16): matcher 66/72 top-1, 72/72 top-
     node tests/fidelity-check.js .                   # 3D node sheen, 9-layer cloud, chevron plates: 8 checks
     node tests/promo-check.js <site-root>            # launch promo banner mount + date gate + preview QA: 12 checks
     node tests/cohort-check.js .                     # live open_cohorts wiring + &cohort= deep-links + fallback: 13 checks
+    node tests/widow-check.js .                      # no-widow rule: glued arrows, two-line CTAs, prose glue: 7 checks

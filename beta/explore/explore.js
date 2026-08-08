@@ -176,7 +176,7 @@
 
   // ============================================================
   //   TAXONOMY — sourced from the shared single source of truth
-  //   (beta/taxonomy.js → window.FS_TAXONOMY). The hardcoded array
+  //   (beta/taxonomy.js → window.FS_TAXONOMY). The hardcoded array
   //   below is a byte-faithful FALLBACK kept only for when the
   //   include hasn't loaded; a parity test guards that it mirrors
   //   the shared contract exactly. L3 NAMES are the booking
@@ -257,7 +257,7 @@
     window.FS_TAXONOMY.disciplines.length === 5) ? window.FS_TAXONOMY : null;
   const TAXONOMY = SHARED_TAX ? buildTaxonomyFromShared(SHARED_TAX) : TAXONOMY_FALLBACK;
 
-  // L3 → booking slug. Prefer the shared slugify so explorer and booking
+  // L3 → booking slug. Prefer the shared slugify so explorer and booking
   // can never drift; fall back to the identical deterministic rule.
   const specSlug = (SHARED_TAX && SHARED_TAX.slugify) ? SHARED_TAX.slugify : function (name) {
     return String(name).toLowerCase()
@@ -558,7 +558,7 @@
     ['zambia','Zambia','lusaka,ndola,kitwe','zambian','sadc,comesa'],
     ['zimbabwe','Zimbabwe','harare,bulawayo','zimbabwean','sadc,comesa'],
   ];
-  // Bloc search terms → bloc key (markets founders actually name)
+  // Bloc search terms → bloc key (markets founders actually name)
   const GEO_BLOC_TERMS = {
     'eac': 'eac', 'east african community': 'eac', 'east africa': 'eac',
     'sadc': 'sadc', 'southern africa': 'sadc',
@@ -576,7 +576,7 @@
     igad: 'Horn of Africa (IGAD)', aes: 'Sahel (AES)', afcfta: 'Africa-wide (AfCFTA)',
   };
 
-  // Build term → geo lookup + one boundary-anchored matcher (longest first,
+  // Build term → geo lookup + one boundary-anchored matcher (longest first,
   // so "south sudan" wins over "sudan", "nigeria" never half-matches "niger").
   const GEO_TERM_MAP = new Map();
   const GEO_BY_KEY = new Map();
@@ -584,7 +584,7 @@
     const [key, display, cities, adj, blocs] = row;
     const entry = { key, display, blocs: blocs.split(',') };
     GEO_BY_KEY.set(key, entry);
-    const baseName = display.normalize('NFD').replace(/[\u0300-\u036f]/g, '')   // Côte d'Ivoire → cote d'ivoire
+    const baseName = display.normalize('NFD').replace(/[\u0300-\u036f]/g, '')   // Côte d'Ivoire → cote d'ivoire
       .toLowerCase().replace(/[^a-z\s\-']/g, ' ').replace(/\s+/g, ' ').trim();
     const terms = [baseName].concat(cities.split(','), adj.split(','));
     terms.forEach(t => { t = t.trim(); if (t) GEO_TERM_MAP.set(t, entry); });
@@ -596,7 +596,7 @@
       .map(p => p.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'))
       .join('|') + ')\\b', 'g');
 
-  // detectGeo('…customers in lusaka zambia') →
+  // detectGeo('…customers in lusaka zambia') →
   //   { countries:[zambia], blocs:[sadc,comesa], label:'Zambia · Southern Africa (SADC)' }
   function detectGeo(rawQ) {
     GEO_RE.lastIndex = 0;
@@ -647,7 +647,7 @@
   }
 
   // ============================================================
-  //   HASH → L1 INDEX MAP (deep linking from homepage)
+  //   HASH → L1 INDEX MAP (deep linking from homepage)
   // ============================================================
   const HASH_TO_L1 = {
     'marketing':  0,
@@ -1269,7 +1269,7 @@
         note.className = 'slot cohort slot-note';
         if (cohortsFailed) {
           note.setAttribute('href', '../book/?tier=cohort');
-          note.innerHTML = `<span class="slot-date">See cohort dates in booking →</span>`;
+          note.innerHTML = `<span class="slot-date">See cohort dates in booking →</span>`;
         } else {
           note.innerHTML = `<span class="slot-date">Loading cohort dates…</span>`;
         }
@@ -1304,14 +1304,22 @@
     }
     updateBookButton();
   }
+  // No hanging widows (DESIGN.md): glue the last two words with a
+  // non-breaking space so a lone word (or "EAT →") never wraps alone.
+  function noWidow(s) { return String(s).replace(/ (?=[^ ]+$)/, ' '); }
+
   function updateBookButton() {
     const btn = detailEl.querySelector('.d-book');
     if (!detailSelectedSlot) { btn.disabled = true; btn.textContent = 'Select a slot'; return; }
     btn.disabled = false;
+    // Deliberate two-line structure — action on line 1, detail + arrow glued
+    // on line 2 — so long slot/cohort text can never shed a widow.
     if (detailSelectedFormat === '1:1') {
-      btn.textContent = `Book · ${detailSelectedSlot.date}, ${detailSelectedSlot.time} →`;
+      btn.innerHTML = `<span class="cta-l1">Book · ${escH(detailSelectedSlot.date)}</span>` +
+        `<span class="cta-l2">${noWidow(escH(detailSelectedSlot.time) + ' →')}</span>`;
     } else {
-      btn.textContent = `Reserve · ${detailSelectedSlot.label} →`;
+      btn.innerHTML = `<span class="cta-l1">Reserve</span>` +
+        `<span class="cta-l2">${noWidow(escH(detailSelectedSlot.label) + ' →')}</span>`;
     }
   }
 
@@ -1323,7 +1331,7 @@
     detailEl.querySelector('.d-name').textContent = n.name;
     detailEl.querySelector('.d-path').innerHTML =
       `<span>${n.grandparentName}</span><span class="sep">/</span><span>${n.parentName}</span>`;
-    detailEl.querySelector('.d-desc').textContent = desc;
+    detailEl.querySelector('.d-desc').textContent = noWidow(desc);
     // L3 = the bookable unit; L2 = a track; cohort = the whole discipline / every L3
     detailEl.querySelector('.d-spec-note').innerHTML =
       `One 2-hour 1:1 deep-dive — the unit you book. Part of the <b>${escH(n.parentName)}</b> track; take all of <b>${escH(n.grandparentName)}</b> only in the full cohort.`;
@@ -1422,15 +1430,15 @@
       bd += '<div class="d-bd-module">' +
         '<button class="d-bd-mod-h" data-open="module" data-l1="' + l1 + '" data-l2="' + j + '">' +
           '<span class="d-bd-mod-name">' + escH(m.name) + '</span>' +
-          '<span class="d-bd-mod-n">' + m.l3.length + ' specialties →</span>' +
+          '<span class="d-bd-mod-n">' + m.l3.length + ' specialties →</span>' +
         '</button>' +
         l3ButtonsHTML(l1, j, m.l3) +
       '</div>';
     });
     bd += '<div class="d-bd-actions">';
     if (coach) bd += '<p class="d-bd-coach">Led by <b>' + escH(coach.name) + '</b>' + (coach.role ? ' · ' + escH(coach.role) : '') + '</p>';
-    bd += '<a class="d-bd-cta" href="../book/?tier=cohort">Take the whole discipline · Full Cohort →</a>';
-    bd += '<a class="d-bd-link" href="' + methodHref(l1, d) + '">Read the ' + escH(d.l1) + ' method →</a>';
+    bd += '<a class="d-bd-cta" href="../book/?tier=cohort"><span class="cta-l1">Take the whole discipline</span><span class="cta-l2">Full Cohort →</span></a>';
+    bd += '<a class="d-bd-link" href="' + methodHref(l1, d) + '">Read the ' + escH(d.l1) + ' method →</a>';
     bd += '</div>';
 
     const bdEl = detailEl.querySelector('.d-breakdown');
@@ -1461,8 +1469,12 @@
       }).join('') + '</div></div>';
     bd += '<div class="d-bd-actions">';
     if (coach) bd += '<p class="d-bd-coach">Coached by <b>' + escH(coach.name) + '</b>' + (coach.role ? ' · ' + escH(coach.role) : '') + '</p>';
-    bd += '<a class="d-bd-cta" href="../book/?tier=pick3&spec=' + encodeURIComponent(slugs) + '">Take the ' + escH(m.name) + ' track · Pick 3 →</a>';
-    bd += '<a class="d-bd-link" href="' + methodHref(l1, d) + '">Read the ' + escH(d.l1) + ' method →</a>';
+    // Two-line CTA (consistent for short + long track names; no widows):
+    // line 1 = the track title, line 2 = the action + arrow.
+    bd += '<a class="d-bd-cta" href="../book/?tier=pick3&spec=' + encodeURIComponent(slugs) + '">' +
+      '<span class="cta-l1">' + noWidow('Take the ' + escH(m.name) + ' track') + '</span>' +
+      '<span class="cta-l2">Pick 3 →</span></a>';
+    bd += '<a class="d-bd-link" href="' + methodHref(l1, d) + '">Read the ' + escH(d.l1) + ' method →</a>';
     bd += '</div>';
 
     const bdEl = detailEl.querySelector('.d-breakdown');
@@ -1471,7 +1483,7 @@
     updateInfoPanel();
   }
 
-  // Delegated clicks inside the breakdown: specialty → open L3; module → open L2.
+  // Delegated clicks inside the breakdown: specialty → open L3; module → open L2.
   detailEl.querySelector('.d-breakdown').addEventListener('click', function (e) {
     const btn = e.target.closest('[data-open]'); if (!btn) return;
     const l1 = +btn.getAttribute('data-l1');
@@ -1497,14 +1509,14 @@
     });
   });
 
-  // Discovery → booking at the L3 specialty. A specialty IS the bookable
+  // Discovery → booking at the L3 specialty. A specialty IS the bookable
   // unit (one 2-hour 1:1 deep-dive): single books exactly this L3; the
   // cohort format books the whole programme (every L3). Booking reads
   // ?tier + ?spec=<slug> — no discipline selection.
   detailEl.querySelector('.d-book').addEventListener('click', () => {
     if (!detailSelectedSlot) return;
     if (detailSelectedFormat === 'cohort') {
-      // Deep-link the chosen cohort → booking confirms THAT cohort (no selector)
+      // Deep-link the chosen cohort → booking confirms THAT cohort (no selector)
       const cid = detailSelectedSlot && detailSelectedSlot.id;
       window.location.href = '../book/?tier=cohort' + (cid ? '&cohort=' + cid : '');
       return;
@@ -1516,7 +1528,7 @@
   //   COACH DIRECTORY (accordion below constellation)
   // ============================================================
   const dirList = document.getElementById('dir-list');
-  const dirItemEls = new Map(); // coachId → dir-item element
+  const dirItemEls = new Map(); // coachId → dir-item element
 
   function starsHTML(rating) {
     const filled = Math.round(rating);
@@ -1540,7 +1552,7 @@
     }
     return list.map(t => {
       const meta = [t.role_title, t.company].filter(Boolean).map(escH).join(' · ');
-      return '<div class="dir-quote"><div class="dir-quote-text">“'+escH(t.testimonial)+'”</div><div class="dir-quote-author">'+escH(t.name)+(meta?' · '+meta:'')+'</div></div>';
+      return '<div class="dir-quote"><div class="dir-quote-text">“'+noWidow(escH(t.testimonial))+'”</div><div class="dir-quote-author">'+escH(t.name)+(meta?' · '+meta:'')+'</div></div>';
     }).join('');
   }
   async function loadCoachTestimonials() {
@@ -1592,13 +1604,13 @@
                   <div class="ds-item"><div class="ds-val">${coach.rating.toFixed(1)}</div><div class="ds-label"><span class="stars">${starsHTML(coach.rating)}</span></div></div>
                   <div class="ds-item"><div class="ds-val">${coach.sessions}</div><div class="ds-label">Sessions delivered</div></div>
                 </div>
-                <p class="dir-bio">${coach.bio}</p>
+                <p class="dir-bio">${noWidow(coach.bio)}</p>
                 <div class="dir-section-h">What founders say</div>
                 <div class="dir-quotes" id="dirq-${coach.id}">
                   ${getCoachQuotesHTML(coach)}
                 </div>
                 <a class="dir-testify" href="/share-testimonial.html?for=${coach.id}" target="_blank" rel="noopener"
-                   style="display:inline-block;margin-top:12px;font-family:var(--sans,'Josefin Sans',sans-serif);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${coach.color};text-decoration:none;border:1px solid ${coach.color};padding:8px 14px">Worked with ${escH(coach.name.split(' ')[0])}? Share your story →</a>
+                   style="display:inline-block;margin-top:12px;font-family:var(--sans,'Josefin Sans',sans-serif);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:${coach.color};text-decoration:none;border:1px solid ${coach.color};padding:8px 14px">Worked with ${escH(coach.name.split(' ')[0])}? Share your story →</a>
               </div>
               <div class="dir-avail">
                 <div class="dir-avail-h">Availability</div>
@@ -1607,7 +1619,7 @@
                 <div class="dir-avail-list dir-1to1"></div>
                 <div class="dir-avail-divider">Next Cohort</div>
                 <div class="dir-avail-list dir-cohort"></div>
-                <button class="dir-book">Book Session →</button>
+                <button class="dir-book">Book Session →</button>
               </div>
             </div>
           </div>
@@ -1621,7 +1633,7 @@
       ONETOONE_SLOTS.forEach(s => {
         const row = document.createElement('button');
         row.className = 'dir-avail-row';
-        row.innerHTML = `<div><div class="da-date">${s.date}</div><div class="da-time">${s.time}</div></div><div class="da-cta">Book →</div>`;
+        row.innerHTML = `<div><div class="da-date">${s.date}</div><div class="da-time">${s.time}</div></div><div class="da-cta">Book →</div>`;
         row.addEventListener('click', (e) => {
           e.stopPropagation();
           window.location.href = '../book/?tier=single';
@@ -1630,7 +1642,7 @@
       });
       fillDirectoryCohortList(item.querySelector('.dir-cohort'));
 
-      // Main "Book Session →" button in directory card
+      // Main "Book Session →" button in directory card
       item.querySelector('.dir-book').addEventListener('click', (e) => {
         e.stopPropagation();
         window.location.href = '../book/?tier=single';
@@ -1670,7 +1682,7 @@
       const row = document.createElement('button');
       row.className = 'dir-avail-row' + (isFull ? ' full' : '');
       if (isFull) row.disabled = true;
-      row.innerHTML = `<div><div class="da-date">${escH(c.label)}</div><div class="da-time">${escH(c.dates)} · ${isFull ? 'Full' : c.seats + ' seats remaining'}</div></div><div class="da-cta">${isFull ? 'Closed' : 'Reserve →'}</div>`;
+      row.innerHTML = `<div><div class="da-date">${escH(c.label)}</div><div class="da-time">${escH(c.dates)} · ${isFull ? 'Full' : c.seats + ' seats remaining'}</div></div><div class="da-cta">${isFull ? 'Closed' : 'Reserve →'}</div>`;
       if (!isFull) {
         row.addEventListener('click', (e) => {
           e.stopPropagation();
@@ -1734,7 +1746,7 @@
   loadCoachTestimonials();
   loadCohorts();   // live quarterly cohorts (async — panels re-render when it lands)
 
-  // Wire coach card click in detail panel → scroll to directory
+  // Wire coach card click in detail panel → scroll to directory
   detailEl.querySelector('.coach-card').addEventListener('click', () => {
     if (!detailCurrentNode || !detailCurrentNode.coachId) return;
     scrollToCoach(detailCurrentNode.coachId);
@@ -2545,7 +2557,7 @@
     const hw = w / 2 + padX, hh = h / 2 + padY;
     const x0 = lx - hw, x1 = lx + hw, y0 = ly - hh, y1 = ly + hh;
     const f = v => v.toFixed(1);
-    // node is toward the origin → point the chevron that way (sign of lx)
+    // node is toward the origin → point the chevron that way (sign of lx)
     const d = lx >= 0
       ? `M ${f(x0)} ${f(y0)} L ${f(x1)} ${f(y0)} L ${f(x1)} ${f(y1)} L ${f(x0)} ${f(y1)} L ${f(x0 - chev)} ${f(ly)} Z`
       : `M ${f(x0)} ${f(y0)} L ${f(x1)} ${f(y0)} L ${f(x1 + chev)} ${f(ly)} L ${f(x1)} ${f(y1)} L ${f(x0)} ${f(y1)} Z`;
@@ -2620,7 +2632,7 @@
 
   // ============================================================
   //   MOBILE DISCOVERY — card-stack model (search-first)
-  //   Search input → discipline cards → specialty rows → coach
+  //   Search input → discipline cards → specialty rows → coach
   //   card with booking CTA + WhatsApp share. Hash is the source
   //   of truth: '' = home, '#marketing' = discipline,
   //   '#marketing/brand-positioning' = specialty (shareable).
@@ -2645,7 +2657,7 @@
 
   function mGoHash(hash) {
     if (('#' + hash) === window.location.hash || (!hash && !window.location.hash)) { renderMobileFromHash(); return; }
-    window.location.hash = hash; // hashchange → handleHash → renderMobileFromHash
+    window.location.hash = hash; // hashchange → handleHash → renderMobileFromHash
   }
   function shareURL(n) {
     const base = window.location.origin + window.location.pathname;
@@ -2771,23 +2783,23 @@
     const coach = n.coachId ? COACH_BY_ID.get(n.coachId) : null;
     const desc = L3_DESC[n.name] || ('A focused session on ' + n.name + ' within ' + n.parentName + '.');
     let html = mHeaderHTML(L1_TO_HASH[n.l1Idx], n.grandparentName + ' · ' + n.parentName, escH(n.name), n.color);
-    html += '<p class="md-desc">' + escH(desc) + '</p>';
+    html += '<p class="md-desc">' + noWidow(escH(desc)) + '</p>';
     html += '<p class="md-spec-note" style="--md-c:' + n.color + '">One 2-hour 1:1 deep-dive — the bookable unit. Part of the <b>' + escH(n.parentName) + '</b> track; take the whole discipline only in the cohort.</p>';
     if (coach) {
       html += '<div class="md-coach-card" style="--md-c:' + n.color + '">' +
         '<div class="md-cc-top">' + mAvatarHTML(coach, n.color) +
         '<div><div class="md-cc-name">' + escH(coach.name) + '</div><div class="md-cc-role">' + escH(coach.role) + '</div>' +
         '<div class="md-cc-stats">' + starsHTML(coach.rating) + ' <b>' + coach.rating.toFixed(1) + '</b> · ' + coach.sessions + ' sessions · ' + coach.years + ' yrs</div></div></div>' +
-        '<p class="md-cc-bio">' + escH(coach.bio) + '</p>' +
+        '<p class="md-cc-bio">' + noWidow(escH(coach.bio)) + '</p>' +
         '<div class="md-section-h">What founders say</div>' +
         '<div class="md-quotes" id="md-quotes">' + getCoachQuotesHTML(coach) + '</div>' +
-        '<a class="md-testify" href="/share-testimonial.html?for=' + escH(coach.id) + '" target="_blank" rel="noopener">Worked with ' + escH(coach.name.split(' ')[0]) + '? Share your story →</a>' +
+        '<a class="md-testify" href="/share-testimonial.html?for=' + escH(coach.id) + '" target="_blank" rel="noopener">Worked with ' + escH(coach.name.split(' ')[0]) + '? Share your story →</a>' +
         '</div>';
     }
     html += '<div class="md-actions" style="--md-c:' + n.color + '">' +
-      '<a class="md-book" href="../book/?tier=single&spec=' + specSlug(n.name) + '">Book this 1:1 deep-dive →</a>' +
-      '<a class="md-cohort" href="../book/?tier=cohort">Get all 50 — join a cohort →</a>' +
-      '<a class="md-share" href="' + whatsappHref(n, coach) + '" target="_blank" rel="noopener">Share on WhatsApp →</a>' +
+      '<a class="md-book" href="../book/?tier=single&spec=' + specSlug(n.name) + '">Book this 1:1 deep-dive →</a>' +
+      '<a class="md-cohort" href="../book/?tier=cohort">Get all 50 — join a cohort →</a>' +
+      '<a class="md-share" href="' + whatsappHref(n, coach) + '" target="_blank" rel="noopener">Share on WhatsApp →</a>' +
       '</div>';
     mdEl.innerHTML = html;
     mWireCommon();
@@ -2907,7 +2919,7 @@
   window.__fsExplore = {
     NODES: NODES,
     TAXONOMY: TAXONOMY,
-    // run the real matcher for a query → ranked NODE[] (also fires search-gap logging)
+    // run the real matcher for a query → ranked NODE[] (also fires search-gap logging)
     search: function (q) {
       state.searchQuery = (q == null ? '' : String(q)).trim().toLowerCase();
       var r = searchMatches();
