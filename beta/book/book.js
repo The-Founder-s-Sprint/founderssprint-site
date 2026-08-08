@@ -188,6 +188,7 @@
     const tier = params.get('tier');
     if (tier && TIER_DATA[tier]) {
       selectTier(tier);
+      if (tier === 'cohort') { state.specialties = ALL_SPECS.slice(); syncDisciplines(); }
     }
     // Deep-link a specific cohort from the pricing page: ?cohort=<id> pre-selects it.
     const cohortParam = params.get('cohort');
@@ -233,10 +234,23 @@
   }
 
   // After choosing a tier: skip the login step entirely if already signed in.
+  // Is the founder's selection already complete enough to skip the configure step
+  // and go straight to review/pay? (An L3 via ?spec, a cohort via ?cohort, or VIP.)
+  function configComplete() {
+    var t = state.tier;
+    if (!t) return false;
+    if (t === 'vip1on1') return true;                  // nothing to configure
+    if (t === 'cohort')  return state.cohort != null;  // a specific cohort date was chosen
+    var need = TIER_DATA[t] ? TIER_DATA[t].max : 0;     // single = 1 · pick3 = 3 specialties
+    return state.specialties.length >= need;
+  }
+  // Where a chosen-tier founder lands: review (4) if the selection is complete, else configure (3).
+  function nextConfigStep() { return configComplete() ? 4 : 3; }
+
   function proceedFromTier() {
     if (!state.tier) return;
     updateStep2Badge();
-    goToStep(LOGGED_IN ? 3 : 2);
+    goToStep(LOGGED_IN ? nextConfigStep() : 2);
   }
 
   // ── Step 1: Tier selection ─────────────────────────────────
@@ -329,7 +343,7 @@
       if (pwEl) { pwEl.focus(); pwEl.reportValidity && pwEl.reportValidity(); }
       return;
     }
-    goToStep(3);
+    goToStep(nextConfigStep());
   });
 
   // Login form submission — real password sign-in so the returning founder gets a
@@ -368,7 +382,7 @@
             if (ph) { state.phone = ph; state.phoneCode = ''; }
           }
         } catch (e2) {}
-        goToStep(3);
+        goToStep(nextConfigStep());
       } catch (err) {
         if (errEl) { errEl.textContent = (err && err.message) ? err.message : 'Could not sign you in. Check your details.'; errEl.style.display = 'block'; }
       } finally {
@@ -452,7 +466,7 @@
   // Continue as logged-in user
   const btnContinue = $('#btn-continue-session');
   if (btnContinue) {
-    btnContinue.addEventListener('click', () => goToStep(3));
+    btnContinue.addEventListener('click', () => goToStep(nextConfigStep()));
   }
 
   // Switch account
@@ -879,9 +893,10 @@
     loadCohorts();
     readEntryParams();
     await checkExistingSession();
-    // Deep-link with a tier (e.g. a module's "Book a course") + already signed in
-    // → skip the login step, go straight to choosing specialties.
-    if (state.tier && LOGGED_IN) { updateStep2Badge(); goToStep(3); }
+    // Deep-link with a tier (any specific CTA) → skip the selector entirely.
+    // Logged in → go as far as the selection allows (review if complete, else configure).
+    // Logged out → the account step first, then the same routing after sign-in.
+    if (state.tier) { proceedFromTier(); }
     else { goToStep(1); }
   })();
 })();
