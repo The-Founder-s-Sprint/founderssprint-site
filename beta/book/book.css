@@ -304,6 +304,25 @@ a { color: inherit; text-decoration: none; }
 /* fade the persistent ribbon out on hover so the accent band reads cleanly */
 .tier-card:hover .ribbon { opacity: 0; }
 
+/* Touch devices: :hover sticks on tap, so neutralise the desktop-only flourishes
+   (25% scale + expanding accent band) that overlap the stacked cards on mobile.
+   Mobile keeps the clean base card: founder image, gradient, and readable text. */
+@media (hover: none) {
+  .tier-card:hover { transform: none; z-index: auto; box-shadow: none; border-color: rgba(239,231,216,0.10); }
+  .tier-card:hover::before { transform: scale(1.02); filter: saturate(2.2) grayscale(1) contrast(1.4) brightness(0.62); }
+  .tier-card:hover::after { background: linear-gradient(180deg, rgba(15,13,10,0.46) 0%, rgba(15,13,10,0.66) 42%, rgba(15,13,10,0.92) 100%); }
+  .tier-card:hover .tier-accent { height: 3px; }
+  .tier-card:hover .accent-label { opacity: 0; }
+  .tier-card:hover .tier-price { color: var(--paper); }
+  .tier-card:hover .ribbon { opacity: 1; }
+}
+/* Tall single-column cards on mobile: a deeper, more even underlay so copy reads over the whole image */
+@media (max-width: 768px) {
+  .tier-card::after, .tier-card:hover::after {
+    background: linear-gradient(180deg, rgba(15,13,10,0.58) 0%, rgba(15,13,10,0.70) 48%, rgba(15,13,10,0.90) 100%);
+  }
+}
+
 /* Pay strip */
 .pay-strip {
   margin-top: 48px;
