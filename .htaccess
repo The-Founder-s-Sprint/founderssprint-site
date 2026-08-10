@@ -9,6 +9,9 @@
 # Enable rewrite engine
 RewriteEngine On
 
+# Custom 404
+ErrorDocument 404 /404.html
+
 # Force HTTPS
 RewriteCond %{HTTPS} off
 RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]

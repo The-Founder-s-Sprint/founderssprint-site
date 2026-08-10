@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Page not found — The Founder's Sprint</title>
+<meta name="robots" content="noindex, follow">
+<meta name="description" content="That page couldn't be found. Head back to The Founder's Sprint — five coaches, five disciplines, forty-nine specialties.">
+<link rel="icon" href="/beta/favicon.svg" type="image/svg+xml">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Josefin+Sans:wght@300;400;600;700&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root{--ink:#1A1A1A;--ink-2:#0f0d0a;--paper:#EFE7D8;--terra:#C8531F;--terra-deep:#9A3E16;--ochre:#C9923A;
+    --sans:'Josefin Sans',system-ui,sans-serif;--display:'Cormorant Garamond',Georgia,serif;--body:'Inter',system-ui,sans-serif;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:var(--ink-2);color:var(--paper);font-family:var(--body);-webkit-font-smoothing:antialiased;}
+  .e404{position:relative;min-height:74vh;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:90px 24px 70px;overflow:hidden;}
+  .e404::before{content:"";position:absolute;inset:0;pointer-events:none;
+    background:radial-gradient(ellipse 620px 380px at 50% 34%,rgba(200,83,31,.16),transparent 62%),
+               radial-gradient(ellipse 420px 260px at 72% 62%,rgba(201,146,58,.10),transparent 65%);}
+  .e404 > *{position:relative;z-index:1;}
+  .eb{font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.28em;text-transform:uppercase;color:var(--terra);display:inline-flex;align-items:center;gap:8px;}
+  .eb svg{width:11px;height:11px;}
+  .num{font-family:var(--display);font-weight:300;font-size:clamp(96px,20vw,190px);line-height:.92;letter-spacing:-.02em;color:var(--paper);margin:10px 0 4px;}
+  h1{font-family:var(--display);font-style:italic;font-weight:400;font-size:clamp(26px,4vw,40px);line-height:1.12;margin:0 0 14px;color:var(--paper);}
+  p{max-width:520px;margin:0 auto 30px;color:rgba(239,231,216,.62);font-size:16px;line-height:1.6;}
+  .cta-row{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+  .btn{font-family:var(--sans);font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase;padding:15px 28px;text-decoration:none;border-radius:0 0 16px 0;transition:opacity .2s,border-color .2s;}
+  .btn-fill{background:var(--terra);color:var(--paper);} .btn-fill:hover{opacity:.9;}
+  .btn-ghost{background:none;color:var(--paper);border:1px solid rgba(239,231,216,.28);} .btn-ghost:hover{border-color:var(--paper);}
+  .quick{margin-top:34px;display:flex;gap:22px;flex-wrap:wrap;justify-content:center;}
+  .quick a{font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:rgba(239,231,216,.55);text-decoration:none;transition:color .2s;}
+  .quick a:hover{color:var(--terra);}
+  .tag{font-family:var(--display);font-style:italic;font-size:14px;color:var(--terra);opacity:.85;margin-top:40px;}
+</style>
+</head>
+<body>
+<div id="fs-nav"></div>
+
+<section class="e404">
+  <span class="eb">
+    <svg viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,8 57,50 50,92 43,50" fill="currentColor" opacity="0.85"/><polygon points="50,8 57,50 50,92 43,50" fill="currentColor" opacity="0.65" transform="rotate(72 50 50)"/><polygon points="50,8 57,50 50,92 43,50" fill="currentColor" opacity="0.55" transform="rotate(144 50 50)"/><polygon points="50,8 57,50 50,92 43,50" fill="currentColor" opacity="0.65" transform="rotate(216 50 50)"/><polygon points="50,8 57,50 50,92 43,50" fill="currentColor" opacity="0.55" transform="rotate(288 50 50)"/><circle cx="50" cy="50" r="4.5" fill="currentColor" opacity="0.8"/></svg>
+    Off the map
+  </span>
+  <div class="num">404</div>
+  <h1>This page took a wrong turn.</h1>
+  <p>The link may be old or mistyped — but the constellation is still here. Head back to solid ground, or explore the disciplines and find your next session.</p>
+  <div class="cta-row">
+    <a class="btn btn-ghost" href="/beta/explore/">Explore the constellation →</a>
+    <a class="btn btn-fill" href="/beta/index.html">Back to home →</a>
+  </div>
+  <nav class="quick" aria-label="Quick links">
+    <a href="/beta/index.html#method">Method</a>
+    <a href="/beta/pricing.html">Pricing</a>
+    <a href="/mentors.html">Mentors</a>
+    <a href="/beta/directory.html">Directory</a>
+    <a href="/beta/book/">Book a session</a>
+  </nav>
+  <p class="tag">Build with direction.</p>
+</section>
+
+<div id="fs-footer"></div>
+<script src="/site-chrome.js?v=9" defer></script>
+</body>
+</html>

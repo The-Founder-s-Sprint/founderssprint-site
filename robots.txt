@@ -1,0 +1,22 @@
+# The Founder's Sprint — robots
+User-agent: *
+Allow: /
+
+# Private / application surfaces — keep out of search
+Disallow: /dashboard.html
+Disallow: /admin-portals.html
+Disallow: /coach.html
+Disallow: /founder.html
+Disallow: /investor.html
+Disallow: /login-admin.html
+Disallow: /login-coach.html
+Disallow: /login-founder.html
+Disallow: /login-investor.html
+Disallow: /set-password.html
+Disallow: /welcome.html
+Disallow: /decks/
+Disallow: /db/
+Disallow: /sb/
+Disallow: /api/
+
+Sitemap: https://founderssprint.co/sitemap.xml
