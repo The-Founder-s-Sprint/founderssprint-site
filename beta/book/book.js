@@ -13,6 +13,13 @@
   var LOGGED_IN = false;
   var API = '';  // same-origin → Cloudflare /api/* proxy → api.founderssprint.co
 
+  // ── Booking mode ───────────────────────────────────────────
+  // PREVIEW LAUNCH: ioTec (mobile-money) is not live yet, so we don't charge.
+  // Founders can still create an account and SAVE their booking as interest; when
+  // payments go live we flip this ONE flag to true and the full deposit → STK-push
+  // → confirmation flow (already built below) takes over. No other change needed.
+  var BOOKING_OPEN = false;
+
   // ── State ──────────────────────────────────────────────────
   const state = {
     step: 1,
@@ -735,6 +742,30 @@
 
     // MoMo phone
     $('#momo-phone-display').textContent = state.phoneCode + ' ' + state.phone;
+
+    // ── PREVIEW LAUNCH: no charge yet. Reframe the review as "reserve your place",
+    //    hide the mobile-money controls, and keep the numbers as context only. ──
+    if (!BOOKING_OPEN) {
+      var eb = document.querySelector('#step-4 .eyebrow'); if (eb) eb.textContent = 'Last step';
+      var h1 = document.querySelector('#step-4 .h-section'); if (h1) h1.textContent = 'Reserve your place';
+      var sub = document.querySelector('#step-4 .h-sub');
+      if (sub) sub.textContent = "Booking payments open soon. We'll save this to your account and email you the moment you can complete it — no payment today.";
+
+      var picker = document.querySelector('#step-4 .momo-picker'); if (picker) picker.style.display = 'none';
+      var phoneRow = document.querySelector('#step-4 .momo-phone-row'); if (phoneRow) phoneRow.style.display = 'none';
+
+      $('#review-pay-label').textContent = 'Due today';
+      $('#review-amount').textContent = 'Nothing yet';
+
+      var whenTxt2 = (state.tier === 'cohort' ? 'cohort starts' : 'first session');
+      instNote.style.display = 'block';
+      instNote.innerHTML = "We're finalising secure mobile-money payments. Reserve now and your place is held on your account — "
+        + "when booking opens you'll get an email to pay your <strong>10% deposit</strong> (UGX "
+        + deposit.toLocaleString('en-UG') + ') and secure it. Nothing is charged today.';
+
+      var payBtnText = document.querySelector('#btn-pay .btn-text');
+      if (payBtnText) payBtnText.textContent = 'Reserve my place';
+    }
   }
 
   // MoMo provider
@@ -756,7 +787,60 @@
 
   function fullPhone() { return (state.phoneCode || '') + String(state.phone || '').replace(/\s+/g, ''); }
 
+  // Build the registration payload shared by preview + live flows.
+  function buildRegBody() {
+    const parts = state.name.trim().split(/\s+/);
+    const firstName = parts.shift() || state.name;
+    const lastName  = parts.join(' ') || '—';
+    const regBody = {
+      track: state.tier,
+      firstName, lastName, email: state.email,
+      phone: fullPhone(), company: state.company || null,
+      enrolledSpecialties: state.specialties.slice(),
+      disciplines: state.disciplines.slice(),
+    };
+    if (state.password) regBody.password = state.password;
+    return regBody;
+  }
+
+  // ── PREVIEW LAUNCH: save the booking (+ founder account) as interest, no charge. ──
+  async function reserveInterest() {
+    $('#state-processing').style.display = 'flex';
+    $('#state-success').style.display = 'none';
+    var ph = document.querySelector('#state-processing .h-section'); if (ph) ph.textContent = 'Saving your booking';
+    var psub = document.querySelector('#state-processing .h-sub');
+    if (psub) psub.innerHTML = 'One moment — reserving your place and setting up your account.';
+    var ptimer = document.querySelector('#state-processing .processing-timer'); if (ptimer) ptimer.style.display = 'none';
+    var pcancel = $('#btn-cancel-payment'); if (pcancel) pcancel.style.display = 'none';
+
+    try {
+      const regBody = buildRegBody();
+      regBody.preview = true;   // save as interest — no deposit instructions emailed
+      if (state.tier === 'cohort') {
+        const cohortId = resolveCohortId();
+        if (!cohortId) throw new Error('That cohort is no longer open — go back and choose another date.');
+        regBody.cohortId = cohortId;
+      }
+      const regRes = await fetch(API + '/api/register', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(regBody),
+      });
+      const regData = await regRes.json().catch(() => ({}));
+      if (!regRes.ok) throw new Error(regData.error || 'We could not save your booking. Please try again.');
+      state._registrationId = regData.registrationId;
+      state._depositAmount  = regData.depositAmount;
+
+      // Sign the founder in (they just set a password) so they land on their dashboard.
+      if (!LOGGED_IN && state.password && sb) {
+        try { await sb.auth.signInWithPassword({ email: state.email, password: state.password }); LOGGED_IN = true; } catch (e) {}
+      }
+      showReserved();
+    } catch (e) {
+      showPayError(e.message);
+    }
+  }
+
   async function startPaymentProcessing() {
+    if (!BOOKING_OPEN) { return reserveInterest(); }
     // Show the "check your phone" state
     $('#state-processing').style.display = 'flex';
     $('#state-success').style.display = 'none';
@@ -872,6 +956,44 @@
     setSuccessCard();
   }
 
+  // PREVIEW LAUNCH success — booking saved as interest, nothing charged.
+  function showReserved() {
+    $('#state-processing').style.display = 'none';
+    $('#state-success').style.display = 'flex';
+    const np = $('#nav-progress'); if (np) np.style.opacity = '0';
+
+    const h = document.querySelector('#state-success .h-section'); if (h) h.textContent = 'Your place is reserved.';
+    const sub = document.querySelector('#state-success > .h-sub');
+    if (sub) sub.textContent = "We've saved this booking to your account — no payment today. The moment booking opens, we'll email you to complete it.";
+
+    // Summary card
+    const tierName = (TIER_DATA[state.tier] && TIER_DATA[state.tier].name) || state.tier;
+    $('#txn-id').textContent = state._registrationId ? ('Booking #' + state._registrationId) : 'Saved';
+    $('#txn-amount').textContent = 'No charge yet';
+    $('#txn-method').textContent = 'Reserved · deposit due when booking opens';
+    $('#txn-email').textContent = state.email;
+    const amtK = $('#txn-amount').previousElementSibling; if (amtK) amtK.textContent = 'Amount';
+    const methodK = $('#txn-method').previousElementSibling; if (methodK) methodK.textContent = 'Status';
+
+    // Next steps — reframed for the preview
+    const nsList = document.querySelector('#state-success .ns-list');
+    if (nsList) {
+      nsList.innerHTML =
+        '<div class="ns-item"><span class="ns-num">1</span><div><strong>Check your inbox</strong>'
+        + '<p>We emailed a confirmation that your place is saved for the ' + tierName + '.</p></div></div>'
+        + '<div class="ns-item"><span class="ns-num">2</span><div><strong>We’ll notify you</strong>'
+        + '<p>When secure mobile-money payments go live, you’ll get an email to pay your 10% deposit and lock it in.</p></div></div>'
+        + '<div class="ns-item"><span class="ns-num">3</span><div><strong>Tell us what you think</strong>'
+        + '<p>Explore the platform and share any feedback — it shapes what we ship next.</p></div></div>';
+    }
+
+    // Actions — dashboard + feedback
+    const act = document.querySelector('#state-success .success-actions .btn-primary');
+    if (act) { act.textContent = 'Go to your dashboard'; act.setAttribute('href', LOGGED_IN ? '../../founder.html' : '../login-founder.html'); }
+    const ghost = document.querySelector('#state-success .success-actions .btn-ghost');
+    if (ghost) { ghost.textContent = 'Share feedback'; ghost.setAttribute('href', '../contact.html'); }
+  }
+
   function showPayError(msg) {
     const sub = $('#state-processing') && document.querySelector('#state-processing .h-sub');
     const h = document.querySelector('#state-processing .h-section');
@@ -879,7 +1001,7 @@
     if (sub) sub.innerHTML = (msg || 'Please try again.');
     const timer = document.querySelector('#state-processing .processing-timer'); if (timer) timer.style.display = 'none';
     const cancel = $('#btn-cancel-payment');
-    if (cancel) { cancel.disabled = false; cancel.textContent = 'Back'; }
+    if (cancel) { cancel.disabled = false; cancel.style.display = ''; cancel.textContent = 'Back'; }
   }
 
   // Back / cancel — return to review
@@ -894,6 +1016,14 @@
 
   // ── Init ───────────────────────────────────────────────────
   (async function init() {
+    // Preview launch: relabel the final step "Reserve" (not "Pay") and keep the
+    // notice bar. When BOOKING_OPEN flips true, the notice hides and "Pay" returns.
+    if (BOOKING_OPEN) {
+      var pn = $('#book-preview-notice'); if (pn) pn.style.display = 'none';
+    } else {
+      var payStep = document.querySelector('#nav-progress .step[data-step="4"] .label');
+      if (payStep) payStep.textContent = 'Reserve';
+    }
     loadCohorts();
     readEntryParams();
     await checkExistingSession();

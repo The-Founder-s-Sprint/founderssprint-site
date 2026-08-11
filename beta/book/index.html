@@ -17,6 +17,15 @@
   #fs-route-loader .fsl-spin{width:34px;height:34px;border:2px solid rgba(239,231,216,.18);border-top-color:#C8531F;border-radius:50%;animation:fslspin .8s linear infinite;}
   #fs-route-loader .fsl-t{font-family:'Josefin Sans',system-ui,sans-serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:rgba(239,231,216,.5);}
   @keyframes fslspin{to{transform:rotate(360deg);}}
+  /* Preview-launch notice — booking opens soon (payments not yet live) */
+  .book-preview-notice{position:relative;z-index:5;display:flex;align-items:center;justify-content:center;gap:10px 16px;flex-wrap:wrap;
+    background:linear-gradient(90deg,rgba(201,146,58,.14),rgba(200,83,31,.12));border-top:1px solid rgba(201,146,58,.28);border-bottom:1px solid rgba(201,146,58,.28);
+    padding:11px 22px;text-align:center;font-family:'Inter',system-ui,sans-serif;font-size:13.5px;line-height:1.5;color:#efe7d8;}
+  .book-preview-notice .bpn-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#C9923A;box-shadow:0 0 0 4px rgba(201,146,58,.16);flex:none;}
+  .book-preview-notice strong{font-weight:600;color:#fff;}
+  .book-preview-notice a{color:#E8A94B;text-decoration:none;font-weight:600;border-bottom:1px solid rgba(232,169,75,.4);white-space:nowrap;}
+  .book-preview-notice a:hover{border-bottom-color:#E8A94B;}
+  @media(max-width:600px){.book-preview-notice{font-size:12.5px;padding:10px 16px;}}
 </style>
 <script>
 /* Runs during <head> parse (before the selector is even built), so there is no flash. If a tier is
@@ -71,6 +80,14 @@
 
 <!-- Launch promo banner (date-gated: appears 1 Aug via /promo.js) -->
 <div id="fs-promo"></div>
+
+<!-- Preview-launch notice: payments (ioTec) not live yet — bookings are saved as interest.
+     Hidden automatically once book.js flips BOOKING_OPEN = true. -->
+<div class="book-preview-notice" id="book-preview-notice">
+  <span class="bpn-dot"></span>
+  <span><strong>Booking opens soon.</strong> Reserve your place now — we'll save it to your account and notify you the moment payments go live so you can complete it.</span>
+  <a href="../contact.html">Share feedback&nbsp;&rarr;</a>
+</div>
 
 <!-- ============================================================
      STEP 1 — TIER SELECTION
@@ -568,6 +585,6 @@
 <script>window.supabase||document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"><\/script>')</script>
 <script src="../taxonomy.js?v=1"></script>
 <script src="/promo.js?v=1"></script>
-<script src="book.js?v=11"></script>
+<script src="book.js?v=12"></script>
 </body>
 </html>
