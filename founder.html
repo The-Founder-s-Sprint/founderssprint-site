@@ -12,7 +12,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600;1,700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="/vendor/supabase-js.min.js?v=2110"></script>
 <script>window.supabase||document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"><\/script>')</script>
-<script src="ui-dialogs.js?v=2"></script>
+<script src="ui-dialogs.js?v=3"></script>
 <!-- Single source of truth for the 5→15→49 taxonomy. The journey timeline derives
      its L2/L3 structure from this file — never hardcode it again (it drifted to 45). -->
 <script src="/beta/taxonomy.js"></script>
@@ -82,7 +82,7 @@
   .tab-panel { display:none; }
   .tab-panel.active { display:block; animation:fade 0.25s ease; }
   .wb-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-top:18px;}
-  .wb-card{background:var(--paper-deep,#E6DCC7);border:1px solid var(--border);border-top:3px solid var(--terra);padding:18px 18px 16px;border-radius:0 0 20px 0;overflow:hidden;display:flex;flex-direction:column;}
+  .wb-card{background:var(--paper-deep,#E6DCC7);border:1px solid var(--border);border-top:3px solid var(--terra);padding:18px 18px 16px;border-radius:var(--radius-card);overflow:hidden;display:flex;flex-direction:column;}
   .wb-disc{font-family:var(--sans);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--moss,#3D4A2E);margin-bottom:6px;}
   .wb-title{font-family:var(--display,'Cormorant Garamond',serif);font-size:21px;font-weight:600;line-height:1.15;}
   .wb-badge{display:inline-block;font-family:var(--sans);font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:var(--moss,#3D4A2E);border:1px solid rgba(61,74,46,.35);padding:2px 7px;border-radius:2px;vertical-align:middle;margin-left:6px;}
@@ -97,6 +97,9 @@
   .wb-viewer-ext{margin-left:auto;font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-mute,#5A564F);text-decoration:none;}
   .wb-viewer-ext:hover{color:var(--terra);}
   .wb-frame{width:100%;height:calc(100vh - 240px);min-height:520px;border:1px solid var(--border);background:#fff;display:block;}
+  .wb-fallback{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;text-align:center;width:100%;min-height:360px;border:1px solid var(--border);background:var(--paper-2,#f4eee1);padding:44px 20px;}
+  .wb-fb-title{font-family:var(--display,'Cormorant Garamond',serif);font-size:21px;color:var(--ink);}
+  .wb-fb-sub{font-size:13px;color:var(--ink-mute,#5A564F);max-width:360px;line-height:1.5;}
   @keyframes fade { from { opacity:0; transform:translateY(4px); } to { opacity:1; transform:none; } }
 
   /* ── HEADINGS ── */
@@ -338,7 +341,7 @@
 
       <!-- ── READINESS CHECK — self-assessment. Deliberately NOT the investor-facing
            data-room completeness signal, and never shown to investors. ── -->
-      <div id="rdy-card" style="display:none;background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--ochre);border-radius:0 0 20px 0;padding:20px;margin-bottom:22px"></div>
+      <div id="rdy-card" style="display:none;background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--ochre);border-radius:var(--radius-card);padding:20px;margin-bottom:22px"></div>
 
       <!-- ── JOURNEY TIMELINE ── -->
       <div class="timeline-card">
@@ -383,6 +386,11 @@
 
       <div class="section-title">Recommended next step</div>
       <div id="ov-nudge"></div>
+
+      <div id="ov-pulse-sec" style="display:none">
+        <div class="section-title" style="margin-top:26px">Monthly check-in</div>
+        <div id="ov-pulse"></div>
+      </div>
     </div>
 
     <!-- ── DATA ROOM ── -->
@@ -474,6 +482,11 @@
           <a class="wb-viewer-ext" id="wb-viewer-ext" href="#" target="_blank" rel="noopener" title="Open in a new tab">Open full ↗</a>
         </div>
         <iframe class="wb-frame" id="wb-frame" title="Interactive module" referrerpolicy="no-referrer"></iframe>
+        <div class="wb-fallback" id="wb-frame-fallback" style="display:none">
+          <div class="wb-fb-title">Open this module in its own tab</div>
+          <div class="wb-fb-sub">It runs best full-screen on this browser. Your dashboard stays open here.</div>
+          <a class="wb-open" href="#" target="_blank" rel="noopener">Open module ↗</a>
+        </div>
       </div>
     </div>
 
@@ -769,6 +782,15 @@ async function bootApp(user){
     document.getElementById('avatar-btn').textContent = (user.email||'?')[0].toUpperCase();
     document.addEventListener('click', (e)=>{ const w=document.getElementById('avatar-wrap'); if(w && !w.contains(e.target)) w.classList.remove('open'); });
     await resolveProfile(user);
+    // First-time founder → play the welcome onboarding once (never for an admin preview).
+    // welcome.html sets welcomed_at + a localStorage guard; ?welcomed=1 is a belt-and-braces
+    // marker so a failed flag write can never cause a redirect loop.
+    if(!PREVIEW && profile && !profile.welcomed_at
+       && !localStorage.getItem('fs_welcomed_'+user.id)
+       && new URLSearchParams(location.search).get('welcomed') !== '1'){
+      location.replace('/welcome.html');
+      return;
+    }
     await loadAll(user);
     sb.auth.refreshSession().catch(()=>{});
   } catch(err){ console.error('[Boot] crash:', err); showToast('Could not load your dashboard — '+err.message,'error'); }
@@ -858,6 +880,8 @@ async function loadAll(user){
   if(company){ try { drFiles = await _pgQuery('data_room_files', 'company_id=eq.'+company.id+'&order=created_at.desc'); } catch(e){} }
   myAssessments = [];
   if(company){ try { myAssessments = await _pgQuery('founder_coach_assessment', 'company_id=eq.'+company.id+'&status=eq.published&select=*'); } catch(e){} }
+  monthlyReports = [];
+  if(company){ try { monthlyReports = await _pgQuery('founder_monthly_reports', 'company_id=eq.'+company.id+'&order=period_month.desc'); } catch(e){} }
 
   // cohorts for the founder's registrations (for the balance-due deadline)
   const cids = [...new Set(myRegs.map(r => r.cohort_id).filter(Boolean))];
@@ -971,6 +995,67 @@ function renderTimeline(){
   }).join('');
 }
 
+// ── Monthly check-in (founder_monthly_reports) — ungated longitudinal spine (Phase 0) ──
+let monthlyReports = [];
+function _pulseMonthKey(d){ d=d||new Date(); return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-01'; }
+function _pulseMonthLabel(key){ try{ return new Date(key+'T00:00:00').toLocaleDateString('en-GB',{month:'long',year:'numeric'}); }catch(e){ return key; } }
+function _pulseMonthsSince(iso){ if(!iso) return 1; const s=new Date(iso), now=new Date(); return Math.max(1,(now.getFullYear()-s.getFullYear())*12+(now.getMonth()-s.getMonth())+1); }
+function _pulseNum(v,asInt){ if(v==null||String(v).trim()==='') return null; const n=Number(String(v).replace(/[^0-9.\-]/g,'')); if(!isFinite(n)) return null; return asInt?Math.round(n):n; }
+function _pulseField(id,label,val){
+  return '<label style="display:block;font-size:12px;color:var(--ink-mid)">'+esc(label)
+    +'<input id="'+id+'" inputmode="numeric" autocomplete="off" value="'+esc(val==null?'':String(val))+'"'
+    +' style="width:100%;margin-top:5px;padding:10px 12px;border:1px solid var(--border);font-family:var(--font);font-size:15px"></label>';
+}
+function renderPulse(){
+  const sec=document.getElementById('ov-pulse-sec'), el=document.getElementById('ov-pulse');
+  if(!el||!sec) return;
+  if(!company){ sec.style.display='none'; el.innerHTML=''; return; }
+  sec.style.display='';
+  const key=_pulseMonthKey();
+  const existing=(monthlyReports||[]).find(r=>String(r.period_month).slice(0,10)===key);
+  const src=existing||(monthlyReports||[])[0]||{};   // prefill this month's entry, else last month's numbers
+  const reported=(monthlyReports||[]).length;
+  const expected=_pulseMonthsSince(company.created_at);
+  const pct=Math.min(100,Math.round(reported/expected*100));
+  el.innerHTML='<div class="card" style="border-left:3px solid #3D4A2E">'
+    +'<div style="display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:8px;margin-bottom:6px">'
+      +'<div style="font-family:var(--display);font-size:19px;font-weight:600">'+esc(_pulseMonthLabel(key))+'</div>'
+      +(reported?('<div style="font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:#3D4A2E">'+reported+' / '+expected+' month'+(expected===1?'':'s')+' · '+pct+'%</div>'):'')
+    +'</div>'
+    +'<div style="font-size:13px;color:var(--ink-mid);line-height:1.5;margin-bottom:14px">Ninety seconds a month. A steady record of your numbers is the strongest signal you can show an investor or lender — reporting discipline they trust more than any single figure.</div>'
+    +'<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">'
+      +_pulseField('pulse-rev','Revenue this month (UGX)',src.revenue_amount)
+      +_pulseField('pulse-cash','Cash on hand (UGX)',src.cash_on_hand)
+      +_pulseField('pulse-cust','Customers',src.customers_count)
+      +_pulseField('pulse-head','Team headcount',src.headcount)
+    +'</div>'
+    +'<textarea id="pulse-notes" placeholder="Anything notable this month? (optional)" style="width:100%;margin-top:12px;min-height:52px;padding:10px 12px;border:1px solid var(--border);font-family:var(--font);font-size:14px;resize:vertical">'+esc(src.notes||'')+'</textarea>'
+    +'<div style="display:flex;align-items:center;gap:14px;margin-top:14px;flex-wrap:wrap">'
+      +'<button class="btn" style="padding:10px 20px;font-size:11px" onclick="savePulse()">'+(existing?'Update':'Save')+' '+esc(_pulseMonthLabel(key))+'</button>'
+      +'<span id="pulse-msg" style="font-size:12px;color:var(--ink-mute,#5A564F)">'+(existing?('Logged '+esc(fmtDate(existing.submitted_at))):'Private to you, your coaches and staff — never shown to investors.')+'</span>'
+    +'</div></div>';
+}
+async function savePulse(){
+  if(!company) return;
+  const key=_pulseMonthKey();
+  const body={ company_id:company.id, period_month:key,
+    revenue_amount:_pulseNum(document.getElementById('pulse-rev').value,false),
+    cash_on_hand:_pulseNum(document.getElementById('pulse-cash').value,false),
+    customers_count:_pulseNum(document.getElementById('pulse-cust').value,true),
+    headcount:_pulseNum(document.getElementById('pulse-head').value,true),
+    notes:(document.getElementById('pulse-notes').value||'').trim()||null,
+    submitted_by:profile.user_id };
+  const existing=(monthlyReports||[]).find(r=>String(r.period_month).slice(0,10)===key);
+  const msg=document.getElementById('pulse-msg'); if(msg) msg.textContent='Saving…';
+  try{
+    if(existing) await _pgWrite('PATCH','founder_monthly_reports','id=eq.'+existing.id,body);
+    else await _pgWrite('POST','founder_monthly_reports','',body);
+    try{ monthlyReports=await _pgQuery('founder_monthly_reports','company_id=eq.'+company.id+'&order=period_month.desc'); }catch(e){}
+    renderPulse();
+    showToast('Saved your '+_pulseMonthLabel(key)+' check-in','success');
+  }catch(e){ if(msg) msg.textContent='Could not save — please try again.'; console.error('[pulse]',e&&e.message); }
+}
+
 function renderOverview(){
   const dr = drReadiness();
   const enrolled = enrolledSet();
@@ -1002,10 +1087,26 @@ function renderOverview(){
 
   const nudgeEl = document.getElementById('ov-nudge');
   if(!hasPaid()){
-    nudgeEl.innerHTML = '<div class="card" style="border-left:3px solid var(--ochre)">'
-      + '<div style="font-family:var(--display);font-size:20px;font-weight:600;margin-bottom:4px">Book your first course</div>'
-      + '<div style="font-size:13px;color:var(--ink-mid);line-height:1.5;margin-bottom:14px">A 10% deposit reserves your place and activates your data room. Explore the five disciplines and choose where to start.</div>'
-      + '<a class="btn" href="/beta/explore/index.html" style="text-decoration:none;display:inline-block">Explore courses</a></div>';
+    // A booking already exists but the deposit hasn't landed — surface the pay action here,
+    // so the seat-hold email CTA (which lands on Overview) resolves to a real button.
+    const pending = myRegs.find(r => !r.deposit_paid);
+    if(pending){
+      const pd = productFor(pending);
+      const holdMs = pending.hold_expires_at ? new Date(pending.hold_expires_at).getTime() : 0;
+      const held   = holdMs && holdMs > Date.now() && !pending.forfeited;
+      nudgeEl.innerHTML = '<div class="card" style="border-left:3px solid var(--terra)">'
+        + '<div style="font-family:var(--display);font-size:20px;font-weight:600;margin-bottom:4px">'+(held?'Complete your deposit':'Reserve your seat')+'</div>'
+        + '<div style="font-size:13px;color:var(--ink-mid);line-height:1.5;margin-bottom:14px">'+esc(pd.label)+' — pay the 10% deposit ('+ugx(pd.deposit)+') to '
+        + (held ? ('secure your held seat'+(holdMs?(' until '+fmtDateLong(new Date(holdMs))):'')) : 'reserve your place')
+        + ' and activate your data room.</div>'
+        + '<button class="btn" onclick="payDeposit('+pending.id+')" style="display:inline-block">Pay deposit</button>'
+        + '<a href="#" onclick="switchTab(\'payments\');return false" style="margin-left:14px;font-size:12px;color:var(--muted);text-decoration:none">View payments →</a></div>';
+    } else {
+      nudgeEl.innerHTML = '<div class="card" style="border-left:3px solid var(--ochre)">'
+        + '<div style="font-family:var(--display);font-size:20px;font-weight:600;margin-bottom:4px">Book your first course</div>'
+        + '<div style="font-size:13px;color:var(--ink-mid);line-height:1.5;margin-bottom:14px">A 10% deposit reserves your place and activates your data room. Explore the five disciplines and choose where to start.</div>'
+        + '<a class="btn" href="/beta/explore/index.html" style="text-decoration:none;display:inline-block">Explore courses</a></div>';
+    }
   } else if(miss){
     const it = miss.it;
     if(it.source==='coach'){
@@ -1023,6 +1124,8 @@ function renderOverview(){
   } else {
     nudgeEl.innerHTML = '<div class="card" style="border-left:3px solid var(--success)"><div style="font-size:13px;color:var(--ink-mid)">Your required documents are all in place. Keep your data room current as your venture evolves.</div></div>';
   }
+
+  renderPulse();
 }
 
 function renderDataRoomLocked(){
@@ -1141,6 +1244,7 @@ async function switchCompany(id){
   company = c;
   try { drFiles = await _pgQuery('data_room_files','company_id=eq.'+company.id+'&order=created_at.desc'); } catch(e){ drFiles=[]; }
   try { myAssessments = await _pgQuery('founder_coach_assessment','company_id=eq.'+company.id+'&status=eq.published&select=*'); } catch(e){ myAssessments=[]; }
+  try { monthlyReports = await _pgQuery('founder_monthly_reports','company_id=eq.'+company.id+'&order=period_month.desc'); } catch(e){ monthlyReports=[]; }
   renderTimeline(); renderOverview(); renderDataRoom();
 }
 
@@ -1383,21 +1487,50 @@ function renderPayments(){
   el.innerHTML = note + (upsell ? upsell + '<div style="height:14px"></div>' : '') + myRegs.map(r => {
     const pd = productFor(r);
     const due = balanceDueDate(r);
-    const overdue = !r.balance_paid && due && due.getTime() < now;
+    // 5-state lifecycle (mirrors registration_status server-side): interest → held → deposit_paid → fully_paid; +expired
+    const holdMs     = r.hold_expires_at ? new Date(r.hold_expires_at).getTime() : 0;
+    const holdActive = !r.deposit_paid && !r.forfeited && holdMs && holdMs > now;   // seat reserved, 72h ticking
+    const holdLapsed = !r.deposit_paid && holdMs && holdMs <= now;                  // hold expired, still a lead
+    const overdue    = r.deposit_paid && !r.balance_paid && due && due.getTime() < now;
     let status;
     if(r.deposit_paid && r.balance_paid) status = ['pill-green','Fully paid'];
-    else if(overdue) status = ['pill-orange','Overdue — at risk'];
+    else if(overdue)        status = ['pill-orange','Overdue — at risk'];
     else if(r.deposit_paid) status = ['pill-orange','Balance due'];
-    else status = ['pill-grey','Unpaid'];
-    const depPart = 'Deposit '+ugx(pd.deposit)+' (10%, non-refundable) — '+(r.deposit_paid?'paid':'due');
+    else if(holdActive)     status = ['pill-orange','Seat held'];
+    else if(holdLapsed)     status = ['pill-grey','Hold expired'];
+    else                    status = ['pill-grey','Reserve your seat'];
+    // Deposit line — surface the 72h deadline while a seat is actively held
+    let depPart;
+    if(r.deposit_paid)      depPart = 'Deposit '+ugx(pd.deposit)+' (10%, non-refundable) — paid';
+    else if(holdActive)     depPart = 'Deposit '+ugx(pd.deposit)+' — seat held until '+fmtDateLong(new Date(holdMs));
+    else if(holdLapsed)     depPart = 'Deposit '+ugx(pd.deposit)+' (10%, non-refundable) — hold lapsed, pay to re-reserve';
+    else                    depPart = 'Deposit '+ugx(pd.deposit)+' (10%, non-refundable) — due to reserve your place';
     const balPart = r.balance_paid ? ('Balance '+ugx(pd.balance)+' — paid')
       : ('Balance '+ugx(pd.balance)+(due ? (' — due by '+fmtDateLong(due)) : ' — due 48h before start'));
-    const payBtn = (!r.balance_paid && pd.balance>0)
-      ? '<button class="btn" style="padding:9px 16px;font-size:10px" onclick="payBalance('+r.id+')">Pay balance</button>' : '';
+    // Deposit must clear before balance (the API rejects balance-before-deposit), so gate the CTA on state.
+    let payBtn = '';
+    if(!r.deposit_paid){
+      const label = holdActive ? 'Pay deposit' : 'Reserve — pay deposit';
+      payBtn = '<button class="btn" style="padding:9px 16px;font-size:10px" onclick="payDeposit('+r.id+')">'+label+'</button>';
+    } else if(!r.balance_paid && pd.balance>0){
+      payBtn = '<button class="btn" style="padding:9px 16px;font-size:10px" onclick="payBalance('+r.id+')">Pay balance</button>';
+    }
     return '<div class="list-row"><div style="flex:1"><div class="list-main">'+esc(pd.label)+' — '+ugx(pd.fee)+'</div>'
       + '<div class="list-sub">'+depPart+' · '+balPart+'</div></div>'
       + '<div style="display:flex;align-items:center;gap:10px">'+payBtn+'<span class="pill '+status[0]+'">'+status[1]+'</span></div></div>';
   }).join('');
+}
+async function payDeposit(regId){
+  const r = myRegs.find(x => x.id === regId); if(!r) return;
+  const phone = await fsPrompt('Enter the MTN/Airtel mobile money number to receive the deposit prompt:', { title:'Pay deposit — reserve your seat', okText:'Send prompt', defaultValue:(profile.phone||profile.whatsapp||'').trim(), placeholder:'+256…' });
+  if(!phone) return;
+  try {
+    const res = await fetch(API_BASE+'/api/payment-request', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({ registrationId:r.id, paymentType:'deposit', phone:phone.trim() }) });
+    let data={}; try { data = await res.json(); } catch(e){}
+    if(res.ok || data.pending){ showToast('Deposit prompt sent to '+phone+' — approve it on your phone. Your seat is held for 72 hours.','success'); pollPayment(r.id, 'deposit'); }
+    else if(res.status===409 && /full/i.test(data.error||'')){ showToast(data.error,'error'); }
+    else { showToast(data.error || 'Mobile money payments go live once ioTec is connected.','info'); }
+  } catch(e){ showToast('Mobile money payments go live once ioTec is connected.','info'); }
 }
 async function payBalance(regId){
   const r = myRegs.find(x => x.id === regId); if(!r) return;
@@ -1512,6 +1645,7 @@ function switchTab(name){
 
 // ── Workbench: self-guided interactive modules ("the pamphlet") ──
 const WB_MODULES=[
+  {disc:'The fundamentals', key:'fluency', title:'Founder Fluency', desc:'How fluent are you in the language founders and investors speak? 15 quick questions, scored by discipline — see where your gaps are.', url:'/modules/fluency/index.html'},
   {disc:'Marketing & Branding', key:'channel-mix', title:'Channel Mix', desc:'Split a marketing budget across channels and see which ones actually buy you growth — and your blended CAC.', url:'/modules/marketing/channel-mix.html'},
   {disc:'Financial Modelling', key:'unit-economics', title:'Unit Economics', desc:'Do you make money on each customer? See LTV, LTV:CAC and how long until a customer pays back.', url:'/modules/financial/unit-economics.html'},
   {disc:'Investment Readiness', key:'cap-table', title:'Cap Table & Dilution', desc:'Add an option pool and funding rounds, and watch how much of the company the founders keep.', url:'/modules/investment/cap-table.html'},
@@ -1541,14 +1675,31 @@ function moduleByKey(key){ return WB_MODULES.find(m=>m.key===key); }
 
 function openModule(key){
   const m=moduleByKey(key); if(!m) return;
+  // Mobile: an embedded frame is cramped (nested scroll, small tap targets), so open the module
+  // full-screen in its own tab. The tap is a user gesture, so window.open isn't popup-blocked.
+  if(window.matchMedia && window.matchMedia('(max-width:700px)').matches){
+    window.open(m.url,'_blank','noopener'); return;
+  }
   document.getElementById('wb-viewer-title').textContent=m.title;
   document.getElementById('wb-viewer-ext').href=m.url;
-  document.getElementById('wb-frame').src=m.url;
+  const fb=document.getElementById('wb-frame-fallback'); if(fb) fb.style.display='none';
+  const f=document.getElementById('wb-frame');
+  f.style.display='block';
+  f.src=m.url;
   document.getElementById('wb-browse').style.display='none';
   document.getElementById('wb-viewer').style.display='block';
   if(!wbOpen){ try{ history.pushState({wbModule:key},''); }catch(e){} }
   wbOpen=true;
   window.scrollTo({top:0,behavior:'smooth'});
+  // Resilience: if the frame is blocked (e.g. a CSP frame-src missing 'self'), it stays a blank
+  // about:blank. Detect the empty frame and offer a one-tap "open in its own tab" instead.
+  clearTimeout(f._blankChk);
+  f._blankChk=setTimeout(function(){
+    let blocked=false;
+    try{ const d=f.contentDocument; if(!d || !d.body || d.body.children.length===0) blocked=true; }
+    catch(e){ blocked=true; }
+    if(blocked && fb){ f.style.display='none'; const a=fb.querySelector('a'); if(a) a.href=m.url; fb.style.display='flex'; }
+  }, 1500);
 }
 
 // silent=true skips the history.back() (used on tab re-entry / browser back)
@@ -1557,7 +1708,8 @@ function closeModule(silent){
   const wasOpen=wbOpen; wbOpen=false;
   v.style.display='none';
   const b=document.getElementById('wb-browse'); if(b) b.style.display='';
-  const f=document.getElementById('wb-frame'); if(f) f.src='about:blank';  // stop the module
+  const fb=document.getElementById('wb-frame-fallback'); if(fb) fb.style.display='none';
+  const f=document.getElementById('wb-frame'); if(f){ clearTimeout(f._blankChk); f.style.display='block'; f.src='about:blank'; }  // stop the module
   if(wasOpen && !silent && history.state && history.state.wbModule){ try{ history.back(); }catch(e){} }
 }
 
