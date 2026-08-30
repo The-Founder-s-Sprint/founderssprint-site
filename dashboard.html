@@ -4126,18 +4126,16 @@ function switchDirTab(name) {
 // ── Directory traffic-based rate card ────────────────────────────────────────
 let rateCardLive = null, rateBands = [], clickoutData = null;
 async function loadRateCard() {
-  try {
-    const [rateRes, bands, coRes] = await Promise.all([
-      sb.rpc('directory_current_rate'),
-      _pgQuery('directory_rate_bands', 'select=*&order=sort').catch(() => []),
-      sb.rpc('directory_clickouts', { p_days: 30 }).catch(() => ({ data: null })),
-    ]);
-    rateCardLive = (rateRes && rateRes.data) || null;
-    rateBands = bands || [];
-    clickoutData = (coRes && coRes.data) || null;
-  } catch (e) {
-    console.error('loadRateCard:', e); rateCardLive = null; rateBands = []; clickoutData = null;
-  }
+  // Use the proven /sb-proxy helpers (_pgRpc/_pgQuery) — the same path the Overview
+  // analytics use. Each call is guarded so one failure can't blank the whole panel.
+  const [rate, bands, co] = await Promise.all([
+    _pgRpc('directory_current_rate').catch(e => { console.error('rate:', e); return null; }),
+    _pgQuery('directory_rate_bands', 'select=*&order=sort').catch(e => { console.error('bands:', e); return []; }),
+    _pgRpc('directory_clickouts', { p_days: 30 }).catch(e => { console.error('clickouts:', e); return null; }),
+  ]);
+  rateCardLive = rate || null;
+  rateBands = bands || [];
+  clickoutData = co || null;
   renderRateCard();
   renderClickouts();
 }
