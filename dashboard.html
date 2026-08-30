@@ -4581,6 +4581,7 @@ function renderListings() {
         <div class="dir-card-actions">
           <button onclick="editProvider('${p.id}')">Edit</button>
           <button onclick="toggleProviderStatus('${p.id}', '${p.status === 'active' ? 'paused' : 'active'}')">${p.status === 'active' ? 'Pause' : 'Activate'}</button>
+          ${p.tier && p.tier !== 'basic' ? `<button onclick="sendRenewLink('${p.id}')" title="Email the provider a payment-gated renewal link">Renew link</button>` : ''}
           <button class="btn-remove" onclick="removeProvider('${p.id}')">Remove</button>
         </div>
       </div>
@@ -4783,6 +4784,23 @@ async function toggleProviderStatus(id, newStatus) {
   if (error) { showToast('Failed: ' + error.message, 'error'); return; }
   showToast(`Provider ${newStatus === 'active' ? 'activated' : 'paused'}`, 'success');
   await loadDirectoryData();
+}
+
+// Mint + email a payment-gated renewal link (admin/finance). The provider pays the live
+// rate-card price via ioTec; the webhook reactivates the listing.
+async function sendRenewLink(id) {
+  try {
+    const token = await _getValidToken();
+    const res = await fetch(`${API_BASE}/api/directory/send-renew-link`, {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' },
+      body: JSON.stringify({ providerId: id }),
+    });
+    const d = await res.json().catch(() => ({}));
+    if (!res.ok) { showToast('Failed: ' + (d.error || res.status), 'error'); return; }
+    showToast(d.emailed ? 'Renewal link emailed to the provider' : 'Renewal link created (no email on file)', 'success');
+    if (d.link) { try { await navigator.clipboard.writeText(d.link); showToast('Link copied to clipboard', 'info'); } catch (e) {} }
+  } catch (e) { showToast('Failed: ' + (e.message || e), 'error'); }
 }
 
 async function removeProvider(id) {

@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Renew your listing · The Founder's Sprint</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;1,400&family=Josefin+Sans:wght@400;500;600;700&family=Inter:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1A1A1A; --paper:#EFE7D8; --paper-2:#f6f1e7; --terra:#C8531F; --terra-d:#9A3E16;
+    --ochre:#C9923A; --moss:#3D4A2E; --muted:#7a736a; --line:rgba(26,26,26,.14);
+    --sans:'Josefin Sans',sans-serif; --display:'Cormorant Garamond',Georgia,serif; --body:'Inter',Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--paper);color:var(--ink);font-family:var(--body);-webkit-font-smoothing:antialiased;line-height:1.6}
+  .hero{background:#0f0d0a;color:var(--paper);padding:34px 22px 30px;text-align:center}
+  .eyebrow{font-family:var(--sans);font-size:10.5px;font-weight:700;letter-spacing:.24em;text-transform:uppercase;color:var(--ochre)}
+  .hero h1{font-family:var(--display);font-style:italic;font-weight:400;font-size:32px;margin:8px 0 0;line-height:1.1}
+  .wrap{max-width:520px;margin:-16px auto 40px;padding:0 18px}
+  .card{background:#fff;border:1px solid var(--line);border-radius:0 0 24px 0;padding:26px 22px;box-shadow:0 18px 50px rgba(26,26,26,.08)}
+  .co{font-family:var(--display);font-size:26px;font-weight:600;line-height:1.1;margin:0}
+  .tier{font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--terra);margin-top:4px}
+  .reach{margin:16px 0;padding:14px 16px;background:var(--paper-2);border-left:3px solid var(--ochre);font-size:13.5px;color:#4a463f}
+  .reach strong{color:var(--ink)}
+  .price-row{display:flex;align-items:baseline;justify-content:space-between;margin:18px 0 4px;padding-top:16px;border-top:1px solid var(--line)}
+  .price-row .lbl{font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .price{font-family:var(--display);font-size:34px;font-weight:600;line-height:1}
+  .term{font-size:12px;color:var(--muted);margin-bottom:20px}
+  .seg{display:flex;gap:8px;margin:0 0 16px}
+  .seg button{flex:1;padding:11px;font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;background:#fff;border:1px solid var(--line);color:var(--ink);cursor:pointer}
+  .seg button.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+  label{display:block;font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);margin:0 0 6px}
+  input{width:100%;padding:12px 14px;border:1px solid var(--line);font-family:var(--body);font-size:15px;color:var(--ink);background:#fff}
+  input:focus{outline:none;border-color:var(--terra)}
+  .btn{width:100%;margin-top:18px;padding:15px;font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;background:var(--terra);color:var(--paper);border:none;cursor:pointer;transition:background .15s}
+  .btn:hover{background:var(--terra-d)}
+  .btn:disabled{opacity:.55;cursor:default}
+  .msg{margin-top:16px;font-size:13.5px;line-height:1.6}
+  .msg.ok{color:var(--moss)} .msg.err{color:var(--terra-d)}
+  .spin{display:inline-block;width:14px;height:14px;border:2px solid rgba(26,26,26,.2);border-top-color:var(--terra);border-radius:50%;animation:sp .7s linear infinite;vertical-align:-2px;margin-right:6px}
+  @keyframes sp{to{transform:rotate(360deg)}}
+  .center{text-align:center}
+  .foot{text-align:center;font-size:11px;color:var(--muted);margin-top:20px}
+  .hide{display:none}
+</style>
+</head>
+<body>
+  <div class="hero">
+    <div class="eyebrow">◇ The Founder's Sprint · Directory</div>
+    <h1>Renew your listing</h1>
+  </div>
+  <div class="wrap">
+    <div class="card" id="card">
+      <div class="center" id="loading"><span class="spin"></span> Loading your renewal…</div>
+
+      <div id="detail" class="hide">
+        <h2 class="co" id="co">—</h2>
+        <div class="tier" id="tier">—</div>
+        <div class="reach" id="reach"></div>
+        <div class="price-row"><span class="lbl">Renewal</span><span class="price" id="price">—</span></div>
+        <div class="term" id="term"></div>
+
+        <div class="seg">
+          <button id="seg-momo" class="on" onclick="setMethod('mobile_money')">Mobile Money</button>
+          <button id="seg-card" onclick="setMethod('card')">Card</button>
+        </div>
+
+        <div id="f-momo">
+          <label for="phone">MTN / Airtel number</label>
+          <input id="phone" type="tel" inputmode="tel" placeholder="+256…" autocomplete="tel">
+        </div>
+        <div id="f-card" class="hide">
+          <label for="email">Email for the card receipt</label>
+          <input id="email" type="email" inputmode="email" placeholder="you@company.com" autocomplete="email">
+        </div>
+
+        <button class="btn" id="pay" onclick="pay()">Pay &amp; renew</button>
+        <div class="msg" id="msg"></div>
+      </div>
+
+      <div id="done" class="hide center">
+        <div style="font-size:40px;line-height:1;margin-bottom:8px">✓</div>
+        <h2 class="co" id="done-co">Listing renewed</h2>
+        <div class="msg ok" id="done-msg" style="margin-top:8px"></div>
+      </div>
+
+      <div id="bad" class="hide center">
+        <div style="font-size:34px;line-height:1;margin-bottom:8px">⚠</div>
+        <div class="msg err" id="bad-msg">This renewal link is invalid or has already been used.</div>
+        <div class="foot">Need a new link? Email <a href="mailto:hello@founderssprint.co" style="color:var(--terra-d)">hello@founderssprint.co</a>.</div>
+      </div>
+    </div>
+    <div class="foot">Payments are processed securely via ioTec Pay (MTN, Airtel &amp; card).</div>
+  </div>
+
+<script>
+  var API = '';
+  var q = new URLSearchParams(location.search);
+  var P = q.get('p'), T = q.get('t'), method = 'mobile_money', ctx = null, poller = null;
+  var $ = function(id){ return document.getElementById(id); };
+
+  function show(which){ ['loading','detail','done','bad'].forEach(function(x){ $(x).classList.toggle('hide', x!==which); }); }
+  function fmtUgx(n){ return 'UGX ' + Number(n||0).toLocaleString(); }
+
+  function setMethod(m){
+    method = m;
+    $('seg-momo').classList.toggle('on', m==='mobile_money');
+    $('seg-card').classList.toggle('on', m==='card');
+    $('f-momo').classList.toggle('hide', m!=='mobile_money');
+    $('f-card').classList.toggle('hide', m!=='card');
+  }
+
+  async function loadContext(){
+    if(!P || !T){ show('bad'); return; }
+    try{
+      var r = await fetch(API + '/api/directory/renew-context?p=' + encodeURIComponent(P) + '&t=' + encodeURIComponent(T));
+      var d = await r.json();
+      if(!r.ok){ $('bad-msg').textContent = d.error || 'This renewal link is invalid or has already been used.'; show('bad'); return; }
+      ctx = d;
+      $('co').textContent = d.company_name;
+      $('tier').textContent = d.tier_label;
+      $('price').textContent = fmtUgx(d.amount);
+      $('term').textContent = 'Extends your listing by ' + d.months + ' months.';
+      $('reach').innerHTML = "You're reaching <strong>~" + Number(d.monthly_reach||0).toLocaleString() + " founders a month</strong> right now (" + (d.band_label||'') + " tier) — that audience sets today's rate.";
+      show('detail');
+      if(q.get('paid') === '1'){ $('msg').innerHTML = '<span class="spin"></span> Confirming your payment…'; startPolling(); }
+    }catch(e){ $('bad-msg').textContent = 'Could not load your renewal. Please try again.'; show('bad'); }
+  }
+
+  async function pay(){
+    var body = { providerId: P, token: T, method: method };
+    if(method === 'mobile_money'){
+      var phone = $('phone').value.trim();
+      if(!phone){ msg('Enter your mobile money number.', 'err'); return; }
+      body.phone = phone;
+    } else {
+      var email = $('email').value.trim();
+      if(!email){ msg('Enter an email for the card receipt.', 'err'); return; }
+      body.email = email;
+    }
+    $('pay').disabled = true;
+    msg('<span class="spin"></span> Starting payment…', '');
+    try{
+      var r = await fetch(API + '/api/directory/renew', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) });
+      var d = await r.json();
+      if(d.method === 'card' && d.redirectUrl){ window.location = d.redirectUrl; return; }
+      if(r.ok || d.pending){
+        msg('<span class="spin"></span> Prompt sent to your phone — approve it to renew. This page updates automatically.', '');
+        startPolling();
+      } else {
+        $('pay').disabled = false;
+        msg(d.error || 'Could not start the payment. Please try again.', 'err');
+      }
+    }catch(e){ $('pay').disabled = false; msg('Could not start the payment. Please try again.', 'err'); }
+  }
+
+  function startPolling(){
+    if(poller) return;
+    var tries = 0;
+    poller = setInterval(async function(){
+      if(++tries > 40){ clearInterval(poller); poller=null; $('pay').disabled=false; msg('Still waiting on confirmation. If you paid, your listing will update shortly — you can close this page.', ''); return; }
+      try{
+        var r = await fetch(API + '/api/directory/renew-status?p=' + encodeURIComponent(P) + '&t=' + encodeURIComponent(T));
+        var d = await r.json();
+        if(d && d.status === 'success'){
+          clearInterval(poller); poller=null;
+          $('done-co').textContent = 'You’re renewed';
+          $('done-msg').textContent = (ctx ? ctx.company_name + ' is live again' : 'Your listing is live again') + (d.expires_at ? ' through ' + new Date(d.expires_at).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'}) : '') + '. Thank you for supporting our founders.';
+          show('done');
+        } else if(d && (d.status === 'failed' || d.status === 'discrepancy')){
+          clearInterval(poller); poller=null; $('pay').disabled=false;
+          msg(d.status==='failed' ? 'That payment didn’t go through — please try again.' : 'We’re reviewing your payment. We’ll be in touch shortly.', 'err');
+        }
+      }catch(e){}
+    }, 5000);
+  }
+  function msg(html, cls){ var m=$('msg'); m.className='msg'+(cls?' '+cls:''); m.innerHTML=html; }
+
+  loadContext();
+</script>
+</body>
+</html>
