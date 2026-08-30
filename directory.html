@@ -260,6 +260,7 @@ section, footer, nav { position: relative; z-index: 2; }
 .dx-vpill svg{width:9px;height:9px;}
 .dx-fdesc{font-size:13px;color:var(--muted);line-height:1.5;margin:10px 0 14px;}
 .dx-cta{display:flex;gap:8px;flex-wrap:wrap;}
+.dx-ficons{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
 .dx-abtn{flex:1;min-width:96px;text-align:center;font-family:var(--sans);font-size:9.5px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;padding:9px 10px;border:1px solid var(--line);cursor:pointer;background:var(--paper);color:var(--ink);text-decoration:none;transition:all .15s;}
 .dx-abtn:hover{border-color:var(--terra);color:var(--terra);}
 .dx-abtn.pri{background:var(--terra);color:#fff;border-color:var(--terra);}
@@ -661,11 +662,20 @@ function rowActions(p){
   return h;
 }
 function featuredCta(p){
-  var w = normUrl(p.website), h = '';
-  if (p.email)      h += '<a class="dx-abtn pri" href="mailto:' + esc(p.email) + '" data-pid="' + p.id + '" data-ctx="email">Contact</a>';
-  else if (p.phone) h += '<a class="dx-abtn pri" href="https://wa.me/' + formatWhatsApp(p.phone) + '" target="_blank" rel="noopener" data-pid="' + p.id + '" data-ctx="whatsapp">Message</a>';
-  if (w)            h += '<a class="dx-abtn" href="' + esc(w) + '" target="_blank" rel="noopener" data-pid="' + p.id + '" data-ctx="website">Website ↗</a>';
-  return h || '<span style="font-size:12px;color:var(--stone);font-style:italic">No contact listed</span>';
+  var w = normUrl(p.website), ph = p.phone ? String(p.phone) : '', h = '';
+  // One prominent primary CTA (email preferred, else WhatsApp) for the premium card…
+  var primary = p.email ? 'email' : (ph ? 'whatsapp' : null);
+  if (primary === 'email')    h += '<a class="dx-abtn pri" href="mailto:' + esc(p.email) + '" data-pid="' + p.id + '" data-ctx="email">Contact</a>';
+  else if (primary === 'whatsapp') h += '<a class="dx-abtn pri" href="https://wa.me/' + formatWhatsApp(ph) + '" target="_blank" rel="noopener" data-pid="' + p.id + '" data-ctx="whatsapp">Message</a>';
+  if (w)                      h += '<a class="dx-abtn" href="' + esc(w) + '" target="_blank" rel="noopener" data-pid="' + p.id + '" data-ctx="website">Website ↗</a>';
+  // …plus an icon strip for every remaining channel, so featured cards match list rows.
+  var icons = '';
+  if (w)                            icons += iconLink(esc(w), '', LINK_ICON, p.id, 'website', true);
+  if (p.email && primary !== 'email')     icons += iconLink('mailto:' + esc(p.email), '', MAIL_ICON, p.id, 'email', false);
+  if (ph)                           icons += iconLink('tel:' + esc(ph.replace(/\s/g,'')), '', PHONE_ICON, p.id, 'call', false);
+  if (ph && primary !== 'whatsapp') icons += iconLink('https://wa.me/' + formatWhatsApp(ph), 'wa', WA_ICON, p.id, 'whatsapp', true);
+  if (!h && !icons) return '<span style="font-size:12px;color:var(--stone);font-style:italic">No contact listed</span>';
+  return (h ? '<div class="dx-cta">' + h + '</div>' : '') + (icons ? '<div class="dx-ficons">' + icons + '</div>' : '');
 }
 
 function featuredCard(p){
@@ -676,7 +686,7 @@ function featuredCard(p){
       '<span class="dx-cat" style="color:' + catColor(cat) + '">' + catLabel(cat) + '</span></div></div>' +
       '<div>' + VPILL + '</div>' +
       (p.description ? '<div class="dx-fdesc">' + esc(p.description) + '</div>' : '<div class="dx-fdesc"></div>') +
-      '<div class="dx-cta">' + featuredCta(p) + '</div></div></div>';
+      featuredCta(p) + '</div></div>';
 }
 
 function providerRow(p){
