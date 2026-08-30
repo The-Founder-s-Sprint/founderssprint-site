@@ -1162,6 +1162,15 @@ html[data-theme="dark"]{
           Listing prices scale with proven site traffic — a defensible basis you can put in front of advertisers. The live rate is computed from the last 30 days of visitor data (the <code>total</code> pageview series) and is the price the public apply &amp; renewal pages quote. Edit a band's prices below; the thresholds are fixed for now.
         </div>
         <div id="rc-bands"><div class="loading">Loading…</div></div>
+
+        <div class="section-head" style="margin:28px 0 8px">
+          <span class="section-title">Directory Click-outs · Last 30 Days</span>
+          <span id="co-total" style="font-size:12px;color:var(--muted)"></span>
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:14px;line-height:1.6;max-width:680px">
+          How many founders tapped through to a provider's contact channels — the engagement you're selling. Counts email, website, WhatsApp and call click-outs from the public directory.
+        </div>
+        <div id="rc-clickouts"><div class="loading">Loading…</div></div>
       </div>
 
       <!-- Active Listings sub-panel -->
@@ -4115,19 +4124,52 @@ function switchDirTab(name) {
 }
 
 // ── Directory traffic-based rate card ────────────────────────────────────────
-let rateCardLive = null, rateBands = [];
+let rateCardLive = null, rateBands = [], clickoutData = null;
 async function loadRateCard() {
   try {
-    const [rateRes, bands] = await Promise.all([
+    const [rateRes, bands, coRes] = await Promise.all([
       sb.rpc('directory_current_rate'),
       _pgQuery('directory_rate_bands', 'select=*&order=sort').catch(() => []),
+      sb.rpc('directory_clickouts', { p_days: 30 }).catch(() => ({ data: null })),
     ]);
     rateCardLive = (rateRes && rateRes.data) || null;
     rateBands = bands || [];
+    clickoutData = (coRes && coRes.data) || null;
   } catch (e) {
-    console.error('loadRateCard:', e); rateCardLive = null; rateBands = [];
+    console.error('loadRateCard:', e); rateCardLive = null; rateBands = []; clickoutData = null;
   }
   renderRateCard();
+  renderClickouts();
+}
+function renderClickouts() {
+  const el = document.getElementById('rc-clickouts'), tot = document.getElementById('co-total');
+  const d = clickoutData;
+  if (!d) { if (el) el.innerHTML = '<div class="loading">No data yet.</div>'; if (tot) tot.textContent = ''; return; }
+  const bc = d.by_channel || {};
+  if (tot) tot.textContent = (d.total || 0) + ' total click-outs';
+  const tile = 'flex:1;min-width:120px;border:1px solid var(--border);border-radius:0 0 14px 0;padding:14px 16px;background:var(--card-bg)';
+  const tiles = [['Email', 'email'], ['Website', 'website'], ['WhatsApp', 'whatsapp'], ['Call', 'call']].map(t =>
+    '<div style="' + tile + '"><div style="font-family:var(--sans);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)">' + t[0] + '</div>'
+    + '<div style="font-family:var(--display);font-size:30px;font-weight:600;color:var(--ochre);line-height:1.1;margin-top:2px">' + (bc[t[1]] || 0) + '</div></div>').join('');
+  const rows = d.by_provider || [];
+  const cell = 'padding:8px 10px;border-bottom:1px solid var(--border);font-size:13px';
+  let table;
+  if (rows.length) {
+    table = '<table style="width:100%;border-collapse:collapse;margin-top:16px"><thead><tr>'
+      + ['Provider', 'Email', 'Website', 'WhatsApp', 'Call', 'Total'].map((x, i) => '<th style="text-align:' + (i === 0 ? 'left' : 'right') + ';padding:8px 10px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border-hi)">' + x + '</th>').join('')
+      + '</tr></thead><tbody>'
+      + rows.map(r => '<tr>'
+        + '<td style="' + cell + '">' + esc(r.company_name || '—') + '</td>'
+        + '<td style="' + cell + ';text-align:right">' + (r.email || 0) + '</td>'
+        + '<td style="' + cell + ';text-align:right">' + (r.website || 0) + '</td>'
+        + '<td style="' + cell + ';text-align:right">' + (r.whatsapp || 0) + '</td>'
+        + '<td style="' + cell + ';text-align:right">' + (r.call || 0) + '</td>'
+        + '<td style="' + cell + ';text-align:right;font-weight:700;color:var(--ochre)">' + (r.clicks || 0) + '</td></tr>').join('')
+      + '</tbody></table>';
+  } else {
+    table = '<div style="font-size:12px;color:var(--muted);margin-top:14px;font-style:italic">No click-outs recorded yet — this fills in as founders tap providers’ contact buttons.</div>';
+  }
+  el.innerHTML = '<div style="display:flex;gap:10px;flex-wrap:wrap">' + tiles + '</div>' + table;
 }
 function rcUgx(n) { return (n === null || n === undefined || n === '') ? '—' : 'UGX ' + Number(n).toLocaleString(); }
 function renderRateCard() {

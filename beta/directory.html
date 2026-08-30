@@ -741,9 +741,12 @@ function render(){
 function logImpression(pid, ctx){
   if (!pid) return;
   try {
-    fetch(SUPABASE_URL + '/rest/v1/provider_impressions', { method:'POST',
-      headers:{ 'apikey':SUPABASE_ANON_KEY, 'Authorization':'Bearer '+SUPABASE_ANON_KEY, 'Content-Type':'application/json', 'Prefer':'return=minimal' },
-      body: JSON.stringify({ provider_id: pid, surface: 'directory', context: String(ctx||'').slice(0,80), clicked: true }) });
+    // Route via the same-origin /db proxy (direct *.supabase.co is CSP-blocked). The
+    // worker injects the anon key and allowlists provider_impressions POST.
+    fetch((typeof DATA_BASE !== 'undefined' ? DATA_BASE : '/db') + '/rest/v1/provider_impressions', { method:'POST',
+      headers:{ 'Content-Type':'application/json', 'Prefer':'return=minimal' },
+      body: JSON.stringify({ provider_id: pid, surface: 'directory', context: String(ctx||'').slice(0,80), clicked: true }),
+      keepalive: true }).catch(function(){});
   } catch (e) {}
 }
 
