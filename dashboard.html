@@ -3445,6 +3445,9 @@ function cancelDocUpload() {
   selectedFile = null;
   document.getElementById('doc-form').style.display = 'none';
   document.getElementById('doc-file-input').value = '';
+  // Clear the text fields so the next upload starts blank (title + description).
+  var _dn = document.getElementById('doc-name'); if (_dn) _dn.value = '';
+  var _dd = document.getElementById('doc-desc'); if (_dd) _dd.value = '';
   document.getElementById('drop-zone').querySelector('p').textContent = 'Click or drag & drop a file to upload';
 }
 
