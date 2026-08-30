@@ -11,8 +11,11 @@
 <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600;1,700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="/vendor/supabase-js.min.js?v=2110"></script>
 <script>window.supabase||document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"><\/script>')</script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
-<script src="ui-dialogs.js?v=2"></script>
+<!-- Vendored same-origin (site CSP script-src is 'self' + unpkg only — jsdelivr is blocked; local also survives CDN outages) -->
+<script src="/vendor/chart.umd.min.js?v=1"></script>
+<script src="/vendor/d3.min.js?v=1"></script>
+<script src="/vendor/topojson-client.min.js?v=1"></script>
+<script src="ui-dialogs.js?v=3"></script>
 <style>
   :root {
     /* FS Design System — core tokens */
@@ -28,6 +31,7 @@
     --paper-mid:   #C0B8A8;
     --paper-dim:   #A09888;
     --paper-deep:  #E6DCC7;
+    --radius-card: 0 0 24px 0;   /* signature bottom-right corner (matches all portals) */
     --text:        #1A1A1A;
     --muted:       #5A564F;
     --border:      rgba(26,26,26,0.18);
@@ -126,12 +130,11 @@
 
   /* ── TOPBAR ── */
   .topbar {
-    background: rgba(245,237,216,0.97);
-    border-bottom: 1px solid var(--border);
+    background: #15161A;
+    border-bottom: 1px solid #2A2C33;
     padding: 0 32px; height: 56px;
     display: flex; align-items: center; justify-content: space-between;
     position: sticky; top: 0; z-index: 100;
-    backdrop-filter: blur(20px);
   }
   .topbar-left { display: flex; align-items: center; gap: 16px; }
   .topbar-mark {
@@ -142,12 +145,12 @@
   .topbar-logo {
     font-family: var(--sans);
     font-size: 10px; letter-spacing: 3px; text-transform: uppercase;
-    color: var(--terra);
+    color: #EFE7D8;
   }
-  .topbar-sep { width: 1px; height: 20px; background: var(--border-hi); }
-  .topbar-sub { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+  .topbar-sep { width: 1px; height: 20px; background: #33353D; }
+  .topbar-sub { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--ochre); }
   .topbar-right { display: flex; align-items: center; gap: 16px; }
-  .topbar-user { font-family: var(--body); font-size: 11px; color: var(--muted); }
+  .topbar-user { font-family: var(--body); font-size: 11px; color: #A8A498; }
   #dash-avatar-wrap.open #dash-avatar-dropdown { display: block !important; }
   #dash-avatar-dropdown a:hover { background: var(--surface); }
   .btn-signout {
@@ -160,23 +163,23 @@
 
   /* ── TABS ── */
   .tabs-wrap {
-    background: var(--surface);
-    border-bottom: 1px solid var(--border);
+    background: #1B1C21;
+    border-bottom: 1px solid #2A2C33;
     padding: 0 32px;
     display: flex; align-items: stretch;
     gap: 0;
   }
   .tab {
     background: none; border: none; border-bottom: 3px solid transparent;
-    color: var(--muted); cursor: pointer;
+    color: #9A968C; cursor: pointer;
     padding: 16px 24px 13px;
     font-family: var(--font); font-size: 10px;
     letter-spacing: 2.5px; text-transform: uppercase; font-weight: 600;
     transition: all 0.2s; margin-bottom: -1px;
     position: relative;
   }
-  .tab:hover { color: var(--text); }
-  .tab.active { color: var(--gold); border-bottom-color: var(--gold); }
+  .tab:hover { color: #EDE7DA; }
+  .tab.active { color: #fff; border-bottom-color: var(--ochre); }
 
   /* ── MAIN ── */
   .main { padding: 32px; max-width: 1500px; margin: 0 auto; }
@@ -195,6 +198,7 @@
     border-top: 2px solid var(--card-accent, var(--terra));
     padding: 22px 20px 18px;
     position: relative;
+    border-radius: var(--radius-card);
   }
   .stat-card:nth-child(1) { --card-accent: var(--terra); }
   .stat-card:nth-child(2) { --card-accent: var(--ochre); }
@@ -278,6 +282,9 @@
   .badge-oneonone { background: rgba(200,83,31,0.10); color: var(--gold);   border: 1px solid rgba(200,83,31,0.25); }
   .badge-vip      { background: rgba(230,57,70,0.10);  color: #C62D3A;      border: 1px solid rgba(230,57,70,0.25); }
   .badge-forfeited{ background: rgba(100,100,100,0.08); color: #888;         border: 1px solid rgba(100,100,100,0.18); }
+  .badge-held     { background: rgba(201,146,58,0.14);  color: var(--gold);   border: 1px solid rgba(201,146,58,0.32); }
+  .badge-expired  { background: rgba(119,119,112,0.10); color: #9A9488;       border: 1px solid rgba(119,119,112,0.22); }
+  .badge-interest { background: rgba(138,171,92,0.10);  color: var(--moss);   border: 1px solid rgba(138,171,92,0.22); }
 
   /* action buttons */
   .action-btn {
@@ -300,6 +307,7 @@
     border: 1px solid var(--border);
     padding: 28px 24px 24px;
     position: relative;
+    border-radius: var(--radius-card);
   }
 
   .chart-header {
@@ -320,6 +328,20 @@
 
   /* wide revenue chart */
   .chart-card-wide { margin-bottom: 28px; }
+  /* Site-traffic breakdown: 5 responsive columns → 3 → 2 as width tightens */
+  .tr-cols { grid-template-columns: repeat(5, minmax(0, 1fr)); align-items: start; }
+  @media (max-width: 1200px) { .tr-cols { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (max-width: 720px)  { .tr-cols { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+  @media (max-width: 760px)  { .tr-geo-grid { grid-template-columns: 1fr !important; } }
+  /* Traffic header: compressed 2×2 stat grid on the left, daily-views chart filling the right */
+  .tr-top { display: grid; grid-template-columns: minmax(300px, 360px) 1fr; gap: 22px; align-items: start; margin: 4px 0 22px; }
+  .tr-stats { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .tr-stats .stat-card { padding: 14px 16px 12px; }
+  .tr-stats .stat-label { margin-bottom: 7px; }
+  .tr-stats .stat-value { font-size: 29px; }
+  .tr-chartwrap { display: flex; flex-direction: column; min-width: 0; justify-content: flex-end; }
+  .tr-chartwrap #tr-trend { height: 132px; }   /* explicit height so the % bar heights resolve reliably */
+  @media (max-width: 900px) { .tr-top { grid-template-columns: 1fr; } .tr-chartwrap #tr-trend { height: 72px; } }
 
   /* ══ REVENUE ══════════════════════════════════════════════════════════════ */
   .revenue-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
@@ -714,7 +736,7 @@
     <div class="topbar-right">
       <span class="topbar-user" id="user-email"></span>
       <div style="position:relative" id="dash-avatar-wrap">
-        <button onclick="document.getElementById('dash-avatar-wrap').classList.toggle('open')" style="width:34px;height:34px;border-radius:50%;border:2px solid var(--border);background:var(--surface);cursor:pointer;overflow:hidden;padding:0;display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-size:12px;font-weight:700;color:var(--muted)" id="dash-avatar-btn">?</button>
+        <button onclick="document.getElementById('dash-avatar-wrap').classList.toggle('open')" style="width:34px;height:34px;border-radius:50%;border:2px solid #3A3C44;background:#22242B;cursor:pointer;overflow:hidden;padding:0;display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-size:12px;font-weight:700;color:#EDE7DA" id="dash-avatar-btn">?</button>
         <div id="dash-avatar-dropdown" style="display:none;position:absolute;top:42px;right:0;background:var(--card);border:1px solid var(--border);min-width:200px;z-index:999;padding:8px 0;box-shadow:0 8px 24px rgba(0,0,0,0.08)">
           <div style="padding:8px 16px 10px;font-family:var(--body);font-size:11px;color:var(--muted);border-bottom:1px solid var(--border);margin-bottom:4px" id="dash-avatar-email"></div>
           <a href="#" onclick="showChangePassword();document.getElementById('dash-avatar-wrap').classList.remove('open');return false" style="display:block;padding:10px 16px;font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--text);text-decoration:none">Change Password</a>
@@ -735,6 +757,7 @@
     <button class="tab" onclick="switchTab('pricing')">Pricing</button>
     <button class="tab" onclick="switchTab('capital')">Founder Capital</button>
     <a class="tab" href="/admin-portals.html" style="text-decoration:none" title="Coach roster, applications & materials live in the Coaches Portal">Coaches ↗</a>
+    <a class="tab" href="/express-admin.html" style="text-decoration:none" title="Beta express 1:1 sessions — confirm payment & send the Meet link">Express ↗</a>
   </div>
 
   <div class="main">
@@ -797,8 +820,14 @@
 
       <div class="stats-grid" id="stats-grid">
         <div class="stat-card">
-          <div class="stat-label">Total Registrations</div>
+          <div class="stat-label">Founder Accounts</div>
+          <div class="stat-value" id="stat-accounts">—</div>
+          <div class="stat-sub" id="stat-accounts-sub"></div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Coaching Registrations</div>
           <div class="stat-value" id="stat-total">—</div>
+          <div class="stat-sub" id="stat-total-sub"></div>
         </div>
         <div class="stat-card">
           <div class="stat-label">Revenue Collected</div>
@@ -821,6 +850,61 @@
         <div class="stat-card">
           <div class="stat-label">Deposit Only</div>
           <div class="stat-value orange" id="stat-depositonly">—</div>
+        </div>
+      </div>
+
+      <!-- ── Site Traffic (first-party, cookieless — page_views + admin_site_traffic) ── -->
+      <div class="chart-card chart-card-wide" id="traffic-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Site Traffic <span style="font-weight:400;opacity:.45;font-size:12px">· last 30 days</span></div>
+            <div class="chart-title-accent"></div>
+          </div>
+          <div id="traffic-status" style="font-size:11px;opacity:.55;letter-spacing:.04em"></div>
+        </div>
+        <div class="tr-top">
+          <div class="tr-stats">
+            <div class="stat-card"><div class="stat-label">Page Views</div><div class="stat-value" id="tr-views">—</div></div>
+            <div class="stat-card"><div class="stat-label">Unique Visitors</div><div class="stat-value gold" id="tr-uniques">—</div></div>
+            <div class="stat-card"><div class="stat-label">Views Today</div><div class="stat-value green" id="tr-today">—</div></div>
+            <div class="stat-card"><div class="stat-label">Visitors Today</div><div class="stat-value" id="tr-vtoday">—</div></div>
+          </div>
+          <div class="tr-chartwrap">
+            <div id="tr-trend" style="display:flex;align-items:flex-end;gap:3px"></div>
+            <div style="font-size:10px;opacity:.4;letter-spacing:.08em;text-transform:uppercase;margin:8px 0 0">Daily page views</div>
+          </div>
+        </div>
+        <div class="tr-cols" style="display:grid;gap:24px">
+          <div><div class="chart-title" style="font-size:13px;margin-bottom:10px">Top Pages</div><div id="tr-paths"></div></div>
+          <div><div class="chart-title" style="font-size:13px;margin-bottom:10px">Top Referrers</div><div id="tr-refs"></div></div>
+          <div><div class="chart-title" style="font-size:13px;margin-bottom:10px">Avg Time on Page</div><div id="tr-dwell"></div></div>
+          <div>
+            <div class="chart-title" style="font-size:13px;margin-bottom:10px">Device &amp; Platform</div>
+            <div id="tr-device"></div>
+            <div style="font-size:10px;opacity:.4;letter-spacing:.06em;text-transform:uppercase;margin:14px 0 6px">Operating system</div>
+            <div id="tr-os"></div>
+          </div>
+          <div><div class="chart-title" style="font-size:13px;margin-bottom:10px">Browser</div><div id="tr-browser"></div></div>
+        </div>
+        <div style="margin-top:24px;padding-top:18px;border-top:1px solid var(--border)">
+          <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px">
+            <div class="chart-title" style="font-size:13px">All-time traffic <span style="font-weight:400;opacity:.45;font-size:11px" id="tr-alltime-since"></span></div>
+            <div style="font-family:var(--display);font-weight:300;font-size:24px;color:var(--ink)" id="tr-alltime-total">—</div>
+          </div>
+          <div id="tr-alltime-trend" style="display:flex;align-items:flex-end;gap:5px;height:60px"></div>
+          <div style="font-size:10px;opacity:.4;letter-spacing:.08em;text-transform:uppercase;margin:8px 0 0">Monthly page views · from the daily rollup (survives the 30-day window)</div>
+        </div>
+        <div style="margin-top:24px;padding-top:18px;border-top:1px solid var(--border)">
+          <div class="chart-title" style="font-size:13px;margin-bottom:12px">Where traffic comes from <span id="tr-geo-note" style="font-weight:400;opacity:.45;font-size:11px"></span></div>
+          <div class="tr-geo-grid" style="display:grid;grid-template-columns:1.5fr 1fr;gap:26px;align-items:start">
+            <div id="tr-map" style="width:100%;min-height:240px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px">Loading map…</div>
+            <div>
+              <div style="font-size:10px;opacity:.4;letter-spacing:.06em;text-transform:uppercase;margin:0 0 8px">By region</div>
+              <div id="tr-region"></div>
+              <div style="font-size:10px;opacity:.4;letter-spacing:.06em;text-transform:uppercase;margin:16px 0 8px">Top countries</div>
+              <div id="tr-country"></div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -917,9 +1001,11 @@
         </select>
         <select class="filter-select" id="filter-payment" onchange="regFilterChanged()">
           <option value="">All Statuses</option>
+          <option value="interest">Interest (no deposit)</option>
+          <option value="held">Seat Held</option>
+          <option value="expired">Hold Expired</option>
+          <option value="deposit_only">Deposit Paid</option>
           <option value="fully_paid">Fully Paid</option>
-          <option value="deposit_only">Deposit Only</option>
-          <option value="unpaid">No Payment</option>
           <option value="forfeited">Forfeited</option>
         </select>
         <input class="filter-input" type="text" id="filter-search" placeholder="Search name or email…" oninput="regSearchChanged()">
@@ -944,9 +1030,9 @@
     <!-- ── REVENUE ────────────────────────────────────────────────────── -->
     <div class="tab-panel" id="panel-revenue">
       <div class="stats-grid" style="margin-bottom:32px">
-        <div class="stat-card"><div class="stat-label">Cumulative Revenue</div><div class="stat-value gold" id="rev-total">—</div></div>
-        <div class="stat-card"><div class="stat-label">Collected (Deposits + Balances)</div><div class="stat-value green" id="rev-collected">—</div></div>
-        <div class="stat-card"><div class="stat-label">Outstanding Balances</div><div class="stat-value orange" id="rev-outstanding">—</div></div>
+        <div class="stat-card"><div class="stat-label">Revenue Recognised</div><div class="stat-value green" id="rev-collected">—</div><div class="stat-sub">ioTec-processed · deposits + balances</div></div>
+        <div class="stat-card"><div class="stat-label">Outstanding Balances</div><div class="stat-value orange" id="rev-outstanding">—</div><div class="stat-sub">owed by founders who've paid a deposit</div></div>
+        <div class="stat-card"><div class="stat-label">Booked Pipeline</div><div class="stat-value" id="rev-total" style="color:var(--muted)">—</div><div class="stat-sub">potential value · recognised only on payment</div></div>
       </div>
       <div class="revenue-grid">
         <div class="chart-card">
@@ -1016,6 +1102,7 @@
         <button class="dir-subtab active" onclick="switchDirTab('applications')">Applications <span class="badge" id="app-count-badge">0</span></button>
         <button class="dir-subtab" onclick="switchDirTab('listings')">Active Listings</button>
         <button class="dir-subtab" onclick="switchDirTab('add')">+ Add Provider</button>
+        <button class="dir-subtab" onclick="switchDirTab('ratecard')">Rate Card</button>
       </div>
 
       <!-- Applications sub-panel -->
@@ -1047,6 +1134,18 @@
             </tbody>
           </table>
         </div>
+      </div>
+
+      <!-- Traffic-based rate card sub-panel -->
+      <div class="dir-panel" id="dir-ratecard">
+        <div class="section-head" style="margin-bottom:8px">
+          <span class="section-title">Traffic-Based Rate Card</span>
+          <span id="rc-live" style="font-size:12px;color:var(--muted)"></span>
+        </div>
+        <div style="font-size:11px;color:var(--muted);margin-bottom:16px;line-height:1.6;max-width:680px">
+          Listing prices scale with proven site traffic — a defensible basis you can put in front of advertisers. The live rate is computed from the last 30 days of visitor data (the <code>total</code> pageview series) and is the price the public apply &amp; renewal pages quote. Edit a band's prices below; the thresholds are fixed for now.
+        </div>
+        <div id="rc-bands"><div class="loading">Loading…</div></div>
       </div>
 
       <!-- Active Listings sub-panel -->
@@ -1523,7 +1622,7 @@
         <span class="section-title">Founder Capital Ledger</span>
       </div>
       <div style="font-size:12px;color:var(--muted);margin-bottom:18px;max-width:780px;line-height:1.6">
-        Shareholder capital per the founding agreement — each of the four co-founders contributes <strong style="color:var(--text)">UGX 7,000,000</strong> (UGX 28,000,000 total), paid into Absa a/c ••••0492. Super-admin &amp; finance only.
+        Shareholder capital per the founding agreement — each founder contributes toward their target below (proportional to equity). Contributions include manual payments <em>and automatic recoupment from coaching earnings</em>, so progress updates live. Super-admin &amp; finance only.
       </div>
 
       <div id="capital-summary" style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:22px;max-width:780px"></div>
@@ -1582,6 +1681,61 @@
         </div>
         <div style="margin-top:12px;font-size:11px;color:var(--muted)">Stored in <code>founder_capital_payments</code> (RLS: super-admin / finance only). Totals recompute live from logged payments.</div>
       </div>
+
+      <!-- ── Coaching earnings & settlement ── -->
+      <div class="section-head" style="margin:36px 0 12px"><span class="section-title">Coaching Earnings &amp; Settlement</span></div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:16px;max-width:920px;line-height:1.6">
+        Recognised only on ioTec-processed payments. Each coach's 80% share has WHT withheld (to remit to URA), then recoups against their capital target above before any cash is owed. Founding coaches recoup; external coaches are paid cash directly.
+      </div>
+      <div id="settle-totals" style="display:flex;flex-wrap:wrap;gap:12px;margin-bottom:18px;max-width:920px"></div>
+      <div class="table-wrap" style="max-width:920px">
+        <table>
+          <thead><tr><th>Coach</th><th>Type</th><th>Gross (80%)</th><th>WHT</th><th>Net</th><th>&rarr; Capital</th><th>Cash payable</th><th></th></tr></thead>
+          <tbody id="settle-coach-body"><tr><td colspan="8" class="loading">Loading…</td></tr></tbody>
+        </table>
+      </div>
+      <div style="margin-top:10px;font-size:11px;color:var(--muted)">From <code>settlements</code> + <code>coach_earnings</code>. WHT rate + corporate split live in <code>platform_config</code> — <strong>confirm the rate with your accountant</strong> before go-live. Recording a payout books a manual disbursement (finance transfers outside the system) and marks those earnings paid.</div>
+
+      <div class="section-head" style="margin:26px 0 10px"><span class="section-title" style="font-size:13px">Payout history</span></div>
+      <div class="table-wrap" style="max-width:920px">
+        <table>
+          <thead><tr><th>Date</th><th>Coach</th><th>Amount</th><th>Method</th><th>Reference</th></tr></thead>
+          <tbody id="payout-hist-body"><tr><td colspan="5" class="empty">No payouts recorded yet.</td></tr></tbody>
+        </table>
+      </div>
+
+      <!-- ── Corporate deals ── -->
+      <div class="section-head" style="margin:36px 0 12px"><span class="section-title">Corporate Deals</span></div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:14px;max-width:920px;line-height:1.6">
+        Bespoke B2B engagements. Platform take defaults to 30% (funds BD/PM); 10% origination to the sourcing coach off the top; the remainder splits across the delivery team by weight. Settling records coach earnings + capital recoupment like any session.
+      </div>
+      <div class="table-wrap" style="max-width:920px;margin-bottom:14px">
+        <table>
+          <thead><tr><th>Client</th><th>Value</th><th>Take</th><th>Origination</th><th>Delivery team</th><th>Status</th><th></th></tr></thead>
+          <tbody id="corp-deals-body"><tr><td colspan="7" class="loading">Loading…</td></tr></tbody>
+        </table>
+      </div>
+      <details style="max-width:920px">
+        <summary style="cursor:pointer;font-size:12px;color:var(--gold);font-weight:600">+ New corporate deal</summary>
+        <div style="background:var(--surface);border:1px solid var(--border);padding:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px 14px;margin-top:10px">
+          <label style="font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:4px">Client name
+            <input id="cd-client" type="text" maxlength="120" style="padding:7px 10px;border:1px solid var(--border);font-size:13px;font-family:var(--font);background:#fff;color:var(--text)"></label>
+          <label style="font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:4px">Contract value (UGX)
+            <input id="cd-value" type="number" min="1" step="1" placeholder="e.g. 25000000" style="padding:7px 10px;border:1px solid var(--border);font-size:13px;font-family:var(--font);background:#fff;color:var(--text)"></label>
+          <label style="font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:4px">Platform take %
+            <input id="cd-take" type="number" min="0" max="100" step="0.5" value="30" style="padding:7px 10px;border:1px solid var(--border);font-size:13px;font-family:var(--font);background:#fff;color:var(--text)"></label>
+          <label style="font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:4px">Origination coach
+            <select id="cd-orig" style="padding:7px 10px;border:1px solid var(--border);font-size:13px;font-family:var(--font);background:#fff;color:var(--text)"></select></label>
+          <label style="font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:4px">Origination %
+            <input id="cd-origpct" type="number" min="0" max="100" step="0.5" value="10" style="padding:7px 10px;border:1px solid var(--border);font-size:13px;font-family:var(--font);background:#fff;color:var(--text)"></label>
+          <label style="grid-column:1/3;font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:4px">Delivery team (weight 1 each)
+            <div id="cd-team" style="display:flex;flex-wrap:wrap;gap:12px;margin-top:6px"></div></label>
+          <div style="grid-column:1/3;display:flex;gap:12px;align-items:center">
+            <button class="btn-upload" onclick="createCorpDeal()">Create deal</button>
+            <span id="cd-msg" style="font-size:12px"></span>
+          </div>
+        </div>
+      </details>
     </div>
 
     <!-- ── PROFILES ─────────────────────────────────────────────────────── -->
@@ -1933,7 +2087,7 @@
 const SUPABASE_URL    = 'https://ivedeivyotwevjxvcuoe.supabase.co';
 const SB_API='/sb';   // same-origin authed proxy (Cloudflare Worker) → Supabase
 const SUPABASE_ANON   = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss';
-const API_BASE        = 'https://founders-sprint-api.vercel.app';
+const API_BASE        = '';  // same-origin → Cloudflare /api/* proxy → api.founderssprint.co (cross-origin fails on mobile/UG networks)
 const STORAGE_BUCKET  = 'course-materials';
 
 const sb = supabase.createClient(location.origin+'/sb', SUPABASE_ANON, {
@@ -2435,9 +2589,14 @@ function fmtDate(ts) {
 function renderOverview() {
   const a = analytics || {};
   const ov = a.overview || { active: 0, collected: 0, pending: 0, fully_paid: 0, deposit_only: 0 };
+  const acc = a.accounts || { founder_accounts: 0, new_last30: 0 };
   const openCohorts = allCohorts.filter(c => c.status !== 'full').length;
 
+  // Accounts (free signups) vs coaching registrations (booked seats) — two distinct funnels.
+  document.getElementById('stat-accounts').textContent      = acc.founder_accounts;
+  document.getElementById('stat-accounts-sub').textContent  = `${acc.new_last30} new in 30d · free signups`;
   document.getElementById('stat-total').textContent         = ov.active;
+  document.getElementById('stat-total-sub').textContent     = `${ov.fully_paid + ov.deposit_only} booked · ${ov.active - ov.fully_paid - ov.deposit_only} unpaid`;
   document.getElementById('stat-collected').textContent     = fmtUGX(ov.collected);
   document.getElementById('stat-collected-sub').textContent = 'deposits + balances received';
   document.getElementById('stat-pending').textContent       = fmtUGX(ov.pending);
@@ -2453,6 +2612,156 @@ function renderOverview() {
   try { renderPaymentFunnel(a.funnel || null); }  catch(e) { console.error('[Render] paymentFunnel:', e); }
   try { renderCoachRoster(); }                    catch(e) { console.error('[Render] coachRoster:', e); }
   try { renderDemographics(a); }                  catch(e) { console.error('[Render] demographics:', e); }
+  try { loadTraffic(); }                          catch(e) { console.error('[Render] traffic:', e); }
+}
+
+// ── Site Traffic tile — first-party pageviews via the staff-gated aggregate RPC ──
+function _trEsc(s) { const d = document.createElement('div'); d.textContent = String(s == null ? '' : s); return d.innerHTML; }
+// ISO alpha-2 → [ISO-3166 numeric, English name]. Joins our CF country codes to the world topology
+// (numeric ids) and gives display names for the country list. Generated from ISO 3166.
+const FS_ISO2 = {"AD":["020","Andorra"],"AE":["784","United Arab Emirates"],"AF":["004","Afghanistan"],"AG":["028","Antigua and Barbuda"],"AI":["660","Anguilla"],"AL":["008","Albania"],"AM":["051","Armenia"],"AO":["024","Angola"],"AQ":["010","Antarctica"],"AR":["032","Argentina"],"AS":["016","American Samoa"],"AT":["040","Austria"],"AU":["036","Australia"],"AW":["533","Aruba"],"AX":["248","Åland Islands"],"AZ":["031","Azerbaijan"],"BA":["070","Bosnia and Herzegovina"],"BB":["052","Barbados"],"BD":["050","Bangladesh"],"BE":["056","Belgium"],"BF":["854","Burkina Faso"],"BG":["100","Bulgaria"],"BH":["048","Bahrain"],"BI":["108","Burundi"],"BJ":["204","Benin"],"BL":["652","Saint Barthélemy"],"BM":["060","Bermuda"],"BN":["096","Brunei"],"BO":["068","Bolivia"],"BQ":["535","Bonaire"],"BR":["076","Brazil"],"BS":["044","Bahamas"],"BT":["064","Bhutan"],"BW":["072","Botswana"],"BY":["112","Belarus"],"BZ":["084","Belize"],"CA":["124","Canada"],"CC":["166","Cocos Islands"],"CD":["180","DR Congo"],"CF":["140","Central African Republic"],"CG":["178","Congo"],"CH":["756","Switzerland"],"CI":["384","Côte d'Ivoire"],"CK":["184","Cook Islands"],"CL":["152","Chile"],"CM":["120","Cameroon"],"CN":["156","China"],"CO":["170","Colombia"],"CR":["188","Costa Rica"],"CU":["192","Cuba"],"CV":["132","Cabo Verde"],"CW":["531","Curaçao"],"CX":["162","Christmas Island"],"CY":["196","Cyprus"],"CZ":["203","Czechia"],"DE":["276","Germany"],"DJ":["262","Djibouti"],"DK":["208","Denmark"],"DM":["212","Dominica"],"DO":["214","Dominican Republic"],"DZ":["012","Algeria"],"EC":["218","Ecuador"],"EE":["233","Estonia"],"EG":["818","Egypt"],"EH":["732","Western Sahara"],"ER":["232","Eritrea"],"ES":["724","Spain"],"ET":["231","Ethiopia"],"FI":["246","Finland"],"FJ":["242","Fiji"],"FK":["238","Falkland Islands"],"FM":["583","Micronesia"],"FO":["234","Faroe Islands"],"FR":["250","France"],"GA":["266","Gabon"],"GB":["826","United Kingdom"],"GD":["308","Grenada"],"GE":["268","Georgia"],"GF":["254","French Guiana"],"GG":["831","Guernsey"],"GH":["288","Ghana"],"GI":["292","Gibraltar"],"GL":["304","Greenland"],"GM":["270","Gambia"],"GN":["324","Guinea"],"GP":["312","Guadeloupe"],"GQ":["226","Equatorial Guinea"],"GR":["300","Greece"],"GT":["320","Guatemala"],"GU":["316","Guam"],"GW":["624","Guinea-Bissau"],"GY":["328","Guyana"],"HK":["344","Hong Kong"],"HN":["340","Honduras"],"HR":["191","Croatia"],"HT":["332","Haiti"],"HU":["348","Hungary"],"ID":["360","Indonesia"],"IE":["372","Ireland"],"IL":["376","Israel"],"IM":["833","Isle of Man"],"IN":["356","India"],"IO":["086","British Indian Ocean Territory"],"IQ":["368","Iraq"],"IR":["364","Iran"],"IS":["352","Iceland"],"IT":["380","Italy"],"JE":["832","Jersey"],"JM":["388","Jamaica"],"JO":["400","Jordan"],"JP":["392","Japan"],"KE":["404","Kenya"],"KG":["417","Kyrgyzstan"],"KH":["116","Cambodia"],"KI":["296","Kiribati"],"KM":["174","Comoros"],"KN":["659","Saint Kitts and Nevis"],"KP":["408","North Korea"],"KR":["410","South Korea"],"KW":["414","Kuwait"],"KY":["136","Cayman Islands"],"KZ":["398","Kazakhstan"],"LA":["418","Laos"],"LB":["422","Lebanon"],"LC":["662","Saint Lucia"],"LI":["438","Liechtenstein"],"LK":["144","Sri Lanka"],"LR":["430","Liberia"],"LS":["426","Lesotho"],"LT":["440","Lithuania"],"LU":["442","Luxembourg"],"LV":["428","Latvia"],"LY":["434","Libya"],"MA":["504","Morocco"],"MC":["492","Monaco"],"MD":["498","Moldova"],"ME":["499","Montenegro"],"MF":["663","Saint Martin"],"MG":["450","Madagascar"],"MH":["584","Marshall Islands"],"MK":["807","North Macedonia"],"ML":["466","Mali"],"MM":["104","Myanmar"],"MN":["496","Mongolia"],"MO":["446","Macao"],"MP":["580","Northern Mariana Islands"],"MQ":["474","Martinique"],"MR":["478","Mauritania"],"MS":["500","Montserrat"],"MT":["470","Malta"],"MU":["480","Mauritius"],"MV":["462","Maldives"],"MW":["454","Malawi"],"MX":["484","Mexico"],"MY":["458","Malaysia"],"MZ":["508","Mozambique"],"NA":["516","Namibia"],"NC":["540","New Caledonia"],"NE":["562","Niger"],"NF":["574","Norfolk Island"],"NG":["566","Nigeria"],"NI":["558","Nicaragua"],"NL":["528","Netherlands"],"NO":["578","Norway"],"NP":["524","Nepal"],"NR":["520","Nauru"],"NU":["570","Niue"],"NZ":["554","New Zealand"],"OM":["512","Oman"],"PA":["591","Panama"],"PE":["604","Peru"],"PF":["258","French Polynesia"],"PG":["598","Papua New Guinea"],"PH":["608","Philippines"],"PK":["586","Pakistan"],"PL":["616","Poland"],"PM":["666","Saint Pierre and Miquelon"],"PN":["612","Pitcairn"],"PR":["630","Puerto Rico"],"PS":["275","Palestine"],"PT":["620","Portugal"],"PW":["585","Palau"],"PY":["600","Paraguay"],"QA":["634","Qatar"],"RE":["638","Réunion"],"RO":["642","Romania"],"RS":["688","Serbia"],"RU":["643","Russia"],"RW":["646","Rwanda"],"SA":["682","Saudi Arabia"],"SB":["090","Solomon Islands"],"SC":["690","Seychelles"],"SD":["729","Sudan"],"SE":["752","Sweden"],"SG":["702","Singapore"],"SH":["654","Saint Helena"],"SI":["705","Slovenia"],"SJ":["744","Svalbard and Jan Mayen"],"SK":["703","Slovakia"],"SL":["694","Sierra Leone"],"SM":["674","San Marino"],"SN":["686","Senegal"],"SO":["706","Somalia"],"SR":["740","Suriname"],"SS":["728","South Sudan"],"ST":["678","Sao Tome and Principe"],"SV":["222","El Salvador"],"SX":["534","Sint Maarten"],"SY":["760","Syria"],"SZ":["748","Eswatini"],"TC":["796","Turks and Caicos Islands"],"TD":["148","Chad"],"TG":["768","Togo"],"TH":["764","Thailand"],"TJ":["762","Tajikistan"],"TK":["772","Tokelau"],"TL":["626","Timor-Leste"],"TM":["795","Turkmenistan"],"TN":["788","Tunisia"],"TO":["776","Tonga"],"TR":["792","Türkiye"],"TT":["780","Trinidad and Tobago"],"TV":["798","Tuvalu"],"TW":["158","Taiwan"],"TZ":["834","Tanzania"],"UA":["804","Ukraine"],"UG":["800","Uganda"],"US":["840","United States"],"UY":["858","Uruguay"],"UZ":["860","Uzbekistan"],"VA":["336","Vatican City"],"VC":["670","Saint Vincent and the Grenadines"],"VE":["862","Venezuela"],"VG":["092","British Virgin Islands"],"VI":["850","U.S. Virgin Islands"],"VN":["704","Vietnam"],"VU":["548","Vanuatu"],"WF":["876","Wallis and Futuna"],"WS":["882","Samoa"],"YE":["887","Yemen"],"YT":["175","Mayotte"],"ZA":["710","South Africa"],"ZM":["894","Zambia"],"ZW":["716","Zimbabwe"]};
+
+async function loadTraffic() {
+  const status = document.getElementById('traffic-status');
+  const num = n => (Number(n) || 0).toLocaleString('en-US');
+  try {
+    const t = await _pgRpc('admin_site_traffic', { p_days: 30 });
+    document.getElementById('tr-views').textContent   = num(t.total_views);
+    document.getElementById('tr-uniques').textContent = num(t.unique_visitors);
+    document.getElementById('tr-today').textContent   = num(t.views_today);
+    document.getElementById('tr-vtoday').textContent  = num(t.visitors_today);
+
+    const days = t.by_day || [];
+    const max = Math.max(1, ...days.map(d => Number(d.views) || 0));
+    document.getElementById('tr-trend').innerHTML = days.map(d => {
+      const h = Math.max(2, Math.round(((Number(d.views) || 0) / max) * 100));
+      return `<div title="${_trEsc(d.d)}: ${num(d.views)} views" style="flex:1;min-width:2px;height:${h}%;background:var(--terra);opacity:.82;border-radius:2px 2px 0 0"></div>`;
+    }).join('') || '<div style="opacity:.4;font-size:12px">No data yet</div>';
+
+    const setHTML = (id, html) => { const el = document.getElementById(id); if (el) el.innerHTML = html; };
+    const PAL = ['#C8531F','#C9923A','#8AAB5C','#3D4A2E','#777770','#9A3E16','#444444','#A09888'];
+    const fmtDur = ms => { ms = Number(ms) || 0; const s = Math.round(ms / 1000); if (s < 60) return s + 's'; const m = Math.floor(s / 60), r = s % 60; return m + 'm ' + (r < 10 ? '0' : '') + r + 's'; };
+    const cap = s => String(s || '').replace(/^\w/, c => c.toUpperCase());
+
+    // Top Pages / Top Referrers — same horizontal-bar style as Avg time on page (bars() below, hoisted).
+    setHTML('tr-paths', bars(t.top_paths,     { label: d => d.path,      fmt: d => num(d.views), empty: 'No data yet' }));
+    setHTML('tr-refs',  bars(t.top_referrers, { label: d => d.ref || '—', fmt: d => num(d.views), empty: 'No data yet' }));
+
+    // ── SVG donut (vertical: ring on top, legend below) ──
+    function donut(arr, colorFn, center) {
+      const data = (arr || []).filter(d => Number(d.views) > 0);
+      if (!data.length) return '<div style="color:var(--muted);font-size:12px">No data yet</div>';
+      const total = data.reduce((s, d) => s + Number(d.views), 0);
+      const R = 40, C = 2 * Math.PI * R, SZ = 100, cxy = SZ / 2, SW = 14;
+      let off = 0, rings = '';
+      data.forEach((d, i) => {
+        const len = Number(d.views) / total * C, col = colorFn(d, i);
+        rings += `<circle cx="${cxy}" cy="${cxy}" r="${R}" fill="none" stroke="${col}" stroke-width="${SW}" stroke-linecap="butt" stroke-dasharray="${len} ${C - len}" stroke-dashoffset="${-off}" transform="rotate(-90 ${cxy} ${cxy})"></circle>`;
+        off += len;
+      });
+      const legend = data.map((d, i) => {
+        const pct = Math.round(Number(d.views) / total * 100);
+        return `<div style="display:flex;align-items:center;gap:8px;font-size:12px;padding:3px 0">
+          <span style="width:10px;height:10px;border-radius:3px;background:${colorFn(d, i)};flex:none"></span>
+          <span style="color:var(--ink);flex:1;text-transform:capitalize;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${_trEsc(d.label)}</span>
+          <span style="color:var(--muted);font-variant-numeric:tabular-nums;font-size:11px">${num(d.views)}</span>
+          <span style="color:var(--ink);font-weight:600;font-variant-numeric:tabular-nums;min-width:34px;text-align:right">${pct}%</span></div>`;
+      }).join('');
+      return `<div style="display:flex;justify-content:center;margin-bottom:12px">
+          <div style="position:relative;width:${SZ}px;height:${SZ}px">
+            <svg width="${SZ}" height="${SZ}" viewBox="0 0 ${SZ} ${SZ}">${rings}</svg>
+            <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+              <div style="font-family:var(--display);font-weight:300;font-size:24px;line-height:1;color:var(--ink)">${center.big}</div>
+              <div style="font-family:var(--sans);font-weight:600;font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-top:2px">${center.lbl}</div>
+            </div>
+          </div>
+        </div><div>${legend}</div>`;
+    }
+
+    // ── Horizontal bars ──
+    function bars(arr, opt) {
+      opt = opt || {}; const data = arr || [], valKey = opt.valKey || 'views';
+      if (!data.length) return '<div style="color:var(--muted);font-size:12px">' + (opt.empty || 'No data yet') + '</div>';
+      const max = Math.max(...data.map(d => Number(d[valKey]) || 0)) || 1;
+      return data.map((d, i) => {
+        const w = Math.max(3, Math.round((Number(d[valKey]) || 0) / max * 100));
+        const col = i === 0 ? '#C8531F' : (i === 1 ? '#C9923A' : '#9A8F7E');
+        return `<div style="margin-bottom:11px">
+          <div style="display:flex;justify-content:space-between;gap:10px;margin-bottom:4px;font-size:12px">
+            <span style="color:var(--ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${_trEsc(opt.label ? opt.label(d) : d.label)}</span>
+            <span style="color:var(--muted);font-variant-numeric:tabular-nums;flex:none">${opt.fmt ? opt.fmt(d) : num(d[valKey])}</span></div>
+          <div style="height:7px;background:var(--paper-deep);border-radius:0 0 5px 0"><div style="height:100%;width:${w}%;background:${col};border-radius:0 0 5px 0"></div></div>
+        </div>`;
+      }).join('');
+    }
+
+    const DEV_COLOR = { mobile: '#C8531F', desktop: '#C9923A', tablet: '#8AAB5C' };
+    const devTotal = (t.by_device || []).reduce((s, r) => s + Number(r.views), 0) || 1;
+    const devMobile = (t.by_device || []).find(r => r.label === 'mobile');
+    setHTML('tr-device', donut(t.by_device, d => DEV_COLOR[d.label] || '#777770',
+      { big: (devMobile ? Math.round(devMobile.views / devTotal * 100) : 0) + '%', lbl: 'Mobile' }));
+    setHTML('tr-os', donut(t.by_os, (d, i) => PAL[i % PAL.length],
+      { big: num((t.by_os || []).reduce((s, r) => s + Number(r.views), 0)), lbl: 'Views' }));
+    setHTML('tr-browser', bars(t.by_browser, { fmt: d => num(d.views) }));
+    setHTML('tr-dwell', bars(t.top_dwell, { valKey: 'avg_ms', label: d => d.path, fmt: d => fmtDur(d.avg_ms) + ' · ' + num(d.samples), empty: 'Gathering time-on-page data…' }));
+
+    // ── All-time trend (from the daily rollup — persists beyond the 30-day raw window) ──
+    try {
+      const tr = await _pgRpc('admin_traffic_trends', { p_days: 3650 });
+      const months = tr.by_month || [];
+      setHTML('tr-alltime-total', num(tr.total_views_alltime));
+      if (tr.first_day) setHTML('tr-alltime-since', 'since ' + tr.first_day);
+      const mmax = Math.max(1, ...months.map(m => Number(m.views) || 0));
+      setHTML('tr-alltime-trend', months.map(m => {
+        const h = Math.max(4, Math.round((Number(m.views) || 0) / mmax * 100));
+        return `<div title="${_trEsc(m.month)}: ${num(m.views)} views" style="flex:1;min-width:8px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:5px;height:100%">
+          <div style="width:100%;height:${h}%;background:var(--ochre);opacity:.85;border-radius:3px 3px 0 0"></div>
+          <span style="font-size:9px;color:var(--muted);white-space:nowrap">${_trEsc((m.month || '').slice(5))}</span></div>`;
+      }).join('') || '<div style="color:var(--muted);font-size:12px">No data yet</div>');
+    } catch (e) { console.error('[Traffic trends]', e && e.message); }
+
+    // ── Geography: region bars + top countries + world choropleth (from CF edge geo) ──
+    (function renderGeo() {
+      const CONT = { AF: 'Africa', EU: 'Europe', NA: 'North America', SA: 'South America', AS: 'Asia', OC: 'Oceania', AN: 'Antarctica' };
+      const byC = t.by_country || [], byR = t.by_region || [];
+      setHTML('tr-region', bars(byR.map(r => ({ label: CONT[r.code] || r.code, views: r.views })), { fmt: d => num(d.views), empty: 'No geo data yet' }));
+      setHTML('tr-country', bars(byC.slice(0, 10).map(r => ({ label: (FS_ISO2[r.code] ? FS_ISO2[r.code][1] : r.code), views: r.views })), { fmt: d => num(d.views), empty: 'No geo data yet' }));
+      const mapEl = document.getElementById('tr-map');
+      if (!byC.length) {
+        setHTML('tr-geo-note', '· awaiting geo data — deploy the /db worker');
+        if (mapEl) mapEl.innerHTML = '<div style="color:var(--muted);font-size:12px">No geographic data yet — the worker starts tagging country on the next deploy.</div>';
+        return;
+      }
+      if (!mapEl || typeof d3 === 'undefined' || typeof topojson === 'undefined') {
+        if (mapEl) mapEl.innerHTML = '<div style="color:var(--muted);font-size:12px">Map library unavailable</div>';
+        return;
+      }
+      (async () => {
+        try {
+          if (!window._fsWorldTopo) window._fsWorldTopo = await (await fetch('/vendor/countries-110m.json?v=1')).json();
+          const topo = window._fsWorldTopo;
+          const feats = topojson.feature(topo, topo.objects.countries).features;
+          const val = {}; let max = 0;
+          byC.forEach(r => { const meta = FS_ISO2[r.code]; if (meta) { const id = String(parseInt(meta[0], 10)); val[id] = (val[id] || 0) + Number(r.views); if (val[id] > max) max = val[id]; } });
+          const ramp = v => { if (!v) return '#E6DCC7'; const f = Math.min(1, Math.sqrt(v / (max || 1))); const a = [230, 220, 199], b = [200, 83, 31]; return 'rgb(' + a.map((x, i) => Math.round(x + (b[i] - x) * f)).join(',') + ')'; };
+          const W = mapEl.clientWidth || 560, H = Math.max(240, Math.round(W * 0.6));
+          const proj = d3.geoNaturalEarth1().fitSize([W, H], { type: 'FeatureCollection', features: feats });
+          const path = d3.geoPath(proj);
+          const svg = d3.create('svg').attr('viewBox', '0 0 ' + W + ' ' + H).attr('width', '100%').style('display', 'block');
+          svg.selectAll('path').data(feats).join('path').attr('d', path)
+            .attr('fill', d => ramp(val[String(parseInt(d.id, 10))] || 0))
+            .attr('stroke', '#EFE7D8').attr('stroke-width', 0.5)
+            .append('title').text(d => { const v = val[String(parseInt(d.id, 10))] || 0; return (d.properties && d.properties.name || '') + (v ? ': ' + num(v) + ' views' : ''); });
+          mapEl.innerHTML = ''; mapEl.style.display = 'block'; mapEl.appendChild(svg.node());
+        } catch (e) { console.error('[Geo map]', e && e.message); if (mapEl) mapEl.innerHTML = '<div style="color:var(--muted);font-size:12px">Map unavailable</div>'; }
+      })();
+    })();
+
+    if (status) status.textContent = `prod ${num(t.prod_views)} · staging ${num(t.staging_views)}` + (t.avg_dwell_ms ? ` · avg ${fmtDur(t.avg_dwell_ms)}/page` : '');
+  } catch (e) {
+    if (status) status.textContent = 'unavailable';
+    console.error('[Traffic]', e && e.message);
+  }
 }
 
 // ── FS discipline palette ────────────────────────────────────────────────────
@@ -2856,10 +3165,14 @@ function populateCohortFilters() {
 }
 
 function paymentStatus(r) {
-  if (r.forfeited)                      return { label: 'Forfeited',   cls: 'badge-forfeited' };
-  if (r.deposit_paid && r.balance_paid) return { label: 'Fully Paid',  cls: 'badge-paid' };
-  if (r.deposit_paid)                   return { label: 'Deposit Only', cls: 'badge-partial' };
-  return                                       { label: 'No Payment',  cls: 'badge-unpaid' };
+  // Mirrors the DB registration_status() helper: forfeited > fully_paid > deposit_paid > held > expired > interest.
+  if (r.forfeited)                      return { label: 'Forfeited',    cls: 'badge-forfeited' };
+  if (r.deposit_paid && r.balance_paid) return { label: 'Fully Paid',   cls: 'badge-paid' };
+  if (r.deposit_paid)                   return { label: 'Deposit Paid', cls: 'badge-partial' };
+  const held = r.hold_expires_at && new Date(r.hold_expires_at).getTime() > Date.now();
+  if (held)                             return { label: 'Seat Held',    cls: 'badge-held' };
+  if (r.hold_expires_at || r.hold_lapsed_at) return { label: 'Hold Expired', cls: 'badge-expired' };
+  return                                       { label: 'Interest',     cls: 'badge-interest' };
 }
 
 function trackBadge(t) {
@@ -2882,14 +3195,18 @@ function regQueryParams() {
   const searchF = document.getElementById('filter-search').value;
 
   const cols = 'id,first_name,last_name,email,company,cohort_id,track,sector,' +
-    'deposit_amount,balance_amount,full_fee,deposit_paid,balance_paid,forfeited,created_at,admin_note,phone';
+    'deposit_amount,balance_amount,full_fee,deposit_paid,balance_paid,forfeited,created_at,admin_note,phone,' +
+    'hold_expires_at,held_at,hold_lapsed_at';
   const parts = ['select=' + cols, 'order=created_at.desc'];
 
   if (cohortF) parts.push('cohort_id=eq.' + encodeURIComponent(cohortF));
   if (trackF)  parts.push('track=eq.' + encodeURIComponent(trackF));
+  const nowIso = new Date().toISOString();
   if (payF === 'fully_paid')   { parts.push('deposit_paid=eq.true');  parts.push('balance_paid=eq.true'); }
   if (payF === 'deposit_only') { parts.push('deposit_paid=eq.true');  parts.push('balance_paid=eq.false'); }
-  if (payF === 'unpaid')       { parts.push('deposit_paid=eq.false'); parts.push('forfeited=eq.false'); }
+  if (payF === 'held')         { parts.push('deposit_paid=eq.false'); parts.push('forfeited=eq.false'); parts.push('hold_expires_at=gt.' + nowIso); }
+  if (payF === 'expired')      { parts.push('deposit_paid=eq.false'); parts.push('forfeited=eq.false'); parts.push('hold_expires_at=lt.' + nowIso); }
+  if (payF === 'interest')     { parts.push('deposit_paid=eq.false'); parts.push('forfeited=eq.false'); parts.push('hold_expires_at=is.null'); }
   if (payF === 'forfeited')    { parts.push('forfeited=eq.true'); }
   const or = regIlikeOr(['first_name', 'last_name', 'email'], searchF);
   if (or) parts.push(or);
@@ -3770,11 +4087,72 @@ async function loadDirectoryData() {
 
 function switchDirTab(name) {
   document.querySelectorAll('.dir-subtab').forEach((t, i) => {
-    const tabs = ['applications','listings','add'];
+    const tabs = ['applications','listings','add','ratecard'];
     t.classList.toggle('active', tabs[i] === name);
   });
   document.querySelectorAll('.dir-panel').forEach(p => p.classList.remove('active'));
   document.getElementById(`dir-${name}`).classList.add('active');
+  if (name === 'ratecard') loadRateCard();
+}
+
+// ── Directory traffic-based rate card ────────────────────────────────────────
+let rateCardLive = null, rateBands = [];
+async function loadRateCard() {
+  try {
+    const [rateRes, bands] = await Promise.all([
+      sb.rpc('directory_current_rate'),
+      _pgQuery('directory_rate_bands', 'select=*&order=sort').catch(() => []),
+    ]);
+    rateCardLive = (rateRes && rateRes.data) || null;
+    rateBands = bands || [];
+  } catch (e) {
+    console.error('loadRateCard:', e); rateCardLive = null; rateBands = [];
+  }
+  renderRateCard();
+}
+function rcUgx(n) { return (n === null || n === undefined || n === '') ? '—' : 'UGX ' + Number(n).toLocaleString(); }
+function renderRateCard() {
+  const live = rateCardLive, liveEl = document.getElementById('rc-live');
+  if (liveEl) {
+    liveEl.innerHTML = live
+      ? '~' + Number(live.monthly_reach || 0).toLocaleString() + ' reach/mo · <strong style="color:var(--ochre)">' + esc(live.band_label || '—') + '</strong> band · ' + rcUgx(live.verified) + ' / ' + rcUgx(live.featured) + ' <span style="opacity:.6">verified/featured</span>'
+      : '<span style="color:var(--warning)">rate unavailable</span>';
+  }
+  const wrap = document.getElementById('rc-bands'); if (!wrap) return;
+  if (!rateBands.length) { wrap.innerHTML = '<div class="loading">No bands configured.</div>'; return; }
+  const liveId = live && live.band_id;
+  const cell = 'padding:9px 10px;border-bottom:1px solid var(--border);font-size:13px';
+  const inp = 'width:96px;padding:5px 7px;background:var(--surface);border:1px solid var(--border);color:var(--text);font-family:var(--mono);font-size:12px';
+  let h = '<table style="width:100%;border-collapse:collapse"><thead><tr>'
+    + ['Band','Monthly views','Verified','Featured','Corporate',''].map(x => '<th style="text-align:left;padding:8px 10px;font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border-bottom:1px solid var(--border-hi)">' + x + '</th>').join('')
+    + '</tr></thead><tbody>';
+  rateBands.forEach(b => {
+    const on = b.id === liveId;
+    h += '<tr style="' + (on ? 'background:rgba(201,146,58,.09)' : '') + '">'
+      + '<td style="' + cell + '">' + esc(b.label || ('#' + b.id)) + (on ? ' <span style="color:var(--ochre);font-size:10px;font-weight:700">● LIVE</span>' : '') + '</td>'
+      + '<td style="' + cell + ';white-space:nowrap;color:var(--muted)">' + Number(b.min_monthly_views).toLocaleString() + ' – ' + (b.max_monthly_views == null ? '∞' : Number(b.max_monthly_views).toLocaleString()) + '</td>'
+      + '<td style="' + cell + '"><input id="rcb-v-' + b.id + '" type="number" min="0" value="' + (b.verified_ugx ?? '') + '" style="' + inp + '"></td>'
+      + '<td style="' + cell + '"><input id="rcb-f-' + b.id + '" type="number" min="0" value="' + (b.featured_ugx ?? '') + '" style="' + inp + '"></td>'
+      + '<td style="' + cell + '"><input id="rcb-c-' + b.id + '" type="number" min="0" placeholder="bespoke" value="' + (b.corporate_ugx ?? '') + '" style="' + inp + '"></td>'
+      + '<td style="' + cell + '"><button class="action-btn" onclick="saveRateBand(' + b.id + ')">Save</button></td>'
+      + '</tr>';
+  });
+  wrap.innerHTML = h + '</tbody></table>';
+}
+async function saveRateBand(id) {
+  const gv = k => document.getElementById('rcb-' + k + '-' + id).value.trim();
+  const v = gv('v'), f = gv('f'), c = gv('c');
+  if (v === '' || f === '') { showToast('Verified and Featured prices are required', 'error'); return; }
+  const body = {
+    verified_ugx: parseInt(v, 10),
+    featured_ugx: parseInt(f, 10),
+    corporate_ugx: c === '' ? null : parseInt(c, 10),
+    updated_at: new Date().toISOString(),
+  };
+  const { error } = await sb.from('directory_rate_bands').update(body).eq('id', id);
+  if (error) { showToast('Save failed: ' + error.message, 'error'); return; }
+  showToast('Rate band updated', 'success');
+  await loadRateCard();
 }
 
 function renderApplications() {
@@ -3862,10 +4240,145 @@ async function loadCapital(){
     capFounders = f || []; capPayments = p || [];
     capitalLoaded = true;
     renderCapital();
+    loadSettlement();
+    loadCorpDeals();
   } catch(e){
     var b = document.getElementById('capital-table-body');
     if (b) b.innerHTML = '<tr><td colspan="7" class="loading">Could not load — ' + esc(e.message) + '</td></tr>';
   }
+}
+
+// ── Coaching earnings & settlement (admin_settlement_summary) ────────────────
+async function loadSettlement(){
+  try {
+    const s = await _pgRpc('admin_settlement_summary');
+    renderSettlement(s || {});
+  } catch(e){
+    var b = document.getElementById('settle-coach-body');
+    if (b) b.innerHTML = '<tr><td colspan="7" class="loading">Could not load — ' + esc(e.message) + '</td></tr>';
+  }
+}
+function renderSettlement(s){
+  var t = s.totals || {};
+  var el = document.getElementById('settle-totals');
+  if (el) el.innerHTML =
+      capCard('Platform revenue (recognised)', fmtUGX(t.platform_cut || 0),        'var(--gold)')
+    + capCard('WHT to remit · URA',            fmtUGX(t.wht_withheld || 0),         'var(--warning)')
+    + capCard('Recouped into capital',         fmtUGX(t.applied_to_capital || 0),   'var(--success)')
+    + capCard('Coach cash payable',            fmtUGX(t.cash_payable_accrued || 0), 'var(--danger)');
+  var rows = s.per_coach || [];
+  var body = document.getElementById('settle-coach-body');
+  if (!body) return;
+  if (!rows.length){
+    body.innerHTML = '<tr><td colspan="7" class="empty">No settlements yet — coach earnings appear here as payments clear ioTec.</td></tr>';
+    return;
+  }
+  body.innerHTML = rows.map(function(r){
+    var cashCol = Number(r.cash_payable) > 0 ? 'var(--danger)' : 'var(--muted)';
+    return '<tr><td>' + esc(r.name) + '</td>'
+      + '<td><span class="badge ' + (r.coach_type === 'founding' ? 'badge-group' : 'badge-oneonone') + '">' + esc(r.coach_type) + '</span></td>'
+      + '<td style="font-family:var(--mono)">' + fmtUGX(r.gross) + '</td>'
+      + '<td style="font-family:var(--mono);color:var(--warning)">' + fmtUGX(r.wht) + '</td>'
+      + '<td style="font-family:var(--mono)">' + fmtUGX(r.net) + '</td>'
+      + '<td style="font-family:var(--mono);color:var(--success)">' + fmtUGX(r.applied_to_capital) + '</td>'
+      + '<td style="font-family:var(--mono);color:' + cashCol + '">' + fmtUGX(r.cash_payable) + '</td>'
+      + '<td>' + (Number(r.cash_payable) > 0 ? '<button class="btn-upload" style="padding:4px 10px;font-size:11px" onclick="payCoach(' + r.coach_id + ',' + r.cash_payable + ')">Pay out</button>' : '') + '</td></tr>';
+  }).join('');
+}
+async function payCoach(coachId, amount){
+  var name = (typeof corpCoachName === 'function') ? corpCoachName(coachId) : ('coach #' + coachId);
+  var method = prompt('Record a payout to ' + name + ' of UGX ' + Number(amount).toLocaleString('en-UG') + '.\n\nThis books a disbursement you have ALREADY paid (bank/MoMo) and marks those earnings paid.\n\nPayment method:', 'bank');
+  if (method === null) return;
+  var ref = prompt('Reference / txn ID (optional):', '');
+  try {
+    var r = await sb.rpc('record_coach_payout', { p_coach_id: coachId, p_method: method, p_reference: ref || '', p_note: null });
+    if (r.error) throw new Error(r.error.message);
+    alert('Recorded payout of UGX ' + Number(r.data.amount).toLocaleString('en-UG') + ' to ' + name + '.');
+    loadSettlement(); loadPayouts();
+  } catch(e){ alert('Payout failed: ' + e.message); }
+}
+async function loadPayouts(){
+  try {
+    var rows = (await _pgQuery('coach_payouts','select=*&order=created_at.desc&limit=100')) || [];
+    var b = document.getElementById('payout-hist-body'); if (!b) return;
+    if (!rows.length){ b.innerHTML = '<tr><td colspan="5" class="empty">No payouts recorded yet.</td></tr>'; return; }
+    b.innerHTML = rows.map(function(p){
+      return '<tr><td>' + esc(p.paid_on||'') + '</td><td>' + esc(corpCoachName(p.coach_id)) + '</td>'
+        + '<td style="font-family:var(--mono)">' + fmtUGX(p.amount) + '</td><td>' + esc(p.method||'') + '</td><td>' + esc(p.reference||'') + '</td></tr>';
+    }).join('');
+  } catch(e){ /* leave placeholder */ }
+}
+
+// ── Corporate deals (create + settle; RLS: admin/finance) ────────────────────
+let corpCoaches = [];
+async function loadCorpDeals(){
+  try {
+    if (!corpCoaches.length) corpCoaches = (await _pgQuery('coaches','select=id,first_name,last_name,coach_type&status=eq.active&order=id')) || [];
+    populateCorpSelectors();
+    const deals = (await _pgQuery('corporate_deals','select=*,corporate_deal_coaches(coach_id,weight)&order=created_at.desc')) || [];
+    renderCorpDeals(deals);
+    loadPayouts();
+  } catch(e){
+    var b = document.getElementById('corp-deals-body');
+    if (b) b.innerHTML = '<tr><td colspan="7" class="loading">Could not load — ' + esc(e.message) + '</td></tr>';
+  }
+}
+function corpCoachName(id){ var c = corpCoaches.find(function(x){return x.id==id;}); return c ? (c.first_name+' '+c.last_name) : ('#'+id); }
+function populateCorpSelectors(){
+  var orig = document.getElementById('cd-orig');
+  if (orig) orig.innerHTML = '<option value="">— none —</option>' + corpCoaches.map(function(c){ return '<option value="'+c.id+'">'+esc(c.first_name+' '+c.last_name)+'</option>'; }).join('');
+  var team = document.getElementById('cd-team');
+  if (team) team.innerHTML = corpCoaches.map(function(c){ return '<label style="font-size:12px;display:flex;gap:5px;align-items:center"><input type="checkbox" class="cd-teamck" value="'+c.id+'"> '+esc(c.first_name+' '+c.last_name)+'</label>'; }).join('');
+}
+function renderCorpDeals(deals){
+  var b = document.getElementById('corp-deals-body'); if (!b) return;
+  if (!deals.length){ b.innerHTML = '<tr><td colspan="7" class="empty">No corporate deals yet.</td></tr>'; return; }
+  b.innerHTML = deals.map(function(d){
+    var team = (d.corporate_deal_coaches||[]).map(function(t){ return esc(corpCoachName(t.coach_id)); }).join(', ') || '<span style="color:var(--muted)">none</span>';
+    var settled = d.status === 'settled';
+    return '<tr><td>' + esc(d.client_name) + '</td>'
+      + '<td style="font-family:var(--mono)">' + fmtUGX(d.contract_value) + '</td>'
+      + '<td>' + d.platform_pct + '%</td>'
+      + '<td>' + (d.origination_coach_id ? esc(corpCoachName(d.origination_coach_id)) + ' (' + d.origination_pct + '%)' : '—') + '</td>'
+      + '<td style="font-size:12px">' + team + '</td>'
+      + '<td><span class="badge ' + (settled ? 'badge-paid' : 'badge-partial') + '">' + esc(d.status) + '</span></td>'
+      + '<td>' + (settled ? '' : '<button class="btn-upload" style="padding:4px 10px;font-size:11px" onclick="settleDeal(\'' + d.id + '\')">Settle</button>') + '</td></tr>';
+  }).join('');
+}
+async function createCorpDeal(){
+  var msg = document.getElementById('cd-msg'); msg.textContent = '';
+  var client  = document.getElementById('cd-client').value.trim();
+  var value   = Number(document.getElementById('cd-value').value);
+  var take    = Number(document.getElementById('cd-take').value);
+  var orig    = document.getElementById('cd-orig').value;
+  var origpct = Number(document.getElementById('cd-origpct').value);
+  var team    = Array.prototype.slice.call(document.querySelectorAll('.cd-teamck:checked')).map(function(x){ return Number(x.value); });
+  if (!client || !(value > 0)){ msg.style.color = 'var(--danger)'; msg.textContent = 'Client name and a positive contract value are required.'; return; }
+  try {
+    var ins = await sb.from('corporate_deals').insert({
+      client_name: client, contract_value: value, platform_pct: take,
+      origination_coach_id: orig ? Number(orig) : null, origination_pct: origpct, status: 'active'
+    }).select().single();
+    if (ins.error) throw new Error(ins.error.message);
+    if (team.length){
+      var rows = team.map(function(cid){ return { deal_id: ins.data.id, coach_id: cid, weight: 1 }; });
+      var e2 = await sb.from('corporate_deal_coaches').insert(rows);
+      if (e2.error) throw new Error(e2.error.message);
+    }
+    msg.style.color = 'var(--success)'; msg.textContent = 'Deal created.';
+    document.getElementById('cd-client').value = ''; document.getElementById('cd-value').value = '';
+    document.querySelectorAll('.cd-teamck:checked').forEach(function(x){ x.checked = false; });
+    loadCorpDeals();
+  } catch(e){ msg.style.color = 'var(--danger)'; msg.textContent = e.message; }
+}
+async function settleDeal(id){
+  if (!confirm('Settle this deal? This records coach earnings + capital recoupment (WHT withheld). It cannot be auto-undone.')) return;
+  try {
+    var r = await sb.rpc('settle_corporate_deal', { p_deal_id: id });
+    if (r.error) throw new Error(r.error.message);
+    await sb.from('corporate_deals').update({ status: 'settled' }).eq('id', id);
+    loadCorpDeals(); loadSettlement();
+  } catch(e){ alert('Settle failed: ' + e.message); }
 }
 
 function capCard(label, val, color){
@@ -3961,20 +4474,14 @@ async function approveApplication(id) {
   const app = allApplications.find(a => a.id === id);
   if (!app) return;
 
-  const tier = app.preferred_tier || 'basic';
+  // Free-for-now (like mentors): every approved provider is listed FREE — basic tier, no price,
+  // no expiry, no payment — so the directory can populate. Paid tiers (Verified/Featured) are
+  // applied manually via Edit once monetisation opens. The applicant's preferred_tier is kept
+  // as a demand signal but is not charged.
+  const tier = 'basic';
   const TIER_PRICES = { basic: 0, verified: 500000, corporate: 25000000, programme_partner: 50000000, strategic_partner: 100000000 };
-
-  // Compute expiry based on tier
   const now = new Date();
-  let expiresAt;
-  if (tier === 'basic') {
-    expiresAt = '2099-12-31T00:00:00Z'; // basic = no expiry
-  } else if (tier === 'corporate' || tier === 'programme_partner' || tier === 'strategic_partner') {
-    expiresAt = new Date(now.getFullYear() + 1, now.getMonth(), now.getDate()).toISOString();
-  } else {
-    // verified = 3 months
-    expiresAt = new Date(now.getFullYear(), now.getMonth() + 3, now.getDate()).toISOString();
-  }
+  const expiresAt = '2099-12-31T00:00:00Z'; // no expiry — free permanent listing
 
   try {
     const token = await _getValidToken();
