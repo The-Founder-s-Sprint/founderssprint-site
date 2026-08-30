@@ -669,6 +669,21 @@
     max-width: 180px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
 </style>
+<!-- Dark-mode theming (OS default + remembered toggle) -->
+<script>(function(){try{var t=localStorage.getItem('fs-theme');if(t!=='dark'&&t!=='light')t=(window.matchMedia&&matchMedia('(prefers-color-scheme:dark)').matches)?'dark':'light';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<style>
+:root{ --card-bg:#ffffff; color-scheme:light; }
+html[data-theme="dark"]{
+  --bg:#141109; --surface:#1e1a12; --card:#1b1710; --card-hi:#241f16; --card-bg:#211c14;
+  --paper:#141109; --paper-mid:#2a2418; --paper-dim:#3a3324; --paper-deep:#1e1a12;
+  --ink:#EFE7D8; --ink-soft:#e4dccb; --ink-mid:#c6bdac; --ink-mute:#9e9686;
+  --text:#EFE7D8; --muted:#a49b8b; --stone:#8f8676;
+  --border:rgba(239,231,216,0.14); --border-hi:rgba(239,231,216,0.30); --gold-dim:rgba(200,83,31,0.22);
+  color-scheme:dark;
+}
+.theme-toggle{width:34px;height:34px;border-radius:50%;border:1px solid var(--border-hi);background:transparent;color:var(--text);font-size:15px;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;transition:background .15s,transform .15s;flex:none}
+.theme-toggle:hover{background:var(--gold-dim);transform:scale(1.06)}
+</style>
 </head>
 <body>
 
@@ -734,6 +749,7 @@
       <span class="topbar-sub">Admin</span>
     </div>
     <div class="topbar-right">
+      <button id="theme-toggle" class="theme-toggle" onclick="toggleTheme()" title="Toggle dark mode" aria-label="Toggle dark mode">☾</button>
       <span class="topbar-user" id="user-email"></span>
       <div style="position:relative" id="dash-avatar-wrap">
         <button onclick="document.getElementById('dash-avatar-wrap').classList.toggle('open')" style="width:34px;height:34px;border-radius:50%;border:2px solid #3A3C44;background:#22242B;cursor:pointer;overflow:hidden;padding:0;display:flex;align-items:center;justify-content:center;font-family:var(--sans);font-size:12px;font-weight:700;color:#EDE7DA" id="dash-avatar-btn">?</button>
@@ -1648,16 +1664,16 @@
         <div class="section-head" style="margin:30px 0 12px"><span class="section-title">Log a payment</span></div>
         <div style="background:var(--surface);border:1px solid var(--border);padding:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px 14px;max-width:780px">
           <label style="font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:4px">Founder
-            <select id="cap-founder" style="padding:7px 10px;border:1px solid var(--border);font-size:13px;font-family:var(--font);background:#fff;color:var(--text)"></select>
+            <select id="cap-founder" style="padding:7px 10px;border:1px solid var(--border);font-size:13px;font-family:var(--font);background:var(--card-bg);color:var(--text)"></select>
           </label>
           <label style="font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:4px">Amount (UGX)
-            <input id="cap-amount" type="number" min="1" step="1" placeholder="e.g. 1000000" style="padding:7px 10px;border:1px solid var(--border);font-size:13px;font-family:var(--font);background:#fff;color:var(--text)">
+            <input id="cap-amount" type="number" min="1" step="1" placeholder="e.g. 1000000" style="padding:7px 10px;border:1px solid var(--border);font-size:13px;font-family:var(--font);background:var(--card-bg);color:var(--text)">
           </label>
           <label style="font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:4px">Date paid
-            <input id="cap-date" type="date" style="padding:7px 10px;border:1px solid var(--border);font-size:13px;font-family:var(--font);background:#fff;color:var(--text)">
+            <input id="cap-date" type="date" style="padding:7px 10px;border:1px solid var(--border);font-size:13px;font-family:var(--font);background:var(--card-bg);color:var(--text)">
           </label>
           <label style="font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:4px">Method
-            <select id="cap-method" style="padding:7px 10px;border:1px solid var(--border);font-size:13px;font-family:var(--font);background:#fff;color:var(--text)">
+            <select id="cap-method" style="padding:7px 10px;border:1px solid var(--border);font-size:13px;font-family:var(--font);background:var(--card-bg);color:var(--text)">
               <option value="cash">Cash deposit</option>
               <option value="eft">EFT</option>
               <option value="absa_transfer">Absa transfer</option>
@@ -1666,13 +1682,13 @@
             </select>
           </label>
           <label style="font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:4px">Reference / narration
-            <input id="cap-ref" type="text" maxlength="120" placeholder="e.g. Founders Sprint shares" style="padding:7px 10px;border:1px solid var(--border);font-size:13px;font-family:var(--font);background:#fff;color:var(--text)">
+            <input id="cap-ref" type="text" maxlength="120" placeholder="e.g. Founders Sprint shares" style="padding:7px 10px;border:1px solid var(--border);font-size:13px;font-family:var(--font);background:var(--card-bg);color:var(--text)">
           </label>
           <label style="font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:4px">Bank txn ID
-            <input id="cap-txn" type="text" maxlength="60" placeholder="e.g. 17827486165188" style="padding:7px 10px;border:1px solid var(--border);font-size:13px;font-family:var(--font);background:#fff;color:var(--text)">
+            <input id="cap-txn" type="text" maxlength="60" placeholder="e.g. 17827486165188" style="padding:7px 10px;border:1px solid var(--border);font-size:13px;font-family:var(--font);background:var(--card-bg);color:var(--text)">
           </label>
           <label style="grid-column:1/3;font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:4px">Note
-            <input id="cap-note" type="text" maxlength="200" placeholder="optional" style="padding:7px 10px;border:1px solid var(--border);font-size:13px;font-family:var(--font);background:#fff;color:var(--text)">
+            <input id="cap-note" type="text" maxlength="200" placeholder="optional" style="padding:7px 10px;border:1px solid var(--border);font-size:13px;font-family:var(--font);background:var(--card-bg);color:var(--text)">
           </label>
           <div style="grid-column:1/3;display:flex;gap:12px;align-items:center">
             <button class="btn-upload" id="cap-add-btn" onclick="addCapitalPayment()">Add payment</button>
@@ -1719,15 +1735,15 @@
         <summary style="cursor:pointer;font-size:12px;color:var(--gold);font-weight:600">+ New corporate deal</summary>
         <div style="background:var(--surface);border:1px solid var(--border);padding:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px 14px;margin-top:10px">
           <label style="font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:4px">Client name
-            <input id="cd-client" type="text" maxlength="120" style="padding:7px 10px;border:1px solid var(--border);font-size:13px;font-family:var(--font);background:#fff;color:var(--text)"></label>
+            <input id="cd-client" type="text" maxlength="120" style="padding:7px 10px;border:1px solid var(--border);font-size:13px;font-family:var(--font);background:var(--card-bg);color:var(--text)"></label>
           <label style="font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:4px">Contract value (UGX)
-            <input id="cd-value" type="number" min="1" step="1" placeholder="e.g. 25000000" style="padding:7px 10px;border:1px solid var(--border);font-size:13px;font-family:var(--font);background:#fff;color:var(--text)"></label>
+            <input id="cd-value" type="number" min="1" step="1" placeholder="e.g. 25000000" style="padding:7px 10px;border:1px solid var(--border);font-size:13px;font-family:var(--font);background:var(--card-bg);color:var(--text)"></label>
           <label style="font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:4px">Platform take %
-            <input id="cd-take" type="number" min="0" max="100" step="0.5" value="30" style="padding:7px 10px;border:1px solid var(--border);font-size:13px;font-family:var(--font);background:#fff;color:var(--text)"></label>
+            <input id="cd-take" type="number" min="0" max="100" step="0.5" value="30" style="padding:7px 10px;border:1px solid var(--border);font-size:13px;font-family:var(--font);background:var(--card-bg);color:var(--text)"></label>
           <label style="font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:4px">Origination coach
-            <select id="cd-orig" style="padding:7px 10px;border:1px solid var(--border);font-size:13px;font-family:var(--font);background:#fff;color:var(--text)"></select></label>
+            <select id="cd-orig" style="padding:7px 10px;border:1px solid var(--border);font-size:13px;font-family:var(--font);background:var(--card-bg);color:var(--text)"></select></label>
           <label style="font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:4px">Origination %
-            <input id="cd-origpct" type="number" min="0" max="100" step="0.5" value="10" style="padding:7px 10px;border:1px solid var(--border);font-size:13px;font-family:var(--font);background:#fff;color:var(--text)"></label>
+            <input id="cd-origpct" type="number" min="0" max="100" step="0.5" value="10" style="padding:7px 10px;border:1px solid var(--border);font-size:13px;font-family:var(--font);background:var(--card-bg);color:var(--text)"></label>
           <label style="grid-column:1/3;font-size:11px;color:var(--muted);display:flex;flex-direction:column;gap:4px">Delivery team (weight 1 each)
             <div id="cd-team" style="display:flex;flex-wrap:wrap;gap:12px;margin-top:6px"></div></label>
           <div style="grid-column:1/3;display:flex;gap:12px;align-items:center">
@@ -6062,5 +6078,10 @@ function previewMaterial(id) {
 })();
 </script>
 <script src="/report-widget.js" data-area="Ops dashboard" data-role="staff" defer></script>
+<script>
+function toggleTheme(){var d=document.documentElement,cur=d.getAttribute('data-theme')==='dark'?'dark':'light',next=cur==='dark'?'light':'dark';d.setAttribute('data-theme',next);try{localStorage.setItem('fs-theme',next);}catch(e){}fsThemeIcon();}
+function fsThemeIcon(){var b=document.getElementById('theme-toggle');if(b)b.textContent=document.documentElement.getAttribute('data-theme')==='dark'?'☀':'☾';}
+fsThemeIcon();
+</script>
 </body>
 </html>

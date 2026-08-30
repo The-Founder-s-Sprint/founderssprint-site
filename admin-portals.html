@@ -10,7 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="/vendor/supabase-js.min.js?v=2110"></script>
 <script>window.supabase||document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"><\/script>')</script>
-<script src="ui-dialogs.js?v=2"></script>
+<script src="ui-dialogs.js?v=3"></script>
 <style>
   :root{
   --radius-card: 0 0 24px 0;
@@ -66,14 +66,14 @@
   .page-sub{font-size:14px;color:var(--muted);margin-bottom:22px;max-width:680px;line-height:1.5;}
   /* stat chips */
   .stat-row{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:20px;}
-  .stat{background:var(--card);border:1px solid var(--border);border-top:2px solid var(--ochre);padding:12px 18px;min-width:120px;}
+  .stat{background:var(--card);border:1px solid var(--border);border-top:2px solid var(--ochre);padding:12px 18px;min-width:120px;border-radius:var(--radius-card);}
   .stat .v{font-family:var(--display);font-size:26px;font-weight:700;line-height:1;}
   .stat .l{font-family:var(--sans);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:5px;}
   /* search */
   .search{width:100%;max-width:340px;background:rgba(0,0,0,.03);border:1px solid var(--border);padding:10px 13px;font-size:13px;font-family:var(--font);outline:none;margin-bottom:14px;}
   .search:focus{border-color:var(--ochre);}
   /* table */
-  .tbl-wrap{background:var(--card);border:1px solid var(--border);overflow-x:auto;}
+  .tbl-wrap{background:var(--card);border:1px solid var(--border);overflow-x:auto;border-radius:var(--radius-card);}
   table{width:100%;border-collapse:collapse;font-size:12.5px;}
   th{font-family:var(--sans);font-size:8.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);text-align:left;padding:11px 16px;border-bottom:1px solid var(--border-hi);white-space:nowrap;}
   td{padding:11px 16px;border-bottom:1px solid var(--border);vertical-align:middle;}
@@ -106,7 +106,7 @@
   .kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;}
   .kv .k{font-family:var(--sans);font-size:8px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:3px;}
   .kv .v{font-size:13px;font-weight:500;}
-  .app-card{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--ochre);padding:16px 18px;margin-bottom:14px;}
+  .app-card{background:var(--card);border:1px solid var(--border);border-left:3px solid var(--ochre);padding:16px 18px;margin-bottom:14px;border-radius:var(--radius-card);}
   .app-head{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:4px;}
   .dd{margin-top:12px;padding-top:12px;border-top:1px dashed var(--border-hi);}
   .app-actions{margin-top:14px;display:flex;gap:8px;}
@@ -142,11 +142,26 @@
   .spx-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(174px,1fr));gap:6px;}
   .spx-l2{grid-column:1/-1;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--stone);margin:8px 0 1px;}
   .spx-l2:first-child{margin-top:0;}
-  .spx-chip{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);background:#fff;cursor:pointer;font-size:12px;line-height:1.25;color:var(--ink);}
+  .spx-chip{display:flex;align-items:center;gap:8px;padding:8px 10px;border:1px solid var(--border);background:var(--card-bg);cursor:pointer;font-size:12px;line-height:1.25;color:var(--ink);}
   .spx-chip input{flex:none;width:16px;height:16px;min-width:16px;padding:0;border:0;background:none;accent-color:var(--terra);margin:0;}
   .spx-chip:hover{border-color:var(--ochre);}
   .spx-chip:has(input:checked){border-color:var(--terra);background:rgba(200,83,31,.08);color:#9A3E16;font-weight:600;}
   @media(max-width:560px){.main{padding:22px 16px 70px;}.page-title{font-size:26px;}}
+</style>
+<!-- Dark-mode theming (OS default + remembered toggle) -->
+<script>(function(){try{var t=localStorage.getItem('fs-theme');if(t!=='dark'&&t!=='light')t=(window.matchMedia&&matchMedia('(prefers-color-scheme:dark)').matches)?'dark':'light';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<style>
+:root{ --card-bg:#ffffff; color-scheme:light; }
+html[data-theme="dark"]{
+  --bg:#141109; --surface:#1e1a12; --card:#1b1710; --card-hi:#241f16; --card-bg:#211c14;
+  --paper:#141109; --paper-mid:#2a2418; --paper-dim:#3a3324; --paper-deep:#1e1a12;
+  --ink:#EFE7D8; --ink-soft:#e4dccb; --ink-mid:#c6bdac; --ink-mute:#9e9686;
+  --text:#EFE7D8; --muted:#a49b8b; --stone:#8f8676;
+  --border:rgba(239,231,216,0.14); --border-hi:rgba(239,231,216,0.30); --gold-dim:rgba(200,83,31,0.22);
+  color-scheme:dark;
+}
+.theme-toggle{width:34px;height:34px;border-radius:50%;border:1px solid var(--border-hi);background:transparent;color:var(--text);font-size:15px;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;transition:background .15s,transform .15s;flex:none}
+.theme-toggle:hover{background:var(--gold-dim);transform:scale(1.06)}
 </style>
 </head>
 <body>
@@ -171,6 +186,7 @@
       <div class="topbar-sep"></div><span class="topbar-sub">Command Centre</span>
     </div>
     <div class="topbar-right">
+      <button id="theme-toggle" class="theme-toggle" onclick="toggleTheme()" title="Toggle dark mode" aria-label="Toggle dark mode">☾</button>
       <div style="position:relative" id="cc-avatar-wrap">
         <button class="cc-avatar" id="cc-avatar-btn" onclick="document.getElementById('cc-avatar-wrap').classList.toggle('open')" title="Account">?</button>
         <div class="cc-menu">
@@ -200,7 +216,7 @@ const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 // Auth routes through the same-origin /sb proxy too (login + refresh were dying on the
 // direct cross-origin path). storageKey is pinned to the existing key so sessions persist.
 const sb=supabase.createClient(location.origin+'/sb',SUPABASE_ANON,{auth:{detectSessionInUrl:true,autoRefreshToken:true,persistSession:true,storageKey:'sb-ivedeivyotwevjxvcuoe-auth-token'}});
-const API_BASE='https://founders-sprint-api.vercel.app';
+const API_BASE='';  // same-origin → Cloudflare /api/* proxy → api.founderssprint.co (cross-origin fails on mobile/UG networks)
 function ago(ts){ if(!ts) return ''; const s=Math.max(0,(Date.now()-new Date(ts).getTime())/1000);
   if(s<60) return 'just now'; if(s<3600) return Math.floor(s/60)+'m ago'; if(s<86400) return Math.floor(s/3600)+'h ago'; return Math.floor(s/86400)+'d ago'; }
 
@@ -416,6 +432,14 @@ let mentorsList=[], mentorReqs=[], mentorApps=[], mentorRecs=[];
 const MREQ_STATUS=['new','contacted','scheduled','completed','declined'];
 const MREC_STATUS=['new','reviewing','invited','declined'];
 function mMoney(n){ return n? 'UGX '+Number(n).toLocaleString('en-US') : '—'; }
+function mPhotoUrl(p){ if(!p) return ''; if(/^https?:\/\//.test(p)) return p; try{ return sb.storage.from('mentor-photos').getPublicUrl(p).data.publicUrl; }catch(e){ return p; } }
+// Fee policy (locked by Teddy): captain sessions capped at UGX 500k; the two format
+// rates (coffee vs Zoom) may differ by at most 25%, for every tier.
+const MENTOR_TIER_CAP={captain:500000};
+function mFeeIssues(a){ const f=(a&&a.proposed_fees)||{}; const coffee=Number(f.coffee)||0, zoom=Number(f.zoom)||0; const out=[]; const cap=MENTOR_TIER_CAP[a&&a.tier];
+  if(cap){ if(coffee>cap) out.push('Coffee '+mMoney(coffee)+' exceeds the '+a.tier+' cap of '+mMoney(cap)); if(zoom>cap) out.push('Zoom '+mMoney(zoom)+' exceeds the '+a.tier+' cap of '+mMoney(cap)); }
+  if(coffee>0&&zoom>0){ const hi=Math.max(coffee,zoom); const v=Math.round(((hi-Math.min(coffee,zoom))/hi)*100); if(v>25) out.push('The two rates differ by '+v+'% — the cap is 25%'); }
+  return out; }
 const MENTOR_CAT_LABELS={fintech:'Fintech & Payments',agribusiness:'Agribusiness & Exports',marketing:'Marketing & Brand',fundraising:'Fundraising & Capital',product:'Product & Growth',creative:'Creative & Media',ops:'Ops & Supply Chain'};
 function mCatLabel(k){ return MENTOR_CAT_LABELS[k]||'—'; }
 function mDur(mins){ if(!mins) return ''; return (mins%60===0)?((mins/60)+(mins===60?' hour':' hours')):(mins+' min'); }
@@ -556,23 +580,30 @@ function renderMentors(){
     const pending = mentorApps.filter(a=>a.status==='submitted'||a.status==='changes_requested'||a.status==='applied');
     const invited = mentorApps.filter(a=>a.status==='invited');
     const appCards = pending.length ? pending.map(a=>{
-      const fees=a.proposed_fees||{}; const pay=a.payout||{};
+      const fees=a.proposed_fees||{}; const pay=a.payout||{}; const feeIssues=mFeeIssues(a);
+      const photoCell=a.photo_url
+        ? '<a href="'+esc(mPhotoUrl(a.photo_url))+'" target="_blank" title="View full photo" style="flex:none"><img src="'+esc(mPhotoUrl(a.photo_url))+'" alt="" style="width:52px;height:52px;object-fit:cover;border-radius:0 0 14px 0;display:block"></a>'
+        : '<div style="width:52px;height:52px;flex:none;border:1px dashed #C0392B;border-radius:0 0 14px 0;display:flex;align-items:center;justify-content:center;font-size:8px;font-weight:700;letter-spacing:.05em;color:#C0392B;text-align:center;line-height:1.15">NO<br>PHOTO</div>';
       return '<div class="app-card" style="margin-bottom:12px">'
         +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">'
+        +'<div style="display:flex;gap:12px;align-items:flex-start">'+photoCell
         +'<div><div style="font-family:var(--display);font-size:18px;font-weight:600">'+esc(a.name||'—')+(a.title?(' <span class="sub">· '+esc(a.title)+'</span>'):'')+'</div>'
-        +'<div class="sub">'+esc(a.email||'')+(a.phone?(' · '+esc(a.phone)):'')+(a.company?(' · '+esc(a.company)):'')+'</div></div>'
+        +'<div class="sub">'+esc(a.email||'')+(a.phone?(' · '+esc(a.phone)):'')+(a.company?(' · '+esc(a.company)):'')+'</div></div></div>'
         +pill(a.status)+'</div>'
         +(a.status==='applied'?'<div class="sub" style="margin:6px 0;color:var(--terra-deep);font-weight:600">Public application — no KYC on file yet. Collect TIN, ID &amp; payout before any payout goes live (listing the public profile is fine on consent).</div>':'')
         +(a.bio?'<div style="font-size:13px;margin:8px 0;color:var(--ink-mid)">'+esc(a.bio)+'</div>':'')
         +'<div class="sub" style="margin:6px 0">Specialties: <strong>'+(a.specialties&&a.specialties.length?esc(specLabels(a.specialties).join(', ')):'—')+'</strong>'+(a.tier?(' &nbsp;·&nbsp; Tier: '+esc(a.tier)):'')+'</div>'
         +(a.expertise&&a.expertise.length?'<div class="sub">Expertise: '+esc(a.expertise.join(', '))+'</div>':'')
         +'<div class="sub">Fees — ☕ '+mMoney(fees.coffee)+' · 🎥 '+mMoney(fees.zoom)+' &nbsp;|&nbsp; Formats: '+esc((a.formats||[]).join(', '))+'</div>'
+        +(feeIssues.length?('<div style="margin-top:6px;padding:8px 11px;background:rgba(192,57,43,.08);border-left:3px solid #C0392B;font-size:12px;color:#C0392B;font-weight:600">⚠ Fee policy — '+feeIssues.map(x=>esc(x)).join(' · ')+'</div>'):'')
         +'<div class="sub" style="margin-top:4px">Payout: '+esc(pay.method||'—')+(pay.account_no?(' · '+esc(pay.account_name||'')+' '+esc(pay.account_no)):'')+'</div>'
         +'<div class="sub" style="margin-top:4px">TIN: '+esc(a.tin||'—')+(a.id_doc_path?(' &nbsp;·&nbsp; <a href="#" onclick="openMentorId(\''+esc(a.id_doc_path)+'\');return false" style="color:var(--terra);font-weight:600">Open ID ↗</a>'):' · <span style="color:#C0392B">no ID on file</span>')+'</div>'
         +'<div class="sub" style="margin-top:4px">Consent: '+(a.consent_agreed?('✓ '+esc(a.consent_version||'')+(a.consent_at?(' · '+ago(a.consent_at)):'')):'✗ not given')+'</div>'
         +(a.admin_notes?'<div class="sub" style="margin-top:4px;color:#9a6">Note to mentor: '+esc(a.admin_notes)+'</div>':'')
         +'<div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">'
-        +'<button class="btn-sm" style="background:var(--terra);border:none;color:#fff;padding:7px 14px" onclick="approveMentorApp(\''+a.id+'\')">Approve &amp; list</button>'
+        +(feeIssues.length
+            ? '<button class="btn-sm" style="background:#e5e0d6;border:none;color:#9a948a;padding:7px 14px;cursor:not-allowed" disabled title="Resolve the fee-policy issues (use Request changes) before approving">Approve &amp; list</button>'
+            : '<button class="btn-sm" style="background:var(--terra);border:none;color:#fff;padding:7px 14px" onclick="approveMentorApp(\''+a.id+'\')">Approve &amp; list</button>')
         +'<button class="btn-sm" style="background:none;border:1px solid var(--border-hi);color:var(--ink-mid);padding:7px 12px" onclick="changesMentorApp(\''+a.id+'\')">Request changes</button>'
         +'<button class="btn-sm" style="background:none;border:1px solid var(--border-hi);color:#C0392B;padding:7px 12px" onclick="declineMentorApp(\''+a.id+'\')">Decline</button>'
         +'</div></div>';
@@ -742,11 +773,14 @@ async function inviteMentor(){
   }catch(e){ showToast('Failed — '+e.message,'error'); }
 }
 async function approveMentorApp(id){
+  const app=(mentorApps||[]).find(x=>x.id===id);
+  const issues=app?mFeeIssues(app):[];
+  if(issues.length){ showToast('Fee policy — '+issues[0]+'. Use “Request changes” first.','error'); return; }
   try{ await _rpc('provision_mentor_from_application',{p_app:id}); showToast('Mentor approved & listed','success'); loadMentors(); }
   catch(e){ showToast('Approve failed — '+e.message,'error'); }
 }
 async function changesMentorApp(id){
-  const note=await fsPrompt('What should the mentor change? (sent as a note; their link stays valid)',{title:'Request changes',okText:'Send note'}); if(note===null) return;
+  const note=await fsPrompt('What should the mentor change? (sent as a note; their link stays valid)',{title:'Request changes',okText:'Send note',multiline:true,placeholder:'e.g. Adjust your rates — captain sessions are capped at UGX 500k and your two formats can differ by at most 25%. Also add credentials for vetting.'}); if(note===null||!note.trim()) return;
   try{ await _w('PATCH','mentor_applications','id=eq.'+id,{status:'changes_requested',admin_notes:note}); showToast('Changes requested','success'); loadMentors(); }
   catch(e){ showToast('Failed — '+e.message,'error'); }
 }
@@ -996,6 +1030,25 @@ function editFounder(fid){
       : '<span class="pill '+(r.balance_paid?'pill-green':'pill-grey')+'">Balance '+(r.balance_paid?'paid':'—')+'</span>';
     return '<div class="mat-row"><span>'+esc(pd)+'</span><span style="display:flex;gap:8px;align-items:center">'+dep+bal+'</span></div>';
   }).join('') : '<div class="sub">No bookings on file.</div>';
+  let outHtml='';
+  if(fin && cos.length){
+    const coSel = cos.length>1
+      ? '<select id="ef-oc-company">'+cos.map(c=>'<option value="'+c.id+'">'+esc(c.name)+'</option>').join('')+'</select>'
+      : '<input type="hidden" id="ef-oc-company" value="'+cos[0].id+'"><span class="sub">'+esc(cos[0].name)+'</span>';
+    const typeOpts=[['raised_equity','Raised equity'],['loan_approved','Loan approved'],['loan_declined','Loan declined'],['grant','Grant'],['revenue_milestone','Revenue milestone'],['acquired','Acquired'],['ceased','Ceased trading']]
+      .map(o=>'<option value="'+o[0]+'">'+o[1]+'</option>').join('');
+    outHtml='<div class="section-title" style="margin:20px 0 6px;font-size:10px">Funding outcomes</div>'
+      +'<div class="sub" style="margin-bottom:10px;font-size:11px">Log a verified funding event (raise, loan, grant, milestone). Investors see <em>verified</em> outcomes on shared companies — this is the metric that opens institutional doors.</div>'
+      +'<div id="ef-outcomes-list" class="sub">Loading…</div>'
+      +'<div class="kv" style="margin-top:12px"><div><div class="k">Company</div>'+coSel+'</div>'
+        +'<div><div class="k">Event</div><select id="ef-oc-type">'+typeOpts+'</select></div></div>'
+      +'<div class="kv" style="margin-top:10px"><div><div class="k">Amount</div><input id="ef-oc-amount" type="number" placeholder="e.g. 50000000" style="width:100%"></div>'
+        +'<div><div class="k">Currency</div><input id="ef-oc-currency" value="UGX" style="width:100%"></div></div>'
+      +'<div class="kv" style="margin-top:10px"><div><div class="k">Counterparty (investor / lender)</div><input id="ef-oc-cp" placeholder="e.g. Stanbic SME desk" style="width:100%"></div>'
+        +'<div><div class="k">Occurred on</div><input id="ef-oc-date" type="date" style="width:100%"></div></div>'
+      +'<div class="f" style="margin-top:10px"><div class="k">Note</div><textarea id="ef-oc-note" rows="2" style="width:100%"></textarea></div>'
+      +'<div style="margin-top:12px"><button class="btn-sm approve" onclick="saveOutcome(\''+fid+'\')">Log outcome</button></div>';
+  }
   document.getElementById('roster').innerHTML='<span class="back" onclick="loadFounders()" style="font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ochre-deep);cursor:pointer;display:inline-block;margin-bottom:14px">← All founders</span>'
     +'<div class="app-card"><div class="app-head"><div><span class="nm">'+esc((f.first_name||'')+' '+(f.last_name||''))+'</span> <span class="sub">'+esc(f.email||'')+'</span></div></div>'
     +'<div class="sub" style="margin:6px 0 14px">Administrative controls — you manage account state and payments; you don\'t rewrite the founder\'s own data-room content.</div>'
@@ -1007,7 +1060,53 @@ function editFounder(fid){
     +'<div style="margin-top:14px"><button class="btn-sm approve" onclick="saveFounder(\''+fid+'\')">Save</button></div>'
     +'<div class="section-title" style="margin:18px 0 6px;font-size:10px">Payments (manual override)</div>'+payRows
     +'<div class="sub" style="margin-top:8px;font-size:11px">Use overrides only for confirmed off-platform payments; ioTec reconciliation sets these automatically once live.</div>'
+    +outHtml
     +'</div>';
+  if(fin && cos.length) loadFounderOutcomes(cos.map(c=>c.id));
+}
+const OUT_LABEL={raised_equity:'Raised equity',loan_approved:'Loan approved',loan_declined:'Loan declined',grant:'Grant',revenue_milestone:'Revenue milestone',acquired:'Acquired',ceased:'Ceased trading'};
+async function loadFounderOutcomes(companyIds){
+  const el=document.getElementById('ef-outcomes-list'); if(!el) return;
+  if(!companyIds||!companyIds.length){ el.innerHTML='No company on file.'; return; }
+  try{
+    const rows=await _q('founder_outcomes','company_id=in.('+companyIds.join(',')+')&order=occurred_at.desc,created_at.desc&limit=50');
+    if(!rows.length){ el.innerHTML='No outcomes logged yet.'; return; }
+    el.innerHTML=rows.map(o=>{
+      const amt=o.amount!=null?((o.currency||'UGX')+' '+Number(o.amount).toLocaleString('en-US')):'';
+      const when=o.occurred_at?new Date(o.occurred_at+'T00:00:00').toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}):'';
+      const v=o.source==='staff_verified'?'<span class="pill pill-green">verified</span>':'<span class="pill pill-grey">reported</span>';
+      const verifyBtn=(canFinance()&&o.source!=='staff_verified')?' <button class="btn-sm" style="background:none;border:1px solid var(--border-hi);color:var(--ink-mid)" onclick="verifyOutcome(\''+o.id+'\',['+companyIds.map(c=>"'"+c+"'").join(',')+'])">Verify</button>':'';
+      return '<div class="mat-row"><span>'+esc(OUT_LABEL[o.event_type]||o.event_type)+(amt?(' · '+esc(amt)):'')+(o.counterparty?(' · '+esc(o.counterparty)):'')+' <span class="sub">'+esc(when)+'</span></span><span style="display:flex;gap:8px;align-items:center">'+v+verifyBtn+'</span></div>';
+    }).join('');
+  }catch(e){ el.innerHTML='Could not load outcomes.'; }
+}
+async function saveOutcome(fid){
+  const cidEl=document.getElementById('ef-oc-company'); if(!cidEl){ return; }
+  const body={
+    company_id: cidEl.value,
+    event_type: document.getElementById('ef-oc-type').value,
+    amount: (document.getElementById('ef-oc-amount').value.trim()==='')?null:Number(document.getElementById('ef-oc-amount').value.trim()),
+    currency: (document.getElementById('ef-oc-currency').value||'UGX').trim()||'UGX',
+    counterparty: document.getElementById('ef-oc-cp').value.trim()||null,
+    occurred_at: document.getElementById('ef-oc-date').value||null,
+    notes: document.getElementById('ef-oc-note').value.trim()||null,
+    source: 'staff_verified',
+    verified_by: (currentSession&&currentSession.user&&currentSession.user.id)||null,
+    verified_at: new Date().toISOString()
+  };
+  if(!body.company_id){ showToast('No company selected','error'); return; }
+  try{
+    await _w('POST','founder_outcomes','',body);
+    showToast('Outcome logged','success');
+    ['ef-oc-amount','ef-oc-cp','ef-oc-note'].forEach(id=>{const e=document.getElementById(id); if(e) e.value='';});
+    loadFounderOutcomes(companiesOf(fid).map(c=>c.id));
+  }catch(e){ showToast('Could not log — '+e.message,'error'); }
+}
+async function verifyOutcome(id,companyIds){
+  try{
+    await _w('PATCH','founder_outcomes','id=eq.'+id,{ source:'staff_verified', verified_at:new Date().toISOString(), verified_by:(currentSession&&currentSession.user&&currentSession.user.id)||null });
+    showToast('Outcome verified','success'); loadFounderOutcomes(companyIds);
+  }catch(e){ showToast('Could not verify — '+e.message,'error'); }
 }
 async function saveFounder(fid){
   const f=founders.find(x=>x.id===fid); if(!f) return;
@@ -1333,7 +1432,7 @@ function firmCard(f){
     if(f.status!=='approved') actions='<div class="app-actions"><button class="btn-sm approve" onclick="approveFirm(\''+f.id+'\')">Approve &amp; publish</button><button class="btn-sm reject" onclick="rejectFirm(\''+f.id+'\')">Reject</button></div>';
     else actions='<div class="app-actions"><button class="btn-sm" style="background:var(--ochre);color:#15161A" onclick="toggleFirmPublic(\''+f.id+'\','+(!f.public)+')">'+(f.public?'Unpublish':'Publish')+'</button></div>';
   }
-  const logo=f.logo_url?'<img src="'+esc(f.logo_url)+'" alt="" style="width:34px;height:34px;object-fit:contain;border:1px solid var(--border);background:#fff;margin-right:10px;vertical-align:middle">':'';
+  const logo=f.logo_url?'<img src="'+esc(f.logo_url)+'" alt="" style="width:34px;height:34px;object-fit:contain;border:1px solid var(--border);background:var(--card-bg);margin-right:10px;vertical-align:middle">':'';
   return '<div class="app-card"><div class="app-head"><div style="display:flex;align-items:center">'+logo+'<div><span class="nm">'+esc(f.name)+'</span> '+(f.firm_type?'<span class="tag">'+esc(f.firm_type)+'</span>':'')+(f.public?'<span class="pill pill-green" style="margin-left:4px">Public</span>':'')+'</div></div>'+(FIRM_PILL[f.status]||'')+'</div>'
     +(f.one_liner?'<div class="sub" style="margin-top:2px">'+esc(f.one_liner)+'</div>':'')
     +(meta?'<div class="sub" style="margin-top:6px">'+esc(meta)+'</div>':'')
@@ -1677,5 +1776,10 @@ function showToast(m,t){const e=document.getElementById('toast');e.textContent=m
 })();
 </script>
 <script src="/report-widget.js" data-area="Command Centre" data-role="staff" defer></script>
+<script>
+function toggleTheme(){var d=document.documentElement,cur=d.getAttribute('data-theme')==='dark'?'dark':'light',next=cur==='dark'?'light':'dark';d.setAttribute('data-theme',next);try{localStorage.setItem('fs-theme',next);}catch(e){}fsThemeIcon();}
+function fsThemeIcon(){var b=document.getElementById('theme-toggle');if(b)b.textContent=document.documentElement.getAttribute('data-theme')==='dark'?'☀':'☾';}
+fsThemeIcon();
+</script>
 </body>
 </html>

@@ -10,7 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="/vendor/supabase-js.min.js?v=2110"></script>
 <script>window.supabase||document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"><\/script>')</script>
-<script src="ui-dialogs.js?v=2"></script>
+<script src="ui-dialogs.js?v=3"></script>
 <style>
   :root{
   --radius-card: 0 0 24px 0;--bg:#EFE7D8;--surface:#E6DCC7;--card:#EFE7D8;--ink:#1A1A1A;--ink-mid:#444;--muted:#5A564F;--text:#1A1A1A;
@@ -104,6 +104,21 @@
   #toast.show{transform:translateX(-50%) translateY(0);opacity:1;}#toast.success{background:var(--success);}#toast.error{background:#DC3545;}
   @media(max-width:560px){.main{padding:24px 18px;}}
 </style>
+<!-- Dark-mode theming (OS default + remembered toggle) -->
+<script>(function(){try{var t=localStorage.getItem('fs-theme');if(t!=='dark'&&t!=='light')t=(window.matchMedia&&matchMedia('(prefers-color-scheme:dark)').matches)?'dark':'light';document.documentElement.setAttribute('data-theme',t);}catch(e){}})();</script>
+<style>
+:root{ --card-bg:#ffffff; color-scheme:light; }
+html[data-theme="dark"]{
+  --bg:#141109; --surface:#1e1a12; --card:#1b1710; --card-hi:#241f16; --card-bg:#211c14;
+  --paper:#141109; --paper-mid:#2a2418; --paper-dim:#3a3324; --paper-deep:#1e1a12;
+  --ink:#EFE7D8; --ink-soft:#e4dccb; --ink-mid:#c6bdac; --ink-mute:#9e9686;
+  --text:#EFE7D8; --muted:#a49b8b; --stone:#8f8676;
+  --border:rgba(239,231,216,0.14); --border-hi:rgba(239,231,216,0.30); --gold-dim:rgba(200,83,31,0.22);
+  color-scheme:dark;
+}
+.theme-toggle{width:34px;height:34px;border-radius:50%;border:1px solid var(--border-hi);background:transparent;color:var(--text);font-size:15px;line-height:1;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;padding:0;transition:background .15s,transform .15s;flex:none}
+.theme-toggle:hover{background:var(--gold-dim);transform:scale(1.06)}
+</style>
 </head>
 <body>
 <div id="login-screen">
@@ -125,6 +140,7 @@
       <span class="topbar-logo">Founder's Sprint</span><div class="topbar-sep"></div><span class="topbar-sub" id="coach-disc">Coach</span>
     </div>
     <div class="topbar-right">
+      <button id="theme-toggle" class="theme-toggle" onclick="toggleTheme()" title="Toggle dark mode" aria-label="Toggle dark mode">☾</button>
       <div class="hav-wrap" id="hav-wrap">
         <button class="hav-btn" id="hav-btn" onclick="document.getElementById('hav-wrap').classList.toggle('open')" title="Account">?</button>
         <div class="hav-dd">
@@ -447,10 +463,22 @@ function renderSessions(){
     const gbtn = gm
       ? '<a class="pill" style="background:rgba(10,143,100,.14);color:#0A8F64;text-decoration:none" href="'+esc(gm)+'" target="_blank">Start session ↗</a> <a href="#" onclick="setGroupMeet();return false" style="font-size:10px;color:var(--muted);text-decoration:none">edit link</a>'
       : '<a href="#" onclick="setGroupMeet();return false" style="font-size:11px;color:var(--terra);text-decoration:none;font-weight:600">+ Add Meet link</a>';
-    co.innerHTML=mine.map(k=>{ const d=DISC_DAY[k]; const t=TAXONOMY.find(x=>x.key===k);
-    return '<div class="list-row"><div><div class="list-main">'+esc(t?t.label:k)+' — '+DAYS[d.day]+'s</div>'
-      +'<div class="list-sub">Every '+DAYS[d.day]+', 10:00–12:00 EAT · group cohort session · lead: '+esc(d.coach)+'</div></div>'
-      +'<div style="display:flex;gap:10px;align-items:center">'+gbtn+'<span class="pill pill-grey">Weekly</span></div></div>'; }).join('');
+    co.innerHTML=mine.map(k=>{ const d=DISC_DAY[k]; const t=TAXONOMY.find(x=>x.key===k); const label=t?t.label:k;
+    const decks=myMaterials.filter(m=>(m.discipline||'')===label);
+    const deckBlock = decks.length
+      ? '<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border-hi)">'
+        +'<div style="font-family:var(--sans);font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:8px">Session decks · '+decks.length+'</div>'
+        +decks.map(m=>'<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:5px 0"><span style="font-size:12.5px;color:var(--ink-mid);line-height:1.4">'+esc(m.title)+'</span>'+matLink(m)+'</div>').join('')
+        +'</div>'
+      : '<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border-hi);font-size:11px;color:var(--muted)">No deck loaded for this discipline yet — add it in the <a href="#" onclick="switchTab(\'materials\');return false" style="color:var(--terra);text-decoration:none;font-weight:600">Materials</a> tab.</div>';
+    return '<div class="list-row" style="flex-direction:column;align-items:stretch;gap:0">'
+      +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;width:100%">'
+        +'<div><div class="list-main">'+esc(label)+' — '+DAYS[d.day]+'s</div>'
+        +'<div class="list-sub">Every '+DAYS[d.day]+', 10:00–12:00 EAT · group cohort session · lead: '+esc(d.coach)+'</div></div>'
+        +'<div style="display:flex;gap:10px;align-items:center">'+gbtn+'<span class="pill pill-grey">Weekly</span></div>'
+      +'</div>'
+      +deckBlock
+      +'</div>'; }).join('');
   }
   // 1:1 sessions from the sessions table
   const oo=document.getElementById('oneonone-sessions');
@@ -547,11 +575,9 @@ async function uploadCoachPhoto(input){
 // ── EARNINGS ──
 function ugx(n){ n=Number(n)||0; return 'UGX '+n.toLocaleString('en-US'); }
 function mask(s){ s=String(s||''); return s.length>4?('•••• '+s.slice(-4)):s; }
-function renderEarnings(){
-  const a=application||{}, fee=coach.session_fee||500000;
-  const done=sessions.filter(s=>s.status==='completed'||s.status==='complete').length;
-  const upcoming=sessions.filter(s=>s.scheduled_at&&new Date(s.scheduled_at)>=new Date()).length;
-  const indicative=done*fee;
+function st(v,l){ return '<div class="stat"><div class="v">'+v+'</div><div class="l">'+l+'</div></div>'; }
+async function renderEarnings(){
+  const a=application||{};
   let payout='<div style="font-size:13px;color:var(--ink-mid)">No payout details on file yet. These are collected on the coach onboarding form.</div>';
   if(a.mobile_money_provider||a.mobile_money_number){
     payout='<div class="kv"><div><div class="k">Method</div><div class="v">Mobile money</div></div>'
@@ -563,15 +589,46 @@ function renderEarnings(){
       +'<div><div class="k">Account</div><div class="v">'+esc(mask(a.account_number))+'</div></div>'
       +(a.account_name?'<div><div class="k">Account name</div><div class="v">'+esc(a.account_name)+'</div></div>':'')+'</div>';
   }
-  document.getElementById('earnings-body').innerHTML=
-    '<div class="stat-row">'
-      +'<div class="stat"><div class="v">'+ugx(fee)+'</div><div class="l">Your 1:1 rate</div></div>'
-      +'<div class="stat"><div class="v">'+done+'</div><div class="l">Sessions delivered</div></div>'
-      +'<div class="stat"><div class="v">'+upcoming+'</div><div class="l">Upcoming</div></div>'
-      +'<div class="stat"><div class="v">'+ugx(indicative)+'</div><div class="l">Indicative earned</div></div>'
-    +'</div>'
-    +'<div class="card card-top"><div class="section-title" style="margin-top:0">Payout details</div>'+payout
-      +'<div style="font-size:11px;color:var(--muted);margin-top:12px">Indicative earnings = delivered 1:1 sessions × your rate. Actual settlement begins once mobile-money payouts go live; group-cohort revenue share is handled separately by the platform.</div></div>';
+
+  const el=document.getElementById('earnings-body');
+  el.innerHTML='<div style="color:var(--muted);font-size:13px">Loading your earnings…</div>';
+  let d={};
+  try{ const r=await sb.rpc('my_coach_earnings'); if(r.error) throw new Error(r.error.message); d=r.data||{}; }
+  catch(e){ el.innerHTML='<div style="color:#b4462f;font-size:13px">Could not load earnings — '+esc(e.message)+'</div>'; return; }
+
+  const s=d.summary||{}, cap=d.capital, recent=d.recent||[], payouts=d.payouts||[];
+  let html='<div class="stat-row">'
+    + st(ugx(s.gross),'Gross earned (80%)')
+    + st(ugx(s.wht),'WHT withheld · URA')
+    + st(ugx(s.cash_payable),'Cash payable')
+    + st(ugx(s.cash_paid),'Cash paid')
+    + '</div>';
+
+  if(cap){
+    const pct = cap.target>0 ? Math.min(100, Math.round(Number(cap.contributed)/Number(cap.target)*100)) : 0;
+    html+='<div class="card card-top"><div class="section-title" style="margin-top:0">Capital recoupment</div>'
+      +'<div style="font-size:13px;color:var(--ink-mid);margin-bottom:10px">Your coaching earnings first clear your founder capital target ('+ugx(cap.target)+' at '+cap.equity_pct+'% equity); cash is paid once it\'s met.</div>'
+      +'<div style="background:var(--paper-deep,#E6DCC7);height:10px;border-radius:0 0 5px 0;overflow:hidden;margin-bottom:6px"><div style="height:100%;width:'+pct+'%;background:var(--sage,#8AAB5C)"></div></div>'
+      +'<div style="font-size:12px;color:var(--muted)">'+ugx(cap.contributed)+' contributed · '+ugx(cap.outstanding)+' outstanding ('+pct+'%)</div></div>';
+  }
+
+  if(recent.length){
+    html+='<div class="card card-top"><div class="section-title" style="margin-top:0">Recent earnings</div><div style="overflow-x:auto"><table style="width:100%;font-size:12px;border-collapse:collapse"><thead><tr style="text-align:left;color:var(--muted)"><th>Date</th><th>Product</th><th>Role</th><th style="text-align:right">Gross</th><th style="text-align:right">WHT</th><th style="text-align:right">&rarr;Capital</th><th style="text-align:right">Cash</th><th>Status</th></tr></thead><tbody>'
+      + recent.map(function(x){ return '<tr><td>'+esc(x.date||'')+'</td><td>'+esc(x.product||'')+'</td><td>'+esc(x.role)+'</td><td style="text-align:right">'+ugx(x.gross)+'</td><td style="text-align:right">'+ugx(x.wht)+'</td><td style="text-align:right">'+ugx(x.to_capital)+'</td><td style="text-align:right">'+ugx(x.cash)+'</td><td>'+esc(x.status)+'</td></tr>'; }).join('')
+      + '</tbody></table></div></div>';
+  } else {
+    html+='<div class="card card-top" style="color:var(--muted);font-size:13px">No settled earnings yet — these appear as founders complete payment through ioTec.</div>';
+  }
+
+  if(payouts.length){
+    html+='<div class="card card-top"><div class="section-title" style="margin-top:0">Payouts received</div><div style="overflow-x:auto"><table style="width:100%;font-size:12px;border-collapse:collapse"><thead><tr style="text-align:left;color:var(--muted)"><th>Date</th><th style="text-align:right">Amount</th><th>Method</th><th>Reference</th></tr></thead><tbody>'
+      + payouts.map(function(p){ return '<tr><td>'+esc(p.date||'')+'</td><td style="text-align:right">'+ugx(p.amount)+'</td><td>'+esc(p.method||'')+'</td><td>'+esc(p.reference||'')+'</td></tr>'; }).join('')
+      + '</tbody></table></div></div>';
+  }
+
+  html+='<div class="card card-top"><div class="section-title" style="margin-top:0">Payout details on file</div>'+payout
+    +'<div style="font-size:11px;color:var(--muted);margin-top:12px">You\'re engaged as a contractor, not an employee — WHT is withheld and remitted to URA on your behalf, and you\'ll receive a certificate for your records.</div></div>';
+  el.innerHTML=html;
 }
 
 // ── APPLICATIONS (discipline lead vetting; suitability only, no DD) ──
@@ -798,5 +855,10 @@ function showToast(m,t){const e=document.getElementById('toast');e.textContent=m
 })();
 </script>
 <script src="/report-widget.js" data-area="Coach dashboard" data-role="coach" defer></script>
+<script>
+function toggleTheme(){var d=document.documentElement,cur=d.getAttribute('data-theme')==='dark'?'dark':'light',next=cur==='dark'?'light':'dark';d.setAttribute('data-theme',next);try{localStorage.setItem('fs-theme',next);}catch(e){}fsThemeIcon();}
+function fsThemeIcon(){var b=document.getElementById('theme-toggle');if(b)b.textContent=document.documentElement.getAttribute('data-theme')==='dark'?'☀':'☾';}
+fsThemeIcon();
+</script>
 </body>
 </html>
