@@ -84,8 +84,15 @@ text-transform:uppercase;padding:12px 22px;border-radius:0;cursor:pointer;border
 
       var inputHTML = '';
       if (kind === 'prompt') {
-        inputHTML = '<input class="fsd-input" type="text" value="' + esc(opts.defaultValue || '') +
-          '" placeholder="' + esc(opts.placeholder || '') + '">';
+        if (opts.multiline) {
+          inputHTML = '<textarea class="fsd-input" rows="5" placeholder="' + esc(opts.placeholder || '') +
+            '" style="resize:vertical;min-height:120px;line-height:1.55;font-family:inherit" ' +
+            'oninput="this.style.height=\'auto\';this.style.height=Math.min(this.scrollHeight,340)+\'px\'">' +
+            esc(opts.defaultValue || '') + '</textarea>';
+        } else {
+          inputHTML = '<input class="fsd-input" type="text" value="' + esc(opts.defaultValue || '') +
+            '" placeholder="' + esc(opts.placeholder || '') + '">';
+        }
       }
       var actionsHTML = '<button type="button" class="fsd-btn fsd-btn-cancel" style="' + cancelStyle + '">' + esc(cancelText) + '</button>' +
         '<button type="button" class="fsd-btn ' + okClass + '" style="' + okStyle + '">' + esc(okText) + '</button>';
@@ -146,6 +153,8 @@ text-transform:uppercase;padding:12px 22px;border-radius:0;cursor:pointer;border
       function onKey(e) {
         if (e.key === 'Escape') { e.preventDefault(); cancel(); }
         else if (e.key === 'Enter') {
+          // In a multiline prompt, plain Enter inserts a newline; ⌘/Ctrl+Enter submits.
+          if (input && input.tagName === 'TEXTAREA' && !(e.metaKey || e.ctrlKey)) return;
           // In prompt, Enter from the input submits; elsewhere Enter = OK.
           if (kind !== 'prompt' || document.activeElement === input || document.activeElement === okBtn) {
             e.preventDefault(); accept();

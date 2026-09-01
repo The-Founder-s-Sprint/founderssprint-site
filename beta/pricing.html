@@ -166,6 +166,10 @@
 <meta name="twitter:image" content="https://founderssprint.co/images/og-default.jpg">
 </head>
 <body>
+<style id="fs-pre-css">html.fs-loading,html.fs-loading body{overflow:hidden}#fs-pre{position:fixed;inset:0;z-index:99999;background:#0f0d0a;display:flex;align-items:center;justify-content:center;transition:opacity .45s ease}html:not(.fs-loading) #fs-pre{opacity:0;pointer-events:none}#fs-pre .fs-sp{width:34px;height:34px;border:2px solid rgba(239,231,216,.16);border-top-color:#C8531F;border-radius:50%;animation:fsps .8s linear infinite}@keyframes fsps{to{transform:rotate(360deg)}}@media (prefers-reduced-motion:reduce){#fs-pre .fs-sp{animation:none;border-top-color:rgba(239,231,216,.16)}}</style>
+<script>document.documentElement.classList.add('fs-loading');</script>
+<div id="fs-pre" aria-hidden="true"><div class="fs-sp"></div></div>
+<script>(function(){var e=document.documentElement,done=false;function hide(){if(done)return;done=true;requestAnimationFrame(function(){e.classList.remove('fs-loading');var p=document.getElementById('fs-pre');if(p){setTimeout(function(){p.parentNode&&p.parentNode.removeChild(p);},600);}});}try{if(document.fonts&&document.fonts.ready){document.fonts.ready.then(hide);}else{window.addEventListener('load',hide);}}catch(_){window.addEventListener('load',hide);}setTimeout(hide,2500);})();</script>
 
 <div id="fs-nav"></div>
 <div id="fs-promo" data-promo-cta="/beta/book/?tier=cohort"></div>
@@ -440,8 +444,10 @@
   var host=document.getElementById('cohort-dates'); if(!host) return;
   function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
   function monthYear(d){try{return new Date(d+'T00:00:00').toLocaleDateString('en-GB',{month:'long',year:'numeric'});}catch(e){return d||'';}}
-  fetch('/db/rest/v1/rpc/open_cohorts',{headers:{'Accept':'application/json'}})
-    .then(function(r){if(!r.ok)throw 0;return r.json();})
+  var _cc=('AbortController' in window)?new AbortController():null;
+  var _ct=setTimeout(function(){if(_cc){try{_cc.abort();}catch(e){}}},8000); // stalled mobile conn ⇒ abort ⇒ .catch (never an infinite "Loading…")
+  fetch('/db/rest/v1/rpc/open_cohorts',{headers:{'Accept':'application/json'},signal:_cc?_cc.signal:undefined})
+    .then(function(r){clearTimeout(_ct);if(!r.ok)throw 0;return r.json();})
     .then(function(list){
       if(!Array.isArray(list)||!list.length){ host.innerHTML='<div class="cd-loading">Cohort dates are being finalised — <a href="/beta/book/?tier=cohort" style="color:var(--terra)">start a booking</a> to see the latest.</div>'; return; }
       var firstOpen=list.filter(function(c){return !c.is_full;})[0];
@@ -462,6 +468,6 @@
 })();
 </script>
 <script src="/promo.js?v=1" defer></script>
-<script src="/site-chrome.js?v=9" defer></script>
+<script src="/site-chrome.js?v=11" defer></script>
 </body>
 </html>

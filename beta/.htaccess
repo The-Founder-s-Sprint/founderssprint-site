@@ -1,0 +1,19 @@
+# ── The Founder's Sprint — staging (/beta) access control ──────────────────
+# Staging is PRIVATE (Teddy only). BUT production pulls SHARED ASSETS from /beta
+# (coach photos /beta/images/*, /beta/favicon.svg, /beta/taxonomy.js, and the
+# root-.htaccess shared-media fallback). So we require a login for the *pages*
+# but leave *static assets* public — otherwise the live site's images break.
+
+AuthType Basic
+AuthName "Founder's Sprint — Staging (private)"
+# ⚠️ SET THIS to your real .htpasswd path. Easiest: create it via cPanel →
+#    Directory Privacy on /beta (it generates the file + tells you the path,
+#    e.g. /home/<cpanelUser>/.htpasswds/public_html/beta/passwd), then paste
+#    that path here.
+AuthUserFile "/home/CPANEL_USER/.htpasswds/public_html/beta/passwd"
+Require valid-user
+
+# Keep shared static assets public so production keeps working.
+<FilesMatch "\.(svg|jpe?g|png|webp|gif|ico|css|js|mjs|json|map|woff2?|ttf|eot|mp4|webm|avif)$">
+  Require all granted
+</FilesMatch>

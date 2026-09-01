@@ -1,0 +1,383 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Explore the Constellation — The Founder's Sprint</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Explore 49 coaching specialties across 5 disciplines. Find the right coach for your startup challenge.">
+<link rel="canonical" href="https://founderssprint.co/explore">
+<!-- Web fonts are desktop-only (CLAUDE.md mobile rules: system font stack on phones, saves ~200-400KB on 3G) -->
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Josefin+Sans:wght@300;400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" media="(min-width: 769px)">
+<link rel="stylesheet" href="explore.css?v=22">
+<link rel="stylesheet" href="constellation.css?v=1">
+<style>
+  /* Visible module host (desktop constellation) + collapsed legacy scaffold
+     (kept only so explore.js still builds its node model, matcher + coach panel). */
+  .fsc-host { position: relative; width: 100%; height: calc(100vh - 70px); margin-top: 70px; }  /* clear the fixed site nav */
+  #constellation-hero.fsc-legacy { position: absolute; top: 0; left: 0; width: 0; height: 0; overflow: hidden; opacity: 0; pointer-events: none; }
+  @media (max-width: 768px) { .fsc-host { display: none; } }   /* mobile keeps the card-stack */
+  /* Multicolour discipline hues behind the module's clouds (the warm/green glows we kept) */
+  #constellation.fsc-root {
+    background:
+      radial-gradient(680px 520px at 22% 30%, rgba(200,83,31,0.32), transparent 62%),
+      radial-gradient(620px 500px at 80% 32%, rgba(201,146,58,0.26), transparent 62%),
+      radial-gradient(660px 540px at 28% 78%, rgba(138,171,92,0.24), transparent 64%),
+      radial-gradient(620px 520px at 74% 76%, rgba(95,122,69,0.26), transparent 64%),
+      radial-gradient(760px 600px at 50% 52%, rgba(165,155,140,0.18), transparent 66%),
+      radial-gradient(1250px 850px at 46% 44%, #1f1c17 0%, #120f0b 55%, var(--fsc-bg) 100%);
+  }
+  /* L1/L2 breakdown region inside the slide-out (discipline & module panels) */
+  .d-breakdown[hidden] { display: none; }
+  .detail.mode-l1l2 .d-l3 { display: none; }        /* hide the L3 booking region for discipline/module */
+  .d-bd-module { margin: 0 0 15px; }
+  .d-bd-mod-h {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+    width: 100%; background: none; border: 0; border-bottom: 1px solid rgba(255,255,255,0.12);
+    padding: 9px 0; margin: 0; cursor: pointer; text-align: left; font: inherit;
+    transition: border-color .18s ease;
+  }
+  .d-bd-mod-h:hover { border-bottom-color: var(--detail-color); }
+  .d-bd-mod-name {
+    font-family: 'Josefin Sans', sans-serif; font-weight: 600; letter-spacing: .045em;
+    font-size: 13px; color: #f4efe6;
+  }
+  .d-bd-mod-h:hover .d-bd-mod-name { color: var(--detail-color); }
+  .d-bd-mod-n { font-family: 'Inter', sans-serif; font-size: 11px; color: var(--detail-color); opacity: .92; white-space: nowrap; }
+  .d-bd-specs { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 10px; }
+  .d-bd-spec {
+    font-family: 'Inter', sans-serif; font-size: 11.5px; line-height: 1; color: #e7e0d3;
+    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.13);
+    border-radius: 0 0 10px 0; padding: 6px 11px; cursor: pointer; transition: .18s ease;
+  }
+  .d-bd-spec:hover { background: var(--detail-color); border-color: var(--detail-color); color: #151310; }
+  .d-bd-coach { font-family: 'Inter', sans-serif; font-size: 12px; color: #b9b1a3; margin: 16px 0 0; }
+  .d-bd-coach b { color: #e7e0d3; font-weight: 600; }
+  .d-bd-actions { margin-top: 18px; display: flex; flex-direction: column; gap: 12px; }
+  .d-bd-cta {
+    display: block; text-align: center; font-family: 'Josefin Sans', sans-serif;
+    letter-spacing: .06em; text-transform: uppercase; font-size: 12px; font-weight: 600;
+    background: var(--detail-color); color: #151310; border: 0; border-radius: 0 0 14px 0;
+    padding: 13px 16px; text-decoration: none; cursor: pointer; transition: filter .18s ease;
+  }
+  .d-bd-cta:hover { filter: brightness(1.08); }
+  .d-bd-link {
+    font-family: 'Josefin Sans', sans-serif; letter-spacing: .05em; text-transform: uppercase;
+    font-size: 12px; color: var(--detail-color); text-decoration: none; align-self: flex-start;
+  }
+  .d-bd-link:hover { text-decoration: underline; }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     BRAND PAGE LOADER — rotating V6 mark, fades on load.
+     Inline + first-in-body so it paints in frame 1, before the deferred
+     site-chrome.js runs. That also masks the FOUC where the eyebrow .v6-mark
+     briefly renders un-sized (its width is set by deferred CSS). Self-removing,
+     with a failsafe so it can never trap the visitor. Reusable as-is on any page.
+     ============================================================ -->
+<style>
+  #fs-preload{position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;
+    background:#1A1A1A;transition:opacity .42s ease;}
+  #fs-preload.gone{opacity:0;pointer-events:none;}
+  #fs-preload svg{width:56px;height:56px;transform-origin:50% 50%;animation:fsplspin 2.6s linear infinite;}
+  @keyframes fsplspin{to{transform:rotate(360deg);}}
+  @media(prefers-reduced-motion:reduce){#fs-preload svg{animation:none;}}
+</style>
+<div id="fs-preload" role="status" aria-label="Loading">
+  <svg viewBox="0 0 100 100" aria-hidden="true">
+    <polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.9"/>
+    <polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.85" transform="rotate(72,50,50)"/>
+    <polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.82" transform="rotate(144,50,50)"/>
+    <polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.85" transform="rotate(216,50,50)"/>
+    <polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.78" transform="rotate(288,50,50)"/>
+    <circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/>
+  </svg>
+</div>
+<script>
+  (function(){
+    var p=document.getElementById('fs-preload'); if(!p) return;
+    var done=false;
+    function hide(){ if(done) return; done=true; p.classList.add('gone');
+      setTimeout(function(){ p.parentNode && p.parentNode.removeChild(p); },480); }
+    if(document.readyState==='complete') hide();
+    else window.addEventListener('load', hide, {once:true});
+    setTimeout(hide, 2600);   // failsafe — never trap the visitor on a slow asset
+  })();
+</script>
+
+
+<!-- Universal site chrome — nav rendered by /site-chrome.js (shared module,
+     LOCKED: never hand-roll). data-fixed = overlay the full-bleed hero,
+     same as the homepage video hero. -->
+<div id="fs-nav" data-fixed></div>
+
+<!-- ============================================================
+     MOBILE DISCOVERY (card-stack — built by explore.js on
+     narrow/touch viewports; the constellation never initialises
+     on mobile. See CLAUDE.md "Mobile-First Discovery Engine".)
+     ============================================================ -->
+<section class="m-discover" id="m-discover" aria-label="Find a coach"></section>
+
+<!-- ============================================================
+     CONSTELLATION HERO (viewport-height — desktop only)
+     ============================================================ -->
+<!-- Desktop constellation — the refined CD build, rendered by the FSConstellation module -->
+<div id="constellation" class="fsc-host"></div>
+<script>window.FS_USE_MODULE = true;</script>
+
+<!-- Legacy scaffold (collapsed): explore.js still builds its node model, search
+     matcher and coach panel here; the module renders the visible constellation. -->
+<section class="constellation-hero fsc-legacy" id="constellation-hero" aria-hidden="true">
+
+  <!-- Noise overlay -->
+  <div class="noise" aria-hidden="true"></div>
+
+  <!-- Nebula cloud plates (desktop-only via CSS @media; screen-blended so only the
+       warm clouds glow over the dark base. Extracted from the Fable build → WebP. -->
+  <div class="nebula" aria-hidden="true">
+    <div class="neb neb-far"></div>
+    <div class="neb neb-mid"></div>
+    <div class="neb neb-band"></div>
+  </div>
+
+  <!-- Persistent search pill (top-right) — opens the wired search overlay -->
+  <button class="search-pill" id="search-pill" aria-label="Search specialties">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+    <span>Search specialties…</span>
+  </button>
+
+  <!-- Controls -->
+  <div class="ctrl">
+    <button id="btn-pause">Pause</button>
+    <button id="btn-reset">Reset</button>
+  </div>
+
+  <!-- Title -->
+  <div class="title-block">
+    <div class="eb"><span class="eb-star">✦</span>&nbsp;&nbsp;The Founder's Sprint</div>
+    <div class="ti">The <em>constellation</em></div>
+    <div class="ti-sub">Five disciplines · five coaches. Choose a star; meet your coach.</div>
+  </div>
+
+  <!-- SVG Stage -->
+  <div class="stage">
+    <svg id="cnst" viewBox="0 0 1600 1000" preserveAspectRatio="xMidYMid meet">
+      <defs>
+        <radialGradient id="g-glow" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#efe7d8" stop-opacity="0.55"/>
+          <stop offset="100%" stop-color="#efe7d8" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="g-center" cx="50%" cy="50%" r="50%">
+          <stop offset="0%" stop-color="#efe7d8" stop-opacity="0.5"/>
+          <stop offset="60%" stop-color="#c8531f" stop-opacity="0.18"/>
+          <stop offset="100%" stop-color="#c8531f" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="g-orb-terra" cx="50%" cy="50%" r="50%">
+          <stop offset="0%"   stop-color="#c8531f" stop-opacity="0.32"/>
+          <stop offset="100%" stop-color="#c8531f" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="g-orb-ochre" cx="50%" cy="50%" r="50%">
+          <stop offset="0%"   stop-color="#c9923a" stop-opacity="0.26"/>
+          <stop offset="100%" stop-color="#c9923a" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="g-orb-sage" cx="50%" cy="50%" r="50%">
+          <stop offset="0%"   stop-color="#8aab5c" stop-opacity="0.22"/>
+          <stop offset="100%" stop-color="#8aab5c" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="g-orb-moss" cx="50%" cy="50%" r="50%">
+          <stop offset="0%"   stop-color="#3d4a2e" stop-opacity="0.28"/>
+          <stop offset="100%" stop-color="#3d4a2e" stop-opacity="0"/>
+        </radialGradient>
+        <!-- 3D node shading: colour-agnostic sphere sheen (offset focal = light upper-left)
+             + dome rim-shade. Layered over the solid-colour node body. -->
+        <radialGradient id="g-sph-hi" cx="50%" cy="50%" r="50%" fx="33%" fy="27%">
+          <stop offset="0%"  stop-color="#fff" stop-opacity="0.9"/>
+          <stop offset="42%" stop-color="#fff" stop-opacity="0.14"/>
+          <stop offset="100%" stop-color="#fff" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="g-sph-shade" cx="50%" cy="50%" r="50%" fx="64%" fy="72%">
+          <stop offset="0%"  stop-color="#000" stop-opacity="0"/>
+          <stop offset="58%" stop-color="#000" stop-opacity="0"/>
+          <stop offset="100%" stop-color="#000" stop-opacity="0.55"/>
+        </radialGradient>
+        <!-- Procedural cloud-cover depth: warm accretion core + cool far bank -->
+        <radialGradient id="g-cloud-core" cx="50%" cy="50%" r="50%">
+          <stop offset="0%"  stop-color="#c8531f" stop-opacity="0.16"/>
+          <stop offset="38%" stop-color="#c9923a" stop-opacity="0.07"/>
+          <stop offset="100%" stop-color="#c8531f" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="g-cloud-far" cx="50%" cy="50%" r="50%">
+          <stop offset="0%"  stop-color="#5f7a45" stop-opacity="0.12"/>
+          <stop offset="55%" stop-color="#3d4a2e" stop-opacity="0.05"/>
+          <stop offset="100%" stop-color="#3d4a2e" stop-opacity="0"/>
+        </radialGradient>
+        <radialGradient id="g-cloud-dust" cx="50%" cy="50%" r="50%">
+          <stop offset="0%"  stop-color="#efe7d8" stop-opacity="0.05"/>
+          <stop offset="60%" stop-color="#efe7d8" stop-opacity="0.015"/>
+          <stop offset="100%" stop-color="#efe7d8" stop-opacity="0"/>
+        </radialGradient>
+        <filter id="f-glow-sm" x="-100%" y="-100%" width="300%" height="300%">
+          <feGaussianBlur stdDeviation="3" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="f-glow-lg" x="-150%" y="-150%" width="400%" height="400%">
+          <feGaussianBlur stdDeviation="8" result="b"/>
+          <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+        <filter id="f-haze" x="-50%" y="-50%" width="200%" height="200%">
+          <feGaussianBlur stdDeviation="50"/>
+        </filter>
+      </defs>
+      <g id="g-haze"></g>
+      <g id="g-rings"></g>
+      <g id="g-burst"></g>
+      <g id="g-conns"></g>
+      <g id="g-center"></g>
+      <g id="g-nodes"></g>
+      <g id="g-hit"></g>
+    </svg>
+  </div>
+
+  <!-- Centre search overlay -->
+  <div class="search" id="search">
+    <div class="s-row">
+      <span class="s-icon"></span>
+      <input id="search-input" type="text" placeholder="Search a topic" autocomplete="off" spellcheck="false">
+      <button class="s-close" id="search-close" aria-label="Close">×</button>
+    </div>
+    <div class="s-list" id="search-list"></div>
+  </div>
+
+  <!-- #detail (coach slide-out) moved out of the collapsed scaffold — see after </section> -->
+
+  <!-- Hint -->
+  <div class="hint">Search a topic · or click a star to meet your coach</div>
+
+  <!-- Stat strip (bottom-right) — counts built by explore.js from taxonomy.js -->
+  <div class="stat-strip" id="stat-strip"></div>
+
+  <!-- Legend — the five disciplines (built by explore.js from taxonomy.js:
+       glyph · name · specialty count. Click focuses that discipline). -->
+  <div class="legend" id="legend"></div>
+
+  <!-- Info panel -->
+  <div class="info" id="info">
+    <div class="eb" id="info-eb">Discipline</div>
+    <div class="name" id="info-name">Hover a node</div>
+    <div class="path" id="info-path"></div>
+    <div class="coach" id="info-coach"></div>
+  </div>
+
+  <!-- Bottom chrome -->
+  <div class="chrome bot">
+    <span class="crumb" style="opacity:0;">·</span>
+    <span class="meta">
+      <span class="tag">Build with direction<span class="period">.</span></span>
+      <span>founderssprint.co</span>
+    </span>
+  </div>
+
+</section><!-- /.constellation-hero -->
+
+<!-- Coach slide-out (moved out of the scaffold so it shows over the module) -->
+<aside class="detail" id="detail">
+  <button class="d-close" aria-label="Close">Back to constellation</button>
+  <div class="d-eb">Specialty</div>
+  <div class="d-name">—</div>
+  <div class="d-path"></div>
+  <p class="d-desc">—</p>
+  <p class="d-spec-note"></p>
+
+  <!-- L1 (discipline) / L2 (module) breakdown — shown only for those levels -->
+  <div class="d-breakdown" hidden></div>
+
+  <!-- L3 (specialty) booking region — shown only for a specialty -->
+  <div class="d-l3">
+    <div class="d-rule"></div>
+    <div class="d-section-h">Your coach</div>
+    <div class="coach-card" role="button" tabindex="0">
+      <div class="coach-avatar">—</div>
+      <div>
+        <div class="coach-name">—</div>
+        <div class="coach-role">—</div>
+        <div class="coach-rating">
+          <span class="stars"></span>
+          <span class="rating-num">—</span>
+          <span class="rating-count">—</span>
+        </div>
+      </div>
+    </div>
+    <div class="d-rule"></div>
+    <div class="d-section-h">Format</div>
+    <div class="d-format">
+      <label>
+        <input type="radio" name="d-format" value="1:1" checked>
+        <span class="fmt-inner">
+          <span class="fmt-h">This specialty · 1:1</span>
+          <span class="fmt-d">one 2-hour deep-dive · private</span>
+        </span>
+      </label>
+      <label>
+        <input type="radio" name="d-format" value="cohort">
+        <span class="fmt-inner">
+          <span class="fmt-h">Full Cohort</span>
+          <span class="fmt-d">all 49 specialties · group</span>
+        </span>
+      </label>
+    </div>
+    <div class="d-section-h" style="margin-top:22px;">Next available</div>
+    <div class="d-slots"></div>
+    <button class="d-book">Book Session →</button>
+  </div>
+</aside>
+
+
+<!-- ============================================================
+     COACH DIRECTORY (scrollable, accordion)
+     ============================================================ -->
+<!-- Founding launch promo (15% off) — banner rendered by /promo.js into this
+     mount, date-gated 1 Aug–30 Sep 2026 (renders nothing outside the window).
+     Placed at the content break below the constellation hero, NOT at the top
+     of <body>, because the fixed module nav overlays the full-screen hero.
+     QA: append ?promo=preview to force it on for this viewer. -->
+<div id="fs-promo" data-promo-cta="/book/?tier=single"></div>
+
+<!-- Programme sponsors — above coach directory -->
+<div data-sponsors style="max-width:1440px;margin:0 auto;padding:0 56px;border-bottom:1px solid rgba(26,26,26,0.1)"></div>
+
+<section class="directory" id="directory">
+  <div class="dir-shell">
+    <div class="dir-header">
+      <div>
+        <span class="dir-eb">The Coaches</span>
+        <h2 class="dir-title">Meet the people behind <em>the disciplines.</em></h2>
+      </div>
+      <div class="dir-filters">
+        <button class="dir-filter active" data-filter="all">All</button>
+        <!-- Discipline filters populated by JS -->
+      </div>
+    </div>
+    <div class="dir-list" id="dir-list">
+      <!-- Coach accordion rows built by JS from COACHES array -->
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     FOOTER
+     ============================================================ -->
+<div id="fs-footer"></div>
+
+<script src="../taxonomy.js?v=1"></script>
+<script src="../testimonials.js?v=2"></script>
+<script src="constellation.js?v=3"></script>
+<script src="explore.js?v=35"></script>
+<script src="constellation-wire.js?v=6"></script>
+<script src="constellation-sound.js?v=4"></script>
+<script src="../sponsors.js?v=2"></script>
+<script src="../auth-nav.js?v=1"></script>
+<script src="/promo.js?v=1" defer></script>
+<script src="/site-chrome.js?v=9" defer></script>
+</body>
+</html>

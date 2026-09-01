@@ -68,6 +68,24 @@ window.FS_TESTIMONIALS = [
     founder_id: null,
   },
 
+  // Homepage featured (real testimonial with photo)
+  {
+    id: 'john-wasswa',
+    name: 'John Viannie Wasswa',
+    company: 'Cyanase',
+    role: 'Founder',
+    photo: 'endorsements/vianne-john.jpg',
+    initials: 'JW',
+    text: "Teddy's mentorship played a key role in shaping our thinking around product building. His guidance helped us turn the idea of group savings into a working feature, which remains a core part of Cyanase today.",
+    highlight: "His guidance helped us turn the idea of group savings into a working feature, which remains a core part of Cyanase today.",
+    cohort: null,
+    coach_id: 'teddy-ruge',
+    discipline: 'marketing',
+    surfaces: ['homepage', 'coach', 'social'],
+    weight: 3,
+    founder_id: null,
+  },
+
   // Coach profile quotes
   {
     id: 'naima-a',

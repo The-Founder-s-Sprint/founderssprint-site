@@ -11,7 +11,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="/vendor/supabase-js.min.js?v=2110"></script>
 <script>window.supabase||document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"><\/script>')</script>
-<script src="/beta/taxonomy.js"></script>
+<script src="/taxonomy.js"></script>
 <style>
   :root{--ink:#1A1A1A;--ink-soft:#22242B;--paper:#EFE7D8;--paper-deep:#E6DCC7;--muted:#5A564F;--paper-dim:#A09888;
     --terra:#C8531F;--terra-deep:#9A3E16;--ochre:#C9923A;--moss:#3D4A2E;--sage:#8AAB5C;--stone:#777770;
@@ -192,6 +192,10 @@
 <meta name="twitter:image" content="https://founderssprint.co/images/og-default.jpg">
 </head>
 <body>
+<style id="fs-pre-css">html.fs-loading,html.fs-loading body{overflow:hidden}#fs-pre{position:fixed;inset:0;z-index:99999;background:#0f0d0a;display:flex;align-items:center;justify-content:center;transition:opacity .45s ease}html:not(.fs-loading) #fs-pre{opacity:0;pointer-events:none}#fs-pre .fs-sp{width:34px;height:34px;border:2px solid rgba(239,231,216,.16);border-top-color:#C8531F;border-radius:50%;animation:fsps .8s linear infinite}@keyframes fsps{to{transform:rotate(360deg)}}@media (prefers-reduced-motion:reduce){#fs-pre .fs-sp{animation:none;border-top-color:rgba(239,231,216,.16)}}</style>
+<script>document.documentElement.classList.add('fs-loading');</script>
+<div id="fs-pre" aria-hidden="true"><div class="fs-sp"></div></div>
+<script>(function(){var e=document.documentElement,done=false;function hide(){if(done)return;done=true;requestAnimationFrame(function(){e.classList.remove('fs-loading');var p=document.getElementById('fs-pre');if(p){setTimeout(function(){p.parentNode&&p.parentNode.removeChild(p);},600);}});}try{if(document.fonts&&document.fonts.ready){document.fonts.ready.then(hide);}else{window.addEventListener('load',hide);}}catch(_){window.addEventListener('load',hide);}setTimeout(hide,2500);})();</script>
 
 <!-- ============================================================
      BRAND PAGE LOADER — rotating V6 mark, fades on load.
@@ -271,10 +275,10 @@
     <div class="hero-rule"></div>
     <p class="tag">Build with direction.</p>
   </div>
-  <!-- Hero chair: self-hosted transparent PNG. NOTE: lives under /beta/images/ — update to /images/ when the site migrates from /beta/ to root. -->
+  <!-- Hero chair: self-hosted transparent PNG. NOTE: lives under /images/ — update to /images/ when the site migrates from / to root. -->
   <div class="hero-chair" aria-hidden="true">
     <div class="hero-lamp"></div>
-    <img src="/beta/images/mentor-chair.png" alt="">
+    <img src="/images/mentor-chair.png" alt="">
   </div>
 </section>
 
@@ -819,6 +823,6 @@ load();
 </script>
 
 <div id="fs-footer"></div>
-<script src="/site-chrome.js?v=9" defer></script>
+<script src="/site-chrome.js?v=11" defer></script>
 </body>
 </html>

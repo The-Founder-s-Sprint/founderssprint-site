@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Book a 1:1 with Teddy · The Founder's Sprint</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<meta property="og:title" content="Book a 1:1 with Teddy — The Founder's Sprint">
+<meta property="og:description" content="A focused 60-minute founding-beta session. Bring your sharpest question.">
+<meta property="og:type" content="website">
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1A1A1A;--ink-deep:#0f0d0a;--paper:#EFE7D8;--paper-deep:#E6DCC7;
+    --terra:#C8531F;--terra-deep:#9A3E16;--ochre:#C9923A;--sage:#8AAB5C;--moss:#3D4A2E;
+    --mute:#5A564F;--border:rgba(26,26,26,0.14);
+    --sans:'Josefin Sans',Arial,sans-serif;--display:'Cormorant Garamond',Georgia,serif;--body:'Inter',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--ink-deep);color:var(--ink);font-family:var(--body);-webkit-font-smoothing:antialiased;}
+  a{color:var(--terra);}
+  .bar{display:flex;align-items:center;gap:11px;padding:20px 24px;}
+  .bar .wm{font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:2.5px;color:var(--paper);text-transform:uppercase;}
+  .wrap{max-width:640px;margin:0 auto;padding:8px 18px 70px;}
+  .hero{padding:10px 6px 26px;}
+  .eyebrow{font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:3px;text-transform:uppercase;color:var(--terra);margin:0 0 14px;}
+  .hero h1{font-family:var(--sans);font-weight:300;font-size:40px;line-height:1.06;letter-spacing:-0.02em;color:var(--paper);margin:0 0 14px;}
+  .hero h1 em{font-family:var(--display);font-style:italic;font-weight:400;color:var(--terra);}
+  .hero p{font-size:15px;line-height:1.65;color:rgba(239,231,216,0.66);margin:0 0 8px;max-width:52ch;}
+  .price{display:inline-block;margin-top:12px;font-family:var(--display);font-size:26px;color:var(--paper);}
+  .price span{font-family:var(--body);font-size:13px;color:rgba(239,231,216,0.55);letter-spacing:.02em;}
+  .steps{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 0;}
+  .steps div{flex:1;min-width:150px;font-size:12px;line-height:1.5;color:rgba(239,231,216,0.6);border-left:2px solid var(--terra);padding:2px 0 2px 10px;}
+  .steps b{color:var(--paper);font-weight:600;}
+  .card{background:var(--paper);border-top:3px solid var(--terra);border-radius:0 0 24px 0;padding:26px 24px;box-shadow:0 30px 70px -30px rgba(0,0,0,0.6);}
+  .lab{font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:2px;text-transform:uppercase;color:var(--mute);margin:0 0 12px;}
+  .day{margin:0 0 18px;}
+  .day-h{font-family:var(--display);font-size:19px;color:var(--ink);margin:0 0 9px;}
+  .slots{display:flex;flex-wrap:wrap;gap:8px;}
+  .slot{font-family:var(--sans);font-size:13px;font-weight:600;letter-spacing:.04em;padding:9px 14px;border:1px solid var(--border);background:#fff;color:var(--ink);cursor:pointer;transition:all .12s;}
+  .slot:hover:not(:disabled){border-color:var(--terra);}
+  .slot.sel{background:var(--terra);color:var(--paper);border-color:var(--terra);}
+  .slot:disabled{opacity:.32;cursor:not-allowed;text-decoration:line-through;}
+  .form{margin-top:22px;padding-top:22px;border-top:1px solid var(--border);}
+  .row{display:flex;gap:12px;}
+  .row .fld{flex:1;}
+  .fld{margin:0 0 14px;}
+  .fld label{display:block;font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--mute);margin:0 0 5px;}
+  .fld input{width:100%;padding:11px 13px;font-size:15px;font-family:var(--body);color:var(--ink);background:#fff;border:1px solid var(--border);border-radius:0;outline:none;}
+  .fld input:focus{border-color:var(--terra);}
+  .sel-note{font-size:13px;color:var(--mute);margin:0 0 14px;}
+  .sel-note b{color:var(--ink);}
+  .btn{width:100%;font-family:var(--sans);font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:15px 22px;border:none;background:var(--terra);color:var(--paper);cursor:pointer;}
+  .btn:disabled{opacity:.45;cursor:not-allowed;}
+  .err{background:rgba(154,62,22,.08);border-left:3px solid var(--terra-deep);padding:11px 14px;font-size:13.5px;color:var(--terra-deep);margin:0 0 14px;display:none;}
+  .kv{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--border);font-size:15px;}
+  .kv .k{font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;color:var(--mute);}
+  .foot{font-family:var(--display);font-style:italic;font-size:15px;color:var(--terra);text-align:center;margin:24px 0 0;}
+  .spin{width:30px;height:30px;border:2px solid rgba(200,83,31,.2);border-top-color:var(--terra);border-radius:50%;animation:s .8s linear infinite;margin:34px auto;}
+  @keyframes s{to{transform:rotate(360deg)}}
+  @media(max-width:520px){ .hero h1{font-size:32px;} .row{flex-direction:column;gap:0;} }
+</style>
+</head>
+<body>
+  <div class="bar">
+    <svg width="26" height="26" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.85"/>
+      <polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.8" transform="rotate(72 50 50)"/>
+      <polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.78" transform="rotate(144 50 50)"/>
+      <polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.82" transform="rotate(216 50 50)"/>
+      <polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288 50 50)"/>
+      <circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+    <span class="wm">The&nbsp;Founder's&nbsp;Sprint</span>
+  </div>
+
+  <div class="wrap">
+    <div class="hero">
+      <p class="eyebrow">Founding Beta · limited</p>
+      <h1>Book a <em>1:1</em> with Teddy.</h1>
+      <p>A focused 60-minute session on whatever’s most in your way right now — positioning, pricing, fundraising, go-to-market. Straight talk, no fluff.</p>
+      <div class="price" id="price">UGX 200,000 <span>· 60 min</span></div>
+      <div class="steps">
+        <div><b>1 · Pick a time.</b> Weekdays, 10am–5pm.</div>
+        <div><b>2 · Pay by mobile money.</b> A quick manual step during beta.</div>
+        <div><b>3 · Get your Meet link.</b> Once payment lands, I confirm.</div>
+      </div>
+    </div>
+
+    <div class="card" id="view"><div class="spin"></div></div>
+  </div>
+
+<script>
+(function(){
+  var view = document.getElementById('view');
+  var priceEl = document.getElementById('price');
+  var API = ''; // same-origin → Cloudflare /api proxy
+  var HOURS = [10,11,12,13,14,15,16];
+  var END = new Date('2026-09-01T00:00:00+03:00');
+  var state = { taken:{}, amount:200000, selectedISO:null };
+
+  var UGX = function(n){ return 'UGX ' + Number(n||0).toLocaleString('en-UG'); };
+  var esc = function(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); };
+  var pad = function(n){ return (n<10?'0':'')+n; };
+  function eatDate(d){ return d.toLocaleDateString('en-CA',{timeZone:'Africa/Nairobi'}); }              // YYYY-MM-DD
+  function eatWD(d){ return d.toLocaleDateString('en-US',{weekday:'short',timeZone:'Africa/Nairobi'}); }
+  function dayLabel(d){ return d.toLocaleDateString('en-GB',{weekday:'long',day:'numeric',month:'long',timeZone:'Africa/Nairobi'}); }
+  function hourLabel(h){ var ap=h<12?'AM':'PM'; var hh=h%12; if(hh===0)hh=12; return hh+':00 '+ap; }
+  function slotISO(ds,h){ return ds+'T'+pad(h)+':00:00+03:00'; }
+
+  function load(){
+    fetch(API+'/api/express/slots').then(function(r){return r.json();}).then(function(j){
+      (j.taken||[]).forEach(function(iso){ state.taken[new Date(iso).getTime()] = true; });
+      if(j.amount){ state.amount=j.amount; priceEl.innerHTML = UGX(j.amount)+' <span>· '+(j.duration||60)+' min</span>'; }
+      render();
+    }).catch(function(){ view.innerHTML = '<p class="lab">Availability</p><p>We couldn’t load the calendar. Please refresh, or reply to the DM and we’ll sort a time.</p>'; });
+  }
+
+  function buildDays(){
+    var days = [], now = new Date();
+    var cur = new Date(eatDate(now)+'T12:00:00+03:00'); cur.setDate(cur.getDate()+1); // tomorrow (EAT)
+    var guard = 0;
+    while(cur <= END && guard++ < 40){
+      var wd = eatWD(cur);
+      if(wd!=='Sat' && wd!=='Sun'){
+        var ds = eatDate(cur), slots = [];
+        HOURS.forEach(function(h){
+          var iso = slotISO(ds,h), t = new Date(iso).getTime();
+          slots.push({ iso:iso, h:h, disabled: (t <= now.getTime()) || !!state.taken[t] });
+        });
+        if(slots.some(function(s){return !s.disabled;})) days.push({ label: dayLabel(cur), slots: slots });
+      }
+      cur.setDate(cur.getDate()+1);
+    }
+    return days;
+  }
+
+  function render(){
+    var days = buildDays();
+    if(!days.length){ view.innerHTML = '<p class="lab">Availability</p><p>All beta slots are taken through launch — reply to the DM and I’ll hold the next available time for you.</p>'; return; }
+    var cal = days.map(function(d){
+      return '<div class="day"><div class="day-h">'+esc(d.label)+'</div><div class="slots">'
+        + d.slots.map(function(s){ return '<button type="button" class="slot" data-iso="'+esc(s.iso)+'"'+(s.disabled?' disabled':'')+'>'+hourLabel(s.h)+'</button>'; }).join('')
+        + '</div></div>';
+    }).join('');
+    view.innerHTML =
+      '<p class="lab">1 · Choose a time (EAT)</p>' + cal
+      + '<div class="form">'
+      + '<p class="lab">2 · Your details</p>'
+      + '<div class="err" id="err"></div>'
+      + '<p class="sel-note" id="selnote">Pick a time above to continue.</p>'
+      + '<div class="row"><div class="fld"><label>First name</label><input id="fn" autocomplete="given-name"></div><div class="fld"><label>Last name</label><input id="ln" autocomplete="family-name"></div></div>'
+      + '<div class="fld"><label>Email</label><input id="em" type="email" autocomplete="email"></div>'
+      + '<div class="fld"><label>Phone (mobile money)</label><input id="ph" type="tel" inputmode="tel" autocomplete="tel" placeholder="+256…"></div>'
+      + '<div class="fld"><label>Choose a password (creates your account)</label><input id="pw" type="password" autocomplete="new-password" placeholder="At least 8 characters"></div>'
+      + '<button class="btn" id="go" disabled>Hold my session</button>'
+      + '<p class="sel-note" style="margin-top:12px">No charge here — you’ll get mobile-money details next. Your place holds until then.</p>'
+      + '</div>'
+      + '<div class="foot">Build with direction.</div>';
+
+    var go = document.getElementById('go'), selnote = document.getElementById('selnote');
+    Array.prototype.forEach.call(view.querySelectorAll('.slot'), function(b){
+      b.addEventListener('click', function(){
+        Array.prototype.forEach.call(view.querySelectorAll('.slot'), function(x){ x.classList.remove('sel'); });
+        b.classList.add('sel'); state.selectedISO = b.getAttribute('data-iso');
+        var lbl = b.textContent, dayh = b.closest('.day').querySelector('.day-h').textContent;
+        selnote.innerHTML = 'Selected: <b>'+esc(dayh)+' · '+esc(lbl)+' EAT</b>';
+        go.disabled = false;
+      });
+    });
+    go.addEventListener('click', submit);
+  }
+
+  function submit(){
+    var err = document.getElementById('err');
+    err.style.display='none';
+    var body = {
+      firstName: (document.getElementById('fn').value||'').trim(),
+      lastName:  (document.getElementById('ln').value||'').trim(),
+      email:     (document.getElementById('em').value||'').trim(),
+      phone:     (document.getElementById('ph').value||'').trim(),
+      password:  document.getElementById('pw').value||'',
+      slotStart: state.selectedISO
+    };
+    if(!body.firstName || !body.email){ return showErr('Please add your name and email.'); }
+    if(!body.slotStart){ return showErr('Please pick a time above.'); }
+    if((body.password||'').length < 8){ return showErr('Choose a password of at least 8 characters.'); }
+    var go = document.getElementById('go'); go.disabled = true; go.textContent = 'Holding…';
+    fetch(API+'/api/express/book', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) })
+      .then(function(r){ return r.json().then(function(j){ return {ok:r.ok, j:j}; }); })
+      .then(function(res){
+        if(!res.ok){ go.disabled=false; go.textContent='Hold my session'; return showErr((res.j&&res.j.error)||'Could not hold your session. Please try again.'); }
+        success(res.j, body);
+      })
+      .catch(function(){ go.disabled=false; go.textContent='Hold my session'; showErr('We couldn’t reach the server. Please try again.'); });
+    function showErr(m){ err.textContent=m; err.style.display='block'; err.scrollIntoView({behavior:'smooth',block:'center'}); }
+  }
+  function showErr(m){ var e=document.getElementById('err'); if(e){ e.textContent=m; e.style.display='block'; } }
+
+  function success(j, body){
+    var when = new Date(j.slotStart||state.selectedISO).toLocaleString('en-GB',{weekday:'long',day:'numeric',month:'long',hour:'numeric',minute:'2-digit',hour12:true,timeZone:'Africa/Nairobi'});
+    view.innerHTML =
+      '<p class="lab">Session held</p>'
+      + '<h1 style="font-family:var(--display);font-style:italic;font-weight:400;font-size:30px;color:var(--ink);margin:0 0 14px;line-height:1.15">You’re held for '+esc(when)+' EAT.</h1>'
+      + '<p style="font-size:15px;line-height:1.7;color:#2A2826;margin:0 0 20px">One step to lock it in — send <b>'+UGX(j.amount)+'</b> by mobile money. The moment it lands, I’ll confirm and email your Google Meet link.</p>'
+      + '<div style="border:1px solid rgba(200,83,31,.35);padding:16px 18px;margin:0 0 18px">'
+      + '<div class="kv"><span class="k">MTN / Airtel no.</span><span><b>'+esc(j.mm||'')+'</b></span></div>'
+      + '<div class="kv"><span class="k">Registered to</span><span>'+esc(j.mmName||'')+'</span></div>'
+      + '<div class="kv"><span class="k">Amount</span><span>'+UGX(j.amount)+'</span></div>'
+      + '<div class="kv" style="border-bottom:none"><span class="k">Reference</span><span><b>'+esc(j.ref||'')+'</b></span></div>'
+      + '</div>'
+      + '<p style="font-size:13.5px;color:var(--mute);margin:0 0 18px">Add the reference to the payment note if you can. We’ve emailed these details to <b>'+esc(body.email)+'</b> too — and your account is ready.</p>'
+      + '<a class="btn" style="display:block;text-align:center;text-decoration:none" href="/login-founder.html">Go to your dashboard</a>'
+      + '<div class="foot">See you soon. — Teddy</div>';
+    window.scrollTo({top:0,behavior:'smooth'});
+  }
+
+  load();
+})();
+</script>
+</body>
+</html>

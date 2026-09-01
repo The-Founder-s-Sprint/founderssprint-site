@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Book — The Founder's Sprint</title>
+<link rel="icon" href="../favicon.svg" type="image/svg+xml">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Josefin+Sans:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="book.css?v=8">
+<style>
+  /* Deep-linked with a tier: hide the selector + step chrome until book.js routes, so the
+     tier selector never flashes before the account/config/review step. */
+  html.fs-routing .step-panel{display:none !important;}
+  html.fs-routing .nav-progress{visibility:hidden;}
+  #fs-route-loader{display:none;}
+  html.fs-routing #fs-route-loader{display:flex;position:fixed;inset:0;z-index:60;align-items:center;justify-content:center;flex-direction:column;gap:16px;background:#0f0d0a;}
+  #fs-route-loader .fsl-spin{width:34px;height:34px;border:2px solid rgba(239,231,216,.18);border-top-color:#C8531F;border-radius:50%;animation:fslspin .8s linear infinite;}
+  #fs-route-loader .fsl-t{font-family:'Josefin Sans',system-ui,sans-serif;font-size:11px;letter-spacing:.2em;text-transform:uppercase;color:rgba(239,231,216,.5);}
+  @keyframes fslspin{to{transform:rotate(360deg);}}
+  /* Preview-launch notice — booking opens soon (payments not yet live) */
+  .book-preview-notice{position:relative;z-index:5;display:flex;align-items:center;justify-content:center;gap:10px 16px;flex-wrap:wrap;
+    background:linear-gradient(90deg,rgba(201,146,58,.14),rgba(200,83,31,.12));border-top:1px solid rgba(201,146,58,.28);border-bottom:1px solid rgba(201,146,58,.28);
+    padding:11px 22px;text-align:center;font-family:'Inter',system-ui,sans-serif;font-size:13.5px;line-height:1.5;color:#efe7d8;}
+  .book-preview-notice .bpn-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:#C9923A;box-shadow:0 0 0 4px rgba(201,146,58,.16);flex:none;}
+  .book-preview-notice strong{font-weight:600;color:#fff;}
+  .book-preview-notice a{color:#E8A94B;text-decoration:none;font-weight:600;border-bottom:1px solid rgba(232,169,75,.4);white-space:nowrap;}
+  .book-preview-notice a:hover{border-bottom-color:#E8A94B;}
+  @media(max-width:600px){.book-preview-notice{font-size:12.5px;padding:10px 16px;}}
+</style>
+<script>
+/* Runs during <head> parse (before the selector is even built), so there is no flash. If a tier is
+   deep-linked, hide the selector until book.js decides the route. Safety net reveals it after 6s in
+   case book.js fails to load. */
+(function(){try{
+  if(new URLSearchParams(location.search).get('tier')){
+    document.documentElement.classList.add('fs-routing');
+    setTimeout(function(){document.documentElement.classList.remove('fs-routing');},6000);
+  }
+}catch(e){}})();
+</script>
+</head>
+<body>
+<div id="fs-route-loader" aria-hidden="true"><div class="fsl-spin"></div><div class="fsl-t">Setting up your booking&hellip;</div></div>
+
+<!-- ============================================================
+     GLOBAL GRAIN
+     ============================================================ -->
+<div class="noise"></div>
+
+<!-- ============================================================
+     NAV — minimal checkout nav with back + progress
+     ============================================================ -->
+<nav class="nav">
+  <a class="nav-back" href="../" title="Back to homepage">
+    <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M12.5 15L7.5 10L12.5 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  </a>
+  <a class="nav-brand" href="../">
+    <!-- V6 mark inline -->
+    <svg class="mark" width="28" height="28" viewBox="0 0 100 100">
+      <polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.85"/>
+      <polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.80" transform="rotate(72,50,50)"/>
+      <polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.78" transform="rotate(144,50,50)"/>
+      <polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.82" transform="rotate(216,50,50)"/>
+      <polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288,50,50)"/>
+      <circle cx="50" cy="50" r="4.5" fill="#efe7d8"/>
+      <circle cx="50" cy="50" r="2" fill="#1a1a1a"/>
+    </svg>
+    <span class="wordmark">THE FOUNDER'S SPRINT</span>
+  </a>
+  <div class="nav-progress" id="nav-progress">
+    <div class="step done" data-step="1"><span class="num">1</span><span class="label">Choose</span></div>
+    <div class="bar"><div class="fill" id="progress-fill"></div></div>
+    <div class="step" data-step="2"><span class="num">2</span><span class="label">Configure</span></div>
+    <div class="bar"><div class="fill"></div></div>
+    <div class="step" data-step="3"><span class="num">3</span><span class="label">Account</span></div>
+    <div class="bar"><div class="fill"></div></div>
+    <div class="step" data-step="4"><span class="num">4</span><span class="label">Pay</span></div>
+  </div>
+</nav>
+
+<!-- Launch promo banner (date-gated: appears 1 Aug via /promo.js) -->
+<div id="fs-promo"></div>
+
+<!-- Preview-launch notice: payments (ioTec) not live yet — bookings are saved as interest.
+     Hidden automatically once book.js flips BOOKING_OPEN = true. -->
+<div class="book-preview-notice" id="book-preview-notice">
+  <span class="bpn-dot"></span>
+  <span><strong>Booking opens soon.</strong> Reserve your place now — we'll save it to your account and notify you the moment payments go live so you can complete it.</span>
+  <a href="../contact.html">Share feedback&nbsp;&rarr;</a>
+</div>
+
+<!-- ============================================================
+     STEP 1 — TIER SELECTION
+     ============================================================ -->
+<section class="step-panel active" id="step-1">
+  <div class="shell">
+    <div class="step-header">
+      <span class="eyebrow terra">Choose your path</span>
+      <h1 class="h-display">How deep do you want to go?</h1>
+      <p class="h-sub">One session to solve a specific problem, a focused bundle to close your biggest gaps, or the complete sprint to build an investor-ready foundation.</p>
+    </div>
+
+    <div class="tier-cards">
+      <!-- SINGLE -->
+      <div class="tier-card" data-tier="single">
+        <div class="tier-accent" style="background: var(--stone)"><span class="accent-label">Targeted</span></div>
+        <div class="tier-top">
+          <span class="tier-eyebrow">One-on-One</span>
+          <div class="tier-price"><span class="ccy">UGX</span><span class="amt" data-promo-tier="single">500K</span></div>
+          <p class="tier-desc">1 coach. 1 discipline. 1 vetted deliverable.</p>
+        </div>
+        <ul class="tier-features">
+          <li>1 &times; 2-hour live session</li>
+          <li>Choose any discipline</li>
+          <li>Recording + notes within 48 hrs</li>
+          <li>Take-home deliverable</li>
+        </ul>
+        <div class="tier-ideal">
+          <span class="ideal-label">Best for</span>
+          <p>"I have one specific problem and I need expert eyes on it."</p>
+        </div>
+        <button class="tier-cta" type="button" data-tier="single">Select One-on-One</button>
+      </div>
+
+      <!-- PICK 3 -->
+      <div class="tier-card popular" data-tier="pick3">
+        <div class="ribbon">Most popular</div>
+        <div class="tier-accent" style="background: var(--ochre)"><span class="accent-label">Popular</span></div>
+        <div class="tier-top">
+          <span class="tier-eyebrow">Pick 3 Bundle</span>
+          <div class="tier-price"><span class="ccy">UGX</span><span class="amt" data-promo-tier="pick3">1M</span></div>
+          <p class="tier-desc">3 coaches. 3 disciplines. 3 deliverables. Save 33%.</p>
+        </div>
+        <ul class="tier-features">
+          <li>3 &times; 2-hour live sessions</li>
+          <li>Choose any 3 disciplines</li>
+          <li>Partial founder data room</li>
+          <li>Recordings + notes for each</li>
+        </ul>
+        <div class="tier-ideal">
+          <span class="ideal-label">Best for</span>
+          <p>"I know my 3 biggest gaps and I want targeted coaching."</p>
+        </div>
+        <button class="tier-cta primary" type="button" data-tier="pick3">Select Pick 3</button>
+      </div>
+
+      <!-- COHORT -->
+      <div class="tier-card" data-tier="cohort">
+        <div class="tier-accent" style="background: var(--terra)"><span class="accent-label">Comprehensive</span></div>
+        <div class="tier-top">
+          <span class="tier-eyebrow">Full Cohort</span>
+          <div class="tier-price"><span class="ccy">UGX</span><span class="amt" data-promo-tier="cohort">2.5M</span></div>
+          <p class="tier-desc">All 5 coaches. 5 weeks. 50 hours. Complete data room.</p>
+        </div>
+        <ul class="tier-features">
+          <li>5 weeks of group coaching</li>
+          <li>All 5 disciplines + coaches</li>
+          <li>Complete investor-ready data room</li>
+          <li>30-day post-programme advisory</li>
+          <li>10% deposit reserves your place</li>
+        </ul>
+        <div class="tier-ideal">
+          <span class="ideal-label">Best for</span>
+          <p>"I want the complete foundation before I raise."</p>
+        </div>
+        <button class="tier-cta" type="button" data-tier="cohort">Select Full Cohort</button>
+      </div>
+
+      <!-- VIP -->
+      <div class="tier-card" data-tier="vip1on1">
+        <div class="tier-accent" style="background: var(--moss)"><span class="accent-label">Mission Critical</span></div>
+        <div class="tier-top">
+          <span class="tier-eyebrow">VIP Leadership</span>
+          <div class="tier-price"><span class="ccy">UGX</span><span class="amt" data-promo-tier="vip1on1">5M</span></div>
+          <p class="tier-desc">Private, dedicated coaching for your whole leadership team, across all five disciplines.</p>
+        </div>
+        <ul class="tier-features">
+          <li>Private sessions for your whole leadership team, at your pace</li>
+          <li>All 5 disciplines &middot; dedicated coaches</li>
+          <li>Complete data room + advisory docs</li>
+          <li>3 months post-programme advisory</li>
+          <li>Warm investor introductions</li>
+        </ul>
+        <div class="tier-ideal">
+          <span class="ideal-label">Best for</span>
+          <p>"I'm raising and I need everything now — privately and fast."</p>
+        </div>
+        <button class="tier-cta" type="button" data-tier="vip1on1">Select VIP Leadership</button>
+      </div>
+    </div>
+
+    <div class="pay-strip">
+      <span>Pay your way &middot; 2 taps from your phone</span>
+      <div class="badges">
+        <span class="badge momo">MTN MoMo</span>
+        <span class="badge airtel">Airtel Money</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     STEP 2 — ACCOUNT CREATION (email + magic link)
+     ============================================================ -->
+<section class="step-panel" id="step-2">
+  <div class="shell narrow">
+    <div class="step-header">
+      <span class="eyebrow terra">Step 3 of 4</span>
+      <h1 class="h-section" id="config-title">Choose your disciplines</h1>
+      <p class="h-sub" id="config-sub">Select the 3 coaching disciplines you want to focus on.</p>
+    </div>
+
+    <!-- SINGLE: pick 1 discipline -->
+    <!-- PICK 3: pick 3 disciplines -->
+    <!-- COHORT: pick cohort dates -->
+
+    <!-- Specialty picker (single + pick3) — discipline → module → specialty, built from taxonomy.js -->
+    <div class="config-panel" id="config-disciplines">
+      <div class="spec-picker" id="disc-grid">
+        <!-- Populated by JS from window.FS_TAXONOMY -->
+      </div>
+      <div class="disc-counter">
+        <span id="disc-count">0</span> / <span id="disc-max">3</span> selected
+      </div>
+    </div>
+
+    <!-- Cohort date picker (cohort only) -->
+    <div class="config-panel" id="config-cohort" style="display:none">
+      <!-- Cohort cards are rendered live from open_cohorts() (dates + seats remaining + spillover) -->
+      <div class="cohort-options" id="cohort-list">
+        <div class="cohort-loading" style="padding:18px;color:var(--ink-mute,#5A564F);font-size:14px">Loading cohort dates&hellip;</div>
+      </div>
+
+      <!-- How payment works (10% deposit model) -->
+      <div class="instalment-picker">
+        <span class="inst-label">How payment works</span>
+        <p class="inst-note-static" style="font-size:13px;line-height:1.55;color:var(--ink-mute,#5A564F);margin:6px 0 0">
+          Reserve your place with a <strong>10% deposit</strong> — it's non-refundable. The balance is due in full
+          <strong>48 hours before your start</strong>. Pay it in one go, or in instalments any time before the deadline.
+        </p>
+      </div>
+    </div>
+
+    <!-- VIP: no selection — a tailored, private engagement -->
+    <div class="config-panel" id="config-vip" style="display:none">
+      <div class="instalment-picker">
+        <span class="inst-label">Your VIP engagement</span>
+        <p class="inst-note-static" style="font-size:13px;line-height:1.55;color:var(--ink-mute,#5A564F);margin:6px 0 0">
+          Private and tailored — all five disciplines delivered <strong>to your whole leadership team</strong> with dedicated coaches, a complete
+          investor-ready data room, three months of advisory, and warm investor introductions. After your deposit, our team
+          reaches out to schedule your sessions around you.
+        </p>
+      </div>
+      <div class="instalment-picker">
+        <span class="inst-label">How payment works</span>
+        <p class="inst-note-static" style="font-size:13px;line-height:1.55;color:var(--ink-mute,#5A564F);margin:6px 0 0">
+          Reserve your place with a <strong>10% deposit (UGX 500,000)</strong> — non-refundable. The balance is due before
+          your first session; we'll arrange the schedule with you directly.
+        </p>
+      </div>
+    </div>
+
+    <div class="step-actions">
+      <button class="btn-ghost" id="btn-back-3" type="button">&larr; Back</button>
+      <button class="btn-primary" id="btn-next-3" type="button" disabled>Continue to review &rarr;</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     STEP 4 — ORDER REVIEW + PAYMENT
+     ============================================================ -->
+<section class="step-panel" id="step-3">
+  <div class="shell narrow">
+    <div class="step-header">
+      <span class="eyebrow terra">Step 2 of 4</span>
+      <h1 class="h-section" id="step2-title">Your account</h1>
+      <p class="h-sub" id="step2-sub">Create your account to continue. You'll use it to sign in and reach your data room.</p>
+    </div>
+
+    <!-- AUTH MODE TOGGLE -->
+    <div class="auth-toggle" id="auth-toggle">
+      <button class="auth-tab active" data-mode="create" type="button">Create account</button>
+      <button class="auth-tab" data-mode="login" type="button">Log in</button>
+    </div>
+
+    <!-- CREATE ACCOUNT FORM -->
+    <div class="form-card" id="form-create">
+      <div class="selected-tier-badge" id="selected-tier-badge">
+        <span class="badge-tier" id="badge-tier-name">Pick 3 Bundle</span>
+        <span class="badge-price" id="badge-tier-price">UGX 1M</span>
+        <button class="badge-change" id="btn-change-tier" type="button">Change</button>
+      </div>
+
+      <form class="auth-form" id="auth-form" autocomplete="on">
+        <div class="field-group">
+          <label class="field-label" for="f-name">Full name</label>
+          <input class="field-input" id="f-name" type="text" placeholder="e.g. Sarah Nakamya" autocomplete="name" required>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="f-email">Email address</label>
+          <input class="field-input" id="f-email" type="email" placeholder="sarah@example.com" autocomplete="email" required>
+          <span class="field-hint">We'll send a verification link here</span>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="f-phone">Phone number</label>
+          <div class="phone-row">
+            <select class="phone-code" id="f-phone-code">
+              <!-- Uganda only for the ITM launch (mobile money is Uganda-only). Foreign country
+                   codes return when international registration opens — and those pay by CARD, since
+                   MTN/Airtel MoMo won't work outside Uganda. -->
+              <option value="+256" selected>+256 UG</option>
+            </select>
+            <input class="field-input phone" id="f-phone" type="tel" placeholder="7XX XXX XXX" autocomplete="tel" required>
+          </div>
+          <span class="field-hint">This is where you'll receive the mobile money payment prompt</span>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="f-company">Company / startup name <span class="optional">(optional)</span></label>
+          <input class="field-input" id="f-company" type="text" placeholder="e.g. Kibanda Foods">
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="f-sector">Business sector</label>
+          <select class="field-input" id="f-sector" required>
+            <option value="" disabled selected>Select your sector…</option>
+            <option>Agriculture &amp; Agribusiness</option>
+            <option>Food &amp; Beverage</option>
+            <option>Retail &amp; Commerce</option>
+            <option>Fintech &amp; Financial Services</option>
+            <option>Technology &amp; Software</option>
+            <option>Health &amp; Wellness</option>
+            <option>Education &amp; Training</option>
+            <option>Manufacturing</option>
+            <option>Logistics &amp; Transport</option>
+            <option>Energy &amp; Environment</option>
+            <option>Creative, Media &amp; Design</option>
+            <option>Professional Services</option>
+            <option>Tourism &amp; Hospitality</option>
+            <option>Real Estate &amp; Construction</option>
+            <option>Other</option>
+          </select>
+          <span class="field-hint">Helps us match you to the right coaching context.</span>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="f-password">Create a password</label>
+          <input class="field-input" id="f-password" type="password" placeholder="At least 8 characters" autocomplete="new-password" minlength="8" required>
+          <span class="field-hint">Secures your account and your data room. You'll use it to sign in.</span>
+        </div>
+
+        <button class="btn-primary" type="submit" id="btn-send-link">
+          <span class="btn-text">Continue</span>
+          <span class="btn-loading" style="display:none">Working...</span>
+        </button>
+      </form>
+    </div>
+
+    <!-- LOG IN FORM (returning users) -->
+    <div class="form-card" id="form-login" style="display:none">
+      <div class="selected-tier-badge">
+        <span class="badge-tier" id="badge-tier-name-login">Pick 3 Bundle</span>
+        <span class="badge-price" id="badge-tier-price-login">UGX 1M</span>
+        <button class="badge-change" id="btn-change-tier-login" type="button">Change</button>
+      </div>
+
+      <form class="auth-form" id="login-form" autocomplete="on">
+        <div class="field-group">
+          <label class="field-label" for="l-email">Email address</label>
+          <input class="field-input" id="l-email" type="email" placeholder="sarah@example.com" autocomplete="email" required>
+        </div>
+
+        <div class="field-group">
+          <label class="field-label" for="l-password">Password</label>
+          <input class="field-input" id="l-password" type="password" placeholder="Your password" autocomplete="current-password" required>
+          <span class="field-hint">Forgot it? Reset from the <a href="../login-founder.html" style="color:var(--terra)">founder portal</a>.</span>
+        </div>
+
+        <button class="btn-primary" type="submit" id="btn-login-link">
+          <span class="btn-text">Sign in &amp; continue</span>
+          <span class="btn-loading" style="display:none">Signing in...</span>
+        </button>
+        <div class="field-hint" id="login-error" style="color:#C0392B;display:none;margin-top:8px"></div>
+      </form>
+    </div>
+
+    <!-- MAGIC LINK SENT STATE -->
+    <div class="magic-sent" id="magic-sent" style="display:none">
+      <div class="sent-icon">
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
+          <circle cx="24" cy="24" r="22" stroke="var(--sage)" stroke-width="2"/>
+          <path d="M14 24L22 32L34 16" stroke="var(--sage)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h2 class="h-section" style="font-size:28px">Check your inbox</h2>
+      <p class="h-sub" style="text-align:center">We sent a verification link to <strong id="sent-email">sarah@example.com</strong>. Tap it to continue.</p>
+      <div class="sent-actions">
+        <button class="btn-ghost" id="btn-resend" type="button">Resend link</button>
+        <button class="btn-text-link" id="btn-change-email" type="button">Use a different email</button>
+      </div>
+    </div>
+
+    <!-- ALREADY LOGGED IN STATE (auto-detected) -->
+    <div class="session-card" id="session-active" style="display:none">
+      <div class="session-avatar" id="session-avatar">SN</div>
+      <div class="session-info">
+        <div class="session-name" id="session-name">Sarah Nakamya</div>
+        <div class="session-email" id="session-email">sarah@example.com</div>
+      </div>
+      <div class="session-actions">
+        <button class="btn-primary" id="btn-continue-session" type="button">Continue as <span id="session-first-name">Sarah</span> &rarr;</button>
+        <button class="btn-text-link" id="btn-switch-account" type="button">Use a different account</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     STEP 3 — SESSION CONFIGURATION
+     ============================================================ -->
+<section class="step-panel" id="step-4">
+  <div class="shell narrow">
+    <div class="step-header">
+      <span class="eyebrow terra">Step 4 of 4</span>
+      <h1 class="h-section">Review &amp; pay</h1>
+      <p class="h-sub">Confirm your details, then choose how to pay — mobile money or card.</p>
+    </div>
+
+    <div class="review-card">
+      <!-- Summary -->
+      <div class="review-section">
+        <div class="review-label">Your order</div>
+        <div class="review-tier" id="review-tier">
+          <span class="review-tier-name">Pick 3 Bundle</span>
+          <span class="review-tier-price">UGX 1M</span>
+        </div>
+        <div class="review-disciplines" id="review-disciplines">
+          <!-- Populated by JS -->
+        </div>
+        <div class="review-track-hint" id="review-track-hint" style="display:none"></div>
+      </div>
+
+      <div class="review-divider"></div>
+
+      <!-- Account -->
+      <div class="review-section">
+        <div class="review-label">Account</div>
+        <div class="review-row"><span class="rr-k">Name</span><span class="rr-v" id="review-name">Sarah Nakamya</span></div>
+        <div class="review-row"><span class="rr-k">Email</span><span class="rr-v" id="review-email">sarah@example.com</span></div>
+        <div class="review-row"><span class="rr-k">Phone</span><span class="rr-v" id="review-phone">+256 7XX XXX XXX</span></div>
+      </div>
+
+      <div class="review-divider"></div>
+
+      <!-- Cohort schedule (cohort only) -->
+      <div class="review-section" id="review-schedule-section" style="display:none">
+        <div class="review-label">Schedule</div>
+        <div class="review-row"><span class="rr-k">Cohort</span><span class="rr-v" id="review-cohort">September 2026</span></div>
+        <div class="review-row"><span class="rr-k">Dates</span><span class="rr-v" id="review-dates">Mon 7 Sep &ndash; Fri 9 Oct</span></div>
+        <div class="review-row"><span class="rr-k">Schedule</span><span class="rr-v">Mon&ndash;Fri, 10 AM&ndash;12 PM EAT</span></div>
+        <div class="review-divider"></div>
+      </div>
+
+      <!-- Payment -->
+      <div class="review-section">
+        <div class="review-label">Payment</div>
+
+        <div class="review-total">
+          <span class="rt-label" id="review-pay-label">Total due now</span>
+          <span class="rt-amount" id="review-amount">UGX 1,000,000</span>
+        </div>
+
+        <div class="review-instalment-note" id="review-instalment" style="display:none">
+          <!-- Shown for instalment plans -->
+        </div>
+
+        <div class="momo-picker">
+          <span class="momo-label">Pay with</span>
+          <div class="momo-options">
+            <button class="momo-opt selected" data-provider="mtn" type="button">
+              <span class="momo-icon mtn">M</span>
+              <span>MTN MoMo</span>
+            </button>
+            <button class="momo-opt" data-provider="airtel" type="button">
+              <span class="momo-icon airtel">A</span>
+              <span>Airtel Money</span>
+            </button>
+            <button class="momo-opt" data-provider="card" type="button">
+              <span class="momo-icon" style="background:#3D4A2E;display:inline-flex;align-items:center;justify-content:center">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2.5" stroke="#EFE7D8" stroke-width="2"/><path d="M2 9.5h20" stroke="#EFE7D8" stroke-width="2"/></svg>
+              </span>
+              <span>Card</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="momo-phone-row">
+          <label class="field-label">Mobile money number</label>
+          <div class="phone-display" id="momo-phone-display">+256 7XX XXX XXX</div>
+          <span class="field-hint">We'll send the payment prompt to this number</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="step-actions">
+      <button class="btn-ghost" id="btn-back-4" type="button">&larr; Back</button>
+      <button class="btn-primary pay" id="btn-pay" type="button">
+        <span class="btn-text">Confirm &amp; pay UGX <span id="btn-pay-amount">1,000,000</span></span>
+      </button>
+    </div>
+
+    <p class="terms-note">By proceeding, you agree to The Founder's Sprint <a href="../terms.html">terms of service</a> and <a href="../privacy.html">privacy policy</a>.</p>
+  </div>
+</section>
+
+<!-- ============================================================
+     STEP 5 — PAYMENT PROCESSING + CONFIRMATION
+     ============================================================ -->
+<section class="step-panel" id="step-5">
+  <div class="shell narrow">
+
+    <!-- Processing state -->
+    <div class="confirm-state" id="state-processing">
+      <div class="processing-anim">
+        <div class="pulse-ring"></div>
+        <div class="pulse-ring delay"></div>
+        <svg class="phone-icon" width="56" height="56" viewBox="0 0 56 56" fill="none">
+          <rect x="16" y="6" width="24" height="44" rx="4" stroke="var(--paper)" stroke-width="2"/>
+          <line x1="24" y1="44" x2="32" y2="44" stroke="var(--paper)" stroke-width="2" stroke-linecap="round"/>
+        </svg>
+      </div>
+      <h2 class="h-section" style="font-size:26px;margin-top:32px">Check your phone</h2>
+      <p class="h-sub" style="text-align:center">We sent a <strong id="provider-name">MTN MoMo</strong> payment prompt to <strong id="processing-phone">+256 7XX XXX XXX</strong>. Enter your PIN to confirm.</p>
+      <div class="processing-timer">
+        <span class="timer-text">Waiting for confirmation...</span>
+        <div class="timer-bar"><div class="timer-fill" id="timer-fill"></div></div>
+      </div>
+      <button class="btn-ghost small" id="btn-cancel-payment" type="button">Cancel</button>
+    </div>
+
+    <!-- Success state -->
+    <div class="confirm-state" id="state-success" style="display:none">
+      <div class="success-icon">
+        <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+          <circle cx="40" cy="40" r="36" stroke="var(--sage)" stroke-width="2.5"/>
+          <path d="M24 40L36 52L56 28" stroke="var(--sage)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <h2 class="h-section" style="font-size:28px;margin-top:24px">You're in.</h2>
+      <p class="h-sub" style="text-align:center;max-width:44ch">Payment confirmed. Check your email for next steps and your session details.</p>
+
+      <div class="success-card">
+        <div class="sc-row"><span class="sc-k">Transaction ID</span><span class="sc-v" id="txn-id">FS-20260527-XXXX</span></div>
+        <div class="sc-row"><span class="sc-k">Amount paid</span><span class="sc-v" id="txn-amount">UGX 1,000,000</span></div>
+        <div class="sc-row"><span class="sc-k">Payment method</span><span class="sc-v" id="txn-method">MTN MoMo</span></div>
+        <div class="sc-row"><span class="sc-k">Receipt sent to</span><span class="sc-v" id="txn-email">sarah@example.com</span></div>
+      </div>
+
+      <div class="next-steps">
+        <div class="ns-label">What happens next</div>
+        <div class="ns-list">
+          <div class="ns-item">
+            <span class="ns-num">1</span>
+            <div>
+              <strong>Check your inbox</strong>
+              <p>We sent a confirmation email with your receipt and session details.</p>
+            </div>
+          </div>
+          <div class="ns-item">
+            <span class="ns-num">2</span>
+            <div>
+              <strong>Save the date</strong>
+              <p id="ns-schedule-text">Your session details and Google Meet link will arrive 48 hours before.</p>
+            </div>
+          </div>
+          <div class="ns-item">
+            <span class="ns-num">3</span>
+            <div>
+              <strong>Prepare</strong>
+              <p>We'll send a short prep guide so you can make the most of your coaching time.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="success-actions">
+        <a class="btn-primary" href="../">Return to homepage</a>
+        <a class="btn-ghost" href="../explore/">Explore disciplines</a>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ============================================================
+     FOOTER
+     ============================================================ -->
+<footer class="footer">
+  <div class="shell">
+    <div class="f-row">
+      <span class="f-brand">THE FOUNDER'S SPRINT</span>
+      <span class="f-tag">Build with direction.</span>
+    </div>
+  </div>
+</footer>
+
+<script src="/vendor/supabase-js.min.js?v=2110"></script>
+<script>window.supabase||document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"><\/script>')</script>
+<script src="../taxonomy.js?v=1"></script>
+<script src="/promo.js?v=1"></script>
+<script src="book.js?v=19"></script>
+</body>
+</html>

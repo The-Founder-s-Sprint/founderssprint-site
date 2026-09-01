@@ -766,7 +766,7 @@ async function inviteMentor(){
   if(!email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)){ showToast('Enter a valid email','error'); return; }
   try{
     const tok=await _rpc('create_mentor_invite',{p_email:email,p_name:name});
-    const link=location.origin+'/beta/mentor-onboarding.html?token='+tok;
+    const link=location.origin+'/mentor-onboarding.html?token='+tok;
     document.getElementById('mi-out').innerHTML='<div class="sub" style="margin-bottom:5px">Send this private link to the mentor (expires in 21 days):</div>'
       +'<input readonly value="'+esc(link)+'" onclick="this.select()" style="width:100%;padding:9px 11px;border:1px solid var(--terra);background:rgba(200,83,31,.05);font-family:monospace;font-size:12px">';
     showToast('Invite link generated','success'); loadMentors();
@@ -930,7 +930,7 @@ async function resendMentorInvite(appId){
   const a=mentorApps.find(x=>x.id===appId); const email=a?(a.email||''):'';
   try{
     const tok=await _rpc('resend_mentor_invite',{p_app:appId});
-    const link=location.origin+'/beta/mentor-onboarding.html?token='+tok;
+    const link=location.origin+'/mentor-onboarding.html?token='+tok;
     const out=document.getElementById('mi-resend-'+appId);
     if(out) out.innerHTML='<input readonly value="'+esc(link)+'" onclick="this.select()" style="width:100%;margin-top:6px;padding:8px 10px;border:1px solid var(--terra);background:rgba(200,83,31,.05);font-family:monospace;font-size:11px">';
     showToast('Fresh invite link generated for '+email,'success');
@@ -1259,7 +1259,7 @@ function showInviteCoach(){
   const el=document.getElementById('invite-box'); if(!el) return;
   if(el.dataset.open==='1'){ el.innerHTML=''; el.dataset.open=''; return; }
   el.dataset.open='1';
-  const url=location.origin+'/beta/coach-onboarding.html';
+  const url=location.origin+'/coach-onboarding.html';
   el.innerHTML='<div class="app-card"><div style="font-family:var(--display);font-size:18px;font-weight:600;margin-bottom:4px">Invite a coach</div>'
     +'<div class="sub" style="margin-bottom:10px">Share this onboarding/application link with a prospective coach. Their submission lands in the pipeline above for lead → admin review.</div>'
     +'<div style="display:flex;gap:8px;align-items:center"><input id="invite-url" value="'+esc(url)+'" readonly><button class="btn-sm approve" onclick="copyInvite()">Copy link</button></div></div>';
@@ -1415,7 +1415,7 @@ function showInviteInvestor(){
   const el=document.getElementById('inv-invite-box'); if(!el) return;
   if(el.dataset.open==='1'){ el.innerHTML=''; el.dataset.open=''; return; }
   el.dataset.open='1';
-  const url=location.origin+'/beta/investor-onboarding.html';
+  const url=location.origin+'/investor-onboarding.html';
   el.innerHTML='<div class="app-card"><div style="font-family:var(--display);font-size:18px;font-weight:600;margin-bottom:4px">Invite an investor</div>'
     +'<div class="sub" style="margin-bottom:10px">Share this onboarding link with a prospective investor. Their submission lands here for review and verification.</div>'
     +'<div style="display:flex;gap:8px;align-items:center"><input id="inv-invite-url" value="'+esc(url)+'" readonly><button class="btn-sm approve" onclick="copyInvInvite()">Copy link</button></div></div>';

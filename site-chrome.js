@@ -11,11 +11,14 @@
    Self-contained: injects its own CSS + fonts, needs nothing from the page.
    Nav styling mirrors the homepage (Josefin wordmark + JetBrains Mono
    uppercase links, centered via a 1fr/auto/1fr grid).
-   All links ABSOLUTE behind BASE — the marketing site lives under /beta/;
-   change BASE once when it moves to root. Mentors/cookies live at root.
+   All links ABSOLUTE behind BASE. BASE auto-detects the environment from the URL:
+   a page served under /beta/ (staging) gets BASE='/beta'; anything else (the
+   production apex) gets BASE='' → clean root links. One file serves both
+   environments, so staging and prod never need a separate build of this file.
+   Mentors/cookies live at root in both.
    ============================================================ */
 (function () {
-  var BASE = '/beta';
+  var BASE = (location.pathname === '/beta' || location.pathname.indexOf('/beta/') === 0) ? '/beta' : '';
   var H = BASE + '/index.html';
 
   var L = {
@@ -130,6 +133,7 @@
     +   col('Company', [['FAQ', L.faq], ['Contact', L.contact], ['Terms of Service', L.terms], ['Privacy Policy', L.privacy], ['Cookie Notice', L.cookies], ['Your Data', L.dataRights]])
     + '</div>'
     + '<div class="fsx-bottom"><span>© 2026 · The Founder\'s Sprint · Kampala</span><span>Made in Uganda</span></div>'
+    + '<div style="position:relative;z-index:1;max-width:1080px;margin:12px auto 0;text-align:center;font-family:\'JetBrains Mono\',ui-monospace,monospace;font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:rgba(239,231,216,.26)">Designed by TMS Ruge · Built with Claude Cowork</div>'
     + '</footer>';
 
   var CSS =
@@ -144,6 +148,9 @@
     + ".fsx-links{justify-self:center;display:flex;align-items:center;gap:34px;}"
     + ".fsx-links>a{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:10.5px;letter-spacing:.20em;text-transform:uppercase;color:rgba(239,231,216,.55);text-decoration:none;transition:color .2s;white-space:nowrap;}"
     + ".fsx-links>a:hover{color:#EFE7D8;}"
+    + ".fsx-links>a.active,.fsx-dd-top.active{color:#C8531F;position:relative;}"
+    + ".fsx-links>a.active::after,.fsx-dd-top.active::after{content:'';position:absolute;left:0;right:0;bottom:-7px;height:2px;background:#C8531F;}"
+    + ".fsx-dd-menu a.active{color:#C8531F;background:rgba(200,83,31,.06);}"
     // ---- Method dropdown ----
     + ".fsx-dd{position:relative;display:flex;align-items:center;}"
     + ".fsx-dd-top{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:10.5px;letter-spacing:.20em;text-transform:uppercase;color:rgba(239,231,216,.55);text-decoration:none;transition:color .2s;white-space:nowrap;cursor:pointer;}"
@@ -207,6 +214,7 @@
     +   ".fsx-nav.fsx-open .fsx-drawer{display:flex;}"
     +   ".fsx-links{justify-self:auto;flex-direction:column;align-items:flex-start;gap:0;width:100%;}"
     +   ".fsx-links>a{padding:11px 0;width:100%;font-size:12px;}"
+    +   ".fsx-links>a.active::after,.fsx-dd-top.active::after{display:none;}"
     +   ".fsx-dd{display:block;width:100%;}"
     +   ".fsx-dd-top{display:block;padding:11px 0;font-size:12px;}"
     +   ".fsx-dd-menu{position:static;transform:none;display:flex;min-width:0;border:none;box-shadow:none;background:none;padding:0 0 8px 14px;}"
@@ -288,6 +296,103 @@
     });
   }
 
+  // ── First-party pageview beacon (cookieless; feeds the admin dashboard) ──────
+  // Fire-and-forget insert into page_views via the same-origin /db proxy. No PII:
+  // a random per-browser id (localStorage), the path, and the external referrer host
+  // only. RLS constrains the insert and blocks any read-back. Authed/app surfaces
+  // are skipped so the numbers reflect public marketing traffic.
+  // Derive a coarse device / OS / browser bucket from the user-agent for design
+  // analytics (mobile-first audience). Deliberately NOT storing the raw UA string —
+  // only three low-cardinality labels, so it's a privacy-clean signal, not a fingerprint.
+  function uaClass() {
+    try {
+      var ua = navigator.userAgent || '';
+      var uad = navigator.userAgentData || null;
+      var mt = navigator.maxTouchPoints || 0;
+
+      // OS
+      var os = 'other';
+      if (/\b(iPhone|iPod)\b/.test(ua)) os = 'iOS';
+      else if (/\biPad\b/.test(ua)) os = 'iPadOS';
+      else if (/\bAndroid\b/.test(ua)) os = 'Android';
+      else if (/\bWindows\b/.test(ua)) os = 'Windows';
+      else if (/\bMac OS X\b|\bMacintosh\b/.test(ua)) os = (mt > 1 ? 'iPadOS' : 'macOS'); // iPadOS Safari masquerades as Macintosh
+      else if (/\bLinux\b/.test(ua)) os = 'Linux';
+
+      // Device class
+      var device = 'desktop';
+      var uaMobile = uad && typeof uad.mobile === 'boolean' ? uad.mobile : null;
+      if (os === 'iPadOS' || (os === 'Android' && !/\bMobile\b/.test(ua))) device = 'tablet';
+      else if (os === 'iOS' || os === 'Android' || uaMobile === true || /\bMobi\b|Windows Phone/i.test(ua)) device = 'mobile';
+      else if (uaMobile === false) device = 'desktop';
+
+      // Browser family — order matters (Edge/Opera UAs also contain Chrome/Safari)
+      var browser = 'other';
+      if (/\bEdg(?:e|A|iOS)?\//.test(ua)) browser = 'Edge';
+      else if (/\bOPR\/|\bOpera\b/.test(ua)) browser = 'Opera';
+      else if (/\bSamsungBrowser\//.test(ua)) browser = 'Samsung';
+      else if (/\bCriOS\/|\bChrome\//.test(ua)) browser = 'Chrome';
+      else if (/\bFxiOS\/|\bFirefox\//.test(ua)) browser = 'Firefox';
+      else if (/\bSafari\//.test(ua)) browser = 'Safari';
+
+      return { device: device, os: os, browser: browser };
+    } catch (e) { return { device: null, os: null, browser: null }; }
+  }
+
+  function trackPageview() {
+    try {
+      var p = location.pathname || '/';
+      if (/^\/(dashboard|admin-portals|founder|coach|investor|login-|set-password|welcome|share-testimonial|mentor-apply)/.test(p)) return;
+      var vid = null;
+      try {
+        vid = localStorage.getItem('fs_vid');
+        if (!vid) { vid = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : (Date.now().toString(36) + Math.random().toString(36).slice(2)); localStorage.setItem('fs_vid', vid); }
+      } catch (e) {}
+      var refHost = '';
+      try { if (document.referrer) { var ru = new URL(document.referrer); if (ru.host && ru.host !== location.host) refHost = ru.host; } } catch (e) {}
+      var eid = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : (Date.now().toString(36) + Math.random().toString(36).slice(2));
+      var t0 = Date.now();
+      var dc = uaClass();  // coarse device/os/browser buckets only — never the raw UA string
+      var body = JSON.stringify({ path: p.slice(0, 512), ref: refHost ? refHost.slice(0, 255) : null, visitor: vid, env: (BASE === '/beta' ? 'staging' : 'prod'), event_id: eid, device: dc.device, os: dc.os, browser: dc.browser });
+      var opts = { method: 'POST', keepalive: true, headers: { 'Content-Type': 'application/json', apikey: ANON, Authorization: 'Bearer ' + ANON, Prefer: 'return=minimal' }, body: body };
+      fetch('/db/rest/v1/page_views', opts).catch(function () { try { fetch(SB_URL + '/rest/v1/page_views', opts); } catch (e) {} });
+
+      // Time-on-page: report how long the visitor stayed, once, when they leave or
+      // background the tab. Set-once + clamped server-side by pv_dwell(). Best-effort.
+      var reported = false;
+      function reportDwell() {
+        if (reported) return; reported = true;
+        var ms = Date.now() - t0;
+        if (ms < 1000) return;  // ignore instant bounces / immediate nav
+        var payload = JSON.stringify({ p_event_id: eid, p_ms: ms });
+        try {
+          if (navigator.sendBeacon) { navigator.sendBeacon('/db/rest/v1/rpc/pv_dwell', new Blob([payload], { type: 'application/json' })); }
+          else { fetch('/db/rest/v1/rpc/pv_dwell', { method: 'POST', keepalive: true, headers: { 'Content-Type': 'application/json', apikey: ANON, Authorization: 'Bearer ' + ANON }, body: payload }); }
+        } catch (e) {}
+      }
+      document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') reportDwell(); });
+      window.addEventListener('pagehide', reportDwell);
+    } catch (e) {}
+  }
+
+  // Highlight the current page in the nav (regressed when the nav moved into this module).
+  // Matches real page links by pathname; /method/* pages light the Method dropdown + its sub-item.
+  function markActive() {
+    var nav = document.getElementById('fsx-nav'); if (!nav) return;
+    function pathOf(u){ try { return new URL(u, location.origin).pathname.replace(/\/index\.html$/, '/'); } catch (e) { return ''; } }
+    var here = location.pathname.replace(/\/index\.html$/, '/');
+    Array.prototype.forEach.call(nav.querySelectorAll('.fsx-links > a'), function (a) {
+      var href = a.getAttribute('href') || '';
+      if (href.indexOf('#') === -1 && pathOf(href) === here) a.classList.add('active');
+    });
+    if (/^\/(beta\/)?method\//.test(here)) {
+      var dd = nav.querySelector('.fsx-dd-top'); if (dd) dd.classList.add('active');
+      Array.prototype.forEach.call(nav.querySelectorAll('.fsx-dd-menu a'), function (a) {
+        if (pathOf(a.getAttribute('href') || '') === here) a.classList.add('active');
+      });
+    }
+  }
+
   function inject() {
     injectFonts();
     if (!document.getElementById('fsx-style')) {
@@ -317,6 +422,8 @@
     }
 
     applyAuth();
+    markActive();
+    trackPageview();
 
     // Universal "Report a problem" widget on every public page (self-contained; anon-safe).
     if (!window.__fsReport && !document.getElementById('fsx-report-js')) {

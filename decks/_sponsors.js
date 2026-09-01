@@ -18,7 +18,7 @@
   };
   var CAT_LABEL = { design:'Design & branding', digital:'Digital marketing', legal:'Legal & registration',
                     unbs:'Standards & certification', banking:'Banking & finance' };
-  var DIR_URL = 'https://founderssprint.co/beta/directory.html';
+  var DIR_URL = 'https://founderssprint.co/directory.html';
 
   function disc(){ var m=location.pathname.match(/\/decks\/([a-z]+)\//i); return m?m[1].toLowerCase():null; }
   function esc(s){ return String(s==null?'':s).replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];}); }

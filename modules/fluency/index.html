@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Founder Fluency · The Founder's Sprint</title>
+<meta name="description" content="How fluent are you in the language founders, investors and operators actually speak? Take the free Founder Fluency check from The Founder's Sprint — 15 questions, scored by discipline.">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Founder's Sprint">
+<meta property="og:title" content="Founder Fluency — test your command of the fundamentals">
+<meta property="og:description" content="15 questions across five disciplines. See where you're fluent and where the gaps are. Free, from The Founder's Sprint.">
+<meta property="og:image" content="https://founderssprint.co/images/og-default.jpg">
+<meta property="og:url" content="https://founderssprint.co/modules/fluency/">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Founder Fluency — The Founder's Sprint">
+<meta name="twitter:description" content="How fluent are you in the language of business? 15 questions, scored by discipline. Free.">
+<meta name="twitter:image" content="https://founderssprint.co/images/og-default.jpg">
+<style>
+  :root{--ink:#1A1A1A;--ink-deep:#0f0d0a;--paper:#EFE7D8;--paper-deep:#E6DCC7;--muted:#5A564F;--paper-dim:#9a917f;
+    --terra:#C8531F;--terra-deep:#9A3E16;--ochre:#C9923A;--moss:#3D4A2E;--sage:#8AAB5C;--stone:#777770;
+    --border:rgba(26,26,26,0.16);--sans:'Josefin Sans',sans-serif;--display:'Cormorant Garamond',serif;--font:'Inter',sans-serif;
+    --radius-card:0 0 22px 0;}
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{background:var(--paper);color:var(--ink);font-family:var(--font);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;}
+  .bar{display:flex;align-items:center;justify-content:space-between;padding:16px 24px;background:var(--ink);}
+  .brand{display:flex;align-items:center;gap:10px;text-decoration:none;}
+  .brand svg{width:22px;height:22px;} .brand .wm{font-family:var(--sans);font-weight:700;font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--paper);}
+  .bar .disc{font-family:var(--sans);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--ochre);}
+  .wrap{max-width:720px;margin:0 auto;padding:34px 22px 70px;}
+  .eyebrow{font-family:var(--sans);font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--terra-deep);font-weight:600;margin-bottom:10px;}
+  h1{font-family:var(--display);font-size:46px;font-weight:600;line-height:1.03;margin-bottom:12px;}
+  h1 em{font-style:italic;color:var(--terra);}
+  .lede{font-size:15.5px;color:var(--muted);max-width:600px;line-height:1.6;margin-bottom:18px;}
+  .meta{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:26px;}
+  .meta span{font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.04em;color:var(--muted);background:var(--paper-deep);border:1px solid var(--border);padding:8px 13px;}
+  .btn{font-family:var(--sans);font-weight:700;font-size:12px;letter-spacing:.16em;text-transform:uppercase;padding:15px 30px;border:none;cursor:pointer;background:var(--terra);color:#fff;transition:background .18s,transform .12s;}
+  .btn:hover{background:var(--terra-deep);} .btn:active{transform:scale(.99);}
+  .btn.block{display:block;width:100%;text-align:center;}
+  .btn.ghost{background:none;border:1px solid var(--border);color:var(--ink);}
+  .btn.ghost:hover{background:rgba(26,26,26,.05);border-color:var(--ink);}
+  .disclaimer{font-size:12px;color:var(--paper-dim);font-style:italic;margin-top:20px;max-width:560px;line-height:1.55;}
+
+  /* progress */
+  .prog-wrap{margin-bottom:22px;}
+  .prog-top{display:flex;justify-content:space-between;align-items:baseline;font-family:var(--sans);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:7px;}
+  .prog{height:5px;background:rgba(26,26,26,.08);overflow:hidden;}
+  .prog .fill{height:100%;background:var(--terra);transition:width .3s ease;}
+
+  /* question */
+  .q-disc{font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;margin-bottom:10px;}
+  .q-def{font-family:var(--display);font-size:26px;font-weight:500;line-height:1.28;margin-bottom:6px;color:var(--ink);}
+  .q-prompt{font-size:13px;color:var(--muted);margin-bottom:20px;}
+  .opts{display:flex;flex-direction:column;gap:10px;}
+  .opt{text-align:left;background:var(--paper-deep);border:1px solid var(--border);padding:15px 17px;font-family:var(--font);font-size:15px;color:var(--ink);cursor:pointer;transition:border-color .15s,background .15s;border-radius:0 0 14px 0;}
+  .opt:hover:not(:disabled){border-color:var(--terra);}
+  .opt:disabled{cursor:default;}
+  .opt.correct{border-color:var(--sage);background:rgba(138,171,92,.14);}
+  .opt.wrong{border-color:var(--terra);background:rgba(200,83,31,.10);}
+  .opt .tick{float:right;font-weight:700;}
+  .opt.correct .tick{color:var(--moss);} .opt.wrong .tick{color:var(--terra-deep);}
+
+  /* feedback */
+  .fb{margin-top:18px;background:var(--ink);color:var(--paper);padding:18px 20px;border-radius:0 0 20px 0;display:none;}
+  .fb.show{display:block;}
+  .fb .term{font-family:var(--display);font-size:20px;font-weight:600;margin-bottom:2px;}
+  .fb .abbr{font-family:var(--sans);font-size:10px;letter-spacing:.1em;color:var(--ochre);text-transform:uppercase;margin-bottom:8px;display:inline-block;}
+  .fb .why{font-size:13.5px;line-height:1.6;color:rgba(239,231,216,.82);margin-bottom:16px;}
+  .fb .next{background:var(--terra);color:#fff;border:none;font-family:var(--sans);font-weight:700;font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:12px 24px;cursor:pointer;}
+  .fb .next:hover{background:var(--terra-deep);}
+
+  /* result */
+  .score-hero{text-align:center;padding:10px 0 24px;}
+  .score-hero .n{font-family:var(--display);font-size:80px;font-weight:600;line-height:1;color:var(--terra);}
+  .score-hero .n small{font-size:34px;color:var(--paper-dim);}
+  .score-hero .verdict{font-family:var(--display);font-style:italic;font-size:26px;margin-top:6px;}
+  .score-hero .blurb{font-size:14px;color:var(--muted);max-width:480px;margin:10px auto 0;line-height:1.6;}
+  .bars{margin:26px 0 8px;}
+  .brow{padding:11px 0;border-bottom:1px solid var(--border);}
+  .brow:last-child{border-bottom:none;}
+  .bhead{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px;}
+  .bhead .nm{font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;}
+  .bhead .sc{font-family:var(--display);font-size:16px;font-weight:600;font-variant-numeric:tabular-nums;}
+  .btrack{height:9px;background:rgba(26,26,26,.07);overflow:hidden;}
+  .bfill{height:100%;transition:width .5s ease;}
+  .gap{background:var(--ink);color:var(--paper);padding:24px 22px;border-radius:0 0 22px 0;margin-top:26px;}
+  .gap .e{font-family:var(--sans);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--ochre);margin-bottom:8px;}
+  .gap h3{font-family:var(--display);font-size:25px;font-weight:600;margin-bottom:8px;line-height:1.15;}
+  .gap p{font-size:13.5px;color:rgba(239,231,216,.8);line-height:1.6;max-width:560px;margin-bottom:16px;}
+  .gap .btns{display:flex;gap:10px;flex-wrap:wrap;}
+  .gap a{font-family:var(--sans);font-weight:700;font-size:11px;letter-spacing:.14em;text-transform:uppercase;padding:12px 20px;text-decoration:none;}
+  .gap a.primary{background:var(--terra);color:#fff;} .gap a.primary:hover{background:var(--terra-deep);}
+  .gap a.ghost{border:1px solid rgba(239,231,216,.35);color:var(--paper);}
+  .after{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;}
+  #shareMsg{display:block;margin-top:10px;font-size:12px;color:var(--sage);min-height:16px;}
+  .hidden{display:none!important;}
+  @media(max-width:600px){h1{font-size:36px;}.q-def{font-size:22px;}.score-hero .n{font-size:64px;}}
+</style>
+</head>
+<body>
+<div class="bar">
+  <a class="brand" href="/index.html">
+    <svg viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.85"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.8" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.78" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.82" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+    <span class="wm">The Founder's Sprint</span>
+  </a>
+  <span class="disc">Founder Fluency</span>
+</div>
+
+<div class="wrap">
+  <!-- INTRO -->
+  <section id="intro">
+    <div class="eyebrow">◇ A quick self-check</div>
+    <h1>Founder <em>Fluency</em>.</h1>
+    <p class="lede">Every discipline has its own language — CAC, runway, dilution, product-market fit. Fluency isn't about sounding smart; it's about making sharper decisions and holding your own in the room with investors. See where you're fluent, and where the gaps are.</p>
+    <div class="meta"><span>15 questions</span><span>~5 minutes</span><span>Scored by discipline</span><span>Free · no account needed</span></div>
+    <button class="btn" id="startBtn">Start the check &rarr;</button>
+    <p class="disclaimer">This is an awareness check, not a grade. Knowing a term isn't the same as running your business on it — but knowing the language is where it starts. Every answer teaches you why it matters.</p>
+  </section>
+
+  <!-- QUIZ -->
+  <section id="quiz" class="hidden">
+    <div class="prog-wrap">
+      <div class="prog-top"><span id="prog-label">Question 1 of 15</span><span id="prog-score">0 correct</span></div>
+      <div class="prog"><div class="fill" id="prog-fill" style="width:0%"></div></div>
+    </div>
+    <div id="q-disc" class="q-disc"></div>
+    <div id="q-def" class="q-def"></div>
+    <div class="q-prompt">Which term does this describe?</div>
+    <div class="opts" id="opts"></div>
+    <div class="fb" id="fb">
+      <span class="abbr" id="fb-abbr"></span>
+      <div class="term" id="fb-term"></div>
+      <div class="why" id="fb-why"></div>
+      <button class="next" id="nextBtn">Next &rarr;</button>
+    </div>
+  </section>
+
+  <!-- RESULT -->
+  <section id="result" class="hidden">
+    <div class="eyebrow">Your result</div>
+    <div class="score-hero">
+      <div class="n"><span id="r-score">0</span><small>/15</small></div>
+      <div class="verdict" id="r-verdict"></div>
+      <div class="blurb" id="r-blurb"></div>
+    </div>
+    <div class="bars" id="r-bars"></div>
+    <div class="gap" id="r-gap"></div>
+    <div class="after">
+      <button class="btn ghost" id="retakeBtn">Take it again</button>
+      <button class="btn ghost" id="shareBtn">Share my result</button>
+    </div>
+    <span id="shareMsg"></span>
+  </section>
+</div>
+
+<script>
+/* ── Disciplines ── */
+var DISC = [
+  { id:0, name:'Marketing & Branding',    coach:'Teddy',   color:'#C8531F', method:'/method/marketing.html' },
+  { id:1, name:'Financial Modelling',     coach:'Barry',   color:'#C9923A', method:'/method/finance.html' },
+  { id:2, name:'Investment Readiness',    coach:'Joseph',  color:'#8AAB5C', method:'/method/investment.html' },
+  { id:3, name:'Strategy & Team Building',coach:'Moses',   color:'#3D4A2E', method:'/method/strategy.html' },
+  { id:4, name:'Product Dev & Pricing',   coach:'Patrick', color:'#777770', method:'/method/product.html' }
+];
+
+/* ── Terms (the marketing carousel bank) ── */
+var TERMS = [
+  {d:0,a:'CAC',n:'Customer Acquisition Cost',def:'The total cost of convincing one person to become your customer — total marketing and sales spend divided by new customers gained.',why:"If you don't know this number, you're marketing blind. Every shilling you spend should bring back more than it costs."},
+  {d:0,a:null,n:'Brand Positioning',def:"The unique space your business occupies in a customer's mind — how you're meaningfully different from every other option.",why:'Your brand isn\'t your logo. It\'s the answer to "why you, and not them?" — the reason customers choose you without being convinced.'},
+  {d:0,a:null,n:'Conversion Rate',def:'The percentage of people who take a desired action — sign up, purchase, click — out of everyone who had the chance to.',why:'Getting traffic is easy. Getting it to *do* something is the real work — this tells you if your message and offer actually work.'},
+  {d:0,a:null,n:'Value Proposition',def:'A clear statement of the specific benefit your product delivers, to whom, and why you are the best choice to deliver it.',why:"A feature is what your product does. A value proposition is why that matters to the person paying. If you can't say it in a sentence, you haven't found it."},
+  {d:0,a:null,n:'Content Funnel',def:'A structured sequence of content that moves a stranger from first awareness of your brand to becoming a paying customer.',why:'Not every post is meant to sell. A funnel means every piece has a job — awareness, trust, or conversion — and they work together.'},
+
+  {d:1,a:null,n:'Burn Rate',def:'The speed at which your business spends money before generating enough revenue to cover its own costs, usually per month.',why:"It's a survival metric, not just accounting. How fast you're spending tells you how long you have to make something work."},
+  {d:1,a:null,n:'Runway',def:'How long your business can operate before running out of cash, based on your current burn rate and available funds.',why:"Your most honest deadline. It doesn't care about your vision — just: how long do you have? Knowing it lets you decide before you're forced to."},
+  {d:1,a:null,n:'Unit Economics',def:'The revenue and costs tied to a single unit of your business — one customer, one transaction — at the smallest measurable scale.',why:"If the unit doesn't make money, nothing scales. If it does, everything scales. It's the first question a serious investor asks."},
+  {d:1,a:null,n:'Gross Margin',def:'The percentage of revenue left after subtracting the direct costs of producing your product or service.',why:'Revenue is vanity. 80% margin and 10% margin at the same revenue are completely different businesses — this tells you how much room you have to grow.'},
+  {d:1,a:'MRR',n:'Monthly Recurring Revenue',def:'The predictable revenue you can reliably expect every month from active subscriptions, retainers, or repeat contracts.',why:'The metric that turns a business into an asset. Predictable revenue means easier fundraising and real, not potential, value.'},
+
+  {d:3,a:'TAM / SAM / SOM',n:'The Market Sizing Stack',def:'Total Addressable Market (everyone who could buy), Serviceable Addressable Market (who you can reach), Serviceable Obtainable Market (who you can realistically win soon).',why:'"We\'re targeting a $10B market" impresses no one. What matters is who you can actually reach and win in the next 12–24 months.'},
+  {d:3,a:null,n:'Competitive Moat',def:'The sustainable advantages that protect you from competitors — technology, brand loyalty, network effects, switching costs, regulation.',why:'Anything that works attracts competition. The question is: what makes you hard to copy? Without a moat, you\'re just buying time.'},
+  {d:3,a:'OKRs',n:'Objectives & Key Results',def:'A goal-setting framework: define what you want to achieve (Objective) and the measurable outcomes that prove you got there (Key Results).',why:'Vision without measurement is wishful thinking. OKRs align your team and make progress visible — critical when building fast with few people.'},
+  {d:3,a:null,n:'Market Entry Strategy',def:'The deliberate plan for how and where you first introduce your product — which segment, geography, and channel, in what sequence.',why:"You can't be everywhere at once. The founders who scale fastest usually went deep in one place before going wide. Make it a decision, not a default."},
+  {d:3,a:null,n:'Organisational Design',def:'The structure of roles, responsibilities and decision-making that determines how work gets done as your team grows.',why:'The team that launches your startup isn\'t the team that scales it. Good design means adding people adds capacity, not confusion.'},
+
+  {d:2,a:null,n:'Pre-money Valuation',def:'The agreed value of your company *before* new investment is added — the starting number for calculating investor ownership in a round.',why:"A negotiation, not a calculation. It determines how much of your company you give away — founders who don't understand it give away too much."},
+  {d:2,a:null,n:'Dilution',def:"The reduction in a founder's ownership percentage when new shares are issued to investors, employees, or option holders.",why:'Raising feels like winning; dilution is the fine print. Not inherently bad, but it must be intentional — a smaller slice of a bigger pie can still be huge.'},
+  {d:2,a:null,n:'Term Sheet',def:'A non-binding document outlining the key terms of a proposed investment — valuation, equity, governance, protective clauses — before legal drafting.',why:'Where the real negotiation happens. By the time lawyers are involved, most terms are set. Read it — don\'t just sign it.'},
+  {d:2,a:null,n:'Due Diligence',def:'The rigorous process investors run before closing — reviewing financials, legal structure, team, contracts and model to verify your claims.',why:"Not an obstacle — a test you prepare for long before it's asked. Founders who sail through have their data room in order and their story consistent."},
+  {d:2,a:null,n:'Cap Table',def:'A record of who owns what percentage of the company — founders, investors, option-holders — and how it changes with each funding event.',why:'A clean cap table signals a well-run company. A messy one can kill a deal at the worst possible moment.'},
+
+  {d:4,a:'MVP',n:'Minimum Viable Product',def:'The simplest version of your product that can be tested with real customers to validate your core assumptions — least time, money and effort.',why:"Not a bad version of your product — a smart one. It asks: what's the minimum we need to build to find out if we're right?"},
+  {d:4,a:'PMF',n:'Product-Market Fit',def:'The point where your product satisfies strong demand — customers want it, use it repeatedly, and would be genuinely disappointed if it disappeared.',why:'Before it, everything is an experiment; after it, everything scales. Most startups fail because they scale *before* they find it.'},
+  {d:4,a:null,n:'Price Elasticity',def:'How sensitive customer demand is to a change in price — whether raising or lowering price meaningfully changes how many people buy.',why:'The most underused lever in a startup. If a 20% price rise loses only 5% of customers, you\'re making more money. It turns pricing into a decision.'},
+  {d:4,a:null,n:'Product Roadmap',def:'A prioritised plan of where your product is headed — what will be built, in what order, and why — aligned to goals and real customer needs.',why:"Not a wishlist — a set of bets. Every feature you add is one you're choosing over something else. Ruthless prioritisation is the point."},
+  {d:4,a:'NPS',n:'Net Promoter Score',def:'A measure of how likely customers are to recommend you, scored 0–10. Promoters (9–10) minus Detractors (0–6) equals your NPS.',why:'One question tells you more than any survey: would you recommend us? Low NPS before you scale is a warning; high NPS is a growth engine.'},
+];
+
+var PER_DISC = 3;          // questions drawn per discipline
+var el = function(id){ return document.getElementById(id); };
+function shuffle(a){ a=a.slice(); for(var i=a.length-1;i>0;i--){ var j=Math.floor(Math.random()*(i+1)); var t=a[i];a[i]=a[j];a[j]=t;} return a; }
+
+var quiz=[], idx=0, answered=false, perDisc={}, order=[];
+
+function buildQuiz(){
+  quiz=[]; idx=0; perDisc={};
+  DISC.forEach(function(dc){ perDisc[dc.id]={correct:0,total:0}; });
+  var allNames = TERMS.map(function(t){ return t.n; });
+  DISC.forEach(function(dc){
+    var pool = shuffle(TERMS.filter(function(t){ return t.d===dc.id; })).slice(0, PER_DISC);
+    pool.forEach(function(t){
+      var distract = shuffle(allNames.filter(function(n){ return n!==t.n; })).slice(0,3);
+      quiz.push({ term:t, options: shuffle([t.n].concat(distract)) });
+      perDisc[dc.id].total++;
+    });
+  });
+  quiz = shuffle(quiz);
+}
+
+function discOf(id){ for(var i=0;i<DISC.length;i++){ if(DISC[i].id===id) return DISC[i]; } return DISC[0]; }
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+
+function renderQ(){
+  answered=false;
+  var q=quiz[idx], dc=discOf(q.term.d);
+  el('prog-label').textContent = 'Question '+(idx+1)+' of '+quiz.length;
+  var got = quiz.slice(0,idx).filter(function(x){return x._correct;}).length;
+  el('prog-score').textContent = got+' correct';
+  el('prog-fill').style.width = Math.round((idx/quiz.length)*100)+'%';
+  el('q-disc').textContent = dc.name;
+  el('q-disc').style.color = dc.color;
+  el('q-def').textContent = q.term.def;
+  var opts = el('opts'); opts.innerHTML='';
+  q.options.forEach(function(name){
+    var b=document.createElement('button');
+    b.className='opt'; b.textContent=name;
+    b.addEventListener('click', function(){ choose(b, name, q, dc); });
+    opts.appendChild(b);
+  });
+  el('fb').classList.remove('show');
+}
+
+function choose(btn, name, q, dc){
+  if(answered) return; answered=true;
+  var correct = name===q.term.n;
+  q._correct = correct;
+  if(correct) perDisc[q.term.d].correct++;
+  Array.prototype.forEach.call(el('opts').children, function(b){
+    b.disabled=true;
+    if(b.textContent===q.term.n){ b.classList.add('correct'); b.innerHTML+='<span class="tick">✓</span>'; }
+    else if(b===btn){ b.classList.add('wrong'); b.innerHTML+='<span class="tick">✕</span>'; }
+  });
+  el('fb-abbr').textContent = q.term.a ? (q.term.a+' · '+dc.name) : dc.name;
+  el('fb-term').textContent = q.term.n;
+  el('fb-why').textContent = q.term.why;
+  el('fb').classList.add('show');
+  el('fb').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+el('nextBtn').addEventListener('click', function(){
+  idx++;
+  if(idx>=quiz.length) showResult();
+  else { renderQ(); window.scrollTo({top:0,behavior:'smooth'}); }
+});
+
+function showResult(){
+  el('quiz').classList.add('hidden');
+  el('result').classList.remove('hidden');
+  window.scrollTo({top:0,behavior:'smooth'});
+  var total=quiz.length;
+  var score=DISC.reduce(function(s,dc){ return s+perDisc[dc.id].correct; },0);
+  el('r-score').textContent=score;
+  el('r-score').parentNode.querySelector('small').textContent='/'+total;
+  var pct=score/total;
+  var verdict, blurb;
+  if(pct>=0.85){ verdict='Fluent.'; blurb='You speak the language. You\'ll hold your own with investors and operators — now it\'s about turning that fluency into decisions.'; }
+  else if(pct>=0.6){ verdict='Getting there.'; blurb='You know the essentials, with real gaps in a couple of areas. Closing them is exactly what the disciplines below are for.'; }
+  else if(pct>=0.35){ verdict='Room to grow.'; blurb='You\'ve got the instincts; the vocabulary is still forming. This is the most valuable place to be — because every gap is a quick win.'; }
+  else { verdict='Just starting.'; blurb='Everyone starts here. The founders who scale are the ones who go and learn this deliberately — one discipline at a time.'; }
+  el('r-verdict').textContent=verdict;
+  el('r-blurb').textContent=blurb;
+
+  // per-discipline bars, weakest first
+  var rows=DISC.map(function(dc){ var p=perDisc[dc.id]; return {dc:dc,c:p.correct,t:p.total,r:p.total?p.correct/p.total:0}; });
+  var sorted=rows.slice().sort(function(a,b){ return a.r-b.r; });
+  el('r-bars').innerHTML = rows.map(function(x){
+    return '<div class="brow"><div class="bhead"><span class="nm" style="color:'+x.dc.color+'">'+esc(x.dc.name)+'</span><span class="sc">'+x.c+'/'+x.t+'</span></div>'
+      +'<div class="btrack"><div class="bfill" style="width:'+Math.round(x.r*100)+'%;background:'+x.dc.color+'"></div></div></div>';
+  }).join('');
+
+  // weakest → coach CTA
+  var weak=sorted[0].dc, wr=sorted[0];
+  el('r-gap').innerHTML='<div class="e">Where to focus</div>'
+    +'<h3>Your thinnest area is '+esc(weak.name)+'.</h3>'
+    +'<p>That\'s '+esc(weak.coach)+'\'s discipline. A single focused session turns the gaps above into working knowledge you can actually use — on your numbers, your pitch, your product.</p>'
+    +'<div class="btns"><a class="primary" href="/book/?tier=single">Book a session</a>'
+    +'<a class="ghost" href="'+weak.method+'">See what '+esc(weak.coach)+' covers</a></div>';
+
+  window._fsResult = { score:score, total:total, weak:weak.name };
+}
+
+el('startBtn').addEventListener('click', function(){
+  buildQuiz(); el('intro').classList.add('hidden'); el('quiz').classList.remove('hidden'); renderQ();
+});
+el('retakeBtn').addEventListener('click', function(){
+  buildQuiz(); el('result').classList.add('hidden'); el('quiz').classList.remove('hidden'); renderQ(); window.scrollTo({top:0,behavior:'smooth'});
+});
+el('shareBtn').addEventListener('click', function(){
+  var r=window._fsResult||{score:0,total:15};
+  var txt='I scored '+r.score+'/'+r.total+' on the Founder Fluency check from The Founder\'s Sprint. How fluent are you? https://founderssprint.co/modules/fluency/';
+  function done(){ el('shareMsg').textContent='Copied — paste it anywhere.'; setTimeout(function(){ el('shareMsg').textContent=''; },3000); }
+  if(navigator.share){ navigator.share({title:'Founder Fluency',text:txt,url:'https://founderssprint.co/modules/fluency/'}).catch(function(){}); }
+  else if(navigator.clipboard){ navigator.clipboard.writeText(txt).then(done).catch(function(){ el('shareMsg').textContent=txt; }); }
+  else { el('shareMsg').textContent=txt; }
+});
+</script>
+</body>
+</html>

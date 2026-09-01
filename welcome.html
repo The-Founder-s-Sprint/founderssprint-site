@@ -228,8 +228,8 @@
         <h2 class="reveal" id="final-title">Ready to build?</h2>
         <p class="lede reveal" id="final-sub">Pick your first course and reserve your place with a 10% deposit.</p>
         <div class="cta-row reveal" id="final-cta">
-          <a class="btn" href="/beta/book/">Book your first course</a>
-          <a class="btn-ghost" href="/founder.html">Look around my dashboard</a>
+          <a class="btn" href="/book/">Book your first course</a>
+          <a class="btn-ghost" href="/founder.html?welcomed=1">Look around my dashboard</a>
         </div>
       </div>
     </section>
@@ -263,10 +263,10 @@ const WEEK=[
 const _SB_KEY='sb-'+SUPABASE_URL.split('//')[1].split('.')[0]+'-auth-token';
 function _stored(){try{return JSON.parse(localStorage.getItem(_SB_KEY)||'{}');}catch{return{};}}
 async function _token(){const s=_stored(); if(s.access_token && s.expires_at && (Date.now()/1000)<(s.expires_at-60)) return s.access_token;
-  if(s.refresh_token){ const r=await fetch(SUPABASE_URL+'/auth/v1/token?grant_type=refresh_token',{method:'POST',headers:{apikey:SUPABASE_ANON,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:s.refresh_token})}); if(r.ok){const j=await r.json();localStorage.setItem(_SB_KEY,JSON.stringify(j));return j.access_token;}}
+  if(s.refresh_token){ const r=await fetch(location.origin+'/sb/auth/v1/token?grant_type=refresh_token',{method:'POST',headers:{apikey:SUPABASE_ANON,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:s.refresh_token})}); if(r.ok){const j=await r.json();localStorage.setItem(_SB_KEY,JSON.stringify(j));return j.access_token;}}
   return s.access_token||null; }
-async function _q(table,params){const t=await _token(); if(!t) throw new Error('no session'); const r=await fetch(SUPABASE_URL+'/rest/v1/'+table+'?'+params,{headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t}}); if(!r.ok) throw new Error('q'); return r.json(); }
-async function _w(method,table,params,body){const t=await _token(); const r=await fetch(SUPABASE_URL+'/rest/v1/'+table+(params?('?'+params):''),{method,headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t,'Content-Type':'application/json',Prefer:'return=representation'},body:body?JSON.stringify(body):undefined}); if(!r.ok) throw new Error(await r.text()); const x=await r.text(); return x?JSON.parse(x):null; }
+async function _q(table,params){const t=await _token(); if(!t) throw new Error('no session'); const r=await fetch(location.origin+'/sb/rest/v1/'+table+'?'+params,{headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t}}); if(!r.ok) throw new Error('q'); return r.json(); }
+async function _w(method,table,params,body){const t=await _token(); const r=await fetch(location.origin+'/sb/rest/v1/'+table+(params?('?'+params):''),{method,headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t,'Content-Type':'application/json',Prefer:'return=representation'},body:body?JSON.stringify(body):undefined}); if(!r.ok) throw new Error(await r.text()); const x=await r.text(); return x?JSON.parse(x):null; }
 async function ensureProfile(user){
   const rows = await _q('founder_profiles','user_id=eq.'+user.id+'&select=id,first_name&limit=1');
   if(rows && rows.length) return rows[0];
@@ -289,11 +289,15 @@ async function boot(user){
   document.getElementById('app').style.display='block';
   document.getElementById('user-email').textContent = user.email;
   startConstellation();
+  // Mark the welcome seen so it never replays: an immediate local guard (loop-proof even
+  // offline) + a best-effort server flag (consistent across the founder's other devices).
+  try { localStorage.setItem('fs_welcomed_'+user.id,'1'); } catch(e){}
 
   let first='', paid=false;
   try {
     const prof = await ensureProfile(user);
     if(prof) first = (prof.first_name||'').trim();
+    if(prof && !prof.welcomed_at){ try { await _w('PATCH','founder_profiles','user_id=eq.'+user.id,{welcomed_at:new Date().toISOString()}); } catch(e){} }
     const fid = prof && prof.id;
     const regs = await _q('registrations','or=(user_id.eq.'+user.id+(fid?(',founder_id.eq.'+fid):'')+')&select=deposit_paid');
     paid = (regs||[]).some(r => r.deposit_paid);
@@ -307,7 +311,7 @@ async function boot(user){
     nt.innerHTML='Your data room is <strong>active</strong>. Your dashboard has your deliverables, readiness score, investor snapshot, and journey timeline.';
     document.getElementById('final-title').textContent='Pick up where you left off.';
     document.getElementById('final-sub').textContent='Your dashboard has your sessions, deliverables, and data room.';
-    document.getElementById('final-cta').innerHTML='<a class="btn" href="/founder.html">Go to my dashboard</a><a class="btn-ghost" href="/beta/book/">Book another course</a>';
+    document.getElementById('final-cta').innerHTML='<a class="btn" href="/founder.html?welcomed=1">Go to my dashboard</a><a class="btn-ghost" href="/book/">Book another course</a>';
   }
 }
 

@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Contact — The Founder's Sprint</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Get in touch with The Founder's Sprint team in Kampala, Uganda.">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Josefin+Sans:wght@300;400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="policy.css?v=3">
+<style>
+/* Inline fallback — guarantees form styling even if policy.css is cached */
+.contact-form .hp{position:absolute!important;left:-9999px!important;height:0!important;overflow:hidden!important;opacity:0!important;pointer-events:none!important}
+.form-group input,.form-group select,.form-group textarea{font-family:"Inter",system-ui,sans-serif;font-size:14px;color:#efe7d8;background:rgba(239,231,216,0.04);border:1px solid rgba(239,231,216,0.10);padding:12px 14px;-webkit-appearance:none;appearance:none;border-radius:0;width:100%;box-sizing:border-box}
+.form-group select{background-image:url("data:image/svg+xml,%3Csvg width='10' height='6' viewBox='0 0 10 6' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%23efe7d8' stroke-opacity='0.4' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center;padding-right:36px;cursor:pointer;background-color:rgba(239,231,216,0.04)}
+.form-group select option{background:#1a1a1a;color:#efe7d8}
+.form-group label{font-family:"JetBrains Mono",monospace;font-size:10px;font-weight:500;letter-spacing:0.16em;text-transform:uppercase;color:rgba(239,231,216,0.5)}
+.form-group input::placeholder,.form-group textarea::placeholder{color:rgba(239,231,216,0.28)}
+.form-group textarea{resize:vertical;min-height:120px}
+</style>
+
+<!-- social share -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Founder's Sprint">
+<meta property="og:title" content="Contact — The Founder's Sprint">
+<meta property="og:description" content="Get in touch with The Founder's Sprint team in Kampala, Uganda.">
+<meta property="og:image" content="https://founderssprint.co/images/og-default.jpg">
+<meta property="og:url" content="https://founderssprint.co/contact.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Contact — The Founder's Sprint">
+<meta name="twitter:description" content="Get in touch with The Founder's Sprint team in Kampala, Uganda.">
+<meta name="twitter:image" content="https://founderssprint.co/images/og-default.jpg">
+</head>
+<body>
+
+<!-- ============================================================
+     BRAND PAGE LOADER — rotating V6 mark, fades on load.
+     Inline + first-in-body so it paints in frame 1, before the deferred
+     site-chrome.js runs. That also masks the FOUC where the eyebrow .v6-mark
+     briefly renders un-sized (its width is set by deferred CSS). Self-removing,
+     with a failsafe so it can never trap the visitor. Reusable as-is on any page.
+     ============================================================ -->
+<style>
+  #fs-preload{position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;
+    background:#1A1A1A;transition:opacity .42s ease;}
+  #fs-preload.gone{opacity:0;pointer-events:none;}
+  #fs-preload svg{width:56px;height:56px;transform-origin:50% 50%;animation:fsplspin 2.6s linear infinite;}
+  @keyframes fsplspin{to{transform:rotate(360deg);}}
+  @media(prefers-reduced-motion:reduce){#fs-preload svg{animation:none;}}
+</style>
+<div id="fs-preload" role="status" aria-label="Loading">
+  <svg viewBox="0 0 100 100" aria-hidden="true">
+    <polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.9"/>
+    <polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.85" transform="rotate(72,50,50)"/>
+    <polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.82" transform="rotate(144,50,50)"/>
+    <polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.85" transform="rotate(216,50,50)"/>
+    <polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.78" transform="rotate(288,50,50)"/>
+    <circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/>
+  </svg>
+</div>
+<script>
+  (function(){
+    var p=document.getElementById('fs-preload'); if(!p) return;
+    var done=false;
+    function hide(){ if(done) return; done=true; p.classList.add('gone');
+      setTimeout(function(){ p.parentNode && p.parentNode.removeChild(p); },480); }
+    if(document.readyState==='complete') hide();
+    else window.addEventListener('load', hide, {once:true});
+    setTimeout(hide, 2600);   // failsafe — never trap the visitor on a slow asset
+  })();
+</script>
+
+
+<div class="noise" aria-hidden="true"></div>
+
+<!-- NAV -->
+<div id="fs-nav"></div>
+
+<!-- CONTENT -->
+<main class="policy">
+  <span class="eyebrow"><span class="dot"></span>Get in touch</span>
+  <h1>Contact us.</h1>
+  <p class="effective">We'd love to hear from you</p>
+
+  <p>Whether you're a founder exploring coaching, an institution interested in branded cohorts, or an investor looking at the pipeline — fill out the form below and we'll get back to you within 48 hours.</p>
+
+  <form class="contact-form" id="contact-form" action="send-contact.php" method="POST">
+    <!-- Honeypot — hidden from humans, catches bots -->
+    <div class="hp" aria-hidden="true">
+      <label for="website">Website</label>
+      <input type="text" name="website" id="website" tabindex="-1" autocomplete="off">
+    </div>
+    <input type="hidden" name="csrf_token" id="csrf_token" value="">
+
+    <div class="form-row">
+      <div class="form-group">
+        <label for="name">Your name</label>
+        <input type="text" id="name" name="name" required autocomplete="name" placeholder="Full name">
+      </div>
+      <div class="form-group">
+        <label for="email">Your email</label>
+        <input type="email" id="email" name="email" required autocomplete="email" placeholder="you@example.com">
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label for="subject">Subject</label>
+      <select id="subject" name="subject" required>
+        <option value="" disabled selected>Choose a topic</option>
+        <option value="Coaching enquiry">Coaching enquiry</option>
+        <option value="Partnership / custom cohort">Partnership / custom cohort</option>
+        <option value="Investor pipeline">Investor pipeline</option>
+        <option value="Press / media">Press / media</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="message">Message</label>
+      <textarea id="message" name="message" rows="5" required placeholder="Tell us what you need…"></textarea>
+    </div>
+
+    <button type="submit" class="form-submit" id="form-submit">Send message →</button>
+    <div class="form-status" id="form-status"></div>
+  </form>
+
+  <h2>Talk to the Founder</h2>
+  <p>The Founder's Sprint is led by <strong>Teddy Ruge</strong>, a serial entrepreneur and marketing strategist based in Kampala. If you have a question that doesn't fit neatly into an inbox, reach out directly.</p>
+  <ul>
+    <li>Email: <a href="#" class="eml" data-u="teddy" data-d="founderssprint.co">Loading…</a></li>
+    <li>LinkedIn: <a href="https://www.linkedin.com/in/tmsruge/" target="_blank" rel="noopener">linkedin.com/in/tmsruge</a></li>
+    <li>X: <a href="https://x.com/tmsruge" target="_blank" rel="noopener">@tmsruge</a></li>
+  </ul>
+
+  <h2>Follow The Founder's Sprint</h2>
+  <div class="social-links">
+    <a href="https://www.linkedin.com/company/121984533/" target="_blank" rel="noopener">LinkedIn</a>
+    <a href="https://www.instagram.com/founderssprint" target="_blank" rel="noopener">Instagram</a>
+  </div>
+
+  <!--
+  ============================================================
+  FOR COACHES — commented out until coach onboarding infrastructure is ready
+  ============================================================
+  <h2>For Coaches</h2>
+  <p>Interested in joining the coaching roster? We're always looking for experienced practitioners in marketing, finance, strategy, investment readiness, and product development who work with startups in East Africa.</p>
+  <p>Email <a href="#" class="eml" data-u="coaches" data-d="founderssprint.co">Loading…</a> with your CV and a short note about your coaching experience.</p>
+  -->
+
+  <h2>For Institutions &amp; Hub Partners</h2>
+  <p>We work with accelerators, innovation hubs, development finance institutions, and corporate innovation teams to deliver branded cohort programmes. Volume pricing, white-label reporting, and dedicated coach assignment are available.</p>
+  <p>Email <a href="#" class="eml" data-u="partners" data-d="founderssprint.co">Loading…</a> to start the conversation.</p>
+</main>
+
+<!-- FOOTER -->
+<div id="fs-footer"></div>
+
+<script>
+/* Nav scroll state */
+const navEl = document.getElementById('nav');
+if (navEl) {
+  window.addEventListener('scroll', () => {
+    navEl.classList.toggle('scrolled', window.scrollY > 60);
+  }, { passive: true });
+}
+
+/* Email obfuscation — decode data-u + data-d into mailto: links */
+document.querySelectorAll('.eml').forEach(el => {
+  const u = el.dataset.u;
+  const d = el.dataset.d;
+  if (u && d) {
+    const addr = u + '@' + d;
+    el.href = 'mailto:' + addr;
+    el.textContent = addr;
+  }
+});
+
+/* Contact form — submit via fetch, show status */
+const form = document.getElementById('contact-form');
+const status = document.getElementById('form-status');
+const submitBtn = document.getElementById('form-submit');
+
+/* Generate a simple CSRF token (stored in sessionStorage) */
+(function setCSRF() {
+  let token = sessionStorage.getItem('csrf');
+  if (!token) {
+    token = Array.from(crypto.getRandomValues(new Uint8Array(24)),
+      b => b.toString(16).padStart(2, '0')).join('');
+    sessionStorage.setItem('csrf', token);
+  }
+  document.getElementById('csrf_token').value = token;
+})();
+
+if (form) {
+  form.addEventListener('submit', async function(e) {
+    e.preventDefault();
+
+    /* Honeypot check */
+    if (document.getElementById('website').value) return;
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Sending…';
+    status.textContent = '';
+    status.className = 'form-status';
+
+    try {
+      const data = new FormData(form);
+      const res = await fetch(form.action, { method: 'POST', body: data });
+      const json = await res.json();
+
+      if (json.ok) {
+        status.textContent = 'Message sent — we'll get back to you within 48 hours.';
+        status.classList.add('success');
+        form.reset();
+        /* Re-set CSRF token after reset */
+        document.getElementById('csrf_token').value = sessionStorage.getItem('csrf');
+      } else {
+        status.textContent = json.error || 'Something went wrong. Please try again.';
+        status.classList.add('error');
+      }
+    } catch (err) {
+      status.textContent = 'Connection error. Please try again or email us directly.';
+      status.classList.add('error');
+    }
+
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Send message →';
+  });
+}
+</script>
+<script src="/site-chrome.js?v=11" defer></script>
+</body>
+</html>

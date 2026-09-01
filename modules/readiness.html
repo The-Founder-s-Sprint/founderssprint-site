@@ -11,7 +11,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="/vendor/supabase-js.min.js?v=2110"></script>
 <script>window.supabase||document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"><\/script>')</script>
-<script src="/beta/taxonomy.js"></script>
+<script src="/taxonomy.js"></script>
 <style>
   :root{--ink:#1A1A1A;--paper:#EFE7D8;--paper-deep:#E6DCC7;--muted:#5A564F;--paper-dim:#9a917f;
     --terra:#C8531F;--terra-deep:#9A3E16;--ochre:#C9923A;--moss:#3D4A2E;--sage:#8AAB5C;
@@ -142,7 +142,7 @@
 </head>
 <body>
 <div class="bar">
-  <a class="brand" href="/beta/index.html">
+  <a class="brand" href="/index.html">
     <svg viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.85"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.8" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.78" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.82" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
     <span class="wm">The Founder's Sprint</span>
   </a>
@@ -435,9 +435,9 @@
   // pre-select when the track is exactly three; otherwise send them to pick the three.
   function pick3Link(specs) {
     if (specs.length === 3) {
-      return { exact: true, href: '/beta/book/?tier=pick3&amp;spec=' + specs.map(slugify).join(',') };
+      return { exact: true, href: '/book/?tier=pick3&amp;spec=' + specs.map(slugify).join(',') };
     }
-    return { exact: false, href: '/beta/book/?tier=pick3' };
+    return { exact: false, href: '/book/?tier=pick3' };
   }
   function trackCopy(specs, coach) {
     if (specs.length === 3) return 'These three sessions build it properly with ' + coach + '.';
@@ -570,7 +570,7 @@
           + '<a href="' + p3.href + '">' + (p3.exact ? 'Complete the ' + esc(g.l2) + ' track · Pick 3 →'
                                                      : 'Choose any 3 from the ' + esc(g.l2) + ' track →') + '</a>';
       } else {
-        html += '<a href="/beta/book/">See booking options →</a>';
+        html += '<a href="/book/">See booking options →</a>';
       }
       html += '</div>';
     });
@@ -581,13 +581,13 @@
       html += '<div class="rec"><div class="e">Our recommendation</div>'
         + '<h3>You’re past the point single sessions fix.</h3>'
         + '<p>The Full Cohort is the only track that takes a discipline end-to-end — with the founder data room and a cohort of peers to pressure-test you. Or, for one focused hour, a mentor who has already built and exited.</p>'
-        + '<div class="btns"><a class="primary" href="/beta/book/?tier=cohort">Take the Full Cohort · UGX 2.5M →</a>'
+        + '<div class="btns"><a class="primary" href="/book/?tier=cohort">Take the Full Cohort · UGX 2.5M →</a>'
         + '<a class="ghost" href="/mentors.html">Talk to an operator</a></div></div>';
     } else if (weakDiscs.length >= 3) {
       html += '<div class="rec"><div class="e">Our recommendation</div>'
         + '<h3>You have gaps in ' + weakDiscs.length + ' of the five disciplines.</h3>'
         + '<p>Picking single sessions here would be patching. The Full Cohort covers all <strong>49 specialties</strong> across every discipline as group coaching — plus the founder data room and the cohort around you. It is the only track that delivers a discipline end-to-end.</p>'
-        + '<div class="btns"><a class="primary" href="/beta/book/?tier=cohort">Take the Full Cohort · UGX 2.5M →</a>'
+        + '<div class="btns"><a class="primary" href="/book/?tier=cohort">Take the Full Cohort · UGX 2.5M →</a>'
         + '<a class="ghost" href="/mentors.html">Or talk to an operator first</a></div></div>';
     } else {
       var top = gaps[0], topMeta = discMeta(top.d);
@@ -599,18 +599,18 @@
         + '<h3>' + esc(top.l2) + ' is your weakest link.</h3>'
         + '<p>You’re stronger elsewhere, so you don’t need the whole programme yet. ' + esc(lead) + ' — each one a two-hour deep-dive you leave with a deliverable from.</p>'
         + '<div class="btns">'
-        + '<a class="primary" href="' + (specs.length ? p3.href : '/beta/book/') + '">Book the Pick 3 · UGX 1M →</a>'
-        + '<a class="ghost" href="/beta/method/' + esc(top.d) + '.html">Read the method first</a>'
+        + '<a class="primary" href="' + (specs.length ? p3.href : '/book/') + '">Book the Pick 3 · UGX 1M →</a>'
+        + '<a class="ghost" href="/method/' + esc(top.d) + '.html">Read the method first</a>'
         + '</div></div>';
     }
 
     // non-coaching gaps → Directory / mentors
     var side = [];
-    if (profile.registered === 'Not yet') side.push('You’re not registered yet. That’s a lawyer’s job, not a coach’s — find a vetted one under <b>Legal</b> in the <a href="/beta/directory.html">Directory</a>.');
+    if (profile.registered === 'Not yet') side.push('You’re not registered yet. That’s a lawyer’s job, not a coach’s — find a vetted one under <b>Legal</b> in the <a href="/directory.html">Directory</a>.');
     var fp = l2Scores.filter(function (x) { return x.l2 === 'Financial Planning'; })[0];
-    if (fp && fp.v <= 1) side.push('Your books need a bookkeeper before they need a model. See <b>Accounting</b> in the <a href="/beta/directory.html">Directory</a>.');
+    if (fp && fp.v <= 1) side.push('Your books need a bookkeeper before they need a model. See <b>Accounting</b> in the <a href="/directory.html">Directory</a>.');
     var gd = l2Scores.filter(function (x) { return x.l2 === 'Growth & Discovery'; })[0];
-    if (gd && gd.v <= 1) side.push('If customers can’t find you online, a developer or designer may help faster than a session. See <b>Digital</b> in the <a href="/beta/directory.html">Directory</a>.');
+    if (gd && gd.v <= 1) side.push('If customers can’t find you online, a developer or designer may help faster than a session. See <b>Digital</b> in the <a href="/directory.html">Directory</a>.');
     if (side.length) {
       html += '<div class="side"><div class="side-h">Not everything is a coaching gap</div>'
         + side.map(function (s) { return '<p class="side-item">' + s + '</p>'; }).join('') + '</div>';
@@ -620,7 +620,7 @@
     var weakLinks = discMeans.filter(function (d) { return d.mean < 3; });
     if (weakLinks.length) {
       html += '<div class="methods"><strong>Go deeper on the method:</strong><br>'
-        + weakLinks.map(function (d) { return '<a href="/beta/method/' + esc(d.key) + '.html">' + esc(d.label) + ' →</a>'; }).join(' &nbsp;·&nbsp; ')
+        + weakLinks.map(function (d) { return '<a href="/method/' + esc(d.key) + '.html">' + esc(d.label) + ' →</a>'; }).join(' &nbsp;·&nbsp; ')
         + '</div>';
     }
 

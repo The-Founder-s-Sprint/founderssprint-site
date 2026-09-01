@@ -1,0 +1,472 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>PROTOTYPE — Mobile Constellation (B: Orrery · D: River · E: Tilt)</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Josefin+Sans:wght@300;400;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper:#efe7d8; --ink:#1a1a1a; --ink2:#0f0d0a;
+    --terra:#c8531f; --ochre:#c9923a; --sage:#8aab5c; --moss:#5f7a45; --stone:#a59b8c;
+    --sans:'Josefin Sans',sans-serif; --display:'Cormorant Garamond',serif; --body:'Inter',sans-serif;
+    --radius-card:0 0 24px 0;
+  }
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{background:#0a0908;color:var(--paper);font-family:var(--body);overflow:hidden}
+
+  /* ── Desktop: phone frame. Real phones: full-bleed. ── */
+  .rig{height:100%;display:flex;align-items:center;justify-content:center;gap:28px;flex-direction:column}
+  .phone{position:relative;width:390px;height:780px;background:#0d0b08;overflow:hidden;
+    border:1px solid rgba(239,231,216,.14);border-radius:0 0 24px 0;
+    box-shadow:0 40px 90px rgba(0,0,0,.55)}
+  @media (max-width:520px){
+    .rig{display:block}
+    .phone{width:100%;height:100dvh;border:0;border-radius:0;box-shadow:none}
+    .rig-note{display:none}
+  }
+  .rig-note{font-family:var(--sans);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:rgba(239,231,216,.4)}
+
+  /* ── Prototype switch ── */
+  .proto-switch{position:absolute;top:14px;left:50%;transform:translateX(-50%);z-index:60;display:flex;
+    border:1px solid rgba(239,231,216,.25);background:rgba(15,13,10,.8);backdrop-filter:blur(6px)}
+  .proto-switch button{min-height:40px;padding:0 16px;background:none;border:0;cursor:pointer;
+    font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;
+    color:rgba(239,231,216,.5)}
+  .proto-switch button.on{background:var(--terra);color:var(--paper)}
+  .proto-tag{position:absolute;top:22px;left:16px;z-index:60;font-family:var(--sans);font-size:9px;
+    letter-spacing:.18em;text-transform:uppercase;color:rgba(239,231,216,.35)}
+
+  .stage{position:absolute;inset:0;overflow:hidden}
+  .stage.hide{display:none}
+  svg text{user-select:none}
+
+  /* ── Shared: label plates, node text ── */
+  .l1-label{font-family:var(--sans);font-weight:700;letter-spacing:.08em}
+  .l2-label{font-family:var(--sans);font-weight:600;letter-spacing:.14em}
+  .l3-label{font-family:var(--body);font-weight:400}
+
+  /* ── B: header/back ── */
+  .b-head{position:absolute;top:64px;left:0;right:0;text-align:center;z-index:5;pointer-events:none;transition:opacity .42s}
+  .b-eb{font-family:var(--sans);font-size:9px;font-weight:700;letter-spacing:.34em;text-transform:uppercase;color:rgba(239,231,216,.4)}
+  .b-ti{font-family:var(--display);font-style:italic;font-size:21px;color:var(--paper);margin-top:6px}
+  .b-ti em{color:var(--terra);font-style:italic}
+  .b-back{position:absolute;top:66px;left:14px;z-index:50;min-height:44px;padding:0 12px;display:none;
+    background:none;border:0;color:rgba(239,231,216,.65);cursor:pointer;
+    font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.16em;text-transform:uppercase}
+  .b-hint{position:absolute;bottom:18px;left:0;right:0;text-align:center;z-index:5;pointer-events:none;
+    font-family:var(--sans);font-size:9px;letter-spacing:.22em;text-transform:uppercase;color:rgba(239,231,216,.3)}
+
+  /* ── D: scroll container ── */
+  #stageD{overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch}
+  .d-intro{padding:96px 26px 8px;text-align:center}
+  .d-outro{padding:30px 26px 90px;text-align:center}
+  .d-outro .tag{font-family:var(--display);font-style:italic;font-size:16px;color:var(--terra)}
+
+  /* ── Bottom sheet (shared) ── */
+  .sheet-scrim{position:absolute;inset:0;z-index:80;background:rgba(10,9,8,.55);opacity:0;pointer-events:none;transition:opacity .38s}
+  .sheet{position:absolute;left:0;right:0;bottom:0;z-index:90;background:#161310;
+    border-top:1px solid rgba(239,231,216,.16);border-radius:var(--radius-card);
+    padding:18px 22px calc(22px + env(safe-area-inset-bottom));
+    transform:translateY(105%);transition:transform .46s cubic-bezier(.32,.72,.28,1)}
+  .sheet.open{transform:translateY(0)}
+  .sheet-scrim.open{opacity:1;pointer-events:auto}
+  .sheet-grab{width:36px;height:3px;background:rgba(239,231,216,.25);margin:0 auto 14px}
+  .sh-eb{font-family:var(--sans);font-size:9px;font-weight:700;letter-spacing:.26em;text-transform:uppercase}
+  .sh-name{font-family:var(--display);font-size:27px;color:var(--paper);margin-top:5px}
+  .sh-crumb{font-family:var(--sans);font-size:9px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:rgba(239,231,216,.45);margin-top:5px}
+  .sh-desc{font-size:13.5px;line-height:1.55;color:rgba(239,231,216,.75);margin-top:12px}
+  .sh-coach{display:flex;align-items:center;gap:11px;margin-top:15px;padding-top:14px;border-top:1px solid rgba(239,231,216,.1)}
+  .sh-av{width:40px;height:40px;display:flex;align-items:center;justify-content:center;border:1px solid;
+    font-family:var(--sans);font-weight:700;font-size:12px;background:rgba(239,231,216,.06)}
+  .sh-cn{font-family:var(--sans);font-size:13px;font-weight:700;color:var(--paper)}
+  .sh-cr{font-size:11px;color:rgba(239,231,216,.55);margin-top:2px}
+  .sh-cta{display:block;margin-top:16px;min-height:50px;display:flex;align-items:center;justify-content:center;
+    background:var(--terra);color:var(--paper);text-decoration:none;border-radius:var(--radius-card);
+    font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:.18em;text-transform:uppercase}
+  .sh-sub{display:block;text-align:center;margin-top:12px;font-family:var(--sans);font-size:10px;font-weight:700;
+    letter-spacing:.14em;text-transform:uppercase;color:rgba(239,231,216,.55);text-decoration:none}
+
+  /* ── D: filament shimmer + scroll-lit sections ── */
+  .flow{stroke-dasharray:3 10;animation:flowdash 8s linear infinite}
+  @keyframes flowdash{to{stroke-dashoffset:-156}}
+  .sec{opacity:.42;transition:opacity .7s ease}
+  .sec.lit{opacity:1}
+
+  @media (prefers-reduced-motion:reduce){
+    .sheet{transition:none}
+    *{animation:none!important}
+    .sec{opacity:1}
+  }
+</style>
+</head>
+<body>
+<div class="rig">
+  <div class="phone" id="phone">
+
+    <div class="proto-switch" role="tablist">
+      <button id="tabB" class="on">B · Orrery</button>
+      <button id="tabD">D · Filaments</button>
+    </div>
+    <div class="proto-tag">Prototype · not production</div>
+
+    <!-- ══ OPTION B — ORRERY ══ -->
+    <div class="stage" id="stageB">
+      <svg id="svgB" width="100%" height="100%" viewBox="0 0 390 780"></svg>
+      <div class="b-head" id="bHead">
+        <div class="b-eb">The Constellation</div>
+        <div class="b-ti">Five disciplines · One <em>direction.</em></div>
+      </div>
+      <button class="b-back" id="bBack">← All disciplines</button>
+      <div class="b-hint" id="bHint">Tap a discipline · Tilt your phone</div>
+    </div>
+
+    <!-- ══ OPTION D — FILAMENT STREAM ══ -->
+    <div class="stage hide" id="stageD">
+      <div class="d-intro">
+        <div class="b-eb">The Constellation</div>
+        <div class="b-ti">Five streams · One <em>direction.</em></div>
+      </div>
+      <svg id="svgD" width="390" height="3260" viewBox="0 0 390 3260" style="display:block"></svg>
+      <div class="d-outro"><div class="tag">Build with direction.</div></div>
+    </div>
+
+    <!-- ══ Shared bottom sheet ══ -->
+    <div class="sheet-scrim" id="scrim"></div>
+    <div class="sheet" id="sheet">
+      <div class="sheet-grab"></div>
+      <div class="sh-eb" id="shEb">Specialty</div>
+      <div class="sh-name" id="shName">—</div>
+      <div class="sh-crumb" id="shCrumb">—</div>
+      <p class="sh-desc" id="shDesc">One 2-hour 1:1 deep-dive — the unit you book.</p>
+      <div class="sh-coach">
+        <div class="sh-av" id="shAv">—</div>
+        <div><div class="sh-cn" id="shCn">—</div><div class="sh-cr" id="shCr">—</div></div>
+      </div>
+      <a class="sh-cta" href="#" onclick="return false">Book this 1:1 deep-dive →</a>
+      <a class="sh-sub" href="#" onclick="return false">Get every specialty — join a cohort →</a>
+    </div>
+
+  </div>
+  <div class="rig-note">Open on a phone for touch + real gyro parallax · desktop: move the mouse to simulate tilt</div>
+</div>
+
+<script>
+(function(){
+'use strict';
+const NS='http://www.w3.org/2000/svg';
+const reduced = (window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)').matches : false);
+
+// ── Taxonomy (mirrors beta/taxonomy.js) ─────────────────────────
+const TAX=[
+ {l1:'Marketing & Branding',short:['MARKETING','& BRANDING'],coach:'Teddy Ruge',role:'Lead Marketing & Branding Coach',c:'#c8531f',l2:[
+  ['Brand Strategy',['Brand Positioning','Messaging Architecture','Visual Identity']],
+  ['Go-to-Market',['Market Entry','Channel Mix','Launch Sequencing']],
+  ['Growth & Discovery',['Content Strategy','SEO & Discoverability','Customer Research']]]},
+ {l1:'Financial Modelling',short:['FINANCIAL','MODELLING'],coach:'Barry Wojega',role:'Lead Financial Modelling Coach',c:'#c9923a',l2:[
+  ['Unit Economics',['CAC & LTV','Payback Period','Contribution Margin']],
+  ['Financial Planning',['Revenue Forecasting','Burn Rate & Runway','Cash Flow Management','Tax & Compliance']],
+  ['Capital Architecture',['Valuation Methods','Cap Table Design','Term Sheet Analysis']]]},
+ {l1:'Investment Readiness',short:['INVESTMENT','READINESS'],coach:'Joseph Kalema',role:'Lead Investment Readiness Coach',c:'#8aab5c',l2:[
+  ['Pitch Craft',['Pitch Deck Structure','Investor Narrative','Executive Summary']],
+  ['Investor Relations',['Investor Targeting','Due Diligence Prep','Data Room']],
+  ['Funding Strategy',['Pre-seed Rounds','Seed Rounds','Grants & DFIs']]]},
+ {l1:'Strategy & Team Building',short:['STRATEGY','& TEAM'],coach:'Moses Engwau Okudu',role:'Lead Strategy & Team Building Coach',c:'#5f7a45',l2:[
+  ['Competitive Strategy',['Market Analysis','Positioning & Moats','Scenario Planning']],
+  ['Team Architecture',['Hiring Strategy','Culture Design','Org Structure','Payroll & HR Compliance']],
+  ['Operational Systems',['Process Design','OKRs & KPIs','Decision Frameworks','Legal & Registration']]]},
+ {l1:'Product Dev & Pricing',short:['PRODUCT DEV','& PRICING'],coach:'Patrick Ngolobe',role:'Lead Product Dev & Pricing Coach',c:'#a59b8c',l2:[
+  ['Product-Market Fit',['Problem Validation','Solution Testing','PMF Signals']],
+  ['Product Development',['MVP Design','Roadmapping','Iteration Cycles','Payments & Mobile Money']],
+  ['Pricing Strategy',['Value-Based Pricing','Competitive Pricing','Price Testing']]]},
+];
+const PETALS=['#c8531f','#c9923a','#8aab5c','#3d4a2e','#777770'];
+
+function el(tag,attrs,parent){const e=document.createElementNS(NS,tag);
+  if(attrs)for(const k in attrs)e.setAttribute(k,attrs[k]);
+  if(parent)parent.appendChild(e);return e;}
+function txt(t,attrs,parent){const e=el('text',attrs,parent);e.textContent=t;return e;}
+
+// V6 mark
+function mark(parent,x,y,s){
+  const g=el('g',{transform:`translate(${x} ${y})`,class:'v6'},parent);
+  PETALS.forEach((c,i)=>{
+    const pts=[[50,8],[57.5,50],[50,92],[42.5,50]].map(([px,py])=>[(px-50)*s/50,(py-50)*s/50].join(',')).join(' ');
+    el('polygon',{points:pts,fill:c,opacity:.85,transform:`rotate(${i*72})`},g);
+  });
+  el('circle',{r:s*.11,fill:'#efe7d8'},g); el('circle',{r:s*.05,fill:'#1a1a1a'},g);
+  return g;
+}
+// glossy node disc (3D read: dome shade + sheen + glints)
+function disc(parent,r,color){
+  const g=el('g',{},parent);
+  el('circle',{r:r*1.5,fill:color,opacity:.14,filter:'url(#blur)'},g);
+  el('circle',{r:r,fill:'#141210',stroke:color,'stroke-width':2},g);
+  el('circle',{r:r-1,fill:'url(#shade)',opacity:.5},g);
+  el('circle',{r:r-1,fill:'url(#sheen)',opacity:.4},g);
+  el('circle',{cx:-r*.32,cy:-r*.36,r:r*.08,fill:'#efe7d8',opacity:.4},g);
+  return g;
+}
+function defs(svg){
+  const d=el('defs',{},svg);
+  const sh=el('radialGradient',{id:'sheen',cx:'50%',cy:'50%',r:'50%',fx:'33%',fy:'27%'},d);
+  el('stop',{offset:'0%','stop-color':'#fff','stop-opacity':.85},sh);
+  el('stop',{offset:'45%','stop-color':'#fff','stop-opacity':.12},sh);
+  el('stop',{offset:'100%','stop-color':'#fff','stop-opacity':0},sh);
+  const sd=el('radialGradient',{id:'shade',cx:'50%',cy:'50%',r:'50%',fx:'64%',fy:'72%'},d);
+  el('stop',{offset:'0%','stop-color':'#000','stop-opacity':0},sd);
+  el('stop',{offset:'60%','stop-color':'#000','stop-opacity':0},sd);
+  el('stop',{offset:'100%','stop-color':'#000','stop-opacity':.55},sd);
+  const bl=el('filter',{id:'blur',x:'-80%',y:'-80%',width:'260%',height:'260%'},d);
+  el('feGaussianBlur',{stdDeviation:6},bl);
+}
+// dust field with parallax depth classes
+function dust(parent,n,w,h,seed){
+  let s=seed;const rnd=()=>((s=s*16807%2147483647)/2147483647);
+  const layers=[el('g',{class:'dust far'},parent),el('g',{class:'dust mid'},parent),el('g',{class:'dust near'},parent)];
+  for(let i=0;i<n;i++){
+    const L=layers[i%3];
+    el('circle',{cx:rnd()*w,cy:rnd()*h,r:.7+rnd()*1.7,fill:PETALS[i%5],opacity:.10+rnd()*.3},L);
+  }
+  return layers;
+}
+// chevron label tab (points back at its node)
+function chevronLabel(parent,x,y,text,color,side){
+  const g=el('g',{class:'chev',transform:`translate(${x} ${y})`},parent);
+  const fs=10.5,padX=8,h=fs+9,w=text.length*(fs*.52)+padX*2,ch=h*.5;
+  const d2=side==='r'
+    ? `M 0 ${-h/2} L ${w} ${-h/2} L ${w} ${h/2} L 0 ${h/2} L ${-ch} 0 Z`
+    : `M 0 ${-h/2} L ${-w} ${-h/2} L ${-w} ${h/2} L 0 ${h/2} L ${ch} 0 Z`;
+  el('path',{d:d2,fill:'#0f0d0a',stroke:color,'stroke-width':.8,opacity:.9},g);
+  txt(text,{x:side==='r'?padX:-w+padX,y:.5,'dominant-baseline':'middle',fill:'rgba(239,231,216,.88)',
+    'font-size':fs,class:'l3-label'},g);
+  return g;
+}
+
+// ── Bottom sheet ────────────────────────────────────────────────
+const sheet=document.getElementById('sheet'),scrim=document.getElementById('scrim');
+function openSheet(l3,l2,d){
+  document.getElementById('shEb').textContent='Specialty';
+  document.getElementById('shEb').style.color=d.c;
+  document.getElementById('shName').textContent=l3;
+  document.getElementById('shCrumb').textContent=d.l1+' · '+l2;
+  document.getElementById('shDesc').textContent='One 2-hour 1:1 deep-dive — the unit you book. Part of the '+l2+' track; the whole discipline lives in the cohort.';
+  const av=document.getElementById('shAv');
+  av.textContent=d.coach.split(' ').map(s=>s[0]).join('').slice(0,2);
+  av.style.color=d.c; av.style.borderColor=d.c;
+  document.getElementById('shCn').textContent=d.coach;
+  document.getElementById('shCr').textContent=d.role;
+  sheet.classList.add('open');scrim.classList.add('open');
+}
+scrim.addEventListener('click',()=>{sheet.classList.remove('open');scrim.classList.remove('open');});
+
+// ══════════════════ OPTION B — ORRERY ══════════════════
+const svgB=document.getElementById('svgB');defs(svgB);
+const CX=195,CYhome=395;
+const dustB=dust(svgB,42,390,780,7);
+const gRing=el('g',{},svgB);          // home ring of 5
+const gFan=el('g',{opacity:0,'pointer-events':'none'},svgB);   // discipline view
+let bMode='home',bSpin=0,bRaf;
+
+mark(svgB,CX,CYhome,26);
+const ringNodes=TAX.map((d,i)=>{
+  const g=el('g',{class:'ringNode',style:'cursor:pointer'},gRing);
+  disc(g,40,d.c);
+  d.short.forEach((ln,li)=>txt(ln,{y:li?9:-4,'text-anchor':'middle',fill:d.c,'font-size':8,class:'l1-label'},g));
+  g.addEventListener('click',()=>enterDiscipline(i));
+  return g;
+});
+function layoutRing(t){
+  ringNodes.forEach((g,i)=>{
+    const a=(i/5)*Math.PI*2-Math.PI/2+t;
+    g.setAttribute('transform',`translate(${CX+Math.cos(a)*128} ${CYhome+Math.sin(a)*138})`);
+  });
+}
+layoutRing(0);
+function spin(){ if(bMode==='home'&&!reduced){ bSpin+=.0011; layoutRing(bSpin);} bRaf=requestAnimationFrame(spin); }
+spin();
+
+function enterDiscipline(i){
+  bMode='fan';
+  const d=TAX[i];
+  gRing.style.transition='opacity .4s';gRing.style.opacity=0;gRing.style.pointerEvents='none';
+  document.getElementById('bHead').style.opacity=0;
+  document.getElementById('bBack').style.display='block';
+  document.getElementById('bHint').textContent='Tap a specialty · Tilt for depth';
+  gFan.innerHTML='';
+  const cy=340;
+  // spokes + L2/L3 tripod fan (portrait-tuned angles)
+  const angles=[-90,25,155];
+  d.l2.forEach((m,j)=>{
+    const a=angles[j]*Math.PI/180;
+    const lx=CX+Math.cos(a)*92, ly=cy+Math.sin(a)*96;
+    el('line',{x1:CX,y1:cy,x2:lx,y2:ly,stroke:d.c,opacity:.3},gFan);
+    const l3n=m[1].length, spread=52;
+    m[1].forEach((sp,k)=>{
+      const aa=a+((k-(l3n-1)/2)*spread/((l3n-1)||1))*Math.PI/180;
+      const sx=CX+Math.cos(aa)*168, sy=cy+Math.sin(aa)*172;
+      el('line',{x1:lx,y1:ly,x2:sx,y2:sy,stroke:d.c,opacity:.16},gFan);
+      const nd=el('g',{transform:`translate(${sx} ${sy})`,style:'cursor:pointer'},gFan);
+      el('circle',{r:14,fill:'transparent'},nd);                       // 44px-equivalent hit area
+      el('circle',{r:4.5,fill:d.c,opacity:.9},nd);
+      el('circle',{r:4.2,fill:'url(#sheen)',opacity:.6},nd);
+      const side=sx>=CX?'r':'l';
+      chevronLabel(nd,side==='r'?12:-12,0,sp,d.c,side);
+      nd.addEventListener('click',()=>openSheet(sp,m[0],d));
+    });
+    const g2=el('g',{transform:`translate(${lx} ${ly})`},gFan);
+    disc(g2,13,d.c);
+    txt(m[0].toUpperCase(),{y:j===0?-24:30,'text-anchor':'middle',fill:d.c,'font-size':9,class:'l2-label'},g2);
+  });
+  const g1=el('g',{transform:`translate(${CX} ${cy})`},gFan);
+  disc(g1,34,d.c);
+  d.short.forEach((ln,li)=>txt(ln,{y:li?8:-4,'text-anchor':'middle',fill:d.c,'font-size':7.5,class:'l1-label'},g1));
+  txt('COACHED BY '+d.coach.toUpperCase(),{x:CX,y:cy+228,'text-anchor':'middle',fill:'rgba(239,231,216,.45)',
+    'font-size':9,'letter-spacing':2,class:'l2-label'},gFan);
+  gFan.style.transition='opacity .5s .15s';gFan.setAttribute('opacity',1);gFan.style.opacity=1;gFan.style.pointerEvents='auto';
+}
+document.getElementById('bBack').addEventListener('click',()=>{
+  bMode='home';
+  gFan.style.opacity=0;gFan.style.pointerEvents='none';
+  gRing.style.opacity=1;gRing.style.pointerEvents='auto';
+  document.getElementById('bHead').style.opacity=1;
+  document.getElementById('bBack').style.display='none';
+  document.getElementById('bHint').textContent='Tap a discipline · Tilt your phone';
+});
+
+// ══════════════ OPTION D — FILAMENT STREAM ══════════════
+// Five coloured filament bundles braid down the full screen. Each
+// discipline's bundle peels off in turn and fans into its specialty
+// filaments (tap = bottom sheet); the remainder braids on. At the foot,
+// every stream converges into the V6 — many paths, one direction.
+const svgD=document.getElementById('svgD');defs(svgD);
+const H=3260, MARKY=3120;
+const dustD=dust(svgD,110,390,H,23);
+
+let seed=41;const rnd=()=>((seed=seed*16807%2147483647)/2147483647);
+// braid centreline per discipline: full-width weave (edge to edge)
+function braidX(i,y){
+  return 195+Math.sin(y/300+i*1.7)*(72+i*13)+Math.sin(y/117+i*2.6)*26;
+}
+const SEC_Y=TAX.map((_,i)=>360+i*560);     // where each discipline peels off
+const gSecs=[];
+
+TAX.forEach((d,i)=>{
+  const sec=el('g',{class:'sec'},svgD);gSecs.push(sec);
+  const y0=SEC_Y[i];
+
+  // 1 · the braid: 7 strands from the head down to this discipline's split
+  for(let s2=0;s2<7;s2++){
+    const off=(s2-3)*2.6+rnd()*1.4;
+    let p='M '+(braidX(i,120)+off)+' 120';
+    for(let y=144;y<=y0;y+=24)p+=' L '+(braidX(i,y)+off).toFixed(1)+' '+y;
+    el('path',{d:p,fill:'none',stroke:d.c,'stroke-width':(.8+rnd()*.8).toFixed(2),
+      opacity:(.28+rnd()*.4).toFixed(2),class:s2===3?'flow':''},sec);
+  }
+
+  // 2 · split point: small glossy disc + discipline + coach labels on the braid
+  const bx=braidX(i,y0);
+  const gd=el('g',{transform:`translate(${bx} ${y0})`},sec);
+  disc(gd,20,d.c);
+  txt(d.short[0]+' '+d.short[1],{x:bx<195?26:-26,y:-3,'text-anchor':bx<195?'start':'end',
+    fill:d.c,'font-size':10,class:'l2-label'},gd);
+  txt(d.coach.toUpperCase(),{x:bx<195?26:-26,y:11,'text-anchor':bx<195?'start':'end',
+    fill:'rgba(239,231,216,.45)','font-size':8,'letter-spacing':1.5,class:'l2-label'},gd);
+
+  // 3 · the fan: every specialty is its own filament sweeping to a full-width leaf
+  let leafIdx=0;const total=d.l2.reduce((a,m)=>a+m[1].length,0);
+  d.l2.forEach((m,j)=>{
+    const side=(i+j)%2? -1:1;                       // track groups alternate banks
+    const gy=y0+64+j*128;
+    txt(m[0].toUpperCase(),{x:side>0?372:18,y:gy-14,'text-anchor':side>0?'end':'start',
+      fill:d.c,'font-size':8.5,opacity:.75,class:'l2-label'},sec);
+    m[1].forEach((sp,k)=>{
+      const ye=gy+k*30;
+      const xd=side>0?300:90;                       // dot; chevron label runs to the edge
+      // filament: braid → sweeping bezier → leaf (each slightly unique)
+      const j1=rnd()*18-9, j2=rnd()*24-12;
+      el('path',{d:`M ${bx} ${y0} C ${bx+j1} ${y0+90}, ${xd-side*120+j2} ${ye-52}, ${xd-side*14} ${ye}`,
+        fill:'none',stroke:d.c,'stroke-width':1.1,opacity:.5+((leafIdx/total)*.2),
+        class:leafIdx%4===0?'flow':''},sec);
+      const nd=el('g',{transform:`translate(${xd} ${ye})`,style:'cursor:pointer'},sec);
+      el('circle',{r:15,fill:'transparent'},nd);    // thumb hit area
+      el('circle',{r:4.2,fill:d.c,opacity:.95},nd);
+      el('circle',{r:4,fill:'url(#sheen)',opacity:.6},nd);
+      chevronLabel(nd,side>0?12:-12,0,sp,d.c,side>0?'r':'l');
+      nd.addEventListener('click',()=>openSheet(sp,m[0],d));
+      leafIdx++;
+    });
+  });
+
+  // 4 · continuation: three thin strands carry this stream onward to the
+  //     convergence at the mark (the discipline rejoins the whole)
+  const yEnd=y0+64+(d.l2.length-1)*128+110;
+  for(let s3=0;s3<3;s3++){
+    const off=(s3-1)*3;
+    el('path',{d:`M ${bx+off} ${y0} C ${bx+off} ${y0+180}, ${175+i*10} ${yEnd}, ${185+i*5} ${MARKY-40}`,
+      fill:'none',stroke:d.c,'stroke-width':.8,opacity:.16,class:s3===1?'flow':''},sec);
+  }
+});
+// convergence glow + the V6 at the river mouth
+el('circle',{cx:195,cy:MARKY-30,r:60,fill:'url(#sheen)',opacity:.1},svgD);
+mark(svgD,195,MARKY-20,26);
+
+// scroll: dust parallax + light the section nearest the viewport centre
+const stageD=document.getElementById('stageD');
+function litSections(){
+  const mid=stageD.scrollTop+stageD.clientHeight*.45-110;   // svg offset ≈ intro height
+  gSecs.forEach((g,i)=>{
+    const lo=SEC_Y[i]-200, hi=SEC_Y[i]+520;
+    g.classList.toggle('lit', mid>=lo&&mid<hi || (i===0&&mid<lo) || (i===4&&mid>=hi));
+  });
+}
+litSections();
+stageD.addEventListener('scroll',()=>{
+  if(!reduced){
+    const s=stageD.scrollTop;
+    dustD[0].setAttribute('transform',`translate(0 ${s*.22})`);
+    dustD[1].setAttribute('transform',`translate(0 ${s*.10})`);
+    dustD[2].setAttribute('transform',`translate(0 ${-s*.06})`);
+  }
+  litSections();
+},{passive:true});
+
+// ══════════════════ OPTION E — TILT PARALLAX ══════════════════
+// Real phones: deviceorientation. Desktop: pointer position simulates tilt.
+let tx=0,ty=0,cx2=0,cy2=0;
+function applyTilt(){
+  cx2+=(tx-cx2)*.08; cy2+=(ty-cy2)*.08;    // eased — elastic, never snappy
+  const set=(L,f)=>L&&L.setAttribute('transform',`translate(${cx2*f} ${cy2*f})`);
+  set(dustB[0],4);set(dustB[1],9);set(dustB[2],16);
+  gFan.style.transform=`translate(${cx2*2.4}px,${cy2*2.4}px)`;
+  gRing.style.transform=`translate(${cx2*2.4}px,${cy2*2.4}px)`;
+  requestAnimationFrame(applyTilt);
+}
+if(!reduced)applyTilt();
+window.addEventListener('deviceorientation',e=>{
+  if(e.gamma==null)return;
+  tx=Math.max(-1,Math.min(1,e.gamma/28));
+  ty=Math.max(-1,Math.min(1,(e.beta-45)/28));
+});
+document.getElementById('phone').addEventListener('pointermove',e=>{
+  const r=e.currentTarget.getBoundingClientRect();
+  tx=((e.clientX-r.left)/r.width-.5)*2;
+  ty=((e.clientY-r.top)/r.height-.5)*2;
+});
+
+// ══════════════════ switch ══════════════════
+const tabB=document.getElementById('tabB'),tabD=document.getElementById('tabD');
+function show(which){
+  tabB.classList.toggle('on',which==='B');tabD.classList.toggle('on',which==='D');
+  document.getElementById('stageB').classList.toggle('hide',which!=='B');
+  document.getElementById('stageD').classList.toggle('hide',which!=='D');
+  sheet.classList.remove('open');scrim.classList.remove('open');
+}
+tabB.addEventListener('click',()=>show('B'));
+tabD.addEventListener('click',()=>show('D'));
+})();
+</script>
+</body>
+</html>

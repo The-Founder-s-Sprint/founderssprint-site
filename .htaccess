@@ -16,6 +16,29 @@ ErrorDocument 404 /404.html
 RewriteCond %{HTTPS} off
 RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
+# ─── Staging vs production ──────────────────────────────────────────
+# Production lives at the web root (clean /… URLs). /beta/ is the staging
+# copy we keep developing in — reachable, but kept OUT of search results so
+# it never competes with prod as duplicate content. (mod_setenvif + mod_headers.)
+<IfModule mod_setenvif.c>
+  SetEnvIf Request_URI "^/beta/" FS_STAGING
+</IfModule>
+<IfModule mod_headers.c>
+  Header set X-Robots-Tag "noindex, nofollow" env=FS_STAGING
+</IfModule>
+
+# ─── Shared-media fallback ──────────────────────────────────────────
+# Production pages live at the web root; the heavy static media (images,
+# assets, Photos, endorsements) is kept in ONE place under /beta/ to avoid
+# duplicating ~66 MB. If a request isn't found at the root but exists under
+# /beta/, serve it from there. Also a safety net for any page not yet promoted.
+RewriteCond %{REQUEST_URI} !^/beta/
+RewriteCond %{REQUEST_FILENAME} !-f
+RewriteCond %{REQUEST_FILENAME} !-d
+RewriteCond %{DOCUMENT_ROOT}/beta%{REQUEST_URI} -f [OR]
+RewriteCond %{DOCUMENT_ROOT}/beta%{REQUEST_URI} -d
+RewriteRule ^(.*)$ /beta/$1 [L]
+
 # ─── CACHE CONTROL via mod_expires ──────────────────────────────────
 # mod_expires directly controls the max-age value in Cache-Control.
 # This overrides Bluehost's server-level default (max-age=14400).

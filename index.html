@@ -2,21 +2,721 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>The Founder's Sprint</title>
-<meta name="robots" content="noindex,follow">
-<link rel="canonical" href="https://founderssprint.co/beta/index.html">
-<!-- The marketing site currently lives under /beta/. Send the bare domain there. -->
-<meta http-equiv="refresh" content="0; url=/beta/index.html">
-<script>location.replace('/beta/index.html' + location.search + location.hash);</script>
-<style>
-  html,body{height:100%;margin:0;background:#1A1A1A;color:#EFE7D8;
-    font-family:'Josefin Sans',system-ui,-apple-system,Segoe UI,Roboto,sans-serif;}
-  .w{height:100%;display:flex;align-items:center;justify-content:center;text-align:center;padding:24px;}
-  a{color:#C8531F;text-decoration:none;font-weight:700;letter-spacing:.08em;}
-</style>
+<title>The Founder's Sprint — Build with direction.</title>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Five coaches. Five disciplines. Expert coaching for East African founders — walk away with an investor-ready data room.">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Josefin+Sans:wght@300;400;500;600;700&family=Inter:wght@400;500&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="homepage.css?v=20">
+
+
+<!-- social share -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Founder's Sprint">
+<meta property="og:title" content="The Founder's Sprint — Build with direction.">
+<meta property="og:description" content="Five coaches. Five disciplines. Expert coaching for East African founders — walk away with an investor-ready data room.">
+<meta property="og:image" content="https://founderssprint.co/images/og-default.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:alt" content="The Founder's Sprint — Build with direction.">
+<meta property="og:url" content="https://founderssprint.co/index.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The Founder's Sprint — Build with direction.">
+<meta name="twitter:description" content="Five coaches. Five disciplines. Expert coaching for East African founders — walk away with an investor-ready data room.">
+<meta name="twitter:image" content="https://founderssprint.co/images/og-default.jpg">
 </head>
 <body>
-  <div class="w"><p>Taking you to The Founder's Sprint…<br><br><a href="/beta/index.html">Continue &rarr;</a></p></div>
+
+<!-- ============================================================
+     BRAND PAGE LOADER — rotating V6 mark, fades on load.
+     Inline + first-in-body so it paints in frame 1, before the deferred
+     site-chrome.js runs. That also masks the FOUC where the eyebrow .v6-mark
+     briefly renders un-sized (its width is set by deferred CSS). Self-removing,
+     with a failsafe so it can never trap the visitor. Reusable as-is on any page.
+     ============================================================ -->
+<style>
+  #fs-preload{position:fixed;inset:0;z-index:100000;display:flex;align-items:center;justify-content:center;
+    background:#1A1A1A;transition:opacity .42s ease;}
+  #fs-preload.gone{opacity:0;pointer-events:none;}
+  #fs-preload svg{width:56px;height:56px;transform-origin:50% 50%;animation:fsplspin 2.6s linear infinite;}
+  @keyframes fsplspin{to{transform:rotate(360deg);}}
+  @media(prefers-reduced-motion:reduce){#fs-preload svg{animation:none;}}
+</style>
+<div id="fs-preload" role="status" aria-label="Loading">
+  <svg viewBox="0 0 100 100" aria-hidden="true">
+    <polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.9"/>
+    <polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.85" transform="rotate(72,50,50)"/>
+    <polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.82" transform="rotate(144,50,50)"/>
+    <polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.85" transform="rotate(216,50,50)"/>
+    <polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.78" transform="rotate(288,50,50)"/>
+    <circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/>
+  </svg>
+</div>
+<script>
+  (function(){
+    var p=document.getElementById('fs-preload'); if(!p) return;
+    var done=false;
+    function hide(){ if(done) return; done=true; p.classList.add('gone');
+      setTimeout(function(){ p.parentNode && p.parentNode.removeChild(p); },480); }
+    if(document.readyState==='complete') hide();
+    else window.addEventListener('load', hide, {once:true});
+    setTimeout(hide, 2600);   // failsafe — never trap the visitor on a slow asset
+  })();
+</script>
+
+
+<!-- Global film grain -->
+<div class="noise" aria-hidden="true"></div>
+
+<!-- ============================================================
+     NAV
+     ============================================================ -->
+<div id="fs-nav" data-fixed></div>
+
+<!-- ============================================================
+     §1  HERO — random B&W video + grain + constellation
+     ============================================================ -->
+<section class="hero" data-section="hero" data-screen-label="01 Hero">
+  <div class="video-stage" id="video-stage">
+    <!--
+      Hero video: random clip per visit from array of B&W footage.
+      B&W filter + vignette applied via CSS. Grain via canvas overlay.
+      - preload="auto" on selected clip; others stay unloaded.
+      - poster: still frame while video buffers (critical for 3G).
+      - Randomiser picks one clip per visit for an inclusive, fresh feel.
+      - Fallback: dark gradient behind .video-stage shows through gracefully.
+      - More clips added after the Kampala shoot day.
+    -->
+    <!-- Single video element — JS picks a random clip and sets src.
+         Poster frame shows immediately while video buffers on slow hosts. -->
+    <video class="hero-vid" id="hero-vid" muted playsinline loop
+           preload="none" poster="assets/hero-poster.jpg"></video>
+  </div>
+  <!-- Canvas grain: real random pixel noise, 12fps, overlay blend -->
+  <canvas class="hero-grain-canvas" id="hero-grain-canvas" aria-hidden="true"></canvas>
+
+  <!-- Animated constellation canvas — no V6 mark in centre -->
+  <canvas class="hero-constellation-canvas" id="hero-constellation" aria-hidden="true"></canvas>
+
+  <div class="lockup">
+    <span class="eyebrow">Cohort 1 · Coaching begins 1 September 2026 · Kampala</span>
+    <h1>The market doesn't care<br>how hard you worked.</h1>
+    <p class="sub-headline">What's missing isn't hustle — it's the expertise to turn it into traction.</p>
+    <div class="tag">Build with direction<span class="period">.</span></div>
+    <div class="hero-rule"></div>
+    <div class="hero-stat-line">5 disciplines · 15 sub-categories · 49 coaching specialties</div>
+    <div class="ctas">
+      <a class="btn btn-primary" href="explore/">Find your challenge <span class="arrow">→</span></a>
+      <a class="btn btn-ghost" href="#method">How it works</a>
+    </div>
+    <div class="hero-check" style="margin-top:18px;font-size:13px;color:rgba(239,231,216,.78);line-height:1.5">
+      Not sure where you're weak?
+      <a href="/modules/readiness.html" style="color:#C9923A;font-weight:600;text-decoration:none;border-bottom:1px solid rgba(201,146,58,.45)">Take the 5-minute Readiness Check</a>
+      <span style="opacity:.62">— free, no account, no email.</span>
+    </div>
+  </div>
+
+  <div class="hero-foot">
+    <div class="scroll-cue">Scroll to begin</div>
+  </div>
+</section>
+<script>
+/* Hero headline randomiser — one headline/sub-head pair per visit, mirroring the
+   background-video randomiser above. Inline + synchronous, immediately after the
+   hero markup, so the chosen pair is set before first paint (no flash of the
+   default copy). Strings are page constants, so innerHTML for the <br> is safe. */
+(function () {
+  var PAIRS = [
+    { h: "The market doesn't care<br>how hard you worked.",
+      s: "What's missing isn't hustle — it's the expertise to turn it into traction." },
+    { h: "Talent built it.<br>Structure scales it.",
+      s: "Uganda has no shortage of founders — only of the guidance that turns effort into a company." },
+    { h: "Hustle gets you started.<br>Direction gets you funded.",
+      s: "The gaps that stall founders — pricing, financials, investor readiness — are the ones we close with you." },
+    { h: "You've done the hard part.<br>Now do the right part.",
+      s: "Five coaches who've built real companies here, ready to turn your momentum into traction." },
+    { h: "Effort isn't the bottleneck.<br>Expertise is.",
+      s: "Work with the operators who wrote the playbook for their discipline in Uganda." }
+  ];
+  var p   = PAIRS[Math.floor(Math.random() * PAIRS.length)];
+  var h1  = document.querySelector('.hero .lockup h1');
+  var sub = document.querySelector('.hero .lockup .sub-headline');
+  if (h1)  h1.innerHTML   = p.h;
+  if (sub) sub.textContent = p.s;
+})();
+</script>
+
+<!-- ============================================================
+     §2  COACHES (moved up from §4 — user feedback: founders want to see coaches first)
+     ============================================================ -->
+<section class="coaches on-paper" data-section="coaches" data-screen-label="02 Coaches" id="coaches">
+  <div class="shell">
+    <span class="eyebrow section-eb terra">§2 Your Coaches</span>
+    <h2 class="h-section">5 founding coaches. Decades of real-world experience.</h2>
+    <p class="h-sub on-paper" style="margin-top:18px;">Each of our five coaches has built, scaled, or invested in companies that wrote the playbook for their discipline in Uganda. They show up. Every session. For you.</p>
+
+    <div class="grid" id="coach-grid">
+      <article class="coach-card c-terra">
+        <div class="frame has-photo" style="background-image:url('images/coach-teddy.jpg')"></div>
+        <div class="meta">
+          <div class="n">Teddy Ruge</div>
+          <div class="d">Marketing & Branding</div>
+          <div class="b">20+ years in brand communications. Published in CNN, NYT, The Guardian. Co-founded Hive Colab (1,000+ startups). Creative work for the World Bank and Dallas Cowboys.</div>
+          <a class="coach-cta" href="explore/#marketing">Explore his discipline <span class="arrow">→</span></a>
+        </div>
+      </article>
+
+      <article class="coach-card c-ochre">
+        <div class="frame has-photo" style="background-image:url('images/coach-barry.jpg')"></div>
+        <div class="meta">
+          <div class="n">Barry Wojega</div>
+          <div class="d">Financial Modelling</div>
+          <div class="b">Pressure-tests the numbers, then builds the case that gets founders funded.</div>
+          <a class="coach-cta" href="explore/#finance">Explore his discipline <span class="arrow">→</span></a>
+        </div>
+      </article>
+
+      <article class="coach-card c-sage">
+        <div class="frame has-photo" style="background-image:url('images/coach-joseph.jpg')"></div>
+        <div class="meta">
+          <div class="n">Joseph Kalema</div>
+          <div class="d">Investment Readiness</div>
+          <div class="b">Investment Manager with 15+ years in private equity, development finance & fund management across East Africa. Knows what makes a deck land — and what kills it.</div>
+          <a class="coach-cta" href="explore/#investment">Explore his discipline <span class="arrow">→</span></a>
+        </div>
+      </article>
+
+      <article class="coach-card c-moss">
+        <div class="frame has-photo" style="background-image:url('images/coach-moses.jpg')"></div>
+        <div class="meta">
+          <div class="n">Moses Engwau</div>
+          <div class="d">Strategy & Team</div>
+          <div class="b">Experienced Business Development and Enterprise Support Consultant. Deep expertise in leadership, team effectiveness, and organisational development.</div>
+          <a class="coach-cta" href="explore/#strategy">Explore his discipline <span class="arrow">→</span></a>
+        </div>
+      </article>
+
+      <article class="coach-card c-stone">
+        <div class="frame has-photo" style="background-image:url('images/coach-ngolobe.jpg')"></div>
+        <div class="meta">
+          <div class="n">Patrick Ngolobe</div>
+          <div class="d">Product & Pricing</div>
+          <div class="b">Over 20 years as a business strategist and executive coach. Mentored 500+ businesses across USD 50M in funding programs.</div>
+          <a class="coach-cta" href="explore/#product">Explore his discipline <span class="arrow">→</span></a>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     §3  METHOD — five disciplines
+     ============================================================ -->
+<section class="method on-ink" data-section="method" data-screen-label="03 Method" id="method">
+  <div class="shell">
+    <span class="eyebrow section-eb moss">§3 The Method</span>
+    <h2 class="h-section">We go deep so you can grow faster.</h2>
+    <div class="meta-row">
+      <p class="lede">Each discipline is led by a practitioner who's done the work — built companies, raised capital, scaled teams in this market. Not advisors with opinions. Coaches with track records.</p>
+      <div class="stat">
+        <span><b>5</b>Disciplines</span>
+        <span><b>15</b>Sub-categories</span>
+        <span><b>49</b>Specialties</span>
+      </div>
+    </div>
+
+    <div class="timeline" id="method-timeline">
+      <a class="week c-terra" style="--i:0" href="/method/marketing.html">
+        <div class="w-num">01</div>
+        <div class="w-lbl">Discipline 1</div>
+        <div class="w-name">Marketing & Branding</div>
+        <div class="w-coach">Teddy Ruge</div>
+        <div class="w-deliv">→ <b>GTM strategy</b> & brand positioning doc</div>
+        <div class="w-go">Deep dive <span class="ar">→</span></div>
+      </a>
+      <a class="week c-ochre" style="--i:1" href="/method/finance.html">
+        <div class="w-num">02</div>
+        <div class="w-lbl">Discipline 2</div>
+        <div class="w-name">Financial Modelling</div>
+        <div class="w-coach">Barry Wojega</div>
+        <div class="w-deliv">→ <b>Financial model</b> + unit economics breakdown</div>
+        <div class="w-go">Deep dive <span class="ar">→</span></div>
+      </a>
+      <a class="week c-sage" style="--i:2" href="/method/investment.html">
+        <div class="w-num">03</div>
+        <div class="w-lbl">Discipline 3</div>
+        <div class="w-name">Investment Readiness</div>
+        <div class="w-coach">Joseph Kalema</div>
+        <div class="w-deliv">→ <b>Investor-ready pitch deck</b> + fundraising plan</div>
+        <div class="w-go">Deep dive <span class="ar">→</span></div>
+      </a>
+      <a class="week c-moss" style="--i:3" href="/method/strategy.html">
+        <div class="w-num">04</div>
+        <div class="w-lbl">Discipline 4</div>
+        <div class="w-name">Strategy & Team</div>
+        <div class="w-coach">Moses Engwau</div>
+        <div class="w-deliv">→ <b>Competitive analysis</b> + 6-month team plan</div>
+        <div class="w-go">Deep dive <span class="ar">→</span></div>
+      </a>
+      <a class="week c-stone" style="--i:4" href="/method/product.html">
+        <div class="w-num">05</div>
+        <div class="w-lbl">Discipline 5</div>
+        <div class="w-name">Product & Pricing</div>
+        <div class="w-coach">Patrick Ngolobe</div>
+        <div class="w-deliv">→ <b>Product roadmap</b> + pricing model</div>
+        <div class="w-go">Deep dive <span class="ar">→</span></div>
+      </a>
+    </div>
+
+    <p class="promise">Barry has built the financial case behind real ventures across Uganda before he builds yours. Joseph raised capital across East Africa before he reviewed your deck. Every coach earned their expertise building real businesses — not studying them.</p>
+  </div>
+</section>
+
+<!-- ============================================================
+     §4  PROBLEM
+     ============================================================ -->
+<section class="problem on-paper" data-section="problem" data-screen-label="04 Problem" id="problem">
+  <div class="shell">
+    <span class="eyebrow section-eb ochre">§4 The Problem</span>
+    <h2 class="h-section">Uganda's startups aren't failing from bad ideas.</h2>
+    <p class="h-sub on-paper" style="margin-top:18px;">They're failing from gaps no one helps them close — in pricing, financial planning, market entry, and investor readiness. The talent exists. The structure doesn't.</p>
+
+    <div class="stats compact" id="stats-grid">
+      <div class="stat c-terra">
+        <div class="v"><a href="https://www.techinafrica.com/2024-startup-graveyard-report-governance-gaps-contribute-to-high-failure-rates-in-africas-startups/" target="_blank" rel="noopener">70%</a></div>
+        <div class="l">of Ugandan startups fail — the fourth-highest rate on the continent. Most never pressure-test a <em>revenue forecast</em> or <em>pricing model</em> with anyone who's built one.</div>
+        <div class="src"><a href="https://www.techinafrica.com/2024-startup-graveyard-report-governance-gaps-contribute-to-high-failure-rates-in-africas-startups/" target="_blank" rel="noopener">Tech In Africa 2024</a></div>
+      </div>
+      <div class="stat c-ochre">
+        <div class="v"><a href="https://www.cbinsights.com/research/report/startup-failure-reasons-top/" target="_blank" rel="noopener">43%</a></div>
+        <div class="l">of 431 failed VC-backed companies died from poor product-market fit — not bad luck. They had decks, not a defensible <em>go-to-market strategy</em> or <em>channel mix</em>.</div>
+        <div class="src"><a href="https://www.cbinsights.com/research/report/startup-failure-reasons-top/" target="_blank" rel="noopener">CB Insights 2024</a></div>
+      </div>
+      <div class="stat c-sage">
+        <div class="v"><a href="https://startupgraveyard.africa/reports/2024" target="_blank" rel="noopener">58%</a></div>
+        <div class="l">of African startup shutdowns trace to financial mismanagement. No <em>cash-flow projection</em>, no <em>unit economics</em>, no one to flag the burn rate before it killed the company.</div>
+        <div class="src"><a href="https://startupgraveyard.africa/reports/2024" target="_blank" rel="noopener">Startup Graveyard Africa 2024</a></div>
+      </div>
+      <div class="stat c-moss">
+        <div class="v"><a href="https://www.cbinsights.com/research/report/startup-failure-reasons-top/" target="_blank" rel="noopener">22 mo</a></div>
+        <div class="l">from last raise to shutdown — the median. Founders pitch without a tested <em>valuation method</em> or <em>cap table</em>, then burn through the capital they raised.</div>
+        <div class="src"><a href="https://www.cbinsights.com/research/report/startup-failure-reasons-top/" target="_blank" rel="noopener">CB Insights 2024</a></div>
+      </div>
+      <div class="stat c-stone">
+        <div class="v"><a href="https://startupgraveyard.africa/reports/2024" target="_blank" rel="noopener">27%</a></div>
+        <div class="l">fail from operational breakdowns — no <em>team architecture</em>, no <em>governance structure</em>, no systems designed to outlast the founding team.</div>
+        <div class="src"><a href="https://startupgraveyard.africa/reports/2024" target="_blank" rel="noopener">Startup Graveyard Africa 2024</a></div>
+      </div>
+    </div>
+
+    <div class="section-cta">
+      <a class="btn btn-primary" href="explore/">Explore courses <span class="arrow">→</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- Coaches section moved to §2 -->
+
+<!-- ============================================================
+     §5  SOCIAL PROOF — Tabbed testimonials (Cloudflare-inspired)
+     ============================================================ -->
+<section class="proof on-ink" data-section="proof" data-screen-label="05 Proof">
+  <div class="shell">
+    <span class="eyebrow section-eb ochre">§5 Social Proof</span>
+    <h2 class="h-section">What founders say about our coaches.</h2>
+
+    <!-- Testimonial wall — floating bubbles + randomised highlight. Reads APPROVED submissions from the DB. -->
+    <div class="tw-stage" id="tw-stage">
+      <div class="tw-field" id="tw-field" aria-hidden="true"></div>
+      <div class="tw-highlight">
+        <div class="tw-hl-eyebrow">In their words</div>
+        <div id="tw-hl"></div>
+        <div class="tw-dots" id="tw-dots"></div>
+      </div>
+      <div class="tw-mlist" id="tw-mlist"></div>
+    </div>
+    <div class="tw-foot"><a href="/share-testimonial.html">Coached by us? Share your story →</a></div>
+  </div>
+</section>
+
+<!-- ============================================================
+     §6  DELIVERABLES
+     ============================================================ -->
+<section class="deliv on-paper" data-section="deliverables" data-screen-label="06 Deliverables">
+  <div class="shell">
+    <span class="eyebrow section-eb moss">§6 Your Data Room</span>
+    <h2 class="h-section">Every session gets you closer to completing your vision.</h2>
+    <p class="h-sub on-paper" style="margin-top:18px;">Each coaching session produces a vetted deliverable — signed off by the coach who built it with you. Five sessions. Five artifacts. One investor-ready data room.</p>
+
+    <div class="deliv-grid">
+      <!-- Data-room mock — column 1 -->
+      <div class="room">
+        <div class="titlebar">
+          <span class="dot"></span><span class="dot"></span><span class="dot"></span>
+          <span class="ti">Founder data room · Kasi Logistics</span>
+        </div>
+        <div class="body">
+          <div class="row"><span class="fi"></span><span class="name">GTM_Strategy_v2.pdf</span><span class="sz">2.4 MB</span><span class="tag">Signed off</span></div>
+          <div class="row"><span class="fi"></span><span class="name">Financial_Model_36mo.xlsx</span><span class="sz">880 KB</span><span class="tag">Signed off</span></div>
+          <div class="row"><span class="fi"></span><span class="name">Pitch_Deck_seed.pdf</span><span class="sz">3.1 MB</span><span class="tag">Signed off</span></div>
+          <div class="row"><span class="fi"></span><span class="name">Competitive_Map.fig</span><span class="sz">1.2 MB</span><span class="tag">Signed off</span></div>
+          <div class="row"><span class="fi"></span><span class="name">Pricing_v3_final.pdf</span><span class="sz">640 KB</span><span class="tag pending">In review</span></div>
+          <div class="foot">
+            <span>5 of 5 deliverables</span>
+            <span><b>Ready</b> for investor share</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 5 deliverable descriptions — stacked rows -->
+      <div class="deliv-items">
+        <div class="deliv-item c-terra">
+          <div class="num">01</div>
+          <div class="row-info">
+            <div class="disc">Marketing & Branding</div>
+            <div class="ti">Go-to-market strategy & brand positioning</div>
+          </div>
+          <div class="detail">Channel mix · ICP · messaging hierarchy</div>
+        </div>
+        <div class="deliv-item c-ochre">
+          <div class="num">02</div>
+          <div class="row-info">
+            <div class="disc">Financial Modelling</div>
+            <div class="ti">Financial model & unit economics breakdown</div>
+          </div>
+          <div class="detail">Excel + assumptions · 36-mo projection</div>
+        </div>
+        <div class="deliv-item c-sage">
+          <div class="num">03</div>
+          <div class="row-info">
+            <div class="disc">Investment Readiness</div>
+            <div class="ti">Investor-ready pitch deck & fundraising plan</div>
+          </div>
+          <div class="detail">15 slides · investor list · ask framing</div>
+        </div>
+        <div class="deliv-item c-moss">
+          <div class="num">04</div>
+          <div class="row-info">
+            <div class="disc">Strategy & Team</div>
+            <div class="ti">Competitive analysis & team plan</div>
+          </div>
+          <div class="detail">Market map · 6-month hiring sequence</div>
+        </div>
+        <div class="deliv-item c-stone">
+          <div class="num">05</div>
+          <div class="row-info">
+            <div class="disc">Product & Pricing</div>
+            <div class="ti">Product roadmap & pricing strategy</div>
+          </div>
+          <div class="detail">Quarterly roadmap · 3 pricing models tested</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     §7  PRICING — three interactive variants
+     ============================================================ -->
+<!-- Programme sponsors -->
+<div id="sponsor-strip" style="border-top:1px solid rgba(26,26,26,0.1);border-bottom:1px solid rgba(26,26,26,0.1);overflow:hidden"></div>
+
+<section class="pricing on-ink" data-section="pricing" data-screen-label="07 Pricing" id="pricing">
+  <div class="shell">
+    <div class="hdr">
+      <div>
+        <span class="eyebrow section-eb terra">§7 Pricing</span>
+        <h2 class="h-section" style="margin-top:16px;">Invest in yourself.</h2>
+        <p class="h-sub" style="margin-top:18px;">One session, a focused bundle, or the full sprint. The same coaches who've built real companies here — you choose the depth.</p>
+      </div>
+    </div>
+
+    <!-- Launch promo banner (date-gated: appears 1 Aug via /promo.js) -->
+    <div id="fs-promo" data-promo-cta="book/?tier=single"></div>
+
+    <!-- ============== STAGE A — Bundle Builder ============== -->
+    <div class="stage active" id="stage-bundle">
+      <div class="bb-wrap">
+        <div class="bb-picker">
+          <div class="picker-h">
+            <span>Pick your disciplines</span>
+            <span><span class="cnt" id="bb-count">0</span>&nbsp;/&nbsp;5</span>
+          </div>
+          <div class="bb-disciplines" id="bb-disciplines">
+            <div class="bb-d c-terra" data-d="marketing">
+              <div class="check"></div>
+              <div class="dot"></div>
+              <div class="info"><div class="n">Marketing & Branding</div><div class="c">Teddy Ruge</div></div>
+              <div class="delv">→ GTM strategy</div>
+            </div>
+            <div class="bb-d c-ochre" data-d="finance">
+              <div class="check"></div>
+              <div class="dot"></div>
+              <div class="info"><div class="n">Financial Modelling</div><div class="c">Barry Wojega</div></div>
+              <div class="delv">→ Financial model</div>
+            </div>
+            <div class="bb-d c-sage" data-d="investment">
+              <div class="check"></div>
+              <div class="dot"></div>
+              <div class="info"><div class="n">Investment Readiness</div><div class="c">Joseph Kalema</div></div>
+              <div class="delv">→ Pitch deck</div>
+            </div>
+            <div class="bb-d c-moss" data-d="strategy">
+              <div class="check"></div>
+              <div class="dot"></div>
+              <div class="info"><div class="n">Strategy & Team</div><div class="c">Moses Engwau</div></div>
+              <div class="delv">→ Team plan</div>
+            </div>
+            <div class="bb-d c-stone" data-d="product">
+              <div class="check"></div>
+              <div class="dot"></div>
+              <div class="info"><div class="n">Product & Pricing</div><div class="c">Patrick Ngolobe</div></div>
+              <div class="delv">→ Roadmap & price</div>
+            </div>
+          </div>
+          <div class="clear-row">
+            <button type="button" class="clear" id="bb-clear">Clear selection</button>
+            <div class="preset">
+              <button type="button" data-preset="1">+1</button>
+              <button type="button" data-preset="3">Pick 3</button>
+              <button type="button" data-preset="5">All 5</button>
+            </div>
+          </div>
+        </div>
+
+        <aside class="bb-receipt" id="bb-receipt">
+          <span class="pill">Most popular</span>
+          <div>
+            <div class="tier-eb" id="bb-tier-eb">Pick to begin</div>
+            <div class="tier-name" id="bb-tier-name">Your bundle</div>
+          </div>
+          <div class="price-row">
+            <div class="price"><span class="ccy">UGX</span><span id="bb-price">—</span></div>
+            <div class="save" id="bb-save">save 33%</div>
+          </div>
+          <div class="breakdown">
+            <div class="row"><span>Disciplines</span><span class="v" id="bb-d-count">0</span></div>
+            <div class="row"><span>Coaches</span><span class="v" id="bb-c-count">0</span></div>
+            <div class="row"><span>Deliverables</span><span class="v" id="bb-dl-count">0</span></div>
+            <div class="row"><span>Duration</span><span class="v" id="bb-dur">—</span></div>
+          </div>
+          <div class="cta-row">
+            <button class="cta-primary" id="bb-cta" type="button" disabled>Choose a discipline →</button>
+            <div class="momo">Pay with <span class="m1">MTN&nbsp;MoMo</span> or <span class="m2">Airtel&nbsp;Money</span></div>
+          </div>
+        </aside>
+      </div>
+    </div>
+
+    <!-- ============== STAGE B — Comparison Matrix ============== -->
+    <div class="stage" id="stage-matrix">
+      <div class="matrix-hint" aria-hidden="true">Swipe to compare tiers →</div>
+      <div class="matrix-wrap">
+        <table class="matrix">
+          <thead>
+            <tr>
+              <th></th>
+              <th class="tier-col" data-tier="single">
+                <a class="thlink" href="/pricing.html#single" title="See One-on-One Coaching details">
+                  <div class="tn">One-on-One Coaching</div>
+                  <div class="tp"><span class="ccy">UGX</span><span data-promo-tier="single">500K</span></div>
+                  <div class="tc">1 × 2-hour session</div>
+                </a>
+              </th>
+              <th class="tier-col popular" data-tier="pick3">
+                <div class="ribbon">Most popular</div>
+                <a class="thlink" href="/pricing.html#pick3" title="See Pick 3 Bundle details">
+                  <div class="tn">Pick 3 Bundle</div>
+                  <div class="tp"><span class="ccy">UGX</span><span data-promo-tier="pick3">1M</span></div>
+                  <div class="tc">3 × 2-hour sessions · save 33%</div>
+                </a>
+              </th>
+              <th class="tier-col" data-tier="cohort">
+                <a class="thlink" href="/pricing.html#cohort" title="See Full Cohort details">
+                  <div class="tn">Full Cohort</div>
+                  <div class="tp"><span class="ccy">UGX</span><span data-promo-tier="cohort">2.5M</span></div>
+                  <div class="tc">5 weeks · 50 hours of group coaching</div>
+                </a>
+              </th>
+              <th class="tier-col" data-tier="vip1on1">
+                <a class="thlink" href="/pricing.html#vip" title="See VIP Leadership details">
+                  <div class="tn">VIP Leadership</div>
+                  <div class="tp"><span class="ccy">UGX</span><span data-promo-tier="vip1on1">5M</span></div>
+                  <div class="tc">All coaches · your whole leadership team · 3-month advisory</div>
+                </a>
+              </th>
+            </tr>
+          </thead>
+          <tbody id="matrix-body">
+            <tr><td class="row-label">Best for<em>The founder who...</em></td><td class="cell dim">"I have one specific problem"</td><td class="cell dim popular">"I know my 3 biggest gaps"</td><td class="cell dim">"I want the complete foundation"</td><td class="cell dim">"My whole leadership team needs to be ready"</td></tr>
+            <tr><td class="row-label">Coaches<em>How many experts you work with</em></td><td class="cell">1</td><td class="cell popular">Up to 3</td><td class="cell">All 5</td><td class="cell">All 5 · dedicated</td></tr>
+            <tr><td class="row-label">Deliverables<em>Vetted, take-home artifacts</em></td><td class="cell">1</td><td class="cell popular">3</td><td class="cell">5</td><td class="cell">5 + advisory docs</td></tr>
+            <tr><td class="row-label">Format<em>How sessions happen</em></td><td class="cell">1 × 2-hr session</td><td class="cell popular">3 × 2-hr sessions</td><td class="cell">5 weeks · 50 hrs group</td><td class="cell">Private sessions for your leadership team</td></tr>
+            <tr><td class="row-label">Post-programme<em>Ongoing support</em></td><td class="cell no">—</td><td class="cell no popular">—</td><td class="cell dim">30-day window</td><td class="cell check">3 months advisory</td></tr>
+            <tr><td class="row-label">Founder data room<em>Investor-ready file hub</em></td><td class="cell no">—</td><td class="cell dim popular">Partial</td><td class="cell check">✓</td><td class="cell check">✓ + investor intros</td></tr>
+            <tr class="cta-row">
+              <td></td>
+              <td><a class="cell-cta" href="book/?tier=single">Book a Session →</a></td>
+              <td><a class="cell-cta primary" href="book/?tier=pick3">Build my bundle →</a></td>
+              <td><a class="cell-cta" href="book/?tier=cohort">Join cohort →</a></td>
+              <td><a class="cell-cta" href="book/?tier=vip1on1">Book VIP Leadership →</a></td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="matrix-note" style="text-align:center;font-size:12.5px;color:var(--ink-mute,#5A564F);margin-top:16px;line-height:1.55">Reserve any place with a <strong>10% deposit</strong> (non-refundable). The balance is due in full <strong>48 hours before your start</strong>.</p>
+        <p style="text-align:center;margin-top:14px"><a href="/pricing.html" style="font-family:var(--sans,'Josefin Sans');font-size:12px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--terra,#C8531F);text-decoration:none;border-bottom:1px solid currentColor;padding-bottom:2px">See the full breakdown of every tier →</a></p>
+      </div>
+    </div>
+
+    <!-- ============== STAGE C — Value Ladder ============== -->
+    <div class="stage" id="stage-ladder">
+      <div class="ladder-wrap">
+        <div class="ladder" id="ladder">
+          <div class="axis"><div class="progress" id="ladder-progress"></div></div>
+          <div class="nodes" id="ladder-nodes">
+            <div class="node reached active c-stone" data-step="0">
+              <div class="ball"></div>
+              <div class="info"><div class="lbl">One-on-One</div><div class="nm">1 × 2-hr session</div><div class="pr"><span class="ccy">UGX</span><span data-promo-tier="single">500K</span></div></div>
+            </div>
+            <div class="node c-ochre" data-step="1">
+              <div class="ball"></div>
+              <div class="info"><div class="lbl">Pick 3</div><div class="nm">3 × 2-hr sessions</div><div class="pr"><span class="ccy">UGX</span><span data-promo-tier="pick3">1M</span></div></div>
+            </div>
+            <div class="node c-terra" data-step="2">
+              <div class="ball"></div>
+              <div class="info"><div class="lbl">Full Cohort</div><div class="nm">5 weeks · 50 hours</div><div class="pr"><span class="ccy">UGX</span><span data-promo-tier="cohort">2.5M</span></div></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="ladder-detail" id="ladder-detail">
+          <div class="left">
+            <h3 id="ld-name">One-on-One Coaching</h3>
+            <p class="desc" id="ld-desc">"I have one specific problem and I need expert eyes on it."</p>
+            <ul class="bullets" id="ld-bullets">
+              <li>1 coach · 1 discipline · 1 vetted deliverable</li>
+              <li>1 × 2-hour live session</li>
+              <li>Recording + notes within 48 hours</li>
+            </ul>
+          </div>
+          <div class="right">
+            <div class="pri" id="ld-price"><span class="ccy">UGX</span><span data-promo-tier="single">500K</span></div>
+            <div class="sub" id="ld-sub">Single session</div>
+            <a class="cta" id="ld-cta" href="book/?tier=single">Book a Session →</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-top:48px;max-width:640px;margin-left:auto;margin-right:auto">
+      <div style="font-family:var(--sans);font-size:22px;font-weight:700;color:var(--ochre);letter-spacing:0.04em;margin-bottom:12px">Corporate & Hub Partners</div>
+      <p style="font-family:var(--body);font-size:15px;color:rgba(239,231,216,0.55);line-height:1.6;margin-bottom:20px">Branded cohorts for your portfolio or membership. Volume pricing, white-label reporting, and dedicated coach assignment.</p>
+      <a href="contact.html" style="display:inline-block;font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;padding:14px 28px;border:1px solid rgba(239,231,216,0.3);color:var(--paper);text-decoration:none;transition:all 200ms">Talk to our team <span style="margin-left:4px">→</span></a>
+    </div>
+
+    <div class="pay-strip">
+      <span>Pay your way · 2 taps from your phone</span>
+      <div class="badges">
+        <span class="badge momo">MTN MoMo</span>
+        <span class="badge airtel">Airtel Money</span>
+        <span class="badge">Bank transfer</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     §8  READINESS CHECK  (was: Launch CTA — removed as redundant with pricing)
+     ============================================================ -->
+<section class="readiness on-paper" data-section="readiness" data-screen-label="08 Readiness" id="readiness">
+  <div class="shell">
+    <span class="eyebrow section-eb" style="background:var(--ochre);">§8 Readiness Check</span>
+    <h2 class="h-section">Where is your business weak?</h2>
+    <div style="max-width:640px;margin-top:14px">
+      <p style="font-size:16px;line-height:1.65;color:var(--stone)">Most founders know something is missing. Few can name it. Fifteen questions — about five minutes — and you'll see exactly where you stand across the five disciplines, and which sessions close the gaps you actually have.</p>
+      <p style="font-size:13px;line-height:1.6;color:var(--stone);opacity:.8;margin-top:12px">It asks what <em>exists</em> — a written position, a forecast you update, a deck a stranger could read — not how confident you feel. Nothing is sent anywhere; it runs in your browser.</p>
+      <div style="margin-top:24px;display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+        <a class="btn btn-primary" href="/modules/readiness.html">Take the Readiness Check <span class="arrow">→</span></a>
+        <span style="font-family:var(--sans);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--stone);opacity:.75">Free · No account · No email</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     §9  FAQ
+     ============================================================ -->
+<section class="faq on-paper" data-section="faq" data-screen-label="09 FAQ" id="faq" style="padding-top:0;">
+  <div class="shell">
+    <span class="eyebrow section-eb" style="background:var(--stone);">§9 FAQ</span>
+    <h2 class="h-section">Questions founders ask.</h2>
+    <div class="acc" id="faq-acc">
+      <div class="item">
+        <button class="q" type="button"><span class="num">01</span><span>Is this for me if I haven't started yet?</span><span class="icn"></span></button>
+        <div class="a"><div><div class="a-inner">Yes — if you have a clear idea you're committed to. The Sprint won't validate your idea for you; it will help you <em>build the business around it</em>. If you're still deciding what to start, a single discovery session with one of our coaches can help you decide. Not sure where you stand? The free <a href="/modules/readiness.html">Readiness Check</a> takes five minutes and names your gaps.</div></div></div>
+      </div>
+      <div class="item">
+        <button class="q" type="button"><span class="num">02</span><span>What exactly do I get for one session — and what do the tiers cost?</span><span class="icn"></span></button>
+        <div class="a"><div><div class="a-inner">Each session is a focused <em>two-hour deep-dive on one specialty</em> with the right coach, and you leave with a take-home deliverable. <strong>1 session is UGX 500K</strong>; <strong>Pick 3 is UGX 1M</strong> (any three specialties, mix across disciplines); the <strong>Full Cohort is UGX 2.5M</strong> for all five disciplines as ~50 hours of group coaching. There's also a <strong>VIP Leadership</strong> track — private, dedicated coaching for your whole leadership team across all five disciplines, with three months of advisory and investor introductions. Start small and upgrade any time — we credit what you've already paid.</div></div></div>
+      </div>
+      <div class="item">
+        <button class="q" type="button"><span class="num">03</span><span>How do I know which session or coach I need?</span><span class="icn"></span></button>
+        <div class="a"><div><div class="a-inner">Open the <em>Explore</em> map. Type what you're stuck on in plain words — "pricing", "pitch deck", "register my company" — and it points you to the exact specialty and the coach who leads it. Or browse the five disciplines down to their <strong>49 specialties</strong>, each a bookable two-hour deep-dive. Still unsure? A single discovery session is the low-risk way in.</div></div></div>
+      </div>
+      <div class="item">
+        <button class="q" type="button"><span class="num">04</span><span>How is this different from an accelerator?</span><span class="icn"></span></button>
+        <div class="a"><div><div class="a-inner">Accelerators are a 3-month lottery: compete for equity-funded slots and get group programming. The Sprint is <em>five disciplines, no equity taken</em>, with the coaches you actually need, delivering artifacts you take home. Pay-as-you-go, not cohort-or-nothing.</div></div></div>
+      </div>
+      <div class="item">
+        <button class="q" type="button"><span class="num">05</span><span>What's the difference between a coach and a mentor?</span><span class="icn"></span></button>
+        <div class="a"><div><div class="a-inner"><em>Coaches</em> teach the five-discipline curriculum and build your deliverables with you. <em>Mentors</em> are operators who've actually done it — founders who've built, scaled, raised, or exited — whom you pay for a one-off coffee or Zoom to pick their brain. A coach builds the model with you; a mentor tells you what they'd do. Each mentor sets their own fee per format.</div></div></div>
+      </div>
+      <div class="item">
+        <button class="q" type="button"><span class="num">06</span><span>Can I try anything before I pay?</span><span class="icn"></span></button>
+        <div class="a"><div><div class="a-inner">Yes. The interactive <em>Workbench</em> — a TAM/SAM/SOM sizer, a pricing playground, and more — is free to use, no account needed. Play with your own numbers and feel where the gaps are. Saving a run into your data room unlocks once you book your first course.</div></div></div>
+      </div>
+      <div class="item">
+        <button class="q" type="button"><span class="num">07</span><span>Do I have to pay just to look around?</span><span class="icn"></span></button>
+        <div class="a"><div><div class="a-inner">No. Create a <em>free account</em> and you land in your dashboard straight away — explore the programme, the Workbench, and how the data room works. Payment only unlocks the value: your first booked course opens your <em>data room</em>, lets you save Workbench runs, and turns on investor visibility. Looking is free; the coaching is the part you pay for.</div></div></div>
+      </div>
+      <div class="item">
+        <button class="q" type="button"><span class="num">08</span><span>When does the cohort run, and how do I book?</span><span class="icn"></span></button>
+        <div class="a"><div><div class="a-inner">Booking opens <strong>1 August 2026</strong> and coaching begins <strong>1 September 2026</strong>. The cohort teaches all five disciplines every week on a fixed rhythm — <em>Marketing Monday, Finance Tuesday, Investment Wednesday, Strategy Thursday, Product Friday</em>, 10:00–12:00 EAT. Choose a single specialty, a Pick 3, or the Full Cohort; a <strong>10% deposit</strong> reserves your seat and the balance is due 48 hours before you start. 1:1 sessions are booked into each coach's own availability.</div></div></div>
+      </div>
+      <div class="item">
+        <button class="q" type="button"><span class="num">09</span><span>Can you connect me to a lawyer, accountant, or designer?</span><span class="icn"></span></button>
+        <div class="a"><div><div class="a-inner">Yes — the <em>Directory</em> is a vetted marketplace of the service providers founders actually need: company registration, accounting and tax, legal, design and branding, developers, and more. Browse by category yourself, or a coach can point you to the right provider mid-session. Every listing is reviewed before it goes live.</div></div></div>
+      </div>
+      <div class="item">
+        <button class="q" type="button"><span class="num">10</span><span>What happens after the Sprint?</span><span class="icn"></span></button>
+        <div class="a"><div><div class="a-inner">You leave with vetted deliverables, an alumni network, and a 30-day advisory window with your coaches. Full Cohort founders get post-programme support and a complete <em>founder data room</em> — the same investor-grade file set funders ask for.</div></div></div>
+      </div>
+      <div class="item">
+        <button class="q" type="button"><span class="num">11</span><span>How do investors fit in?</span><span class="icn"></span></button>
+        <div class="a"><div><div class="a-inner">Entirely on your terms. Your data room is <em>private by default</em>. If you opt in, a curated slice — sector, stage, traction, vetted deliverables, and your coaches' assessments — becomes visible to approved investors, and you can browse the investor directory yourself. It's reversible, your contact details are never shared directly, and introductions are platform-mediated.</div></div></div>
+      </div>
+      <div class="item">
+        <button class="q" type="button"><span class="num">12</span><span>Can I pay in instalments?</span><span class="icn"></span></button>
+        <div class="a"><div><div class="a-inner">Yes. Reserve your place with a <strong>10% non-refundable deposit</strong>, then pay the balance in instalments — via MTN MoMo, Airtel Money, or bank transfer — any time up to <strong>48 hours before your start</strong>. We don't take equity in lieu of payment — <em>your business stays yours.</em></div></div></div>
+      </div>
+      <div class="item">
+        <button class="q" type="button"><span class="num">13</span><span>Where do sessions happen?</span><span class="icn"></span></button>
+        <div class="a"><div><div class="a-inner">All sessions are live on Google Meet, scheduled on East Africa Time. You join from wherever you are in Uganda — Kampala, Jinja, Gulu, Mbarara. All you need is a phone and a stable connection. <em>No travel required.</em></div></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     FOOTER
+     ============================================================ -->
+<div id="fs-footer"></div>
+
+
+<script src="/promo.js?v=1"></script>
+<script src="testimonials.js?v=2"></script>
+<script src="homepage.js?v=12"></script>
+<script src="sponsors.js?v=2"></script>
+<script src="/site-chrome.js?v=11" defer></script>
 </body>
 </html>

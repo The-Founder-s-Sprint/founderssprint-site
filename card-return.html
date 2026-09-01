@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Payment received · The Founder's Sprint</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#1A1A1A; --ink-mute:#5A564F;
+    --paper:#EFE7D8; --paper-deep:#E6DCC7; --paper-dim:#A09888;
+    --terra:#C8531F; --terra-deep:#9A3E16; --sage:#8AAB5C;
+    --sans:'Josefin Sans',system-ui,sans-serif;
+    --display:'Cormorant Garamond',Georgia,serif;
+    --body:'Inter',system-ui,sans-serif;
+    --radius-card:0 0 24px 0;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:var(--paper); color:var(--ink); font-family:var(--body);
+    min-height:100vh; display:flex; align-items:center; justify-content:center;
+    padding:32px; -webkit-font-smoothing:antialiased;
+  }
+  .card{
+    background:var(--paper-deep); max-width:560px; width:100%;
+    padding:56px 48px; border-radius:var(--radius-card);
+    box-shadow:0 24px 60px -30px rgba(26,26,26,.35);
+  }
+  .mark{width:34px;height:34px;margin-bottom:28px}
+  .eyebrow{font-family:var(--sans); font-weight:700; font-size:13px; letter-spacing:.22em;
+    text-transform:uppercase; color:var(--terra); margin:0 0 14px}
+  h1{font-family:var(--display); font-style:italic; font-weight:300; font-size:52px;
+    line-height:1.05; letter-spacing:-.01em; margin:0 0 18px}
+  p{font-size:16px; line-height:1.6; color:var(--ink-mute); margin:0 0 16px}
+  .ref{font-family:var(--body); font-size:12px; letter-spacing:.06em; color:var(--paper-dim);
+    text-transform:uppercase; margin-top:6px}
+  .cta{display:inline-block; margin-top:22px; background:var(--terra); color:var(--paper);
+    font-family:var(--sans); font-weight:700; font-size:11px; letter-spacing:4px;
+    text-transform:uppercase; text-decoration:none; padding:15px 26px;
+    border-radius:0 0 12px 0; transition:background .18s ease}
+  .cta:hover{background:var(--terra-deep)}
+  .tag{font-family:var(--display); font-style:italic; font-weight:300; font-size:18px;
+    color:var(--ink-mute); margin-top:40px}
+  .dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--sage);
+    margin-right:9px;vertical-align:middle}
+</style>
+</head>
+<body>
+  <main class="card" role="main">
+    <!-- V6 diamond mark -->
+    <svg class="mark" viewBox="0 0 100 100" aria-hidden="true">
+      <path d="M50 4 L96 50 L50 96 L4 50 Z" fill="none" stroke="#C8531F" stroke-width="6"/>
+    </svg>
+    <p class="eyebrow"><span class="dot"></span>Payment received</p>
+    <h1>Thank you.</h1>
+    <p>We've received your card payment and it's being confirmed with your bank. This usually takes under a minute.</p>
+    <p>You'll get a confirmation email the moment it clears — no need to pay again. You can then access everything from your dashboard.</p>
+    <p class="ref" id="ref"></p>
+    <a class="cta" href="/login-founder.html">Go to your dashboard</a>
+    <p class="tag">Build with direction.</p>
+  </main>
+<script>
+  // Show the booking reference PegPay returned us with (purely informational).
+  (function(){
+    try{
+      var p = new URLSearchParams(location.search);
+      var ref = p.get('ref');
+      if(ref){ document.getElementById('ref').textContent = 'Reference: ' + ref; }
+    }catch(e){}
+  })();
+</script>
+</body>
+</html>

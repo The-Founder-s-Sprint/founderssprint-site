@@ -15,7 +15,7 @@
 <script src="ui-dialogs.js?v=3"></script>
 <!-- Single source of truth for the 5→15→49 taxonomy. The journey timeline derives
      its L2/L3 structure from this file — never hardcode it again (it drifted to 45). -->
-<script src="/beta/taxonomy.js"></script>
+<script src="/taxonomy.js"></script>
 <style>
   :root {
   --radius-card: 0 0 24px 0;
@@ -440,7 +440,7 @@
           <div style="font-family:var(--display);font-size:18px;font-weight:600;margin-bottom:3px">Add to your plan</div>
           <div style="font-size:12.5px;color:var(--ink-mid);line-height:1.5">Browse coaches and their availability in Explore to book a 1:1, add a discipline, or step up to the full cohort — and complete your data room.</div>
         </div>
-        <a class="btn" href="/beta/explore/index.html" style="text-decoration:none;white-space:nowrap">Book a course</a>
+        <a class="btn" href="/explore/index.html" style="text-decoration:none;white-space:nowrap">Book a course</a>
       </div>
 
       <div class="section-title">Your coaching plan</div>
@@ -954,7 +954,7 @@ function upsellBanner(){
     + '<div style="font-family:var(--display);font-size:20px;font-weight:600;margin-bottom:4px">Complete your whole data room with the Full Cohort</div>'
     + '<div style="font-size:13px;color:var(--ink-mid);line-height:1.6;margin-bottom:6px">Your '+trackName+' covers part of the picture. The Full Cohort unlocks all five disciplines — roughly <strong>UGX 24.5M of à-la-carte coaching for UGX '+(u.cohortFee/1e6)+'M</strong>. We credit everything you’ve already paid.</div>'
     + '<div style="font-size:12px;color:var(--muted);margin-bottom:14px">Full Cohort '+ugx(u.cohortFee)+' − '+ugx(u.paid)+' already paid = <strong style="color:var(--text)">'+ugx(u.upgrade)+' to upgrade</strong></div>'
-    + '<a class="btn" href="/beta/explore/index.html" style="text-decoration:none;display:inline-block">Upgrade to Full Cohort</a></div>';
+    + '<a class="btn" href="/explore/index.html" style="text-decoration:none;display:inline-block">Upgrade to Full Cohort</a></div>';
 }
 
 function trackInfo(){
@@ -1105,7 +1105,7 @@ function renderOverview(){
       nudgeEl.innerHTML = '<div class="card" style="border-left:3px solid var(--ochre)">'
         + '<div style="font-family:var(--display);font-size:20px;font-weight:600;margin-bottom:4px">Book your first course</div>'
         + '<div style="font-size:13px;color:var(--ink-mid);line-height:1.5;margin-bottom:14px">A 10% deposit reserves your place and activates your data room. Explore the five disciplines and choose where to start.</div>'
-        + '<a class="btn" href="/beta/explore/index.html" style="text-decoration:none;display:inline-block">Explore courses</a></div>';
+        + '<a class="btn" href="/explore/index.html" style="text-decoration:none;display:inline-block">Explore courses</a></div>';
     }
   } else if(miss){
     const it = miss.it;
@@ -1114,7 +1114,7 @@ function renderOverview(){
       nudgeEl.innerHTML = '<div class="card" style="border-left:3px solid '+(d.color||'#C8531F')+'">'
         + '<div style="font-family:var(--display);font-size:20px;font-weight:600;margin-bottom:4px">'+esc(it.item_label)+'</div>'
         + '<div style="font-size:13px;color:var(--ink-mid);line-height:1.5;margin-bottom:14px">Produced in '+esc(d.label)+' coaching. Book the session to add this to your data room.</div>'
-        + '<a class="btn" href="/beta/explore/index.html" style="text-decoration:none;display:inline-block">Book a course</a></div>';
+        + '<a class="btn" href="/explore/index.html" style="text-decoration:none;display:inline-block">Book a course</a></div>';
     } else {
       nudgeEl.innerHTML = '<div class="card" style="border-left:3px solid #C8531F">'
         + '<div style="font-family:var(--display);font-size:20px;font-weight:600;margin-bottom:4px">Upload: '+esc(it.item_label)+'</div>'
@@ -1139,7 +1139,7 @@ function renderDataRoomLocked(){
     + '<div style="font-size:32px;margin-bottom:10px">🔒</div>'
     + '<div style="font-family:var(--display);font-size:24px;font-weight:600;margin-bottom:8px">Your data room is locked</div>'
     + '<div style="font-size:14px;color:var(--ink-mid);line-height:1.6;max-width:460px;margin:0 auto 20px">Book and pay the deposit on your first course to activate your investor-grade vault — coach-vetted deliverables, secure uploads, and a shareable readiness profile.</div>'
-    + '<a class="btn" href="/beta/explore/index.html" style="text-decoration:none;display:inline-block">Book your first course</a></div>';
+    + '<a class="btn" href="/explore/index.html" style="text-decoration:none;display:inline-block">Book your first course</a></div>';
   const tog = document.getElementById('share-toggle'); tog.classList.remove('on'); tog.classList.add('disabled');
   document.getElementById('share-label').textContent = 'Private';
   document.getElementById('gate-note').textContent = 'Locked · activates after your first paid booking.';
@@ -1862,7 +1862,7 @@ function renderReadiness(card, run, prev){
     + bars + gapHtml
     + '<div style="margin-top:16px;display:flex;gap:10px;flex-wrap:wrap">'
       + '<a href="/modules/readiness.html" style="font-family:var(--sans);font-weight:700;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--terra);text-decoration:none">Re-take the check →</a>'
-      + '<a href="/beta/book/" style="font-family:var(--sans);font-weight:700;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);text-decoration:none">Book a session →</a></div>'
+      + '<a href="/book/" style="font-family:var(--sans);font-weight:700;font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);text-decoration:none">Book a session →</a></div>'
     + '<div style="margin-top:12px;font-size:11px;color:var(--muted);line-height:1.5">This is your own assessment of your business. It’s separate from your data room completeness — the coach-vetted signal investors see.</div>';
 }
 // Only allow http/https hrefs — blocks javascript:/data: URLs (e.g. from an investor firm profile).

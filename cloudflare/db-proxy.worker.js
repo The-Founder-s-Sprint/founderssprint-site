@@ -35,6 +35,8 @@ const ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsI
 const POST_ALLOW = new Set([
   '/rest/v1/provider_impressions',
   '/rest/v1/search_log',
+  '/rest/v1/page_views',            // first-party, cookieless pageview beacon (RLS: constrained insert, no read)
+  '/rest/v1/rpc/pv_dwell',          // time-on-page: set-once, clamped dwell writer (SECURITY DEFINER)
   '/rest/v1/rpc/coach_ratings',
   '/rest/v1/rpc/mentor_ratings',
 ]);
@@ -96,7 +98,23 @@ async function anonProxy(request, url) {
   const prefer = request.headers.get('prefer'); if (prefer) h.set('Prefer', prefer);
   const range = request.headers.get('range'); if (range) h.set('Range', range);
 
-  const init = { method, headers: h, body: isRead ? undefined : request.body };
+  // Server-side geo tagging for the pageview beacon: stamp country + continent from Cloudflare's
+  // edge (request.cf). Country-level ONLY — we never store the IP (privacy/DPA-safe). Overrides any
+  // client-supplied value (anti-spoof). Every other POST body is forwarded untouched.
+  let body = isRead ? undefined : request.body;
+  if (postOk && sbPath === '/rest/v1/page_views') {
+    const raw = await request.text();
+    try {
+      const obj = raw ? JSON.parse(raw) : {};
+      const cf = request.cf || {};
+      const geo = {};
+      if (cf.country)   geo.country   = String(cf.country).slice(0, 3).toUpperCase();
+      if (cf.continent) geo.continent = String(cf.continent).slice(0, 3).toUpperCase();
+      if (Array.isArray(obj)) obj.forEach(o => Object.assign(o, geo)); else Object.assign(obj, geo);
+      body = JSON.stringify(obj);
+    } catch (e) { body = raw; }   // not JSON — forward the original text unchanged
+  }
+  const init = { method, headers: h, body };
   if (isRead) init.cf = { cacheTtl: 60, cacheEverything: true };
 
   let resp;

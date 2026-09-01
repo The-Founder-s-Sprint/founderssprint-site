@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Express sessions · Command Centre</title>
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="/vendor/supabase-js.min.js?v=2110"></script>
+<script src="/ui-dialogs.js?v=3"></script>
+<style>
+  :root{--ink:#14110d;--ink2:#1e1a15;--paper:#EFE7D8;--ochre:#C9923A;--terra:#C8531F;--sage:#8AAB5C;--moss:#3D4A2E;--mute:#9c9484;--border:rgba(239,231,216,.12);--sans:'Josefin Sans',Arial,sans-serif;--display:'Cormorant Garamond',Georgia,serif;--body:'Inter',system-ui,sans-serif;}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--ink);color:var(--paper);font-family:var(--body);-webkit-font-smoothing:antialiased;}
+  .top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 26px;border-bottom:1px solid var(--border);}
+  .top .l{display:flex;align-items:center;gap:11px;}
+  .top .wm{font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:2.5px;text-transform:uppercase;color:var(--paper);}
+  .top a{font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--ochre);text-decoration:none;}
+  .wrap{max-width:920px;margin:0 auto;padding:26px 22px 70px;}
+  h1{font-family:var(--display);font-style:italic;font-weight:400;font-size:30px;margin:0 0 4px;color:var(--paper);}
+  .sub{color:var(--mute);font-size:13px;margin:0 0 22px;}
+  .chips{display:flex;flex-wrap:wrap;gap:10px;margin:0 0 22px;}
+  .chip{border:1px solid var(--border);padding:10px 16px;min-width:110px;}
+  .chip .n{font-family:var(--display);font-size:26px;color:var(--paper);line-height:1;}
+  .chip .k{font-family:var(--sans);font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;color:var(--mute);margin-top:5px;}
+  .card{background:var(--ink2);border:1px solid var(--border);border-left:3px solid var(--ochre);padding:16px 18px;margin:0 0 12px;}
+  .card.paid{border-left-color:var(--sage);} .card.confirmed{border-left-color:var(--sage);} .card.cancelled,.card.no_show{border-left-color:#7a4a3a;opacity:.7;} .card.completed{border-left-color:var(--moss);opacity:.85;}
+  .card .h{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;flex-wrap:wrap;}
+  .card .name{font-family:var(--display);font-size:20px;color:var(--paper);}
+  .card .meta{font-size:12.5px;color:var(--mute);margin-top:3px;line-height:1.6;}
+  .card .meta a{color:var(--ochre);}
+  .badge{font-family:var(--sans);font-size:9px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;padding:5px 10px;border:1px solid var(--border);color:var(--paper);white-space:nowrap;}
+  .badge.requested{color:var(--ochre);border-color:rgba(201,146,58,.5);}
+  .badge.paid,.badge.confirmed{color:var(--sage);border-color:rgba(138,171,92,.5);}
+  .badge.cancelled,.badge.no_show{color:#c98a76;}
+  .slot{font-family:var(--sans);font-size:13px;font-weight:600;letter-spacing:.03em;color:var(--paper);margin-top:8px;}
+  .acts{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px;}
+  .btn{font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:1.4px;text-transform:uppercase;padding:9px 15px;border:1px solid transparent;cursor:pointer;background:var(--ochre);color:var(--ink);}
+  .btn.ghost{background:none;border-color:var(--border);color:var(--paper);}
+  .btn.green{background:var(--sage);color:var(--ink);}
+  .btn.danger{background:none;border-color:rgba(201,138,118,.5);color:#c98a76;}
+  .btn:disabled{opacity:.5;cursor:default;}
+  .empty{color:var(--mute);font-size:14px;padding:30px 0;text-align:center;}
+  .spin{width:28px;height:28px;border:2px solid rgba(201,146,58,.25);border-top-color:var(--ochre);border-radius:50%;animation:s .8s linear infinite;margin:50px auto;}
+  @keyframes s{to{transform:rotate(360deg)}}
+  #toast{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--ink2);border:1px solid var(--border);border-left:3px solid var(--sage);padding:12px 18px;font-size:13px;display:none;z-index:9;}
+</style>
+</head>
+<body>
+  <div class="top">
+    <div class="l">
+      <svg width="24" height="24" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.85"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.8" transform="rotate(72 50 50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.78" transform="rotate(144 50 50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.82" transform="rotate(216 50 50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288 50 50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#14110d"/></svg>
+      <span class="wm">Command&nbsp;Centre · Express</span>
+    </div>
+    <a href="/dashboard.html">← Ops dashboard</a>
+  </div>
+  <div class="wrap" id="wrap"><div class="spin"></div></div>
+  <div id="toast"></div>
+
+<script>
+const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss';
+const sb=supabase.createClient(location.origin+'/sb',SUPABASE_ANON,{auth:{detectSessionInUrl:true,autoRefreshToken:true,persistSession:true,storageKey:'sb-ivedeivyotwevjxvcuoe-auth-token'}});
+const wrap=document.getElementById('wrap');
+let booted=false, rows=[];
+
+function toast(m){ var t=document.getElementById('toast'); t.textContent=m; t.style.display='block'; setTimeout(function(){t.style.display='none';},2600); }
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+function ugx(n){ return 'UGX '+Number(n||0).toLocaleString('en-UG'); }
+function slotFmt(iso){ return new Date(iso).toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short',hour:'numeric',minute:'2-digit',hour12:true,timeZone:'Africa/Nairobi'})+' EAT'; }
+async function token(){ const {data:{session}}=await sb.auth.getSession(); return session?session.access_token:null; }
+
+(async function boot(){
+  const {data:{session}}=await sb.auth.getSession();
+  if(!session){ location.replace('/login-admin.html'); return; }
+  const {data:roles}=await sb.from('user_roles').select('role').eq('user_id',session.user.id);
+  const ok=(roles||[]).some(function(r){return r.role==='admin'||r.role==='finance';});
+  if(!ok){ wrap.innerHTML='<h1>Access restricted</h1><p class="sub">This console is for admin and finance staff only.</p>'; return; }
+  booted=true; load();
+})();
+
+async function load(){
+  wrap.innerHTML='<div class="spin"></div>';
+  const {data,error}=await sb.from('express_bookings').select('*').order('slot_start',{ascending:true});
+  if(error){ wrap.innerHTML='<h1>Express sessions</h1><p class="sub">Could not load bookings — '+esc(error.message)+'</p>'; return; }
+  rows=data||[]; render();
+}
+
+function render(){
+  const c={requested:0,paid:0,confirmed:0};
+  rows.forEach(function(r){ if(c[r.status]!=null)c[r.status]++; });
+  const active=rows.filter(function(r){return ['requested','paid','confirmed'].indexOf(r.status)>=0;});
+  const done=rows.filter(function(r){return ['completed','cancelled','no_show'].indexOf(r.status)>=0;});
+  const chips='<div class="chips">'
+    +'<div class="chip"><div class="n">'+c.requested+'</div><div class="k">Awaiting payment</div></div>'
+    +'<div class="chip"><div class="n">'+c.paid+'</div><div class="k">Paid · to confirm</div></div>'
+    +'<div class="chip"><div class="n">'+c.confirmed+'</div><div class="k">Confirmed</div></div></div>';
+  wrap.innerHTML='<h1>Express sessions</h1><p class="sub">Beta 1:1s with Teddy · manual mobile-money · confirm payment to release the Meet link.</p>'+chips
+    +(active.length?active.map(cardHtml).join(''):'<div class="empty">No open bookings right now.</div>')
+    +(done.length?('<p class="sub" style="margin:26px 0 10px">Past & closed</p>'+done.map(cardHtml).join('')):'');
+  Array.prototype.forEach.call(wrap.querySelectorAll('button[data-act]'),function(b){
+    b.addEventListener('click',function(){ act(b.getAttribute('data-act'), b.getAttribute('data-id')); });
+  });
+}
+
+function cardHtml(r){
+  const acts=[];
+  if(r.status==='requested'){ acts.push(['confirm','Confirm &amp; send link','green'],['paid','Mark paid','ghost'],['cancelled','Cancel','danger']); }
+  else if(r.status==='paid'){ acts.push(['confirm','Confirm &amp; send link','green'],['cancelled','Cancel','danger']); }
+  else if(r.status==='confirmed'){ acts.push(['confirm','Resend / update link','ghost'],['completed','Mark done','ghost'],['no_show','No-show','danger']); }
+  const meet=r.meet_link?'<div class="meta">Meet: <a href="'+esc(r.meet_link)+'" target="_blank">'+esc(r.meet_link)+'</a></div>':'';
+  return '<div class="card '+esc(r.status)+'"><div class="h"><div>'
+    +'<div class="name">'+esc(r.first_name)+' '+esc(r.last_name||'')+'</div>'
+    +'<div class="meta">'+esc(r.email)+(r.phone?(' · '+esc(r.phone)):'')+' · '+ugx(r.amount)+' · ref '+esc(r.payment_ref||'—')+'</div>'
+    +'<div class="slot">'+slotFmt(r.slot_start)+'</div>'+meet
+    +'</div><span class="badge '+esc(r.status)+'">'+esc(r.status.replace('_',' '))+'</span></div>'
+    +(acts.length?('<div class="acts">'+acts.map(function(a){return '<button class="btn '+(a[2]==='ghost'?'ghost':a[2]==='danger'?'danger':'green')+'" data-act="'+a[0]+'" data-id="'+r.id+'">'+a[1]+'</button>';}).join('')+'</div>'):'')
+    +'</div>';
+}
+
+async function act(kind,id){
+  const row=rows.find(function(r){return r.id===id;}); if(!row) return;
+  if(kind==='confirm'){
+    const link=await fsPrompt('Leave blank to auto-generate a Google Meet link, or paste your own to override:',{title:'Confirm & send link',okText:'Confirm & send',defaultValue:row.meet_link||''});
+    if(link===null) return;
+    const meetLink=link.trim()==='https://meet.google.com/'?'':link.trim();
+    const t=await token(); if(!t){ location.replace('/login-admin.html'); return; }
+    const res=await fetch('/api/express/confirm',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+t},body:JSON.stringify({id:id,meetLink:meetLink})});
+    const j=await res.json().catch(function(){return{};});
+    if(!res.ok){ toast(j.error||'Could not confirm.'); return; }
+    if(j.warning){ toast(j.warning); } else { toast('Confirmed — Meet link created and the founder emailed.'); }
+    load(); return;
+  }
+  // simple status flips via RLS (admin/finance)
+  const labels={paid:'Mark as paid?',cancelled:'Cancel this booking? The slot is freed.',completed:'Mark as completed?',no_show:'Mark as a no-show?'};
+  const okc=await fsConfirm(labels[kind]||'Update this booking?',{title:'Express session',okText:'Yes',danger:(kind==='cancelled'||kind==='no_show')});
+  if(!okc) return;
+  const {error}=await sb.from('express_bookings').update({status:kind,updated_at:new Date().toISOString()}).eq('id',id);
+  if(error){ toast('Update failed — '+error.message); return; }
+  toast('Updated.'); load();
+}
+</script>
+</body>
+</html>
