@@ -35,6 +35,7 @@
     phone: '',
     phoneCode: '+256',
     company: '',
+    sector: '',
     password: '',
     cohorts: [],          // real cohorts fetched from /api/cohorts (for cohort-track id resolution)
     _registrationId: null,
@@ -45,20 +46,43 @@
   // "September 2026" from a YYYY-MM-DD start_date.
   function monthYear(d){ try { return new Date(d + 'T00:00:00').toLocaleDateString('en-GB',{month:'long',year:'numeric'}); } catch(e){ return d || ''; } }
 
+  // Time-box any promise so a stalled mobile connection can never leave the chain pending.
+  function raceTimeout(promise, ms) {
+    return new Promise(function (resolve, reject) {
+      var t = setTimeout(function () { reject(new Error('timeout')); }, ms);
+      Promise.resolve(promise).then(function (v) { clearTimeout(t); resolve(v); }, function (e) { clearTimeout(t); reject(e); });
+    });
+  }
+  // One same-origin /db GET, aborted after 7s (mobile networks stall silently with no error).
+  function fetchDbCohorts() {
+    var ctrl = ('AbortController' in window) ? new AbortController() : null;
+    var timer = setTimeout(function () { if (ctrl) { try { ctrl.abort(); } catch (e) {} } }, 7000);
+    return fetch('/db/rest/v1/rpc/open_cohorts', { headers: { 'Accept': 'application/json' }, signal: ctrl ? ctrl.signal : undefined })
+      .then(function (r) { clearTimeout(timer); if (!r.ok) throw new Error('http ' + r.status); return r.json(); },
+            function (e) { clearTimeout(timer); throw e; });
+  }
   // Fetch the open cohorts + live seat counts from the open_cohorts() RPC. Same-origin
-  // /db proxy first (Ugandan networks can't reach Supabase cross-origin), then a direct
-  // supabase-js RPC fallback.
+  // /db proxy first (Ugandan networks can't reach Supabase cross-origin), with one retry
+  // (worker cold start / transient stall), then a time-boxed supabase-js fallback. Every
+  // path is bounded and always sets cohortsLoaded — the picker can never hang on "Loading…".
   function loadCohorts() {
-    return fetch('/db/rest/v1/rpc/open_cohorts', { headers: { 'Accept': 'application/json' } })
-      .then(function (r) { if (!r.ok) throw new Error('http'); return r.json(); })
+    state.cohortsError = false;
+    return fetchDbCohorts()
+      .catch(function () { return fetchDbCohorts(); })   // one retry
       .then(function (list) { state.cohorts = Array.isArray(list) ? list : []; })
       .catch(function () {
-        if (sb) return sb.rpc('open_cohorts').then(function (res) { state.cohorts = (res && res.data) || []; }).catch(function () { state.cohorts = []; });
-        state.cohorts = [];
+        if (sb) return raceTimeout(sb.rpc('open_cohorts'), 7000)
+          .then(function (res) { state.cohorts = (res && res.data) || []; })
+          .catch(function () { state.cohorts = []; state.cohortsError = true; });
+        state.cohorts = []; state.cohortsError = true;
       })
       .then(function () {
         state.cohortsLoaded = true;
-        if (state.tier === 'cohort' && state.step === 3) renderCohortCards();
+        // Re-render the picker for any cohort booking. It lives on the Configure step and
+        // renderCohortCards() guards on its host, so this is safe regardless of the step index.
+        // (Was gated on the wrong step number, which left it stuck on "Loading…" once routing
+        // to Configure became instant.)
+        if (state.tier === 'cohort') renderCohortCards();
       });
   }
 
@@ -79,8 +103,15 @@
     if (!state.cohortsLoaded) { host.innerHTML = '<div class="cohort-loading" style="padding:18px;color:var(--ink-mute,#5A564F);font-size:14px">Loading cohort dates…</div>'; return; }
     var list = state.cohorts || [];
     if (!list.length) {
-      host.innerHTML = '<div class="cohort-loading" style="padding:18px;color:var(--ink-mute,#5A564F);font-size:14px">No cohorts are open for booking just now. <a href="/beta/contact.html" style="color:var(--terra)">Talk to us</a> and we\'ll tell you the moment the next one opens.</div>';
       var b0 = document.getElementById('btn-next-3'); if (b0) b0.disabled = true;
+      if (state.cohortsError) {
+        // Network failure (not genuinely empty) — offer a retry instead of a misleading "no cohorts".
+        host.innerHTML = '<div class="cohort-loading" style="padding:18px;color:var(--ink-mute,#5A564F);font-size:14px">We couldn\'t load the cohort dates — usually a slow connection. <button type="button" id="cohort-retry" style="margin-left:6px;background:none;border:1px solid var(--terra,#C8531F);color:var(--terra,#C8531F);padding:7px 15px;border-radius:0 0 12px 0;font:inherit;font-size:13px;cursor:pointer">Try again</button></div>';
+        var rb = document.getElementById('cohort-retry');
+        if (rb) rb.onclick = function () { state.cohortsError = false; state.cohortsLoaded = false; renderCohortCards(); loadCohorts(); };
+        return;
+      }
+      host.innerHTML = '<div class="cohort-loading" style="padding:18px;color:var(--ink-mute,#5A564F);font-size:14px">No cohorts are open for booking just now. <a href="/beta/contact.html" style="color:var(--terra)">Talk to us</a> and we\'ll tell you the moment the next one opens.</div>';
       return;
     }
     var firstOpen = list.filter(function (c) { return !c.is_full; })[0];
@@ -344,10 +375,13 @@
     state.phone = $('#f-phone').value.trim();
     state.phoneCode = $('#f-phone-code').value;
     state.company = $('#f-company').value.trim();
+    const secEl = $('#f-sector');
+    state.sector = secEl ? secEl.value.trim() : '';
     const pwEl = $('#f-password');
     state.password = pwEl ? pwEl.value : '';
 
     if (!state.name || !state.email || !state.phone) return;
+    if (secEl && !state.sector) { secEl.focus(); return; }
     if (!state.password || state.password.length < 8) {
       if (pwEl) { pwEl.focus(); pwEl.reportValidity && pwEl.reportValidity(); }
       return;
@@ -428,24 +462,35 @@
   async function checkExistingSession() {
     if (!sb) return false;
     try {
-      const s = await sb.auth.getSession();
+      const s = await sb.auth.getSession();     // local read — fast; gates the route (step 3 vs 4)
       const session = s && s.data && s.data.session;
       if (!session || !session.user) return false;
       state.email = session.user.email || state.email;
-      // Name + phone from the founder's profile (best-effort; RLS scopes to own row)
-      try {
-        const pr = await sb.from('founder_profiles').select('first_name,last_name,phone,whatsapp').limit(1);
-        const p = pr && pr.data && pr.data[0];
-        if (p) {
+      LOGGED_IN = true;
+      prefillProfile();   // background — must NOT block routing to the deep-linked checkout step
+      return true;
+    } catch (e) { return false; }
+  }
+
+  // Name + phone prefill from the founder's profile. Runs in the BACKGROUND (never awaited by
+  // boot): it's a cross-origin Supabase read that can take 2–3s, and awaiting it made the tier
+  // selector/spinner linger before routing to the deep-linked checkout step. Time-boxed, and it
+  // refreshes whichever step is visible once the data lands.
+  function prefillProfile() {
+    try {
+      raceTimeout(Promise.resolve(sb.from('founder_profiles').select('first_name,last_name,phone,whatsapp').limit(1)), 8000)
+        .then(function (pr) {
+          const p = pr && pr.data && pr.data[0];
+          if (!p) return;
           const nm = ((p.first_name || '') + ' ' + (p.last_name || '')).trim();
           if (nm) state.name = nm;
           const ph = (p.phone || p.whatsapp || '').trim();
           if (ph) { state.phone = ph; state.phoneCode = ''; }
-        }
-      } catch (e) {}
-      LOGGED_IN = true;
-      return true;
-    } catch (e) { return false; }
+          if (LOGGED_IN) { try { populateSessionCard(); } catch (e) {} }
+          if (state.step === 4) { try { setupStep4(); } catch (e) {} }
+        })
+        .catch(function () {});
+    } catch (e) {}
   }
 
   function populateSessionCard() {
@@ -796,6 +841,7 @@
       track: state.tier,
       firstName, lastName, email: state.email,
       phone: fullPhone(), company: state.company || null,
+      sector: state.sector || null,
       enrolledSpecialties: state.specialties.slice(),
       disciplines: state.disciplines.slice(),
     };
@@ -865,6 +911,7 @@
         track: state.tier,
         firstName, lastName, email: state.email,
         phone: fullPhone(), company: state.company || null,
+        sector: state.sector || null,
         enrolledSpecialties: state.specialties.slice(),
         disciplines: state.disciplines.slice(),
       };
