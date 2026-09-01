@@ -2841,28 +2841,26 @@ const PALETTE = [
 
 let chartTrack, chartSector, chartRevenue, chartTimeline;
 
-const CHART_DEFAULTS = {
-  plugins: {
-    legend: {
-      labels: {
-        color: 'rgba(30,27,20,0.70)',
-        font: { family: 'Inter', size: 11 },
-        boxWidth: 10, boxHeight: 10,
-        padding: 16,
+// Chart colours follow the light/dark theme (read live from CSS variables), so legend text
+// and ticks stay legible in both modes instead of rendering near-black on the dark theme.
+function themeColor(v, fb){ try { return getComputedStyle(document.documentElement).getPropertyValue(v).trim() || fb; } catch(e){ return fb; } }
+function chartDefaults(){
+  const ink   = themeColor('--ink-mid', 'rgba(30,27,20,0.70)');
+  const tipBg = themeColor('--card-bg', '#EFE7D8');
+  const body  = themeColor('--text', '#1A1A1A');
+  const line  = themeColor('--border', 'rgba(26,26,26,0.15)');
+  if (window.Chart) { Chart.defaults.color = ink; Chart.defaults.borderColor = line; }   // axis ticks/grid follow theme too
+  return {
+    plugins: {
+      legend: { labels: { color: ink, font: { family: 'Inter', size: 11 }, boxWidth: 10, boxHeight: 10, padding: 16 } },
+      tooltip: {
+        backgroundColor: tipBg, borderColor: line, borderWidth: 1,
+        titleColor: '#C8531F', bodyColor: body,
+        titleFont: { family: 'Josefin Sans', size: 11 }, bodyFont: { family: 'Inter', size: 12 }, padding: 12,
       }
-    },
-    tooltip: {
-      backgroundColor: '#EFE7D8',
-      borderColor: 'rgba(26,26,26,0.15)',
-      borderWidth: 1,
-      titleColor: '#C8531F',
-      bodyColor: '#1A1A1A',
-      titleFont: { family: 'Josefin Sans', size: 11 },
-      bodyFont: { family: 'Inter', size: 12 },
-      padding: 12,
     }
-  }
-};
+  };
+}
 
 function renderTrackChart(byTrack) {
   const cnt = {};
@@ -2889,7 +2887,7 @@ function renderTrackChart(byTrack) {
       }]
     },
     options: {
-      ...CHART_DEFAULTS,
+      ...chartDefaults(),
       cutout: '68%',
       maintainAspectRatio: false,
     }
@@ -2914,7 +2912,7 @@ function renderSectorChart(bySector) {
       }]
     },
     options: {
-      ...CHART_DEFAULTS,
+      ...chartDefaults(),
       cutout: '62%',
       maintainAspectRatio: false,
     }
@@ -2951,9 +2949,9 @@ function renderRevenueChart(byCohort) {
       }]
     },
     options: {
-      ...CHART_DEFAULTS,
+      ...chartDefaults(),
       plugins: {
-        ...CHART_DEFAULTS.plugins,
+        ...chartDefaults().plugins,
         legend: { display: false },
       },
       scales: {
@@ -3015,9 +3013,9 @@ function renderTimelineChart(byWeek) {
       }]
     },
     options: {
-      ...CHART_DEFAULTS,
+      ...chartDefaults(),
       plugins: {
-        ...CHART_DEFAULTS.plugins,
+        ...chartDefaults().plugins,
         legend: { display: false },
       },
       scales: {
@@ -6158,7 +6156,10 @@ function previewMaterial(id) {
 </script>
 <script src="/report-widget.js" data-area="Ops dashboard" data-role="staff" defer></script>
 <script>
-function toggleTheme(){var d=document.documentElement,cur=d.getAttribute('data-theme')==='dark'?'dark':'light',next=cur==='dark'?'light':'dark';d.setAttribute('data-theme',next);try{localStorage.setItem('fs-theme',next);}catch(e){}fsThemeIcon();}
+function toggleTheme(){var d=document.documentElement,cur=d.getAttribute('data-theme')==='dark'?'dark':'light',next=cur==='dark'?'light':'dark';d.setAttribute('data-theme',next);try{localStorage.setItem('fs-theme',next);}catch(e){}fsThemeIcon();
+  // Re-render the charts so their legend/tick colours pick up the new theme.
+  try { if(typeof analytics !== 'undefined' && analytics){ renderTrackChart(analytics.by_track||[]); renderSectorChart(analytics.by_sector||[]); renderRevenue(); } } catch(e){}
+}
 function fsThemeIcon(){var b=document.getElementById('theme-toggle');if(b)b.textContent=document.documentElement.getAttribute('data-theme')==='dark'?'☀':'☾';}
 fsThemeIcon();
 </script>
