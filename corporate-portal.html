@@ -73,7 +73,7 @@
     <div class="fld"><label>Password</label><input id="li-pw" type="password" autocomplete="current-password" onkeydown="if(event.key==='Enter')signIn()"></div>
     <button class="btn" style="width:100%" onclick="signIn()">Enter</button>
     <div class="err" id="li-err"></div>
-    <div class="muted-note">Your access is created by invitation. If you don't have a password yet, use the link in your invitation email.</div>
+    <div class="muted-note" id="li-note">Your access is created by invitation. If you don't have a password yet, use the link in your invitation email.</div>
   </div>
 </div>
 
@@ -97,6 +97,36 @@ let currentSession=null, booted=false, engs=[], clients=[], cur=null, detail=nul
 // invited users arrive with a recovery/invite token in the URL hash → set a password first
 const INVITE_FLOW=/type=(invite|recovery|signup)/.test(location.hash);
 let pwRecovery=false;
+
+// An EXPIRED or already-used invitation comes back as
+//   #error=access_denied&error_code=otp_expired&error_description=Email+link+is+invalid+or+has+expired
+// — no `type=`, so INVITE_FLOW is false, no auth event fires, and the page used to
+// fall through to the plain sign-in form. The invited client then reasonably
+// concludes the link "presupposes I already have an account". Say what happened.
+const HASH_ERR=(function(){
+  var h=(location.hash||'').replace(/^#/,''); if(!h||h.indexOf('error')<0) return null;
+  var p=new URLSearchParams(h);
+  if(!p.get('error')&&!p.get('error_code')) return null;
+  return { code:p.get('error_code')||p.get('error')||'',
+           desc:(p.get('error_description')||'').replace(/\+/g,' ') };
+})();
+function showLinkProblem(e){
+  var expired=/expire|invalid|otp/i.test(e.code+' '+e.desc);
+  var box=document.getElementById('li-err');
+  var note=document.getElementById('li-note');
+  if(box){
+    box.innerHTML = expired
+      ? '<strong>That invitation link has expired.</strong><br>Invitation links are single-use and time-limited. '
+        + 'Email <a href="mailto:hello@founderssprint.co?subject=Client%20portal%20invitation%20link">hello@founderssprint.co</a> '
+        + 'and we will send you a fresh one — it takes a moment.'
+      : '<strong>That link could not be used.</strong><br>'+esc(e.desc||e.code)
+        + '<br>Email <a href="mailto:hello@founderssprint.co?subject=Client%20portal%20access">hello@founderssprint.co</a> and we will sort it out.';
+    box.style.display='block';
+  }
+  if(note) note.textContent='If you have already set a password, sign in above.';
+  // Clear the fragment so a refresh doesn't replay the same error.
+  try{ history.replaceState(null,'',location.pathname+location.search); }catch(_){}
+}
 
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 function showToast(m,t){const e=document.getElementById('toast');e.textContent=m;e.className=(t||'')+' show';setTimeout(()=>e.classList.remove('show'),3000);}
@@ -134,7 +164,10 @@ function showLogin(){ document.getElementById('app').style.display='none'; docum
 sb.auth.onAuthStateChange((ev,s)=>{ currentSession=s;
   if(ev==='PASSWORD_RECOVERY'){ pwRecovery=true; if(!booted&&s) boot(s.user); else if(s) showSetPassword(); return; }
   if((ev==='SIGNED_IN'||ev==='TOKEN_REFRESHED'||ev==='INITIAL_SESSION')&&s&&!booted) boot(s.user); });
-(async()=>{ try{ const {data:{session}}=await sb.auth.getSession(); if(session){currentSession=session; if(!booted) boot(session.user);} else showLogin(); }catch(e){ showLogin(); } })();
+(async()=>{
+  // A dead link must never look like a working sign-in page.
+  if(HASH_ERR){ showLogin(); showLinkProblem(HASH_ERR); return; }
+  try{ const {data:{session}}=await sb.auth.getSession(); if(session){currentSession=session; if(!booted) boot(session.user);} else showLogin(); }catch(e){ showLogin(); } })();
 
 async function boot(user){
   if(booted||!user)return; booted=true;

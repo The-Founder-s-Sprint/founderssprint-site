@@ -429,7 +429,10 @@ async function loadCurriculum() {
 // ── Load via legacy token ────────────────────────────────────────
 async function loadFromToken(token) {
   try {
-    const res = await fetch(`${API_BASE}/api/materials?token=${token}`);
+    const _lc = ('AbortController' in window) ? new AbortController() : null;
+    const _lt = setTimeout(() => { if (_lc) { try { _lc.abort(); } catch (e) {} } }, 12000); // stall ⇒ abort ⇒ catch shows the error state, not an endless spinner
+    const res = await fetch(`${API_BASE}/api/materials?token=${token}`, _lc ? { signal: _lc.signal } : {});
+    clearTimeout(_lt);
     if (!res.ok) {
       const err = await res.json();
       throw new Error(err.error || 'Invalid access link');

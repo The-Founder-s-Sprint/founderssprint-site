@@ -9,7 +9,20 @@
   // ── Supabase (session detection so logged-in founders skip the login step) ──
   var SB_URL = 'https://ivedeivyotwevjxvcuoe.supabase.co';
   var SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss';
-  var sb = (window.supabase && window.supabase.createClient) ? window.supabase.createClient(SB_URL, SB_ANON) : null;
+  // Auth MUST go through the same-origin /sb proxy, exactly as login-founder.html
+  // does. Pointed at supabase.co directly, every auth call on this page failed
+  // silently on the networks our founders actually use (Cloudflare CSP + the
+  // cross-origin path that fails on Ugandan mobile). The data reads below already
+  // knew this and used /db; the auth client was left behind — which is why the
+  // post-payment sign-in never took and founders reached the login screen with a
+  // password they had just set and no session.
+  // storageKey is pinned so the session this page writes is the same one
+  // login-founder.html and founder.html read.
+  var sb = (window.supabase && window.supabase.createClient)
+    ? window.supabase.createClient(location.origin + '/sb', SB_ANON, {
+        auth: { detectSessionInUrl: false, autoRefreshToken: true, persistSession: true,
+                flowType: 'pkce', storageKey: 'sb-ivedeivyotwevjxvcuoe-auth-token' } })
+    : null;
   var LOGGED_IN = false;
   var API = '';  // same-origin → Cloudflare /api/* proxy → api.founderssprint.co
 
@@ -18,7 +31,7 @@
   // Founders can still create an account and SAVE their booking as interest; when
   // payments go live we flip this ONE flag to true and the full deposit → STK-push
   // → confirmation flow (already built below) takes over. No other change needed.
-  var BOOKING_OPEN = true;
+  var BOOKING_OPEN = false;
 
   // ── State ──────────────────────────────────────────────────
   const state = {
@@ -38,7 +51,6 @@
     sector: '',
     password: '',
     cohorts: [],          // real cohorts fetched from /api/cohorts (for cohort-track id resolution)
-    preOpenDiscs: [],     // disciplines to pre-expand in the picker (from homepage ?disc= bundle)
     _registrationId: null,
   };
 
@@ -241,16 +253,6 @@
       state.specialties = picked.slice(0, max);
       syncDisciplines();
     }
-    // Deep-link from the homepage "build your own" bundle: ?disc=key,key PRE-EXPANDS those
-    // disciplines in the specialty picker. It's a discipline hint (not a product selection), so
-    // the flow still lands on Configure — the founder picks their L3s there, with the disciplines
-    // they chose already open. Keys map 1:1 to taxonomy discipline keys.
-    const disc = params.get('disc');
-    if (disc && TAX) {
-      const validKeys = TAX.disciplines.map(function (d) { return d.key; });
-      state.preOpenDiscs = disc.split(',').map(function (x) { return x.trim(); })
-        .filter(function (k) { return validKeys.indexOf(k) >= 0; });
-    }
   }
 
   // ── Navigation ─────────────────────────────────────────────
@@ -379,7 +381,7 @@
   // Create account form submission — capture details (incl. password) and move on.
   // The account + registration are created server-side at the pay step so the
   // deposit STK push can fire immediately after.
-  $('#auth-form').addEventListener('submit', async (e) => {
+  $('#auth-form').addEventListener('submit', (e) => {
     e.preventDefault();
     state.name = $('#f-name').value.trim();
     state.email = $('#f-email').value.trim();
@@ -397,36 +399,20 @@
       if (pwEl) { pwEl.focus(); pwEl.reportValidity && pwEl.reportValidity(); }
       return;
     }
-    // Account-exists guard: an email already on the platform can't create a second
-    // account — route them to sign in instead (prevents the un-loggable "new password
-    // on an existing account" trap). Fails OPEN so a check outage never blocks booking;
-    // the server also refuses to reset an existing account's password.
-    const sBtn = e.target.querySelector('button[type=submit]'); if (sBtn) sBtn.disabled = true;
-    let exists = false;
-    try {
-      const ctrl = new AbortController(); const to = setTimeout(() => ctrl.abort(), 6000);
-      const resp = await fetch(API + '/api/check-email?email=' + encodeURIComponent(state.email), { signal: ctrl.signal });
-      clearTimeout(to);
-      if (resp.ok) { const j = await resp.json(); exists = !!(j && j.exists); }
-    } catch (_) { exists = false; }
-    if (sBtn) sBtn.disabled = false;
-    if (exists) { routeExistingToLogin(state.email); return; }
+    // A mistyped password here is unrecoverable without a reset — the founder
+    // pays, then cannot reach the account they just bought.
+    const pw2El = $('#f-password2');
+    const hint2 = $('#f-password2-hint');
+    if (pw2El && pw2El.value !== state.password) {
+      if (hint2) { hint2.textContent = "Passwords don't match."; hint2.style.color = '#C8531F'; }
+      pw2El.focus();
+      return;
+    }
+    if (hint2) { hint2.textContent = ''; hint2.style.color = ''; }
+    {
+    }
     goToStep(4);   // → Pay (the account is created server-side at the pay step)
   });
-
-  // Send a returning founder from the create-account form to the in-flow sign-in.
-  function routeExistingToLogin(email) {
-    const at = $('#auth-toggle'); if (at) at.style.display = 'flex';
-    const fl = $('#form-login'); if (fl) fl.style.display = 'block';
-    const fc = $('#form-create'); if (fc) fc.style.display = 'none';
-    authMode = 'login';
-    $$('.auth-tab').forEach(t => t.classList.toggle('active', t.dataset.mode === 'login'));
-    const le = $('#l-email'); if (le) le.value = email;
-    const t = $('#step2-title'); if (t) t.textContent = 'Welcome back';
-    const s = $('#step2-sub'); if (s) s.textContent = 'This email already has an account — sign in to continue your booking.';
-    const err = $('#login-error'); if (err) { err.textContent = 'You already have an account with this email. Please sign in.'; err.style.display = 'block'; }
-    const lp = $('#l-password'); if (lp) lp.focus();
-  }
 
   // Login form submission — real password sign-in so the returning founder gets a
   // session (drives the deposit poll + the dashboard link), then continue to config.
@@ -623,15 +609,6 @@
         $('#config-sub').textContent = 'Any 3 two-hour deep-dives — mix across disciplines, or take all three of one track.';
       }
       buildSpecPicker();
-      // Pre-expand disciplines carried from the homepage "build your own" bundle (?disc=). One-shot:
-      // open them on first arrival, then leave the accordion to the founder (respect manual collapses).
-      if (state.preOpenDiscs && state.preOpenDiscs.length) {
-        state.preOpenDiscs.forEach(function (k) {
-          const el = document.querySelector('#disc-grid .spec-disc[data-disc="' + k + '"]');
-          if (el) el.classList.add('open');
-        });
-        state.preOpenDiscs = [];
-      }
       renderSpecSelection();
     }
   }
@@ -861,15 +838,11 @@
     }
   }
 
-  // Payment provider (MTN / Airtel / Card)
+  // MoMo provider
   $$('.momo-opt').forEach(btn => {
     btn.addEventListener('click', () => {
       state.provider = btn.dataset.provider;
       $$('.momo-opt').forEach(b => b.classList.toggle('selected', b === btn));
-      // Card is a hosted-page redirect (uses the account email, not a phone) — hide the
-      // mobile-money number row for card, show it for MTN/Airtel.
-      var phoneRow = document.querySelector('#step-4 .momo-phone-row');
-      if (phoneRow) phoneRow.style.display = (state.provider === 'card') ? 'none' : '';
     });
   });
 
@@ -880,19 +853,14 @@
   });
 
   // ── Step 5: Real checkout — register → deposit STK push → confirm ──
-  const providerNames = { mtn: 'MTN MoMo', airtel: 'Airtel Money', card: 'Card' };
+  const providerNames = { mtn: 'MTN MoMo', airtel: 'Airtel Money' };
 
   function fullPhone() { return (state.phoneCode || '') + String(state.phone || '').replace(/\s+/g, ''); }
 
   // Build the registration payload shared by preview + live flows.
   function buildRegBody() {
-    // Name fallback: a signed-in founder with a thin/empty profile can reach checkout with
-    // an empty state.name; derive a usable name from the email local-part so /api/register
-    // never rejects with "Missing required fields." (real name is still collected at step 2).
-    let nm = String(state.name || '').trim();
-    if (!nm && state.email) { nm = state.email.split('@')[0].replace(/[._+-]+/g, ' ').trim(); }
-    const parts = nm.split(/\s+/).filter(Boolean);
-    const firstName = parts.shift() || nm || 'Founder';
+    const parts = state.name.trim().split(/\s+/);
+    const firstName = parts.shift() || state.name;
     const lastName  = parts.join(' ') || '—';
     const regBody = {
       track: state.tier,
@@ -934,7 +902,16 @@
 
       // Sign the founder in (they just set a password) so they land on their dashboard.
       if (!LOGGED_IN && state.password && sb) {
-        try { await sb.auth.signInWithPassword({ email: state.email, password: state.password }); LOGGED_IN = true; } catch (e) {}
+        // signInWithPassword RESOLVES with { error } — it does not throw. The bare
+        // catch here swallowed nothing and checked nothing, so a failed sign-in
+        // looked identical to a successful one. That is how a founder ended up
+        // paid, accountless-feeling, and staring at "Invalid login credentials".
+        try {
+          const { error: signInErr } = await sb.auth.signInWithPassword({
+            email: state.email, password: state.password });
+          if (signInErr) console.error('[book] post-payment sign-in failed:', signInErr.message);
+          else LOGGED_IN = true;
+        } catch (e) { console.error('[book] post-payment sign-in threw:', e.message); }
       }
       showReserved();
     } catch (e) {
@@ -944,29 +921,13 @@
 
   async function startPaymentProcessing() {
     if (!BOOKING_OPEN) { return reserveInterest(); }
-    // Guard before we hit the API, so a missing field surfaces as a clear message here
-    // rather than a cryptic "Missing required fields" from /api/register.
-    if (!state.email) { return showPayError('Please add your email before paying — tap back and enter it.'); }
-    if (!state.provider) { return showPayError('Choose how to pay — MTN MoMo, Airtel Money, or Card.'); }
-    if (state.provider !== 'card' && !String(state.phone || '').trim()) {
-      return showPayError('Enter the mobile-money number to send the prompt to.');
-    }
-    const isCard = state.provider === 'card';
+    // Show the "check your phone" state
     $('#state-processing').style.display = 'flex';
     $('#state-success').style.display = 'none';
-    if (isCard) {
-      // Card = redirect to the secure hosted page. No STK, no phone, no poll on this screen —
-      // the founder completes on the card page and returns to card-return.html; the webhook credits.
-      var cph = document.querySelector('#state-processing .h-section'); if (cph) cph.textContent = 'Opening secure card payment';
-      var csub = document.querySelector('#state-processing .h-sub'); if (csub) csub.textContent = 'One moment — we’re opening our secure card partner (PegPay) to take your card details. You’ll come straight back here once it’s done.';
-      var ctimer = document.querySelector('#state-processing .processing-timer'); if (ctimer) ctimer.style.display = 'none';
-      var ccancel = $('#btn-cancel-payment'); if (ccancel) ccancel.style.display = 'none';
-    } else {
-      $('#provider-name').textContent = providerNames[state.provider] || 'Mobile Money';
-      $('#processing-phone').textContent = (state.phoneCode || '') + ' ' + state.phone;
-      const fill = $('#timer-fill'); if (fill) fill.style.width = '0%';
-      const cancel = $('#btn-cancel-payment'); if (cancel) cancel.disabled = true;
-    }
+    $('#provider-name').textContent = providerNames[state.provider] || 'Mobile Money';
+    $('#processing-phone').textContent = (state.phoneCode || '') + ' ' + state.phone;
+    const fill = $('#timer-fill'); if (fill) fill.style.width = '0%';
+    const cancel = $('#btn-cancel-payment'); if (cancel) cancel.disabled = true;
 
     try {
       // 1 — Create the registration (+ founder account) server-side
@@ -999,23 +960,6 @@
       state._registrationId = regData.registrationId;
       state._depositAmount  = regData.depositAmount;
 
-      // ── CARD path: sign the founder in (so the PegPay return lands them logged in), start the
-      //    hosted card payment, and redirect the browser to it. The webhook credits on return
-      //    (via card-return.html), exactly like mobile money — no polling needed on this screen. ──
-      if (isCard) {
-        if (!LOGGED_IN && state.password && sb) {
-          try { await sb.auth.signInWithPassword({ email: state.email, password: state.password }); LOGGED_IN = true; } catch (e) {}
-        }
-        const cardRes = await fetch(API + '/api/card-payment-request', {
-          method: 'POST', headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ registrationId: regData.registrationId, paymentType: 'deposit', email: state.email, name: state.name }),
-        });
-        const cardData = await cardRes.json().catch(() => ({}));
-        if (cardRes.ok && cardData.redirectUrl) { window.location.href = cardData.redirectUrl; return; }
-        // Booking is saved but the card page couldn't start — let them complete from the dashboard.
-        return showPending(true);
-      }
-
       // 2 — Fire the deposit mobile-money prompt (STK push)
       const payRes = await fetch(API + '/api/payment-request', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
@@ -1030,7 +974,16 @@
       // 3 — Sign the founder in (they just set a password) so we can watch their
       //     own registration flip to paid, and so "Go to dashboard" just works.
       if (!LOGGED_IN && state.password && sb) {
-        try { await sb.auth.signInWithPassword({ email: state.email, password: state.password }); LOGGED_IN = true; } catch (e) {}
+        // signInWithPassword RESOLVES with { error } — it does not throw. The bare
+        // catch here swallowed nothing and checked nothing, so a failed sign-in
+        // looked identical to a successful one. That is how a founder ended up
+        // paid, accountless-feeling, and staring at "Invalid login credentials".
+        try {
+          const { error: signInErr } = await sb.auth.signInWithPassword({
+            email: state.email, password: state.password });
+          if (signInErr) console.error('[book] post-payment sign-in failed:', signInErr.message);
+          else LOGGED_IN = true;
+        } catch (e) { console.error('[book] post-payment sign-in threw:', e.message); }
       }
       pollDeposit(regData.registrationId);
     } catch (e) {
@@ -1163,26 +1116,14 @@
     }
     loadCohorts();
     readEntryParams();
-
-    // Route IMMEDIATELY from the deep-link. We must NOT block the route on checkExistingSession():
-    // on a browser that already holds a Supabase token, getSession() can trigger a network refresh
-    // that takes several seconds, during which the founder sat on the routing spinner before the
-    // correct step ever appeared (the "stuck on product selection for 5s" bug). A pre-selected
-    // product (a resolved ?spec / ?cohort / VIP) routes straight to the Account step; a bare ?tier
-    // goes to Configure; no deep-link shows the tier selector.
+    await checkExistingSession();
+    // Deep-link with a tier (any specific CTA) → skip the selector entirely.
+    // Logged in → go as far as the selection allows (review if complete, else configure).
+    // Logged out → the account step first, then the same routing after sign-in.
     if (state.tier) { proceedFromTier(); }
     else { goToStep(1); }
     // Route decided + the correct panel is active — reveal now. (The head guard hid the
     // selector for tier deep-links; this removes the guard so the resolved step shows.)
     document.documentElement.classList.remove('fs-routing');
-
-    // Session check runs in the BACKGROUND and only REFINES the route once it resolves — it never
-    // sends anyone backwards. An already-signed-in founder with a complete selection skips the
-    // Account step straight to Pay; otherwise we surface the "Continue as …" card on Account.
-    checkExistingSession().then(function (loggedIn) {
-      if (!loggedIn) return;
-      if (state.step === 3 && state.tier && configComplete()) { goToStep(4); }        // skip Account → Pay
-      else if (state.step === 3) { try { populateSessionCard(); } catch (e) {} }       // show "Continue as …"
-    }).catch(function () {});
   })();
 })();
