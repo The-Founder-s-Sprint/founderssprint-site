@@ -77,7 +77,8 @@
   .view{display:none;} .view.active{display:block;animation:rise .35s ease;}
   @keyframes rise{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:none;}}
 
-  @media (max-width:560px){ .card{padding:34px 26px 30px;} .card-title{font-size:30px;} .topbar{padding:20px;} }
+  @media (max-width:560px){ .shell{padding:74px 16px 40px;justify-content:flex-start;} .card{padding:34px 26px 30px;} .card-title{font-size:30px;} .topbar{padding:20px;} }
+  @media (max-height:640px){ .shell{justify-content:flex-start;padding-top:66px;} }
   @media (prefers-reduced-motion: reduce){ .topbar .mark{animation:none;} }
 </style>
 </head>
@@ -153,7 +154,10 @@
 const SUPABASE_URL='https://ivedeivyotwevjxvcuoe.supabase.co';
 const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss';
 const DASHBOARD='investor.html';
-const sb=supabase.createClient(location.origin+'/sb',SUPABASE_ANON,{auth:{detectSessionInUrl:true,autoRefreshToken:true,persistSession:true,flowType:'pkce',storageKey:'sb-ivedeivyotwevjxvcuoe-auth-token'}});
+const _recP0 = new URLSearchParams((location.hash||'').replace(/^#/,''));
+const _recAT = _recP0.get('access_token'), _recRT = _recP0.get('refresh_token');
+const _recCode = new URLSearchParams(location.search||'').get('code');
+const sb=supabase.createClient(location.origin+'/sb',SUPABASE_ANON,{auth:{detectSessionInUrl:true,autoRefreshToken:true,persistSession:true,storageKey:'sb-ivedeivyotwevjxvcuoe-auth-token'}});
 
 // ── Rotating background photo (random on each load, B&W, fades in) ──
 const PHOTOS=['images/investor-bg-1.jpg','images/investor-bg-2.jpg','images/investor-bg-3.jpg','images/investor-bg-4.jpg','images/investor-bg-5.jpg','images/investor-bg-6.jpg'];
@@ -166,9 +170,18 @@ const PHOTOS=['images/investor-bg-1.jpg','images/investor-bg-2.jpg','images/inve
   img.src=pick;
 })();
 
-let recovering=false;
+let recovering = /type=recovery/.test(location.hash||'') || /access_token=/.test(location.hash||'') || new URLSearchParams(location.search||'').has('code');
 function showView(name){document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));document.getElementById('view-'+name).classList.add('active');}
 function setMsg(id,text,kind){const e=document.getElementById(id);e.textContent=text||'';e.className='msg '+(kind||'');}
+async function ensureRecoverySession(){
+  try{ const { data:{ session } } = await sb.auth.getSession(); if(session) return true; }catch(_){}
+  try{
+    if(_recAT&&_recRT){ const {error}=await sb.auth.setSession({access_token:_recAT,refresh_token:_recRT}); if(!error) return true; }
+    if(_recCode){ const {error}=await sb.auth.exchangeCodeForSession(_recCode); if(!error) return true; }
+  }catch(_){}
+  return false;
+}
+if(recovering){ showView('newpass'); ensureRecoverySession().then(ok=>{ if(ok){ try{ history.replaceState(null,'',location.pathname); }catch(_){} } }); }
 
 sb.auth.onAuthStateChange((event,session)=>{
   if(event==='PASSWORD_RECOVERY'){ recovering=true; showView('newpass'); return; }
@@ -209,7 +222,9 @@ async function doNewPass(e){
   if(pass.length<8){ setMsg('np-msg','Password must be at least 8 characters','err'); return false; }
   if(pass!==conf){ setMsg('np-msg','Passwords do not match','err'); return false; }
   btn.disabled=true; btn.textContent='Updating…';
-  try{ const {error}=await sb.auth.updateUser({password:pass}); if(error){ setMsg('np-msg',error.message,'err'); return false; } setMsg('np-msg','Password updated. Taking you to your dashboard…','ok'); recovering=false; setTimeout(go,900); }
+  try{
+    if(!(await ensureRecoverySession())){ const _m=document.getElementById('np-msg'); _m.className='msg err'; _m.innerHTML='Your reset link has expired or was already used. <a class="link" style="text-decoration:underline;cursor:pointer" onclick="showView(\'reset\')">Request a new one →</a>'; return false; }
+    const {error}=await sb.auth.updateUser({password:pass}); if(error){ setMsg('np-msg',error.message,'err'); return false; } setMsg('np-msg','Password updated. Taking you to your dashboard…','ok'); recovering=false; setTimeout(go,900); }
   catch(ex){ setMsg('np-msg',ex.message,'err'); }
   finally{ btn.disabled=false; btn.textContent='Update & continue'; }
   return false;

@@ -355,6 +355,15 @@
           <span class="field-hint">Secures your account and your data room. You'll use it to sign in.</span>
         </div>
 
+        <!-- A single password field means a typo here becomes the founder's real
+             password, and they are locked out of an account they have just paid
+             for. Confirming costs one field. -->
+        <div class="field-group">
+          <label class="field-label" for="f-password2">Confirm password</label>
+          <input class="field-input" id="f-password2" type="password" placeholder="Type it again" autocomplete="new-password" minlength="8" required>
+          <span class="field-hint" id="f-password2-hint"></span>
+        </div>
+
         <button class="btn-primary" type="submit" id="btn-send-link">
           <span class="btn-text">Continue</span>
           <span class="btn-loading" style="display:none">Working...</span>

@@ -352,6 +352,13 @@
           <span class="field-hint">Secures your account and your data room. You'll use it to sign in.</span>
         </div>
 
+        <div class="field-group">
+          <label style="display:flex;gap:9px;align-items:flex-start;font-size:13px;line-height:1.5;cursor:pointer">
+            <input type="checkbox" id="f-terms" required style="width:auto;margin-top:3px;flex:0 0 auto">
+            <span>I have read and agree to the <a href="../terms.html" target="_blank" rel="noopener">terms of service</a> and <a href="../privacy.html" target="_blank" rel="noopener">privacy policy</a> — including the confidentiality we owe you.</span>
+          </label>
+        </div>
+
         <button class="btn-primary" type="submit" id="btn-send-link">
           <span class="btn-text">Continue</span>
           <span class="btn-loading" style="display:none">Working...</span>
@@ -478,7 +485,7 @@
         </div>
 
         <div class="momo-picker">
-          <span class="momo-label">Pay with</span>
+          <span class="momo-label">Pay with mobile money</span>
           <div class="momo-options">
             <button class="momo-opt selected" data-provider="mtn" type="button">
               <span class="momo-icon mtn">M</span>
@@ -488,12 +495,18 @@
               <span class="momo-icon airtel">A</span>
               <span>Airtel Money</span>
             </button>
-            <button class="momo-opt" data-provider="card" type="button">
-              <span class="momo-icon" style="background:#3D4A2E;display:inline-flex;align-items:center;justify-content:center">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2.5" stroke="#EFE7D8" stroke-width="2"/><path d="M2 9.5h20" stroke="#EFE7D8" stroke-width="2"/></svg>
-              </span>
-              <span>Card</span>
-            </button>
+          </div>
+          <div class="momo-alt" style="margin-top:16px;padding-top:14px;border-top:1px solid rgba(255,255,255,.12)">
+            <span class="momo-label" style="opacity:.75">Or pay by card</span>
+            <div class="momo-options">
+              <button class="momo-opt" data-provider="card" type="button">
+                <span class="momo-icon" style="background:#3D4A2E;display:inline-flex;align-items:center;justify-content:center">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2.5" stroke="#EFE7D8" stroke-width="2"/><path d="M2 9.5h20" stroke="#EFE7D8" stroke-width="2"/></svg>
+                </span>
+                <span>Card&nbsp;·&nbsp;Visa / Mastercard</span>
+              </button>
+            </div>
+            <span class="field-hint" style="display:block;margin-top:8px">Opens our secure card page (PegPay), then brings you back. Currently works with <strong>Uganda-issued Visa &amp; Mastercard</strong> that have online payments enabled — international cards aren’t supported yet. Outside Uganda? Email <a href="mailto:hello@founderssprint.co" style="color:inherit;text-decoration:underline">hello@founderssprint.co</a> and we’ll set you up.</span>
           </div>
         </div>
 

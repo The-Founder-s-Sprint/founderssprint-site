@@ -9,7 +9,20 @@
   // ── Supabase (session detection so logged-in founders skip the login step) ──
   var SB_URL = 'https://ivedeivyotwevjxvcuoe.supabase.co';
   var SB_ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss';
-  var sb = (window.supabase && window.supabase.createClient) ? window.supabase.createClient(SB_URL, SB_ANON) : null;
+  // Auth MUST go through the same-origin /sb proxy, exactly as login-founder.html
+  // does. Pointed at supabase.co directly, every auth call on this page failed
+  // silently on the networks our founders actually use (Cloudflare CSP + the
+  // cross-origin path that fails on Ugandan mobile). The data reads below already
+  // knew this and used /db; the auth client was left behind — which is why the
+  // post-payment sign-in never took and founders reached the login screen with a
+  // password they had just set and no session.
+  // storageKey is pinned so the session this page writes is the same one
+  // login-founder.html and founder.html read.
+  var sb = (window.supabase && window.supabase.createClient)
+    ? window.supabase.createClient(location.origin + '/sb', SB_ANON, {
+        auth: { detectSessionInUrl: false, autoRefreshToken: true, persistSession: true,
+                flowType: 'pkce', storageKey: 'sb-ivedeivyotwevjxvcuoe-auth-token' } })
+    : null;
   var LOGGED_IN = false;
   var API = '';  // same-origin → Cloudflare /api/* proxy → api.founderssprint.co
 
@@ -385,6 +398,18 @@
     if (!state.password || state.password.length < 8) {
       if (pwEl) { pwEl.focus(); pwEl.reportValidity && pwEl.reportValidity(); }
       return;
+    }
+    // A mistyped password here is unrecoverable without a reset — the founder
+    // pays, then cannot reach the account they just bought.
+    const pw2El = $('#f-password2');
+    const hint2 = $('#f-password2-hint');
+    if (pw2El && pw2El.value !== state.password) {
+      if (hint2) { hint2.textContent = "Passwords don't match."; hint2.style.color = '#C8531F'; }
+      pw2El.focus();
+      return;
+    }
+    if (hint2) { hint2.textContent = ''; hint2.style.color = ''; }
+    {
     }
     goToStep(4);   // → Pay (the account is created server-side at the pay step)
   });
@@ -877,7 +902,16 @@
 
       // Sign the founder in (they just set a password) so they land on their dashboard.
       if (!LOGGED_IN && state.password && sb) {
-        try { await sb.auth.signInWithPassword({ email: state.email, password: state.password }); LOGGED_IN = true; } catch (e) {}
+        // signInWithPassword RESOLVES with { error } — it does not throw. The bare
+        // catch here swallowed nothing and checked nothing, so a failed sign-in
+        // looked identical to a successful one. That is how a founder ended up
+        // paid, accountless-feeling, and staring at "Invalid login credentials".
+        try {
+          const { error: signInErr } = await sb.auth.signInWithPassword({
+            email: state.email, password: state.password });
+          if (signInErr) console.error('[book] post-payment sign-in failed:', signInErr.message);
+          else LOGGED_IN = true;
+        } catch (e) { console.error('[book] post-payment sign-in threw:', e.message); }
       }
       showReserved();
     } catch (e) {
@@ -940,7 +974,16 @@
       // 3 — Sign the founder in (they just set a password) so we can watch their
       //     own registration flip to paid, and so "Go to dashboard" just works.
       if (!LOGGED_IN && state.password && sb) {
-        try { await sb.auth.signInWithPassword({ email: state.email, password: state.password }); LOGGED_IN = true; } catch (e) {}
+        // signInWithPassword RESOLVES with { error } — it does not throw. The bare
+        // catch here swallowed nothing and checked nothing, so a failed sign-in
+        // looked identical to a successful one. That is how a founder ended up
+        // paid, accountless-feeling, and staring at "Invalid login credentials".
+        try {
+          const { error: signInErr } = await sb.auth.signInWithPassword({
+            email: state.email, password: state.password });
+          if (signInErr) console.error('[book] post-payment sign-in failed:', signInErr.message);
+          else LOGGED_IN = true;
+        } catch (e) { console.error('[book] post-payment sign-in threw:', e.message); }
       }
       pollDeposit(regData.registrationId);
     } catch (e) {

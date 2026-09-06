@@ -15,7 +15,8 @@
 <script src="/vendor/chart.umd.min.js?v=1"></script>
 <script src="/vendor/d3.min.js?v=1"></script>
 <script src="/vendor/topojson-client.min.js?v=1"></script>
-<script src="ui-dialogs.js?v=3"></script>
+<script src="ui-dialogs.js?v=4"></script>
+<script src="dash-chrome.js?v=1" defer></script>
 <style>
   :root {
     /* FS Design System — core tokens */
@@ -134,8 +135,16 @@
     border-bottom: 1px solid #2A2C33;
     padding: 0 32px; height: 56px;
     display: flex; align-items: center; justify-content: space-between;
-    position: sticky; top: 0; z-index: 100;
+    /* 950 clears the sidebar (.fsn-side is 900). `position:sticky` + z-index makes
+       .topbar a stacking context, so the Portals dropdown inside it is capped at the
+       topbar's level — at 100 it painted underneath the sidebar. They never overlap
+       geometrically (body.fsn-on offsets content; .topbar hides on mobile). */
+    position: sticky; top: 0; z-index: 950;
   }
+  /* The sidebar carries the wordmark, so .topbar-left is hidden — which would leave
+     .topbar-right as the only flex child and `space-between` pins a lone child to the
+     START. Push the remaining account controls back to the right. */
+  body.fsn-on .topbar { justify-content: flex-end; }
   .topbar-left { display: flex; align-items: center; gap: 16px; }
   .topbar-mark {
     width: 28px; height: 28px;
@@ -207,20 +216,39 @@
   .stat-card:nth-child(5) { --card-accent: var(--stone); }
   .stat-card:nth-child(6) { --card-accent: var(--terra-deep); }
 
+  /* Labels were 9px — below the point where letterspaced caps stay legible.
+     10px with tighter tracking occupies the same width and reads far better. */
   .stat-label {
-    font-size: 9px; letter-spacing: 2.5px; text-transform: uppercase;
-    color: var(--muted); margin-bottom: 10px; font-weight: 600;
+    font-size: 10px; letter-spacing: 1.8px; text-transform: uppercase;
+    color: var(--ink-mute, var(--muted)); margin-bottom: 12px; font-weight: 600;
   }
+  /* The value is a BASELINE ROW, so the currency can sit beside the numeral
+     rather than inside it. "UGX 300K" set as one 38px display string wrapped in a
+     190px column and put a three-letter word at the same weight as the number. */
   .stat-value {
-    font-size: 38px; font-weight: 300; color: var(--text);
+    display: flex; align-items: baseline; gap: 5px; white-space: nowrap;
+    font-size: 30px; font-weight: 300; color: var(--text);
     line-height: 1; font-family: var(--display); letter-spacing: -0.02em;
+    /* Cormorant will otherwise reach for old-style figures, so 3 and 0 sit at
+       different heights; tabular keeps digits aligned card-to-card. */
+    font-variant-numeric: lining-nums tabular-nums;
   }
-  .stat-value.gold   { color: var(--gold); }
-  .stat-value.green  { color: var(--success); }
-  .stat-value.orange { color: var(--warning); }
+  /* Currency is a UNIT, not a word — sans, small, tracked, muted. */
+  .stat-unit {
+    font-family: var(--sans); font-size: 11px; font-weight: 600;
+    letter-spacing: 1.2px; color: var(--muted); flex: 0 0 auto;
+  }
+  /* Colour is already carried by each card's top rule. Colouring the numeral too
+     gave seven cards seven competing hues, so nothing read as more important than
+     anything else. Numerals stay neutral; these classes are kept so existing
+     markup doesn't break, and are reserved for genuine exceptions. */
+  .stat-value.gold, .stat-value.green, .stat-value.orange { color: var(--text); }
+  /* A zero should recede. "Fully paid: 0" was rendering in success green — an
+     absence of paying customers reading as a win. */
+  .stat-value.is-zero { color: var(--ink-mute, var(--muted)); opacity: .75; }
   .stat-sub {
-    font-size: 10px; color: var(--muted);
-    margin-top: 8px; letter-spacing: 0.02em;
+    font-size: 11px; color: var(--muted);
+    margin-top: 9px; letter-spacing: 0.02em;
   }
 
   /* ══ SECTION HEADERS ══════════════════════════════════════════════════════ */
@@ -912,7 +940,7 @@ html[data-theme="dark"]{
         </div>
         <div style="margin-top:24px;padding-top:18px;border-top:1px solid var(--border)">
           <div class="chart-title" style="font-size:13px;margin-bottom:12px">Where traffic comes from <span id="tr-geo-note" style="font-weight:400;opacity:.45;font-size:11px"></span></div>
-          <div class="tr-geo-grid" style="display:grid;grid-template-columns:1.5fr 1fr;gap:26px;align-items:start">
+          <div class="tr-geo-grid" style="display:grid;grid-template-columns:4fr 1fr;gap:26px;align-items:start">
             <div id="tr-map" style="width:100%;min-height:240px;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:12px">Loading map…</div>
             <div>
               <div style="font-size:10px;opacity:.4;letter-spacing:.06em;text-transform:uppercase;margin:0 0 8px">By region</div>
@@ -1342,6 +1370,7 @@ html[data-theme="dark"]{
             <option value="cancelled">Cancelled</option>
             <option value="no_show">No Show</option>
           </select>
+          <button class="btn-cancel" onclick="generateCohortSessions()" style="font-size:13px;padding:6px 14px" title="Create a cohort's whole session series at once, each with a Meet link">⚡ Generate cohort series</button>
           <button class="btn-confirm" onclick="toggleSessionForm()" style="font-size:13px;padding:6px 14px">+ New Session</button>
         </div>
       </div>
@@ -2320,6 +2349,9 @@ async function bootApp(user) {
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app').style.display = 'block';
     document.getElementById('user-email').textContent = user.email;
+    // dash-chrome.js is deferred, so retry on DOMContentLoaded if it hasn't run yet.
+    if (window.FSDash) initOpsNav(user.email);
+    else document.addEventListener('DOMContentLoaded', function () { initOpsNav(user.email); }, { once: true });
     // Set avatar dropdown email + load profile photo
     var avatarEmail = document.getElementById('dash-avatar-email');
     if (avatarEmail) avatarEmail.textContent = user.email;
@@ -2539,7 +2571,11 @@ async function loadAllData() {
     _pgRpc('admin_registration_analytics'),
     _pgQuery('cohorts', 'select=*&order=id'),
     _pgQuery('documents', 'select=*&order=created_at.desc'),
-    _pgQuery('coaches', 'select=id,first_name,last_name,email,sector_l1,founderssprint_email,user_id,avatar_url&role=eq.coach&status=eq.active&order=id'),
+    // role=in.(coach,founder): Teddy's coaches row is role='founder' while the other
+    // four founding coaches are 'coach'. Filtering on 'coach' alone dropped him from
+    // every coach list here — his sessions rendered as a raw UUID and he was missing
+    // from the discipline roster and the session-creation dropdown.
+    _pgQuery('coaches', 'select=id,first_name,last_name,email,sector_l1,founderssprint_email,user_id,avatar_url&role=in.(coach,founder)&status=eq.active&order=id'),
   ]);
 
   analytics     = results[0].status === 'fulfilled' ? (results[0].value || null) : null;
@@ -2647,6 +2683,34 @@ function fmtDate(ts) {
 }
 
 // ── OVERVIEW ─────────────────────────────────────────────────────────────────
+/* Stat-card value writers. Kept separate from fmtUGX(), which stays abbreviated —
+   that is correct for chart axes and dense tables, wrong for a headline figure.
+   300K abbreviates almost nothing and loses precision; abbreviate at millions only. */
+function statMoneyParts(n) {
+  const v = Number(n) || 0;
+  if (v >= 1000000) {
+    const m = v / 1000000;
+    return { unit: 'UGX', value: (v % 1000000 === 0 ? m.toFixed(0) : m.toFixed(1)) + 'M' };
+  }
+  return { unit: 'UGX', value: v.toLocaleString('en-US') };
+}
+/* Currency renders as its own element so it can be set as a UNIT — small, sans,
+   tracked — instead of a three-letter word at display size that forced the wrap. */
+function setStatMoney(id, n) {
+  const el = document.getElementById(id); if (!el) return;
+  const p = statMoneyParts(n);
+  el.innerHTML = '';
+  const u = document.createElement('span'); u.className = 'stat-unit'; u.textContent = p.unit;
+  const v = document.createElement('span'); v.textContent = p.value;
+  el.append(u, v);
+  el.classList.toggle('is-zero', !(Number(n) > 0));
+}
+function setStatCount(id, n) {
+  const el = document.getElementById(id); if (!el) return;
+  el.textContent = Number(n) || 0;
+  el.classList.toggle('is-zero', !(Number(n) > 0));
+}
+
 function renderOverview() {
   const a = analytics || {};
   const ov = a.overview || { active: 0, collected: 0, pending: 0, fully_paid: 0, deposit_only: 0 };
@@ -2654,17 +2718,17 @@ function renderOverview() {
   const openCohorts = allCohorts.filter(c => c.status !== 'full').length;
 
   // Accounts (free signups) vs coaching registrations (booked seats) — two distinct funnels.
-  document.getElementById('stat-accounts').textContent      = acc.founder_accounts;
+  setStatCount('stat-accounts', acc.founder_accounts);
   document.getElementById('stat-accounts-sub').textContent  = `${acc.new_last30} new in 30d · free signups`;
-  document.getElementById('stat-total').textContent         = ov.active;
+  setStatCount('stat-total', ov.active);
   document.getElementById('stat-total-sub').textContent     = `${ov.fully_paid + ov.deposit_only} booked · ${ov.active - ov.fully_paid - ov.deposit_only} unpaid`;
-  document.getElementById('stat-collected').textContent     = fmtUGX(ov.collected);
+  setStatMoney('stat-collected', ov.collected);
   document.getElementById('stat-collected-sub').textContent = 'deposits + balances received';
-  document.getElementById('stat-pending').textContent       = fmtUGX(ov.pending);
+  setStatMoney('stat-pending', ov.pending);
   document.getElementById('stat-pending-sub').textContent   = `${ov.deposit_only} founder${ov.deposit_only !== 1 ? 's' : ''} awaiting balance`;
-  document.getElementById('stat-cohorts').textContent       = openCohorts;
-  document.getElementById('stat-fullypaid').textContent     = ov.fully_paid;
-  document.getElementById('stat-depositonly').textContent   = ov.deposit_only;
+  setStatCount('stat-cohorts', openCohorts);
+  setStatCount('stat-fullypaid', ov.fully_paid);
+  setStatCount('stat-depositonly', ov.deposit_only);
 
   try { renderTrackChart(a.by_track || []); }     catch(e) { console.error('[Render] trackChart:', e); }
   try { renderSectorChart(a.by_sector || []); }   catch(e) { console.error('[Render] sectorChart:', e); }
@@ -2805,7 +2869,12 @@ async function loadTraffic() {
           const val = {}; let max = 0;
           byC.forEach(r => { const meta = FS_ISO2[r.code]; if (meta) { const id = String(parseInt(meta[0], 10)); val[id] = (val[id] || 0) + Number(r.views); if (val[id] > max) max = val[id]; } });
           const ramp = v => { if (!v) return '#E6DCC7'; const f = Math.min(1, Math.sqrt(v / (max || 1))); const a = [230, 220, 199], b = [200, 83, 31]; return 'rgb(' + a.map((x, i) => Math.round(x + (b[i] - x) * f)).join(',') + ')'; };
-          const W = mapEl.clientWidth || 560, H = Math.max(240, Math.round(W * 0.6));
+          // Natural Earth I has an aspect ratio of ~1.97:1, so height ≈ width × 0.507.
+          // fitSize() preserves that ratio, meaning any taller box just letterboxes —
+          // dead ocean above and below. 0.52 matches the projection with a hair of
+          // margin. This matters more the wider the column gets: at the previous 0.6
+          // an 80%-width map would have carried ~150px of empty space.
+          const W = mapEl.clientWidth || 560, H = Math.max(240, Math.round(W * 0.52));
           const proj = d3.geoNaturalEarth1().fitSize([W, H], { type: 'FeatureCollection', features: feats });
           const path = d3.geoPath(proj);
           const svg = d3.create('svg').attr('viewBox', '0 0 ' + W + ' ' + H).attr('width', '100%').style('display', 'block');
@@ -2861,6 +2930,43 @@ function chartDefaults(){
     }
   };
 }
+
+/* Axis styling that FOLLOWS THE ACTIVE THEME. The Revenue and Timeline charts used to
+   hardcode near-black ticks, which all but vanished once the dashboard went dark. */
+function axisTheme(){
+  return {
+    tick:   themeColor('--ink-mid', 'rgba(30,27,20,0.70)'),
+    grid:   themeColor('--border',  'rgba(26,26,26,0.08)'),
+    border: themeColor('--border-hi','rgba(26,26,26,0.22)')
+  };
+}
+
+/* Value labels above bars. Chart.js ships none, and the Cloudflare CSP forbids pulling
+   chartjs-plugin-datalabels off a CDN — so this is a local plugin. Zeros are skipped
+   so empty cohorts don't clutter the axis. Opt in per chart:
+     plugins: [barValueLabels]  +  options.plugins.barValueLabels = { format: fmtUGX } */
+const barValueLabels = {
+  id: 'barValueLabels',
+  afterDatasetsDraw(chart, _args, opts) {
+    const fmt = (opts && opts.format) || (v => v);
+    const ctx = chart.ctx;
+    ctx.save();
+    ctx.fillStyle   = themeColor('--ink', '#1A1A1A');
+    ctx.font        = '600 11px Inter, system-ui, sans-serif';
+    ctx.textAlign   = 'center';
+    ctx.textBaseline= 'bottom';
+    chart.data.datasets.forEach((ds, di) => {
+      const meta = chart.getDatasetMeta(di);
+      if (meta.hidden) return;
+      meta.data.forEach((bar, i) => {
+        const v = ds.data[i];
+        if (!v) return;
+        ctx.fillText(fmt(v), bar.x, bar.y - 6);
+      });
+    });
+    ctx.restore();
+  }
+};
 
 function renderTrackChart(byTrack) {
   const cnt = {};
@@ -2934,9 +3040,11 @@ function renderRevenueChart(byCohort) {
   // Bar colors cycle through the discipline palette
   const barColors = labels.map((_, i) => PALETTE[i % PALETTE.length]);
 
+  const ax = axisTheme();
   if (chartRevenue) chartRevenue.destroy();
   chartRevenue = new Chart(document.getElementById('chart-revenue'), {
     type: 'bar',
+    plugins: [barValueLabels],
     data: {
       labels,
       datasets: [{
@@ -2950,24 +3058,31 @@ function renderRevenueChart(byCohort) {
     },
     options: {
       ...chartDefaults(),
+      layout: { padding: { top: 20 } },          // headroom so the tallest bar's label isn't clipped
       plugins: {
         ...chartDefaults().plugins,
         legend: { display: false },
+        barValueLabels: { format: fmtUGX },
+        tooltip: {
+          ...chartDefaults().plugins.tooltip,
+          callbacks: { label: c => 'Collected: UGX ' + (c.parsed.y || 0).toLocaleString() }
+        }
       },
       scales: {
         x: {
-          ticks: { color: 'rgba(30,27,20,0.55)', font: { family: 'Inter', size: 11 } },
-          grid: { color: 'rgba(26,26,26,0.06)' },
-          border: { color: 'rgba(26,26,26,0.12)' },
+          ticks: { color: ax.tick, font: { family: 'Inter', size: 11 } },
+          grid: { color: ax.grid },
+          border: { color: ax.border },
         },
         y: {
+          beginAtZero: true,
           ticks: {
-            color: 'rgba(30,27,20,0.55)',
+            color: ax.tick,
             font: { family: 'Josefin Sans', size: 10 },
-            callback: v => fmtUGX(v),
+            callback: v => (v ? fmtUGX(v) : '0'),
           },
-          grid: { color: 'rgba(26,26,26,0.06)' },
-          border: { color: 'rgba(26,26,26,0.12)' },
+          grid: { color: ax.grid },
+          border: { color: ax.border },
         }
       },
       maintainAspectRatio: false,
@@ -3020,19 +3135,19 @@ function renderTimelineChart(byWeek) {
       },
       scales: {
         x: {
-          ticks: { color: 'rgba(30,27,20,0.55)', font: { family: 'Inter', size: 10 } },
-          grid: { color: 'rgba(26,26,26,0.06)' },
-          border: { color: 'rgba(26,26,26,0.12)' },
+          ticks: { color: axisTheme().tick, font: { family: 'Inter', size: 10 } },
+          grid: { color: axisTheme().grid },
+          border: { color: axisTheme().border },
         },
         y: {
           beginAtZero: true,
           ticks: {
-            color: 'rgba(30,27,20,0.55)',
+            color: axisTheme().tick,
             font: { family: 'Josefin Sans', size: 10 },
             stepSize: 1,
           },
-          grid: { color: 'rgba(26,26,26,0.06)' },
-          border: { color: 'rgba(26,26,26,0.12)' },
+          grid: { color: axisTheme().grid },
+          border: { color: axisTheme().border },
         }
       },
       maintainAspectRatio: false,
@@ -3423,9 +3538,9 @@ function renderRevenue() {
   const rev = a.revenue || { total_fees: 0, collected: 0, outstanding: 0 };
   const activeCount = (a.overview && a.overview.active) || 0;
 
-  document.getElementById('rev-total').textContent       = fmtUGX(rev.total_fees);
-  document.getElementById('rev-collected').textContent   = fmtUGX(rev.collected);
-  document.getElementById('rev-outstanding').textContent = fmtUGX(rev.outstanding);
+  setStatMoney('rev-total',       rev.total_fees);
+  setStatMoney('rev-collected',   rev.collected);
+  setStatMoney('rev-outstanding', rev.outstanding);
 
   // Index server aggregates by track / cohort
   const trackMap = {};
@@ -3598,6 +3713,48 @@ document.addEventListener('click', function(e) {
   }
 });
 
+/* ── Left-sidebar chrome (dash-chrome.js) ─────────────────────────────────────
+   Ops Dashboard was 11 flat top tabs — the most crowded surface on the platform,
+   and past the point where a horizontal bar works at all. Grouped per
+   docs/FS_Dashboard_Nav_Architecture.md. The old .tabs-wrap stays in the DOM but
+   hidden, so every existing switchTab() caller keeps working untouched.
+   The two "↗" entries were never tabs — they navigate to other pages — so they
+   move to the sidebar footer where links belong. */
+const OPS_NAV_GROUPS = [
+  { label: '', items: [{ key: 'overview', label: 'Overview' }] },
+  { label: 'Programme', items: [
+      { key: 'cohorts',       label: 'Cohorts' },
+      { key: 'sessions',      label: 'Sessions' },
+      { key: 'registrations', label: 'Registrations' } ] },
+  { label: 'Money', items: [
+      { key: 'revenue', label: 'Revenue' },
+      { key: 'pricing', label: 'Pricing' },
+      { key: 'capital', label: 'Founder capital' } ] },
+  { label: 'Marketplace', items: [
+      { key: 'directory', label: 'Directory' },
+      { key: 'documents', label: 'Documents' } ] },
+];
+let opsNavReady = false;
+function initOpsNav(email) {
+  if (opsNavReady || !window.FSDash) return;
+  FSDash.init({
+    role: 'Ops Dashboard',
+    active: 'overview',
+    groups: OPS_NAV_GROUPS,
+    onSelect: function (k) { switchTab(k); },
+    hide: ['.tabs-wrap', '.topbar-left'],
+    hideOnMobile: ['.topbar'],
+    user: email || '',
+    links: [
+      { label: '⇄ Coaches portal', href: '/admin-portals.html' },
+      { label: '⇄ Express sessions', href: '/express-admin.html' },
+      { label: '◐ Light / dark', onClick: function () { try { toggleTheme(); } catch (e) {} } },
+      { label: 'Sign out',        onClick: function () { try { signOut(); } catch (e) {} } },
+    ],
+  });
+  opsNavReady = true;
+}
+
 function switchTab(name) {
   // Match each tab to its own switchTab('…') target so highlighting never depends on tab order
   // (the "Coaches ↗" link has no onclick → never highlighted; it navigates to the Coaches Portal).
@@ -3605,6 +3762,7 @@ function switchTab(name) {
     const m = (t.getAttribute('onclick') || '').match(/switchTab\('([^']+)'\)/);
     t.classList.toggle('active', !!m && m[1] === name);
   });
+  if (window.FSDash) FSDash.setActive(name);   // keep the sidebar in step with in-page links
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.getElementById(`panel-${name}`).classList.add('active');
   if (name === 'directory' && !directoryLoaded) loadDirectoryData();
@@ -3627,7 +3785,7 @@ async function loadCoachesForInvite() {
     const { data, error } = await sb
       .from('coaches')
       .select('id, first_name, last_name, email, sector_l1, founderssprint_email, user_id')
-      .eq('role', 'coach')
+      .in('role', ['coach', 'founder'])
       .eq('status', 'active')
       .order('id');
 
@@ -4128,6 +4286,7 @@ async function loadDirectoryData() {
     document.getElementById('app-count-badge').style.display = pending > 0 ? 'inline-block' : 'none';
     document.getElementById('dir-app-count-badge').textContent = pending;
     document.getElementById('dir-app-count-badge').style.display = pending > 0 ? 'inline-block' : 'none';
+    if (window.FSDash) FSDash.setBadge('directory', pending);
 
     renderApplications();
     renderListings();
@@ -5507,6 +5666,106 @@ async function createSession() {
   }
 }
 
+/* Generate a cohort's whole session series (5 disciplines × N weeks), each with a
+   Google Meet link. Google emails every attendee the invite, so this fires real mail
+   at real people — hence it ALWAYS dry-runs first and shows the plan for approval. */
+async function generateCohortSessions() {
+  // Read the in-memory cohort list, NOT the #sess-cohort <select> — that dropdown is
+  // only filled inside toggleSessionForm(), so it is empty unless "+ New Session" has
+  // been opened first. allCohorts is loaded at boot.
+  let list = (typeof allCohorts !== 'undefined' && allCohorts) ? allCohorts.slice() : [];
+  if (!list.length) {
+    try {
+      const headers = await getAuthHeaders();
+      const r = await fetch(`${API_BASE}/api/cohorts`, { headers });
+      const j = await r.json();
+      list = Array.isArray(j) ? j : (j.cohorts || []);
+    } catch (e) { /* fall through to the message below */ }
+  }
+  if (!list.length) return showToast('Could not load cohorts — reload the page and try again', 'error');
+
+  list.sort((a, b) => String(a.start_date || '').localeCompare(String(b.start_date || '')));
+  const cohortId = await fsChoice('Which cohort should I build the session series for?',
+    list.map(c => ({ value: String(c.id), label: c.name + (c.start_date ? ' — starts ' + c.start_date : '') })),
+    { title: 'Generate cohort sessions' });
+  if (!cohortId) return;
+
+  // A failed run can leave calendar events behind with no session row — invisible
+  // to us, but sitting on real calendars, and a re-run would duplicate them.
+  // Check for that debris before generating anything new.
+  try {
+    const headers = await getAuthHeaders();
+    const r = await fetch(`${API_BASE}/api/cohort-schedule/cleanup-orphans`, {
+      method: 'POST', headers, body: JSON.stringify({ cohort_id: Number(cohortId), dry_run: true }),
+    });
+    const o = await r.json();
+    if (r.ok && o.orphans > 0) {
+      const clear = await fsConfirm(
+        o.orphans + ' calendar event(s) for this cohort exist on Google with no matching session record — ' +
+        'left behind by a failed run. Generating now would create duplicates on everyone\'s calendar.\n\n' +
+        'Delete the orphans first?',
+        { title: 'Leftover calendar events', okText: 'Delete ' + o.orphans + ' orphan(s)', cancelText: 'Stop' });
+      if (!clear) return;
+      showToast('Clearing ' + o.orphans + ' orphaned events…');
+      const d = await fetch(`${API_BASE}/api/cohort-schedule/cleanup-orphans`, {
+        method: 'POST', headers, body: JSON.stringify({ cohort_id: Number(cohortId), dry_run: false }),
+      });
+      const dj = await d.json();
+      if (!d.ok || dj.failed) return showToast('Cleanup incomplete — ' + (dj.error || dj.failed + ' failed'), 'error');
+      showToast('Cleared ' + dj.deleted + ' orphaned events', 'success');
+    }
+  } catch (err) { /* cleanup check is best-effort; don't block generation on it */ }
+
+  showToast('Working out the plan…');
+  let plan;
+  try {
+    const headers = await getAuthHeaders();
+    const res = await fetch(`${API_BASE}/api/cohort-schedule/generate`, {
+      method: 'POST', headers, body: JSON.stringify({ cohort_id: Number(cohortId), dry_run: true }),
+    });
+    plan = await res.json();
+    if (!res.ok) throw new Error(plan.error || 'Could not build the plan');
+  } catch (err) { return showToast(err.message, 'error'); }
+
+  if (plan.problems && plan.problems.length) {
+    return fsAlert('Fix these before generating:\n\n• ' + plan.problems.join('\n• '), { title: 'Cannot generate yet' });
+  }
+  if (!plan.to_create) {
+    return fsAlert('Every session in this series already exists — nothing to create.', { title: 'Already scheduled' });
+  }
+
+  const firstFive = plan.plan.filter(p => !p.skip).slice(0, 5)
+    .map(p => '  ' + p.starts_at_eat.slice(0, 16).replace('T', ' ') + ' EAT — ' + p.discipline + ' (' + p.coach + ')')
+    .join('\n');
+
+  const go = await fsConfirm(
+    plan.to_create + ' sessions will be created for ' + plan.cohort + '.\n\n' +
+    'Schedule source: ' + plan.schedule_source + '\n' +
+    (plan.already_scheduled ? plan.already_scheduled + ' already exist and will be skipped.\n' : '') +
+    '\nGoogle will email a calendar invite with the Meet link to each coach and to:\n  ' +
+    plan.founders.join('\n  ') + '\n\nFirst five:\n' + firstFive + '\n\nThis sends real invites. Proceed?',
+    { title: 'Create ' + plan.to_create + ' sessions', okText: 'Create & send invites' });
+  if (!go) return;
+
+  showToast('Creating ' + plan.to_create + ' sessions — this takes a moment…');
+  try {
+    const headers = await getAuthHeaders();
+    const res = await fetch(`${API_BASE}/api/cohort-schedule/generate`, {
+      method: 'POST', headers, body: JSON.stringify({ cohort_id: Number(cohortId), dry_run: false }),
+    });
+    const out = await res.json();
+    if (!res.ok) throw new Error(out.error || 'Generation failed');
+    if (out.failed) {
+      await fsAlert('Created ' + out.created + ', but ' + out.failed + ' failed:\n\n• ' +
+        out.errors.map(e => e.title + ' — ' + e.error).join('\n• ') +
+        '\n\nRe-run to retry only the failures; the ones that worked are skipped.', { title: 'Partly done' });
+    } else {
+      showToast(out.created + ' sessions created · invites sent', 'success');
+    }
+    await loadSessions();
+  } catch (err) { showToast(err.message, 'error'); }
+}
+
 async function cancelSession(id) {
   if (!(await fsConfirm('Cancel this session? This will also cancel the Google Calendar event.',{title:'Cancel session',okText:'Cancel session',cancelText:'Keep it',danger:true}))) return;
   try {
@@ -6158,7 +6417,13 @@ function previewMaterial(id) {
 <script>
 function toggleTheme(){var d=document.documentElement,cur=d.getAttribute('data-theme')==='dark'?'dark':'light',next=cur==='dark'?'light':'dark';d.setAttribute('data-theme',next);try{localStorage.setItem('fs-theme',next);}catch(e){}fsThemeIcon();
   // Re-render the charts so their legend/tick colours pick up the new theme.
-  try { if(typeof analytics !== 'undefined' && analytics){ renderTrackChart(analytics.by_track||[]); renderSectorChart(analytics.by_sector||[]); renderRevenue(); } } catch(e){}
+  try { if(typeof analytics !== 'undefined' && analytics){
+    renderTrackChart(analytics.by_track||[]);
+    renderSectorChart(analytics.by_sector||[]);
+    renderRevenueChart(analytics.by_cohort||[]);   // axis + value labels re-read the theme
+    renderTimelineChart(analytics.by_week||[]);
+    renderRevenue();
+  } } catch(e){}
 }
 function fsThemeIcon(){var b=document.getElementById('theme-toggle');if(b)b.textContent=document.documentElement.getAttribute('data-theme')==='dark'?'☀':'☾';}
 fsThemeIcon();

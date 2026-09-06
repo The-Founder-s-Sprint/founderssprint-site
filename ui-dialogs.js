@@ -170,4 +170,31 @@ text-transform:uppercase;padding:12px 22px;border-radius:0;cursor:pointer;border
   window.fsConfirm = function (message, opts) { return open('confirm', message, opts); };
   window.fsPrompt = function (message, opts) { return open('prompt', message, opts); };
   window.fsAlert = function (message, opts) { return open('alert', message, opts); };
+
+  // fsChoice(message, [{value,label,hint}], { title, cancelText }) -> selected value | null
+  window.fsChoice = function (message, options, opts) {
+    injectCSS(); opts = opts || {}; options = options || [];
+    return new Promise(function (resolve) {
+      var overlay = document.createElement('div');
+      overlay.className = 'fsd-overlay'; overlay.setAttribute('role', 'dialog'); overlay.setAttribute('aria-modal', 'true');
+      var title = opts.title != null ? opts.title : 'Choose';
+      var btns = options.map(function (o, i) {
+        return '<button type="button" class="fsd-choice" data-i="' + i + '" style="display:block;width:100%;text-align:left;margin-top:10px;padding:14px 16px;border:1px solid rgba(26,26,26,0.22);background:rgba(255,255,255,0.55);cursor:pointer">' +
+          '<span style="font-weight:600;font-size:14px;color:var(--ink,#1A1A1A);font-family:var(--font,Inter,system-ui,sans-serif)">' + esc(o.label) + '</span>' +
+          (o.hint ? '<span style="display:block;font-size:12px;color:#8b8578;margin-top:3px;font-family:var(--font,Inter,system-ui,sans-serif)">' + esc(o.hint) + '</span>' : '') +
+          '</button>';
+      }).join('');
+      overlay.innerHTML = '<div class="fsd-card"><div class="fsd-body">' +
+        (title ? '<p class="fsd-eyebrow">' + esc(title) + '</p>' : '') +
+        (message ? '<p class="fsd-msg">' + esc(message) + '</p>' : '') + btns + '</div>' +
+        '<div class="fsd-actions"><button type="button" class="fsd-btn fsd-btn-cancel" style="background:transparent;color:var(--ink,#1A1A1A);border-color:rgba(26,26,26,0.28)">' + esc(opts.cancelText || 'Cancel') + '</button></div></div>';
+      document.body.appendChild(overlay);
+      requestAnimationFrame(function () { overlay.classList.add('fsd-in'); });
+      var done = false;
+      function close(v) { if (done) return; done = true; overlay.classList.remove('fsd-in'); setTimeout(function () { if (overlay.parentNode) overlay.parentNode.removeChild(overlay); resolve(v); }, 160); }
+      Array.prototype.forEach.call(overlay.querySelectorAll('.fsd-choice'), function (b) { b.addEventListener('click', function () { close(options[+b.getAttribute('data-i')].value); }); });
+      overlay.querySelector('.fsd-btn-cancel').addEventListener('click', function () { close(null); });
+      overlay.addEventListener('mousedown', function (e) { if (e.target === overlay) close(null); });
+    });
+  };
 })();

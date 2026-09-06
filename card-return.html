@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>Payment received · The Founder's Sprint</title>
+<title>Confirming your payment · The Founder's Sprint</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -12,7 +12,7 @@
   :root{
     --ink:#1A1A1A; --ink-mute:#5A564F;
     --paper:#EFE7D8; --paper-deep:#E6DCC7; --paper-dim:#A09888;
-    --terra:#C8531F; --terra-deep:#9A3E16; --sage:#8AAB5C;
+    --terra:#C8531F; --terra-deep:#9A3E16; --sage:#8AAB5C; --clay:#C0392B;
     --sans:'Josefin Sans',system-ui,sans-serif;
     --display:'Cormorant Garamond',Georgia,serif;
     --body:'Inter',system-ui,sans-serif;
@@ -43,34 +43,89 @@
     text-transform:uppercase; text-decoration:none; padding:15px 26px;
     border-radius:0 0 12px 0; transition:background .18s ease}
   .cta:hover{background:var(--terra-deep)}
+  .cta.ghost{background:none; color:var(--ink-mute); border:1px solid var(--paper-dim); margin-left:10px}
   .tag{font-family:var(--display); font-style:italic; font-weight:300; font-size:18px;
     color:var(--ink-mute); margin-top:40px}
-  .dot{display:inline-block;width:9px;height:9px;border-radius:50%;background:var(--sage);
-    margin-right:9px;vertical-align:middle}
+  .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:9px;vertical-align:middle}
+  .dot.pending{background:var(--paper-dim); animation:pulse 1.2s ease-in-out infinite}
+  .dot.paid{background:var(--sage)}
+  .dot.failed{background:var(--clay)}
+  @keyframes pulse{0%,100%{opacity:.35}50%{opacity:1}}
+  .spin{display:inline-block;width:16px;height:16px;border:2px solid var(--paper-dim);
+    border-top-color:var(--terra);border-radius:50%;animation:sp .7s linear infinite;
+    vertical-align:middle;margin-right:10px}
+  @keyframes sp{to{transform:rotate(360deg)}}
 </style>
 </head>
 <body>
   <main class="card" role="main">
-    <!-- V6 diamond mark -->
     <svg class="mark" viewBox="0 0 100 100" aria-hidden="true">
       <path d="M50 4 L96 50 L50 96 L4 50 Z" fill="none" stroke="#C8531F" stroke-width="6"/>
     </svg>
-    <p class="eyebrow"><span class="dot"></span>Payment received</p>
-    <h1>Thank you.</h1>
-    <p>We've received your card payment and it's being confirmed with your bank. This usually takes under a minute.</p>
-    <p>You'll get a confirmation email the moment it clears — no need to pay again. You can then access everything from your dashboard.</p>
+    <p class="eyebrow" id="eyebrow"><span class="dot pending" id="dot"></span><span id="eyebrow-txt">Confirming payment</span></p>
+    <h1 id="headline">One moment…</h1>
+    <div id="copy">
+      <p><span class="spin" id="spin"></span>We're confirming your card payment with your bank. This usually takes under a minute — please keep this page open.</p>
+    </div>
     <p class="ref" id="ref"></p>
-    <a class="cta" href="/login-founder.html">Go to your dashboard</a>
+    <div id="actions"></div>
     <p class="tag">Build with direction.</p>
   </main>
 <script>
-  // Show the booking reference PegPay returned us with (purely informational).
   (function(){
-    try{
-      var p = new URLSearchParams(location.search);
-      var ref = p.get('ref');
-      if(ref){ document.getElementById('ref').textContent = 'Reference: ' + ref; }
-    }catch(e){}
+    var API_BASE = '';
+    var p = new URLSearchParams(location.search);
+    var ref = p.get('ref') || '';
+    var refEl = document.getElementById('ref');
+    if(ref){ refEl.textContent = 'Reference: ' + ref; }
+
+    var dot = document.getElementById('dot');
+    var eb  = document.getElementById('eyebrow-txt');
+    var h1  = document.getElementById('headline');
+    var copy = document.getElementById('copy');
+    var actions = document.getElementById('actions');
+
+    function render(state){
+      if(state === 'paid'){
+        dot.className = 'dot paid'; eb.textContent = 'Payment received';
+        h1.textContent = 'Thank you.';
+        copy.innerHTML = '<p>Your card payment is confirmed. A receipt is on its way to your email, and everything is ready in your dashboard.</p>';
+        actions.innerHTML = '<a class="cta" href="/login-founder.html">Go to your dashboard</a>';
+        return true;
+      }
+      if(state === 'failed'){
+        dot.className = 'dot failed'; eb.textContent = 'Payment not completed';
+        h1.textContent = 'That didn’t go through.';
+        copy.innerHTML = '<p>Your card payment didn’t complete, so <strong>you have not been charged</strong>. Cards currently need to be <strong>Uganda-issued Visa or Mastercard</strong> with online payments enabled.</p><p>You can try again, or pay with <strong>MTN or Airtel mobile money</strong>. Outside Uganda? Email <a href="mailto:hello@founderssprint.co" style="color:var(--terra-deep)">hello@founderssprint.co</a> and we’ll arrange your payment.</p>';
+        actions.innerHTML = '<a class="cta" href="/book/">Try again</a><a class="cta ghost" href="/login-founder.html">Go to dashboard</a>';
+        return true;
+      }
+      return false; // pending
+    }
+
+    if(!ref){ render('failed'); return; }
+
+    var tries = 0, MAX = 40;               // ~2 minutes at 3s
+    function poll(){
+      tries++;
+      fetch(API_BASE + '/api/payment-status?ref=' + encodeURIComponent(ref), { cache:'no-store' })
+        .then(function(r){ return r.json(); })
+        .then(function(d){
+          var st = d && d.state;
+          if(st === 'paid' || st === 'failed'){ render(st); return; }
+          if(tries >= MAX){
+            // Still pending after the window — reassure without claiming success.
+            dot.className = 'dot pending'; eb.textContent = 'Still confirming';
+            h1.textContent = 'Almost there.';
+            copy.innerHTML = '<p>Your payment is still being confirmed with your bank. You don’t need to pay again — we’ll email you the moment it clears, and it will appear in your dashboard.</p>';
+            actions.innerHTML = '<a class="cta" href="/login-founder.html">Go to your dashboard</a>';
+            return;
+          }
+          setTimeout(poll, 3000);
+        })
+        .catch(function(){ if(tries < MAX){ setTimeout(poll, 3000); } });
+    }
+    poll();
   })();
 </script>
 </body>

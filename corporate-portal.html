@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Client Portal · The Founder's Sprint</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<script src="/vendor/supabase-js.min.js?v=2110"></script>
+<style>
+  :root{
+    --ink:#1A1A1A; --ink-mid:#4a463f; --paper:#EFE7D8; --paper-2:#F6F1E7; --card:#FBF8F1;
+    --terra:#C8531F; --terra-deep:#9A3E16; --ochre:#C9923A; --ochre-deep:#A6741F;
+    --sage:#8AAB5C; --moss:#3D4A2E; --stone:#A59B8C; --muted:#8b8578;
+    --border:rgba(26,26,26,.14); --border-hi:rgba(26,26,26,.28);
+    --sans:'Josefin Sans',sans-serif; --display:'Cormorant Garamond',serif; --body:'Inter',sans-serif;
+  }
+  *{box-sizing:border-box} html,body{margin:0}
+  body{font-family:var(--body);background:var(--paper);color:var(--ink);font-size:14px;line-height:1.55;-webkit-font-smoothing:antialiased}
+  a{color:var(--terra)}
+  .wrap{max-width:1020px;margin:0 auto;padding:0 22px}
+  .topbar{background:var(--ink);color:#F6F1E7;padding:14px 0}
+  .topbar .wrap{display:flex;align-items:center;justify-content:space-between;gap:14px}
+  .brand{font-family:var(--sans);font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:13px}
+  .brand .di{color:var(--ochre);margin-right:7px}
+  .who{font-size:12px;color:#cfc7b6;display:flex;gap:14px;align-items:center}
+  .who a{color:#cfc7b6;cursor:pointer;text-decoration:underline}
+  .eyebrow{font-family:var(--sans);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--ochre-deep);margin-bottom:6px}
+  h1{font-family:var(--display);font-weight:600;font-size:34px;margin:0 0 2px}
+  h2{font-family:var(--display);font-weight:600;font-size:22px;margin:0 0 10px}
+  .sub{color:var(--muted);font-size:12.5px}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:0 0 24px 0;padding:20px 22px;margin:16px 0}
+  .pill{display:inline-block;padding:3px 10px;border-radius:2px;font-size:10px;font-weight:600;letter-spacing:.05em;text-transform:uppercase}
+  .banner{border-radius:0 0 20px 0;padding:14px 18px;margin:14px 0;font-size:13px}
+  .banner.lock{background:rgba(200,83,31,.09);border:1px solid rgba(200,83,31,.3);color:var(--terra-deep)}
+  .banner.open{background:rgba(138,171,92,.13);border:1px solid rgba(138,171,92,.4);color:var(--moss)}
+  label{display:block;font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-mid);margin:0 0 4px}
+  input[type=text],input[type=email],input[type=password],input[type=date],input[type=number],textarea,select{
+    width:100%;padding:9px 11px;border:1px solid var(--border-hi);background:#fff;font-family:var(--body);font-size:13px;border-radius:2px}
+  textarea{min-height:60px;resize:vertical}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  @media(max-width:640px){.grid2{grid-template-columns:1fr}}
+  .fld{margin-bottom:12px}
+  .btn{font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:9px 16px;border:none;border-radius:2px;cursor:pointer;background:var(--terra);color:#fff}
+  .btn:hover{background:var(--terra-deep)} .btn:disabled{opacity:.5;cursor:not-allowed}
+  .btn.ghost{background:none;border:1px solid var(--border-hi);color:var(--ink-mid)}
+  .btn.sm{padding:6px 12px;font-size:11px}
+  table{width:100%;border-collapse:collapse}
+  td,th{padding:9px 10px;border-bottom:1px solid var(--border);vertical-align:top;text-align:left}
+  th{font-family:var(--sans);font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  .cat{margin:16px 0 4px;font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--ochre-deep)}
+  .star{color:var(--terra)}
+  #login-screen{min-height:70vh;display:flex;align-items:center;justify-content:center}
+  .login-card{background:var(--card);border:1px solid var(--border);border-radius:0 0 24px 0;padding:30px;max-width:380px;width:100%}
+  .err{color:#C0392B;font-size:12px;min-height:16px;margin-top:6px}
+  #toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%) translateY(20px);background:var(--ink);color:#fff;padding:11px 20px;border-radius:3px;font-size:13px;opacity:0;pointer-events:none;transition:.25s;z-index:99}
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+  #toast.error{background:#C0392B} #toast.success{background:var(--moss)}
+  .muted-note{font-size:12px;color:var(--muted);margin-top:6px}
+</style>
+</head>
+<body>
+<div id="toast"></div>
+
+<!-- LOGIN -->
+<div id="login-screen" style="display:none">
+  <div class="login-card">
+    <div class="eyebrow">The Founder's Sprint</div>
+    <h2 style="margin-bottom:4px">Client portal</h2>
+    <div class="sub" style="margin-bottom:18px">Sign in to your advisory engagement.</div>
+    <div class="fld"><label>Email</label><input id="li-email" type="email" autocomplete="username"></div>
+    <div class="fld"><label>Password</label><input id="li-pw" type="password" autocomplete="current-password" onkeydown="if(event.key==='Enter')signIn()"></div>
+    <button class="btn" style="width:100%" onclick="signIn()">Enter</button>
+    <div class="err" id="li-err"></div>
+    <div class="muted-note">Your access is created by invitation. If you don't have a password yet, use the link in your invitation email.</div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" style="display:none">
+  <div class="topbar"><div class="wrap">
+    <div class="brand"><span class="di">◇</span>The Founder's Sprint</div>
+    <div class="who"><span id="who-email"></span><a onclick="signOut()">Sign out</a></div>
+  </div></div>
+  <div class="wrap" id="content" style="padding-top:22px;padding-bottom:60px"></div>
+</div>
+
+<script>
+const SUPABASE_URL='https://ivedeivyotwevjxvcuoe.supabase.co';
+const SB_API='/sb';
+const API_BASE='';
+const SUPABASE_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss';
+const sb=supabase.createClient(location.origin+'/sb',SUPABASE_ANON,{auth:{detectSessionInUrl:true,autoRefreshToken:true,persistSession:true,storageKey:'sb-ivedeivyotwevjxvcuoe-auth-token'}});
+const _SB_KEY='sb-ivedeivyotwevjxvcuoe-auth-token';
+let currentSession=null, booted=false, engs=[], clients=[], cur=null, detail=null;
+// invited users arrive with a recovery/invite token in the URL hash → set a password first
+const INVITE_FLOW=/type=(invite|recovery|signup)/.test(location.hash);
+let pwRecovery=false;
+
+function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function showToast(m,t){const e=document.getElementById('toast');e.textContent=m;e.className=(t||'')+' show';setTimeout(()=>e.classList.remove('show'),3000);}
+function pill(text,color){return '<span class="pill" style="background:'+color+'22;color:'+color+'">'+esc(text)+'</span>';}
+
+// ── auth plumbing (Safari-safe, mirrors founder.html) ──
+function _stored(){try{return JSON.parse(localStorage.getItem(_SB_KEY)||'{}');}catch{return {};}}
+function _expired(s){const e=s.expires_at;if(!e)return true;return (Date.now()/1000)>(e-60);}
+let _refreshP=null;
+async function _refresh(){ if(_refreshP)return _refreshP;
+  _refreshP=(async()=>{ const st=_stored(); if(!st.refresh_token) throw new Error('no session');
+    const r=await fetch(SB_API+'/auth/v1/token?grant_type=refresh_token',{method:'POST',headers:{apikey:SUPABASE_ANON,'Content-Type':'application/json'},body:JSON.stringify({refresh_token:st.refresh_token})});
+    if(!r.ok){localStorage.removeItem(_SB_KEY);throw new Error('expired');}
+    const s=await r.json(); localStorage.setItem(_SB_KEY,JSON.stringify(s)); currentSession=s; return s.access_token; })();
+  try{return await _refreshP;}finally{_refreshP=null;} }
+async function _token(){ if(currentSession&&currentSession.access_token){const e=currentSession.expires_at;if(e&&(Date.now()/1000)<(e-60))return currentSession.access_token;}
+  const st=_stored(); if(st.access_token&&!_expired(st))return st.access_token; return _refresh(); }
+async function _q(table,params){const t=await _token();const r=await fetch(SB_API+'/rest/v1/'+table+'?'+params,{headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t}});
+  if(!r.ok)throw new Error('Query '+r.status+': '+await r.text());return r.json();}
+async function _w(method,table,params,body){const t=await _token();const r=await fetch(SB_API+'/rest/v1/'+table+(params?('?'+params):''),{method,headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t,'Content-Type':'application/json',Prefer:'return=representation'},body:body?JSON.stringify(body):undefined});
+  if(!r.ok)throw new Error('Write '+r.status+': '+await r.text());const x=await r.text();return x?JSON.parse(x):null;}
+async function _rpc(fn,body){const t=await _token();const r=await fetch(SB_API+'/rest/v1/rpc/'+fn,{method:'POST',headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t,'Content-Type':'application/json'},body:JSON.stringify(body||{})});
+  if(!r.ok)throw new Error('RPC '+r.status);const x=await r.text();return x?JSON.parse(x):null;}
+
+async function signIn(){
+  const email=(document.getElementById('li-email').value||'').trim();
+  const pw=document.getElementById('li-pw').value; const err=document.getElementById('li-err'); err.textContent='';
+  if(!email||!pw){err.textContent='Enter email and password';return;}
+  try{ const{error}=await sb.auth.signInWithPassword({email,password:pw}); if(error) err.textContent=error.message; }
+  catch(e){ err.textContent=e.message; }
+}
+function signOut(){ localStorage.removeItem(_SB_KEY); try{sb.auth.signOut().catch(()=>{});}catch(e){} location.reload(); }
+function showLogin(){ document.getElementById('app').style.display='none'; document.getElementById('login-screen').style.display='flex'; }
+
+sb.auth.onAuthStateChange((ev,s)=>{ currentSession=s;
+  if(ev==='PASSWORD_RECOVERY'){ pwRecovery=true; if(!booted&&s) boot(s.user); else if(s) showSetPassword(); return; }
+  if((ev==='SIGNED_IN'||ev==='TOKEN_REFRESHED'||ev==='INITIAL_SESSION')&&s&&!booted) boot(s.user); });
+(async()=>{ try{ const {data:{session}}=await sb.auth.getSession(); if(session){currentSession=session; if(!booted) boot(session.user);} else showLogin(); }catch(e){ showLogin(); } })();
+
+async function boot(user){
+  if(booted||!user)return; booted=true;
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+  document.getElementById('who-email').textContent=user.email;
+  if(INVITE_FLOW||pwRecovery){ showSetPassword(); return; }
+  loadEngagements();
+}
+function showSetPassword(){
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+  document.getElementById('content').innerHTML=
+    '<div class="card" style="max-width:440px"><h2>Set your password</h2>'
+    +'<div class="sub" style="margin-bottom:16px">Welcome. Choose a password to secure your client portal.</div>'
+    +'<div class="fld"><label>New password</label><input type="password" id="sp-pw" autocomplete="new-password"></div>'
+    +'<div class="fld"><label>Confirm password</label><input type="password" id="sp-pw2" autocomplete="new-password" onkeydown="if(event.key===\'Enter\')setNewPassword()"></div>'
+    +'<button class="btn" onclick="setNewPassword()">Set password &amp; continue</button>'
+    +'<div class="err" id="sp-err"></div></div>';
+}
+async function setNewPassword(){
+  const pw=document.getElementById('sp-pw').value, pw2=document.getElementById('sp-pw2').value;
+  const err=document.getElementById('sp-err'); err.textContent='';
+  if(!pw||pw.length<8){ err.textContent='Use at least 8 characters'; return; }
+  if(pw!==pw2){ err.textContent='Passwords do not match'; return; }
+  try{ const{error}=await sb.auth.updateUser({password:pw}); if(error){ err.textContent=error.message; return; }
+    pwRecovery=false; showToast('Password set','success'); loadEngagements();
+  }catch(e){ err.textContent=e.message; }
+}
+async function loadEngagements(){
+  document.getElementById('content').innerHTML='<div class="card"><div class="sub">Loading…</div></div>';
+  try{
+    engs=await _q('corporate_engagements','select=*&order=created_at.desc&limit=50');
+    clients=await _q('corporate_clients','select=id,name,sector,status&limit=50').catch(()=>[]);
+    if(!engs.length){ document.getElementById('content').innerHTML='<div class="card"><h2>No active engagement</h2><div class="sub">Your account isn\'t linked to an engagement yet. Please contact your Founder\'s Sprint advisor.</div></div>'; return; }
+    cur=engs[0].id; openEngagement(cur);
+  }catch(e){ document.getElementById('content').innerHTML='<div class="card"><div class="sub">Could not load your engagement — '+esc(e.message)+'</div></div>'; }
+}
+function clientName(id){ const c=clients.find(x=>x.id===id); return c?c.name:'Your company'; }
+function ndaSigned(){ return (detail&&detail.contracts||[]).some(c=>c.type==='mutual_nda'&&c.status==='signed'); }
+
+async function openEngagement(id){
+  cur=id;
+  document.getElementById('content').innerHTML='<div class="card"><div class="sub">Loading…</div></div>';
+  try{
+    const F='engagement_id=eq.'+id;
+    const [docs,intake,delivs,tasks,contracts]=await Promise.all([
+      _q('engagement_documents',F+'&order=category_code.asc,sort.asc&limit=200'),
+      _q('engagement_intake',F+'&limit=1'),
+      _q('engagement_deliverables',F+'&order=created_at.desc&limit=100'),
+      _q('engagement_tasks',F+'&order=created_at.desc&limit=100'),
+      _q('engagement_contracts',F+'&order=created_at.asc&limit=20')
+    ]);
+    detail={docs:docs||[],intake:(intake&&intake[0])||null,delivs:delivs||[],tasks:tasks||[],contracts:contracts||[]};
+    try{ await _rpc('log_engagement_event',{p_eng:id,p_action:'client_viewed'}); }catch(_){}
+    render();
+  }catch(e){ document.getElementById('content').innerHTML='<div class="card"><div class="sub">Could not open — '+esc(e.message)+'</div></div>'; }
+}
+
+// ── 12-section intake (Barry's HMSB checklist) ──
+const INTAKE=[
+  ['Company overview',[['company_name','Registered company name','text'],['incorporation_year','Year of incorporation','text'],['sector','Sector / industry','text'],['locations','Operating locations','text'],['website','Website','text']]],
+  ['Company status',[['market','Market & positioning','ta'],['competitors','Key competitors','ta'],['customers','Customer base','ta']]],
+  ['Trading & licensing',[['trade_licence','Trade licence','text'],['patents_tms','Patents / trademarks','text'],['tin_vat','TIN / VAT registration','text'],['unbs_iso','UNBS / ISO standards','text']]],
+  ['Board & management',[['board_members','Board members','ta'],['management_team','Senior management','ta']]],
+  ['Governance (last 3 years)',[['board_meetings','Board meetings held','text'],['minutes','Minutes maintained?','text'],['resolutions','Key resolutions','ta'],['tax_annual_returns','Tax & annual returns filed?','text'],['audit_report','Audit / annual report','text']]],
+  ['Financial status (last 3 years)',[['revenue','Revenue','text'],['gross_profit','Gross profit','text'],['ebitda','EBITDA','text'],['net_income','Net income','text'],['net_debt','Net debt','text']]],
+  ['Capital finance sought',[['amount_sought','Amount sought','text'],['purpose','Purpose / use of funds','ta'],['debt_equity','Debt or equity','text'],['tenor','Tenor','text'],['collateral','Collateral available','ta']]],
+  ['Capital structure',[['debt_equity_ratio','Debt : equity ratio','text'],['shareholders','Shareholders & %','ta'],['debt_holders','Debt holders','ta']]],
+  ['Accounting',[['bankers','Bankers','text'],['accounts','Accounts held','text'],['signatories','Authorised signatories','ta'],['books_software','Books / accounting software','text']]],
+  ['Summary',[['capital_stage','Stage of capital raise','text'],['financiers_approached','Financiers approached','ta'],['coinvest','Open to co-investment?','text']]]
+];
+function intakeData(){ return (detail&&detail.intake&&detail.intake.data)||{}; }
+function intakeCompleteness(d){ let tot=0,f=0; INTAKE.forEach(s=>s[1].forEach(fl=>{tot++; if(String(d[fl[0]]||'').trim())f++;})); return tot?Math.round(f*100/tot):0; }
+
+function render(){
+  const e=engs.find(x=>x.id===cur)||{};
+  const nda=ndaSigned();
+  const stageMap={lead:'Getting started',nda_pending:'NDA in progress',nda_signed:'NDA signed',intake:'Intake',dd_collection:'Document collection',analysis:'Under review',proposal:'Proposal with you',delivery:'Delivery',closed:'Complete',withdrawn:'Closed'};
+  let h='';
+  // engagement switcher (if multiple)
+  if(engs.length>1){ h+='<div style="margin-bottom:10px"><label>Engagement</label><select onchange="openEngagement(this.value)">'+engs.map(x=>'<option value="'+x.id+'"'+(x.id===cur?' selected':'')+'>'+esc(clientName(x.client_id))+' — '+esc(x.title||'')+'</option>').join('')+'</select></div>'; }
+  h+='<div class="eyebrow">Advisory engagement</div>';
+  h+='<h1>'+esc(clientName(e.client_id))+'</h1>';
+  h+='<div class="sub" style="margin-bottom:6px">'+esc(e.title||'')+' · '+esc(stageMap[e.stage]||e.stage)+'</div>';
+  // progress
+  const docs=detail.docs, provided=docs.filter(x=>x.submission_status==='provided').length;
+  const ic=intakeCompleteness(intakeData());
+  h+='<div class="card" style="display:flex;gap:26px;flex-wrap:wrap">'
+    +'<div><div class="sub">Documents provided</div><div style="font-family:var(--display);font-size:26px">'+provided+' / '+docs.length+'</div></div>'
+    +'<div><div class="sub">Intake complete</div><div style="font-family:var(--display);font-size:26px">'+ic+'%</div></div>'
+    +'<div><div class="sub">NDA</div><div style="font-family:var(--display);font-size:26px">'+(nda?'Signed':'Pending')+'</div></div></div>';
+
+  // NDA gate
+  if(nda){ h+='<div class="banner open">✓ Your mutual NDA is signed — the secure document vault is open. Everything you upload is confidential and visible only to your Founder\'s Sprint advisory team.</div>'; }
+  else{ h+=renderNdaCard(); }
+
+  // intake
+  h+='<div class="card"><h2>Business intake</h2><div class="sub" style="margin-bottom:14px">Tell us about your business. Save any time — you don\'t have to finish in one sitting.</div><div id="intake-body">'+intakeForm()+'</div>'
+    +'<div style="margin-top:12px;display:flex;gap:10px;align-items:center"><button class="btn" onclick="saveIntake(false)">Save intake</button>'
+    +'<button class="btn ghost" onclick="saveIntake(true)">Save &amp; submit</button>'
+    +'<span class="sub" id="intake-status"></span></div></div>';
+
+  // DD vault
+  h+='<div class="card"><h2>Document vault</h2>';
+  if(!nda){ h+='<div class="sub">The checklist unlocks once your NDA is signed.</div>'; }
+  else if(!docs.length){ h+='<div class="sub">Your advisor is preparing your document checklist.</div>'; }
+  else{
+    h+='<div class="sub" style="margin-bottom:8px">Mark each item and upload the file. ★ items are priorities for your raise.</div>';
+    const cats={}; docs.forEach(x=>{(cats[x.category_code]=cats[x.category_code]||[]).push(x);});
+    Object.keys(cats).sort().forEach(ck=>{
+      const items=cats[ck];
+      h+='<div class="cat">'+esc(ck)+' · '+esc(items[0].category_label||'')+'</div><table><tbody>';
+      items.forEach(it=>{
+        const opts=['requested','provided','not_provided','na'].map(s=>'<option value="'+s+'"'+(it.submission_status===s?' selected':'')+'>'+({requested:'To provide',provided:'Provided',not_provided:'Not available',na:'N/A'}[s])+'</option>').join('');
+        h+='<tr><td style="width:46%">'+(it.is_priority?'<span class="star">★</span> ':'')+esc(it.title)
+          +(it.review_status==='accepted'?' '+pill('accepted','#3D4A2E'):(it.review_status==='rejected'?' '+pill('needs revision','#C0392B'):''))+'</td>'
+          +'<td><select onchange="setDoc(\''+it.id+'\',\'submission_status\',this.value)">'+opts+'</select></td>'
+          +'<td>'+(it.storage_path?('<a onclick="dl(\''+it.id+'\')" style="cursor:pointer;font-size:12px">file ↓</a> '):'')
+            +'<button class="btn sm ghost" onclick="up(\''+it.id+'\')">Upload</button></td></tr>';
+      });
+      h+='</tbody></table>';
+    });
+  }
+  h+='</div>';
+
+  // work product (delivered/approved only reach the client via RLS)
+  h+='<div class="card"><h2>Your work product</h2>';
+  h+= detail.delivs.length? ('<table><tbody>'+detail.delivs.map(v=>
+      '<tr><td>'+esc(v.title)+(v.summary?('<div class="sub">'+esc(v.summary)+'</div>'):'')+'</td><td>'+pill(v.status,'#3D4A2E')+'</td>'
+      +'<td>'+(v.storage_path?('<a onclick="dlDeliv(\''+v.id+'\')" style="cursor:pointer">download ↓</a>'):'<span class="sub">—</span>')+'</td></tr>').join('')+'</tbody></table>')
+    : '<div class="sub">Your advisory team\'s deliverables will appear here as they\'re completed.</div>';
+  h+='</div>';
+
+  // tasks
+  h+='<div class="card"><h2>Your action items</h2>';
+  const ct=detail.tasks.filter(t=>t.side==='client');
+  h+= ct.length? ('<table><tbody>'+ct.map(t=>
+      '<tr><td>'+(t.status==='done'?'<span style="color:var(--moss)">✓ </span>':'')+esc(t.title)+'</td><td class="sub">'+(t.due_date||'')+'</td>'
+      +'<td><button class="btn sm ghost" onclick="toggleTask(\''+t.id+'\',\''+t.status+'\')">'+(t.status==='done'?'Undo':'Mark done')+'</button></td></tr>').join('')+'</tbody></table>')
+    : '<div class="sub">No action items right now.</div>';
+  h+='</div>';
+
+  document.getElementById('content').innerHTML=h;
+}
+
+function intakeForm(){
+  const d=intakeData();
+  return INTAKE.map(sec=>'<div style="margin-bottom:6px"><div class="cat" style="margin-top:10px">'+esc(sec[0])+'</div><div class="grid2">'
+    +sec[1].map(fl=>{ const val=esc(d[fl[0]]||''); const id='in-'+fl[0];
+       return '<div class="fld"'+(fl[2]==='ta'?' style="grid-column:1/-1"':'')+'><label>'+esc(fl[1])+'</label>'
+         +(fl[2]==='ta'?('<textarea id="'+id+'">'+val+'</textarea>'):('<input type="text" id="'+id+'" value="'+val+'">'))+'</div>';
+    }).join('')+'</div></div>').join('');
+}
+async function saveIntake(submit){
+  const d={}; INTAKE.forEach(s=>s[1].forEach(fl=>{ const el=document.getElementById('in-'+fl[0]); if(el) d[fl[0]]=el.value; }));
+  const comp=intakeCompleteness(d);
+  const body={engagement_id:cur,data:d,completeness:comp};
+  if(submit){ body.submitted_at=new Date().toISOString(); if(d.company_name){ body.acknowledged_name=d.company_name; body.acknowledged_at=new Date().toISOString(); } }
+  try{
+    const existing=detail.intake;
+    if(existing){ await _w('PATCH','engagement_intake','engagement_id=eq.'+cur,body); }
+    else{ await _w('POST','engagement_intake','',body); }
+    detail.intake=Object.assign({},existing||{},body);
+    document.getElementById('intake-status').textContent = submit?'Submitted — thank you.':'Saved ('+comp+'% complete).';
+    try{ await _rpc('log_engagement_event',{p_eng:cur,p_action:submit?'intake_submitted':'intake_saved'}); }catch(_){}
+    if(submit) showToast('Intake submitted','success');
+  }catch(e){ showToast('Save failed — '+e.message,'error'); }
+}
+async function setDoc(id,field,val){
+  try{ const body={}; body[field]=val; await _w('PATCH','engagement_documents','id=eq.'+id,body);
+    const it=detail.docs.find(x=>x.id===id); if(it) it[field]=val;
+    showToast('Saved','success');
+  }catch(e){ showToast('Could not save — you may need the NDA signed first.','error'); }
+}
+async function toggleTask(id,curst){ const ns=curst==='done'?'open':'done';
+  try{ await _w('PATCH','engagement_tasks','id=eq.'+id,{status:ns}); const t=detail.tasks.find(x=>x.id===id); if(t)t.status=ns; render(); }
+  catch(e){ showToast('Update failed — '+e.message,'error'); }
+}
+
+// ── NDA gate: download to review · e-sign · upload signed copy ──
+function ndaContract(){ return (detail&&detail.contracts||[]).find(c=>c.type==='mutual_nda'); }
+function renderNdaCard(){
+  const c=ndaContract();
+  let h='<div class="card"><h2>Mutual NDA — sign to unlock your vault</h2>';
+  h+='<div class="sub" style="margin-bottom:14px">Before you share due-diligence documents, we sign a mutual non-disclosure agreement. Review it, download it for your legal team, or sign below to proceed. Your document vault unlocks the moment it\'s signed.</div>';
+  const hasDoc = !!(c && c.template_path);
+  if(hasDoc){
+    h+='<button class="btn ghost" onclick="dlNda(\''+c.id+'\')">Download NDA to review</button>';
+  }else{
+    // Never invite someone to agree to a document they have not been shown.
+    h+='<div class="banner lock" style="margin-top:0">Your advisor is still attaching the NDA document. You\'ll be able to read and sign it here as soon as it\'s up — we won\'t ask you to agree to anything you haven\'t seen. If this is holding you up, email <a href="mailto:hello@founderssprint.co">hello@founderssprint.co</a>.</div>';
+  }
+  h+='<div style="margin-top:16px;border-top:1px solid var(--border);padding-top:16px">';
+  h+='<div class="fld" style="max-width:360px"><label>Your full legal name</label><input type="text" id="nda-name" placeholder="e.g. Jane N. Doe"></div>';
+  h+='<label style="display:flex;gap:8px;align-items:flex-start;text-transform:none;letter-spacing:0;font-family:var(--body);font-size:13px;color:var(--ink);margin-bottom:12px"><input type="checkbox" id="nda-agree" style="width:auto;margin-top:3px"> I have read and agree to the mutual non-disclosure agreement.</label>';
+  h+='<div style="display:flex;gap:10px;flex-wrap:wrap"><button class="btn" onclick="signEsign()"'+(hasDoc?'':' disabled style="opacity:.45;cursor:not-allowed" title="The NDA document hasn\'t been attached yet"')+'>Sign &amp; unlock vault</button>';
+  h+='<button class="btn ghost" onclick="uploadSignedNda()">Signed offline? Upload signed copy</button></div>';
+  h+='</div></div>';
+  return h;
+}
+async function dlNda(cid){
+  try{ const t=await _token();
+    const r=await fetch(API_BASE+'/api/corporate/file-url?kind=contract&which=template&id='+encodeURIComponent(cid),{headers:{Authorization:'Bearer '+t}});
+    if(!r.ok) throw new Error('HTTP '+r.status); const j=await r.json(); if(!j.url) throw new Error('no url');
+    window.open(String(j.url).replace(/^https:\/\/[a-z0-9-]+\.supabase\.co/i, location.origin+'/sb'),'_blank');
+  }catch(e){ showToast('Download failed — '+e.message,'error'); }
+}
+async function signEsign(){
+  const name=(document.getElementById('nda-name').value||'').trim();
+  if(!name){ showToast('Enter your full legal name','error'); return; }
+  if(!document.getElementById('nda-agree').checked){ showToast('Please confirm you agree to the NDA','error'); return; }
+  try{ await _rpc('client_sign_nda',{p_eng:cur,p_method:'esign',p_signer_name:name});
+    showToast('NDA signed — vault unlocked','success'); openEngagement(cur);
+  }catch(e){ showToast('Could not sign — '+e.message,'error'); }
+}
+async function uploadSignedNda(){
+  const name=(document.getElementById('nda-name').value||'').trim();
+  if(!name){ showToast('Enter your full legal name first','error'); return; }
+  const inp=document.createElement('input'); inp.type='file'; inp.accept='.pdf,.doc,.docx';
+  inp.onchange=async()=>{ const f=inp.files[0]; if(!f) return; const ct=f.type||'application/pdf';
+    if(f.size>25*1024*1024){ showToast('Max 25MB','error'); return; }
+    showToast('Uploading…');
+    try{ const t=await _token();
+      const r1=await fetch(API_BASE+'/api/corporate/upload-url',{method:'POST',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},
+        body:JSON.stringify({engagement_id:cur,kind:'nda',contentType:ct,size:f.size})});
+      if(!r1.ok) throw new Error((await r1.json().catch(()=>({}))).error||('HTTP '+r1.status)); const s=await r1.json();
+      const putUrl=String(s.signedUrl||'').replace(/^https:\/\/[a-z0-9-]+\.supabase\.co/i, location.origin+'/sb');
+      const pr=await fetch(putUrl,{method:'PUT',headers:{'content-type':ct},body:f}); if(!pr.ok) throw new Error('upload HTTP '+pr.status);
+      await _rpc('client_sign_nda',{p_eng:cur,p_method:'uploaded',p_signer_name:name,p_signed_path:s.path});
+      showToast('Signed NDA uploaded — vault unlocked','success'); openEngagement(cur);
+    }catch(e){ showToast('Upload failed — '+e.message,'error'); }
+  }; inp.click();
+}
+
+// ── file upload/download via the corporate vault API (NDA + membership checked server-side) ──
+async function up(itemId){
+  if(!ndaSigned()){ showToast('The vault opens once your NDA is signed.','error'); return; }
+  const inp=document.createElement('input'); inp.type='file';
+  inp.onchange=async()=>{ const file=inp.files[0]; if(!file) return;
+    if(file.size>25*1024*1024){ showToast('Max file size is 25MB','error'); return; }
+    const ct=file.type||'';
+    if(!ct){ showToast('Unsupported file type','error'); return; }
+    showToast('Uploading…');
+    try{
+      const t=await _token();
+      // 1) mint a signed upload URL (server checks membership + NDA)
+      const r1=await fetch(API_BASE+'/api/corporate/upload-url',{method:'POST',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},
+        body:JSON.stringify({engagement_id:cur,kind:'dd',document_id:itemId,contentType:ct,size:file.size})});
+      if(!r1.ok) throw new Error((await r1.json().catch(()=>({}))).error||('HTTP '+r1.status));
+      const s=await r1.json();
+      // 2) PUT straight to storage via the same-origin /sb proxy (direct *.supabase.co is CSP-blocked
+      //    and fails on some Ugandan networks). The signed token in the URL is preserved.
+      const putUrl=String(s.signedUrl||'').replace(/^https:\/\/[a-z0-9-]+\.supabase\.co/i, location.origin+'/sb');
+      const putRes=await fetch(putUrl,{method:'PUT',headers:{'content-type':ct},body:file});
+      if(!putRes.ok) throw new Error('upload HTTP '+putRes.status);
+      // 3) record it on the document row
+      const r2=await fetch(API_BASE+'/api/corporate/upload-complete',{method:'POST',headers:{Authorization:'Bearer '+t,'Content-Type':'application/json'},
+        body:JSON.stringify({engagement_id:cur,kind:'dd',document_id:itemId,path:s.path,size:file.size,mime:ct})});
+      if(!r2.ok) throw new Error((await r2.json().catch(()=>({}))).error||('HTTP '+r2.status));
+      showToast('Uploaded','success'); openEngagement(cur);
+    }catch(e){ showToast('Upload failed — '+e.message,'error'); }
+  };
+  inp.click();
+}
+async function dl(itemId){ await signedOpen('document',itemId); }
+async function dlDeliv(id){ await signedOpen('deliverable',id); }
+async function signedOpen(kind,id){
+  try{ const t=await _token();
+    const r=await fetch(API_BASE+'/api/corporate/file-url?kind='+kind+'&id='+encodeURIComponent(id),{headers:{Authorization:'Bearer '+t}});
+    if(!r.ok) throw new Error('HTTP '+r.status); const j=await r.json();
+    if(!j.url) throw new Error('no url');
+    // open the download through the same-origin /sb proxy (direct *.supabase.co is CSP-blocked)
+    const durl=String(j.url).replace(/^https:\/\/[a-z0-9-]+\.supabase\.co/i, location.origin+'/sb');
+    window.open(durl,'_blank');
+  }catch(e){ showToast('Download not available yet — '+e.message,'error'); }
+}
+</script>
+</body>
+</html>

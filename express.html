@@ -153,6 +153,7 @@
       + '<div class="fld"><label>Email</label><input id="em" type="email" autocomplete="email"></div>'
       + '<div class="fld"><label>Phone (mobile money)</label><input id="ph" type="tel" inputmode="tel" autocomplete="tel" placeholder="+256…"></div>'
       + '<div class="fld"><label>Choose a password (creates your account)</label><input id="pw" type="password" autocomplete="new-password" placeholder="At least 8 characters"></div>'
+      + '<label style="display:flex;gap:8px;align-items:flex-start;font-size:12.5px;line-height:1.5;margin:12px 0;cursor:pointer"><input type="checkbox" id="ex-terms" style="width:auto;margin-top:3px;flex:0 0 auto"><span>I have read and agree to the <a href="/terms.html" target="_blank" rel="noopener">terms of service</a> and <a href="/privacy.html" target="_blank" rel="noopener">privacy policy</a>.</span></label>'
       + '<button class="btn" id="go" disabled>Hold my session</button>'
       + '<p class="sel-note" style="margin-top:12px">No charge here — you’ll get mobile-money details next. Your place holds until then.</p>'
       + '</div>'
@@ -185,6 +186,8 @@
     if(!body.firstName || !body.email){ return showErr('Please add your name and email.'); }
     if(!body.slotStart){ return showErr('Please pick a time above.'); }
     if((body.password||'').length < 8){ return showErr('Choose a password of at least 8 characters.'); }
+    var exTerms = document.getElementById('ex-terms');
+    if(exTerms && !exTerms.checked){ return showErr('Please accept the terms of service to continue.'); }
     var go = document.getElementById('go'); go.disabled = true; go.textContent = 'Holding…';
     fetch(API+'/api/express/book', { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify(body) })
       .then(function(r){ return r.json().then(function(j){ return {ok:r.ok, j:j}; }); })

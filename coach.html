@@ -10,7 +10,8 @@
 <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="/vendor/supabase-js.min.js?v=2110"></script>
 <script>window.supabase||document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"><\/script>')</script>
-<script src="ui-dialogs.js?v=3"></script>
+<script src="ui-dialogs.js?v=4"></script>
+<script src="dash-chrome.js?v=1" defer></script>
 <style>
   :root{
   --radius-card: 0 0 24px 0;--bg:#EFE7D8;--surface:#E6DCC7;--card:#EFE7D8;--ink:#1A1A1A;--ink-mid:#444;--muted:#5A564F;--text:#1A1A1A;
@@ -32,7 +33,12 @@
   .btn-login:hover{background:var(--terra-deep);}.btn-login:disabled{opacity:.5;}
   .login-error{color:#DC3545;font-size:12px;min-height:16px;margin-top:10px;}
   #app{display:none;}
-  .topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;border-bottom:1px solid var(--border-hi);background:var(--card);position:sticky;top:0;z-index:50;}
+  /* 950 clears the sidebar (.fsn-side is 900). `position:sticky` + z-index makes
+     .topbar a stacking context, so the Portals dropdown inside it (z-index 1000) was
+     capped at the topbar's level and painted underneath the sidebar. They never overlap
+     geometrically — body.fsn-on pads content clear of the sidebar, and .topbar hides on
+     mobile — so raising it is safe. */
+  .topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 28px;border-bottom:1px solid var(--border-hi);background:var(--card);position:sticky;top:0;z-index:950;}
   .topbar-left{display:flex;align-items:center;gap:12px;}.topbar-mark svg{width:26px;height:26px;display:block;}
   .topbar-logo{font-family:var(--sans);font-size:13px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;}
   .topbar-sep{width:1px;height:18px;background:var(--border-hi);}
@@ -169,6 +175,7 @@ html[data-theme="dark"]{
         <div class="page-eyebrow">Coaching</div>
         <div class="page-title">My Founders</div>
         <div class="page-sub">Every founder in the cohort. Open a founder to mark their L3 courses complete — completed courses light up their journey timeline and feed their investor-readiness signal.</div>
+        <div id="corp-awareness"></div>
         <div class="card" id="roster"></div>
       </div>
       <div id="view-founder" style="display:none"></div>
@@ -302,6 +309,7 @@ async function boot(user){
   document.getElementById('login-screen').style.display='none';
   document.getElementById('app').style.display='block';
   document.getElementById('user-email').textContent=user.email;
+  initCoachNav(user.email);
   { const hb=document.getElementById('hav-btn'); if(hb) hb.textContent=(user.email||'?')[0].toUpperCase(); }
   try{
     const c=await _q('coaches','or=(user_id.eq.'+user.id+',email.eq.'+encodeURIComponent(user.email)+',founderssprint_email.eq.'+encodeURIComponent(user.email)+')&select=*&limit=1');
@@ -320,8 +328,34 @@ async function boot(user){
     try{ myMaterials=await _q('course_materials','coach_id=eq.'+user.id+'&select=id,title,discipline,module_type,format,week_number,source_url,file_path,status&order=sort_order'); }catch(e){ myMaterials=[]; }
     renderSessions(); renderProfile(); renderEarnings(); renderCapital(); renderMaterials();
     loadTestimonials();
-    if(isLead){ document.getElementById('tab-applications').style.display=''; loadLeadApps(); }
+    renderCorpAwareness();   // PII-free corporate pipeline awareness (+ workspace link if seated)
+    if(isLead){ document.getElementById('tab-applications').style.display=''; if(window.FSDash) FSDash.setVisible('applications', true); loadLeadApps(); }
   }catch(e){ showToast('Load failed — '+e.message,'error'); }
+}
+
+// ── CORPORATE ADVISORY — founding-team awareness (PII-free) ──
+// Shows stage counts only (no client names/documents). If this coach is seated on
+// an engagement, offers a link into the corporate workspace; the confidential vault
+// itself stays membership-scoped in admin-portals.html + RLS.
+async function renderCorpAwareness(){
+  const host=document.getElementById('corp-awareness'); if(!host) return;
+  let sum=null;
+  try{ sum=await _rpc('corp_pipeline_summary'); }catch(e){ return; }
+  if(!sum || !sum.total){ host.innerHTML=''; return; }
+  let seated=false;
+  try{ const mine=await _q('corporate_engagements','select=id&limit=1'); seated=!!(mine&&mine.length); }catch(e){}
+  const STAGE_LBL={lead:'Lead',nda_pending:'NDA',nda_signed:'NDA signed',intake:'Intake',dd_collection:'DD collection',analysis:'Analysis',delivery:'Delivery'};
+  const bs=sum.by_stage||{};
+  const stages=Object.keys(bs).map(k=>(STAGE_LBL[k]||k)+' '+bs[k]).join(' · ');
+  host.innerHTML='<div class="card" style="margin-bottom:16px;border-left:3px solid var(--terra)">'
+    +'<div style="display:flex;justify-content:space-between;align-items:center;gap:14px;flex-wrap:wrap">'
+    +'<div><div class="page-eyebrow" style="margin-bottom:2px">Corporate advisory</div>'
+    +'<div style="font-family:var(--display);font-size:18px;font-weight:600">'+sum.active+' active engagement'+(sum.active===1?'':'s')+'</div>'
+    +(stages?('<div class="page-sub" style="margin:2px 0 0">'+esc(stages)+'</div>'):'')+'</div>'
+    +(seated
+      ? '<a href="/admin-portals.html" style="background:var(--terra);color:#fff;text-decoration:none;font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;padding:9px 15px;border-radius:2px">Open your engagements →</a>'
+      : '<div class="page-sub" style="max-width:280px;text-align:right">Bespoke corporate clients in progress. Want to advise on one? Talk to the corporate lead.</div>')
+    +'</div></div>';
 }
 
 // ── FOUNDERS ──
@@ -649,9 +683,11 @@ async function renderCapital(){
   const tb=document.getElementById('tab-capital');
   if(!d){                                   // external coach — no capital commitment; keep the tab hidden
     if(tb) tb.style.display='none';
+    if(window.FSDash) FSDash.setVisible('capital', false);
     el.innerHTML='<div class="card card-top" style="color:var(--muted);font-size:13px">No founder-capital commitment on file.</div>';
     return;
   }
+  if(window.FSDash) FSDash.setVisible('capital', true);
   if(tb) tb.style.display='';               // founding coach — reveal the tab
   const target=Number(d.target||0), paid=Number(d.paid||0), out=Number(d.outstanding||0);
   const pct = target>0 ? Math.min(100, Math.round(paid/target*100)) : 0;
@@ -680,6 +716,7 @@ async function loadLeadApps(){
   try{ leadApps = await _rpc('lead_review_queue') || []; }catch(e){ leadApps=[]; }
   const badge=document.getElementById('app-badge');
   if(leadApps.length){ badge.textContent=leadApps.length; badge.style.display=''; } else { badge.style.display='none'; }
+  if(window.FSDash) FSDash.setBadge('applications', leadApps.length);
   renderLeadApps();
 }
 function renderLeadApps(){
@@ -802,6 +839,7 @@ async function loadTestimonials(){
   catch(e){ myTestimonials=[]; }
   const pend=myTestimonials.filter(t=>t.status==='new').length;
   const b=document.getElementById('tst-badge'); if(b){ b.textContent=pend; b.style.display=pend?'inline-block':'none'; }
+  if(window.FSDash) FSDash.setBadge('testimonials', pend);
   renderTestimonials();
 }
 function tstCard(t){
@@ -859,7 +897,43 @@ async function tstDecide(id,status){
 function switchTab(name){
   document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active', b.dataset.tab===name));
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active', p.id==='panel-'+name));
+  if(window.FSDash) FSDash.setActive(name);   // keep the sidebar in step with in-page links
   window.scrollTo(0,0);
+}
+
+// ── Sidebar chrome (shared dash-chrome.js) — grouped IA, replaces the top tabs ──
+function initCoachNav(email){
+  if(!window.FSDash) return;
+  FSDash.init({
+    role:'Coach',
+    active:'founders',
+    user:email,
+    hide:['.tabs'],            // the old horizontal tab bar
+    hideOnMobile:['.topbar'],  // drawer carries brand + account on small screens
+    groups:[
+      { label:'Coaching', items:[
+        { key:'founders',     label:'My Founders' },
+        { key:'sessions',     label:'Sessions' },
+        { key:'availability', label:'1:1 Availability' },
+        { key:'materials',    label:'Materials' }
+      ]},
+      { label:'Discipline lead', items:[
+        { key:'applications', label:'Applications', hidden:true }
+      ]},
+      { label:'Business', items:[
+        { key:'earnings', label:'Earnings & Payout' },
+        { key:'capital',  label:'Founder Capital', hidden:true }
+      ]},
+      { label:'Account', items:[
+        { key:'profile',      label:'Profile' },
+        { key:'testimonials', label:'Testimonials' }
+      ]}
+    ],
+    onSelect:function(key){ switchTab(key); },
+    // Theme toggle lives here too — the topbar is hidden on mobile, so the drawer carries it.
+    links:[ { label:'Toggle dark mode', onClick:function(){ try{ toggleTheme(); }catch(e){} } },
+            { label:'Sign out', onClick:function(){ try{ signOut(); }catch(e){} } } ]
+  });
 }
 function esc(s){return String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 function showToast(m,t){const e=document.getElementById('toast');e.textContent=m;e.className=t||'';e.classList.add('show');setTimeout(()=>e.classList.remove('show'),3000);}

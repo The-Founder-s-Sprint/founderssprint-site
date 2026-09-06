@@ -379,7 +379,7 @@
   // Create account form submission — capture details (incl. password) and move on.
   // The account + registration are created server-side at the pay step so the
   // deposit STK push can fire immediately after.
-  $('#auth-form').addEventListener('submit', (e) => {
+  $('#auth-form').addEventListener('submit', async (e) => {
     e.preventDefault();
     state.name = $('#f-name').value.trim();
     state.email = $('#f-email').value.trim();
@@ -397,8 +397,36 @@
       if (pwEl) { pwEl.focus(); pwEl.reportValidity && pwEl.reportValidity(); }
       return;
     }
+    // Account-exists guard: an email already on the platform can't create a second
+    // account — route them to sign in instead (prevents the un-loggable "new password
+    // on an existing account" trap). Fails OPEN so a check outage never blocks booking;
+    // the server also refuses to reset an existing account's password.
+    const sBtn = e.target.querySelector('button[type=submit]'); if (sBtn) sBtn.disabled = true;
+    let exists = false;
+    try {
+      const ctrl = new AbortController(); const to = setTimeout(() => ctrl.abort(), 6000);
+      const resp = await fetch(API + '/api/check-email?email=' + encodeURIComponent(state.email), { signal: ctrl.signal });
+      clearTimeout(to);
+      if (resp.ok) { const j = await resp.json(); exists = !!(j && j.exists); }
+    } catch (_) { exists = false; }
+    if (sBtn) sBtn.disabled = false;
+    if (exists) { routeExistingToLogin(state.email); return; }
     goToStep(4);   // → Pay (the account is created server-side at the pay step)
   });
+
+  // Send a returning founder from the create-account form to the in-flow sign-in.
+  function routeExistingToLogin(email) {
+    const at = $('#auth-toggle'); if (at) at.style.display = 'flex';
+    const fl = $('#form-login'); if (fl) fl.style.display = 'block';
+    const fc = $('#form-create'); if (fc) fc.style.display = 'none';
+    authMode = 'login';
+    $$('.auth-tab').forEach(t => t.classList.toggle('active', t.dataset.mode === 'login'));
+    const le = $('#l-email'); if (le) le.value = email;
+    const t = $('#step2-title'); if (t) t.textContent = 'Welcome back';
+    const s = $('#step2-sub'); if (s) s.textContent = 'This email already has an account — sign in to continue your booking.';
+    const err = $('#login-error'); if (err) { err.textContent = 'You already have an account with this email. Please sign in.'; err.style.display = 'block'; }
+    const lp = $('#l-password'); if (lp) lp.focus();
+  }
 
   // Login form submission — real password sign-in so the returning founder gets a
   // session (drives the deposit poll + the dashboard link), then continue to config.
@@ -858,8 +886,13 @@
 
   // Build the registration payload shared by preview + live flows.
   function buildRegBody() {
-    const parts = state.name.trim().split(/\s+/);
-    const firstName = parts.shift() || state.name;
+    // Name fallback: a signed-in founder with a thin/empty profile can reach checkout with
+    // an empty state.name; derive a usable name from the email local-part so /api/register
+    // never rejects with "Missing required fields." (real name is still collected at step 2).
+    let nm = String(state.name || '').trim();
+    if (!nm && state.email) { nm = state.email.split('@')[0].replace(/[._+-]+/g, ' ').trim(); }
+    const parts = nm.split(/\s+/).filter(Boolean);
+    const firstName = parts.shift() || nm || 'Founder';
     const lastName  = parts.join(' ') || '—';
     const regBody = {
       track: state.tier,
@@ -911,6 +944,13 @@
 
   async function startPaymentProcessing() {
     if (!BOOKING_OPEN) { return reserveInterest(); }
+    // Guard before we hit the API, so a missing field surfaces as a clear message here
+    // rather than a cryptic "Missing required fields" from /api/register.
+    if (!state.email) { return showPayError('Please add your email before paying — tap back and enter it.'); }
+    if (!state.provider) { return showPayError('Choose how to pay — MTN MoMo, Airtel Money, or Card.'); }
+    if (state.provider !== 'card' && !String(state.phone || '').trim()) {
+      return showPayError('Enter the mobile-money number to send the prompt to.');
+    }
     const isCard = state.provider === 'card';
     $('#state-processing').style.display = 'flex';
     $('#state-success').style.display = 'none';
@@ -918,7 +958,7 @@
       // Card = redirect to the secure hosted page. No STK, no phone, no poll on this screen —
       // the founder completes on the card page and returns to card-return.html; the webhook credits.
       var cph = document.querySelector('#state-processing .h-section'); if (cph) cph.textContent = 'Opening secure card payment';
-      var csub = document.querySelector('#state-processing .h-sub'); if (csub) csub.textContent = 'One moment — taking you to our secure card page to complete your deposit.';
+      var csub = document.querySelector('#state-processing .h-sub'); if (csub) csub.textContent = 'One moment — we’re opening our secure card partner (PegPay) to take your card details. You’ll come straight back here once it’s done.';
       var ctimer = document.querySelector('#state-processing .processing-timer'); if (ctimer) ctimer.style.display = 'none';
       var ccancel = $('#btn-cancel-payment'); if (ccancel) ccancel.style.display = 'none';
     } else {

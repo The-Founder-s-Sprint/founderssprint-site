@@ -123,6 +123,10 @@
         <input type="password" id="su-password" required placeholder="Choose a password (min 6 chars)" autocomplete="new-password" minlength="6">
         <label>Confirm Password</label>
         <input type="password" id="su-confirm" required placeholder="Confirm your password" autocomplete="new-password">
+        <label style="display:flex;gap:8px;align-items:flex-start;font-size:12.5px;line-height:1.5;text-transform:none;letter-spacing:0;margin:14px 0 4px;cursor:pointer;font-weight:400">
+          <input type="checkbox" id="su-terms" required style="width:auto;margin:3px 0 0;flex:0 0 auto">
+          <span>I have read and agree to the <a href="/terms.html" target="_blank" rel="noopener">terms of service</a> and <a href="/privacy.html" target="_blank" rel="noopener">privacy policy</a>.</span>
+        </label>
         <button class="btn" type="submit" id="su-btn">Create Account</button>
         <div class="error" id="su-error"></div>
       </form>
@@ -226,6 +230,12 @@ async function handleSignup(e) {
 
   if (password !== confirm) { err.textContent = 'Passwords do not match'; return false; }
   if (password.length < 6) { err.textContent = 'Password must be at least 6 characters'; return false; }
+  // The checkbox is `required`, so the browser blocks submission first; this is the
+  // belt-and-braces check. The binding record is written on first dashboard load
+  // (founder.html requireTermsAcceptance) because no session exists yet at signup —
+  // the account is unconfirmed until the emailed link is clicked.
+  var termsBox = document.getElementById('su-terms');
+  if (termsBox && !termsBox.checked) { err.textContent = 'Please accept the terms of service to continue'; return false; }
 
   btn.disabled = true; btn.textContent = 'Creating account…';
   try {
