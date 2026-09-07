@@ -100,11 +100,24 @@
   }
 
   // The selected cohort id, validated against the live list (never a full/closed cohort).
+  // A cohort can be unbookable for two different reasons, and they need
+  // different words. `is_full` = every seat sold. `is_closed` = registration
+  // shut 48h before it starts, which is also when the balance falls due — we
+  // don't sell a seat we're about to declare in arrears. `accepting` is the
+  // RPC's combined verdict; fall back to is_full if an older response lacks it,
+  // so a stale cache can't block every cohort.
+  function cohortClosed(c) { return c ? c.is_closed === true : false; }
+  function cohortBlocked(c) {
+    if (!c) return true;
+    if (typeof c.accepting === 'boolean') return !c.accepting;
+    return !!c.is_full;
+  }
+
   function resolveCohortId() {
     var id = state.cohort ? Number(state.cohort) : null;
     if (!id) return null;
     var c = state.cohorts.filter(function (x) { return x.id === id; })[0];
-    if (!c || c.is_full) return null;
+    if (!c || cohortBlocked(c)) return null;
     return id;
   }
 
@@ -127,25 +140,31 @@
       host.innerHTML = '<div class="cohort-loading" style="padding:18px;color:var(--ink-mute,#5A564F);font-size:14px">No cohorts are open for booking just now. <a href="/contact.html" style="color:var(--terra)">Talk to us</a> and we\'ll tell you the moment the next one opens.</div>';
       return;
     }
-    var firstOpen = list.filter(function (c) { return !c.is_full; })[0];
-    // A preselected cohort (?cohort= from the pricing page) that's missing or full falls back to the next open one.
-    if (state.cohort != null && !list.filter(function (c) { return c.id === state.cohort && !c.is_full; })[0]) state.cohort = null;
+    var firstOpen = list.filter(function (c) { return !cohortBlocked(c); })[0];
+    // A preselected cohort (?cohort= from the pricing page) that's missing, full
+    // or past its cutoff falls back to the next one actually taking bookings.
+    if (state.cohort != null && !list.filter(function (c) { return c.id === state.cohort && !cohortBlocked(c); })[0]) state.cohort = null;
     if (state.cohort == null && firstOpen) state.cohort = firstOpen.id;
     var chk = '<div class="cohort-check"><svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M5 10L9 14L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>';
     var html = '';
     list.forEach(function (c) {
-      var full = !!c.is_full;
+      var blocked = cohortBlocked(c);
+      var closed = cohortClosed(c) && !c.is_full;   // shut by date rather than sold out
       var sel = state.cohort === c.id;
       var isNext = firstOpen && c.id === firstOpen.id;
-      var badge = full ? '<div class="cohort-badge" style="background:#9A3E16">Full</div>'
-                : (isNext ? '<div class="cohort-badge">Next available</div>' : '');
-      var lowSeats = !full && c.seats_remaining <= 3;
-      var spots = full ? '<span class="spots" style="color:#9A3E16">Full</span>'
-                : '<span class="spots"' + (lowSeats ? ' style="color:#9A3E16;font-weight:600"' : '') + '>' + c.seats_remaining + ' of ' + c.seats_total + ' remaining' + (lowSeats ? ' — nearly full' : '') + '</span>';
-      var tail = (full && firstOpen)
-        ? '<button type="button" class="cohort-spill" data-spill="' + firstOpen.id + '" style="margin-top:10px;background:none;border:1px solid var(--line,rgba(26,26,26,.14));color:var(--terra,#C8531F);font-family:inherit;font-size:12px;font-weight:600;padding:9px 12px;cursor:pointer;border-radius:0 0 10px 0;width:100%;text-align:left">Full &mdash; join ' + esc(monthYear(firstOpen.start_date)) + ' instead &rarr;</button>'
-        : chk;
-      html += '<div class="cohort-card' + (sel ? ' selected' : '') + (full ? ' full' : '') + '" data-cohort-id="' + c.id + '"' + (full ? ' style="opacity:.62"' : '') + '>'
+      var badge = c.is_full ? '<div class="cohort-badge" style="background:#9A3E16">Full</div>'
+                : (closed ? '<div class="cohort-badge" style="background:#5A564F">Closed</div>'
+                : (isNext ? '<div class="cohort-badge">Next available</div>' : ''));
+      var lowSeats = !blocked && c.seats_remaining <= 3;
+      // Say WHY it can't be booked. "Closed" on a cohort with ten free seats
+      // reads as a bug unless the reason is on the card.
+      var spots = c.is_full ? '<span class="spots" style="color:#9A3E16">Full</span>'
+                : (closed ? '<span class="spots" style="color:var(--ink-mute,#5A564F)">Registration closed &mdash; this cohort has started</span>'
+                : '<span class="spots"' + (lowSeats ? ' style="color:#9A3E16;font-weight:600"' : '') + '>' + c.seats_remaining + ' of ' + c.seats_total + ' remaining' + (lowSeats ? ' — nearly full' : '') + '</span>');
+      var tail = (blocked && firstOpen)
+        ? '<button type="button" class="cohort-spill" data-spill="' + firstOpen.id + '" style="margin-top:10px;background:none;border:1px solid var(--line,rgba(26,26,26,.14));color:var(--terra,#C8531F);font-family:inherit;font-size:12px;font-weight:600;padding:9px 12px;cursor:pointer;border-radius:0 0 10px 0;width:100%;text-align:left">' + (c.is_full ? 'Full' : 'Closed') + ' &mdash; join ' + esc(monthYear(firstOpen.start_date)) + ' instead &rarr;</button>'
+        : (blocked ? '' : chk);
+      html += '<div class="cohort-card' + (sel ? ' selected' : '') + (blocked ? ' full' : '') + '" data-cohort-id="' + c.id + '"' + (blocked ? ' style="opacity:.62"' : '') + '>'
         + badge
         + '<div class="cohort-date"><span class="cohort-month">' + esc(monthYear(c.start_date)) + '</span><span class="cohort-range">' + esc(c.dates) + '</span></div>'
         + '<div class="cohort-detail">'
