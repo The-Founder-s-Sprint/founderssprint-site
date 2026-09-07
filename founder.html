@@ -320,6 +320,7 @@
     <button class="tab active" onclick="switchTab('overview')">Overview</button>
     <button class="tab" onclick="switchTab('intake')">Your Business</button>
     <button class="tab" onclick="switchTab('dataroom')">Data Room</button>
+    <button class="tab" onclick="switchTab('materials')">Course Materials</button>
     <button class="tab" onclick="switchTab('workbench')">Workbench</button>
     <button class="tab" onclick="switchTab('sessions')">Sessions</button>
     <button class="tab" onclick="switchTab('payments')">Payments</button>
@@ -482,6 +483,17 @@
     </div>
 
     <!-- ── INVESTORS (marketplace) ── -->
+    <!-- ── COURSE MATERIALS — the catalogue is the tease. Every founder sees
+         every deck that exists; opening one needs enrolment in that discipline.
+         A locked row that names what it is does more selling than a hidden
+         section, and it's honest about what the money buys. ── -->
+    <div class="tab-panel" id="panel-materials">
+      <div class="page-eyebrow">Course materials</div>
+      <div class="page-title">The decks</div>
+      <div class="page-sub">Every session's slides, by discipline. The decks are the textbook — your coach is the professor. You can open the ones for disciplines you're enrolled in.</div>
+      <div id="materials-body" class="sub" style="margin-top:18px">Loading…</div>
+    </div>
+
     <div class="tab-panel" id="panel-workbench">
       <div id="wb-browse">
         <div class="page-eyebrow">Self-guided</div>
@@ -1797,7 +1809,90 @@ function switchTab(name){
   if(name==='investors') renderInvestorDir();
   if(name==='workbench') renderWorkbench();
   if(name==='intake') renderIntake();
+  if(name==='materials') renderMaterials();
   window.scrollTo(0,0);
+}
+
+// ── Course materials ─────────────────────────────────────────────────────────
+// Catalogue open to every signed-in founder; opening gated on enrolment in that
+// discipline. RLS already returns only published + active rows, so this asks for
+// no more than a free account is entitled to see.
+let materialsRows = null;
+
+async function renderMaterials(){
+  const el = document.getElementById('materials-body'); if(!el) return;
+  try{
+    if(!materialsRows){
+      materialsRows = await _pgQuery('course_materials',
+        'is_active=eq.true&status=eq.published&select=id,title,description,discipline,module_type,week_number,session_code,sort_order,duration_minutes,source_url,format,access_type'
+        + '&order=discipline,week_number.nullsfirst,sort_order');
+    }
+  }catch(e){ el.innerHTML = '<div class="sub">Could not load — '+esc(e.message)+'</div>'; return; }
+
+  const enrolled = enrolledSet();
+  const paid = hasPaid();
+
+  const html = DISC_META.map(d => {
+    // course_materials.discipline holds a human label, not the key, so map it.
+    const rows = (materialsRows||[]).filter(m => disciplineOf(m.discipline) === d.key);
+    const isEnrolled = enrolled.has(d.key);
+    const canOpen = isEnrolled && paid;
+
+    let body;
+    if(!rows.length){
+      // Say so plainly. An empty discipline is a real state, and pretending
+      // otherwise is how Barry's missing decks stay invisible.
+      body = '<div class="sub" style="font-size:12.5px">'+esc(d.coach)+'’s decks are being finalised — they’ll appear here as they’re published.</div>';
+    } else {
+      body = rows.map(m => {
+        const meta = [m.week_number ? ('Week '+m.week_number) : null,
+                      m.format || null,
+                      m.duration_minutes ? (m.duration_minutes+' min') : null]
+                     .filter(Boolean).join(' · ');
+        const title = esc(m.title || 'Untitled');
+        const line = '<div style="font-size:13.5px;font-weight:600">'+title+'</div>'
+          + (meta ? '<div class="sub" style="font-size:11px">'+esc(meta)+'</div>' : '')
+          + (m.description ? '<div class="sub" style="font-size:12px;margin-top:2px">'+esc(m.description)+'</div>' : '');
+        return canOpen && m.source_url
+          ? '<a class="mat-row" href="'+esc(m.source_url)+'" target="_blank" rel="noopener" '
+            + 'style="display:block;text-decoration:none;color:inherit;padding:10px 0;border-top:1px solid var(--border)">'
+            + line + '<div style="font-size:11px;color:var(--terra);font-weight:600;margin-top:4px">Open deck →</div></a>'
+          : '<div style="padding:10px 0;border-top:1px solid var(--border);opacity:.62">'
+            + line + '<div style="font-size:11px;color:var(--muted);margin-top:4px">🔒 Locked</div></div>';
+      }).join('');
+    }
+
+    const cta = canOpen ? ''
+      : '<div style="margin-top:12px">'
+        + '<a class="btn" href="/beta/book/" style="text-decoration:none;display:inline-block">'
+        + (isEnrolled ? 'Complete your payment to unlock' : 'Enrol in '+esc(d.label))
+        + '</a></div>';
+
+    const status = canOpen
+      ? '<span class="pill" style="background:rgba(138,171,92,.18);color:#5f7a37">Enrolled</span>'
+      : (isEnrolled
+          ? '<span class="pill" style="background:rgba(201,146,58,.18);color:var(--ochre-deep)">Payment pending</span>'
+          : '<span class="pill" style="background:var(--border);color:var(--muted)">Not enrolled</span>');
+
+    return '<div style="border:1px solid var(--border);border-top:3px solid '+d.color+';'
+      + 'border-radius:var(--radius-card);padding:20px;margin-bottom:18px;background:var(--surface)">'
+      + '<div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:2px">'
+      + '<span style="font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.14em;'
+      + 'text-transform:uppercase;color:'+d.color+'">'+esc(d.label)+'</span>'+status+'</div>'
+      + '<div class="sub" style="font-size:12px;margin-bottom:10px">'+esc(d.coach)+' · '+esc(d.day)+'s'
+      + (rows.length ? (' · '+rows.length+' deck'+(rows.length===1?'':'s')) : '')+'</div>'
+      + body + cta + '</div>';
+  }).join('');
+
+  const lockedCount = DISC_META.filter(d => !(enrolled.has(d.key) && paid)).length;
+  const preamble = lockedCount === 0 ? ''
+    : '<div style="border:1px solid var(--border);border-top:3px solid var(--ochre);'
+      + 'border-radius:var(--radius-card);padding:16px 20px;margin-bottom:18px;background:var(--surface)">'
+      + '<div style="font-size:13.5px;line-height:1.6">You can see every deck we teach from. '
+      + (paid ? 'The ones outside your enrolment stay locked — ' : 'Opening them needs a booking — ')
+      + 'the Full Cohort covers all five disciplines.</div></div>';
+
+  el.innerHTML = preamble + html;
 }
 
 // ── Your Business — pre-coaching intake ──────────────────────────────────────
