@@ -1838,11 +1838,17 @@ async function renderIntake(){
   });
 
   html += '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">'
-    + '<button class="btn" type="button" onclick="saveIntake(false)">Save progress</button>'
+    + '<button class="btn" type="button" onclick="saveIntake(false)">Save draft</button>'
     + '<button class="btn" type="button" onclick="saveIntake(true)" '
     + 'style="background:var(--terra);color:#fff;border-color:var(--terra)">'
     + (submitted ? 'Save &amp; re-share with coaches' : 'Share with my coaches') + '</button>'
-    + '<span class="sub" id="intake-msg" style="font-size:12px"></span></div>';
+    + '<span class="sub" id="intake-msg" style="font-size:12px"></span></div>'
+    // State the rule rather than leaving it to be inferred from a button label.
+    + '<div class="sub" style="font-size:12px;margin-top:12px;max-width:560px">'
+    + (submitted
+        ? 'Your coaches can see this. Edits you save now go straight to them — it stays useful because it stays current.'
+        : 'A draft is private — nothing reaches your coaches until you press <strong>Share with my coaches</strong>.')
+    + '</div>';
 
   el.innerHTML = html;
   intakeDirty = false;

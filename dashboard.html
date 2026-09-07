@@ -801,7 +801,6 @@ html[data-theme="dark"]{
     <button class="tab" onclick="switchTab('pricing')">Pricing</button>
     <button class="tab" onclick="switchTab('capital')">Founder Capital</button>
     <a class="tab" href="/admin-portals.html" style="text-decoration:none" title="Coach roster, applications & materials live in the Coaches Portal">Coaches ↗</a>
-    <a class="tab" href="/express-admin.html" style="text-decoration:none" title="Beta express 1:1 sessions — confirm payment & send the Meet link">Express ↗</a>
   </div>
 
   <div class="main">
@@ -3747,7 +3746,6 @@ function initOpsNav(email) {
     user: email || '',
     links: [
       { label: '⇄ Coaches portal', href: '/admin-portals.html' },
-      { label: '⇄ Express sessions', href: '/express-admin.html' },
       { label: '◐ Light / dark', onClick: function () { try { toggleTheme(); } catch (e) {} } },
       { label: 'Sign out',        onClick: function () { try { signOut(); } catch (e) {} } },
     ],

@@ -471,10 +471,9 @@ function intakePanel(intake, qs, myDisc, f){
   // were written for one coach each, so showing all five is noise.
   const mine=qs.filter(q=>q.section===myDisc).map(row).join('');
 
-  const stale = intake.status!=='submitted'
-    ? '<div class="sub" style="font-size:12px;margin-bottom:12px;color:var(--ochre-deep)">Still a draft — they may add more.</div>' : '';
-
-  return wrap(stale + core
+  // RLS only returns SHARED intakes, so there is no draft state to render here —
+  // a founder's unshared draft is invisible to coaches by policy, not by filtering.
+  return wrap(core
     + (mine ? '<div class="section-title" style="margin:18px 0 10px">For your discipline</div>'+mine : '')
     + '<div class="sub" style="font-size:11px;margin-top:14px">Written by '+esc(name)+' before coaching began. Read-only.</div>');
 }
