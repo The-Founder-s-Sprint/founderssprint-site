@@ -318,6 +318,7 @@
 
   <div class="tabs-wrap">
     <button class="tab active" onclick="switchTab('overview')">Overview</button>
+    <button class="tab" onclick="switchTab('intake')">Your Business</button>
     <button class="tab" onclick="switchTab('dataroom')">Data Room</button>
     <button class="tab" onclick="switchTab('workbench')">Workbench</button>
     <button class="tab" onclick="switchTab('sessions')">Sessions</button>
@@ -341,6 +342,8 @@
 
       <!-- ── READINESS CHECK — self-assessment. Deliberately NOT the investor-facing
            data-room completeness signal, and never shown to investors. ── -->
+      <div id="intake-nudge" style="display:none;background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--ochre);border-radius:var(--radius-card);padding:20px;margin-bottom:22px"></div>
+
       <div id="rdy-card" style="display:none;background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--ochre);border-radius:var(--radius-card);padding:20px;margin-bottom:22px"></div>
 
       <!-- ── JOURNEY TIMELINE ── -->
@@ -394,6 +397,17 @@
     </div>
 
     <!-- ── DATA ROOM ── -->
+    <!-- ── YOUR BUSINESS — the context coaches read BEFORE the first session.
+         The data room only fills up as the cohort produces deliverables, so
+         without this a coach walks into week one knowing a name and nothing
+         else. Questions are rendered from intake_questions, never hardcoded. ── -->
+    <div class="tab-panel" id="panel-intake">
+      <div class="page-eyebrow">Your business</div>
+      <div class="page-title">Tell your coaches about it</div>
+      <div class="page-sub">Your five coaches read this before they teach you. Ten minutes here saves the first twenty of every session — and blunt answers get better coaching than tidy ones. Only your coaches and our staff can see it; investors never do.</div>
+      <div id="intake-body" class="sub" style="margin-top:18px">Loading…</div>
+    </div>
+
     <div class="tab-panel" id="panel-dataroom">
       <div class="page-eyebrow">Investor-ready</div>
       <div class="page-title">Your Data Room</div>
@@ -953,6 +967,8 @@ async function loadAll(user){
 
   applyAvatar();
   renderTimeline(); renderOverview(); renderDataRoom(); renderSessions(); renderPayments(); fillProfile();
+  // Non-blocking: the nudge appears once we know how far through the intake they are.
+  loadIntake().then(renderIntakeNudge).catch(()=>{});
   loadReadiness();   // async, non-blocking: imports any anonymous run taken before signup
 }
 
@@ -1733,7 +1749,155 @@ function switchTab(name){
   document.querySelectorAll('.tab-panel').forEach(p=>p.classList.toggle('active', p.id==='panel-'+name));
   if(name==='investors') renderInvestorDir();
   if(name==='workbench') renderWorkbench();
+  if(name==='intake') renderIntake();
   window.scrollTo(0,0);
+}
+
+// ── Your Business — pre-coaching intake ──────────────────────────────────────
+// Questions come from the intake_questions table so this page and the coach
+// dashboard render the same set, and wording can change without a deploy.
+// Answers are keyed by qkey; completeness is computed by a DB trigger, never here.
+let intakeQs = null, intakeRow = null, intakeDirty = false;
+
+async function loadIntake(){
+  if(!company) return null;
+  const [qs, rows] = await Promise.all([
+    intakeQs ? Promise.resolve(intakeQs)
+             : _pgQuery('intake_questions','active=eq.true&order=sort_order&select=*'),
+    _pgQuery('founder_intake','company_id=eq.'+company.id+'&select=*')
+  ]);
+  intakeQs = qs || [];
+  intakeRow = (rows && rows[0]) || null;
+  return intakeRow;
+}
+
+function intakeField(q, val){
+  const v = val == null ? '' : String(val);
+  const id = 'iq-'+q.qkey;
+  const common = 'id="'+id+'" data-qkey="'+esc(q.qkey)+'" oninput="intakeDirty=true" '
+    + 'style="width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:8px;'
+    + 'background:var(--bg);color:var(--text);font-family:inherit;font-size:14px"';
+  if(q.input_type === 'select'){
+    const opts = (q.options||[]).map(o =>
+      '<option value="'+esc(o)+'"'+(o===v?' selected':'')+'>'+esc(o)+'</option>').join('');
+    return '<select '+common+'><option value="">Choose one…</option>'+opts+'</select>';
+  }
+  if(q.input_type === 'textarea')
+    return '<textarea rows="3" '+common+' placeholder="'+esc(q.placeholder||'')+'">'+esc(v)+'</textarea>';
+  const type = (q.input_type==='number'||q.input_type==='money') ? 'number' : 'text';
+  return '<input type="'+type+'" '+common+' value="'+esc(v)+'" placeholder="'+esc(q.placeholder||'')+'">';
+}
+
+async function renderIntake(){
+  const el = document.getElementById('intake-body'); if(!el) return;
+  if(!company){
+    el.innerHTML = '<div class="sub">Add your company first, on the Profile tab, and this will open up.</div>';
+    return;
+  }
+  try { await loadIntake(); }
+  catch(e){ el.innerHTML = '<div class="sub">Could not load — '+esc(e.message)+'</div>'; return; }
+
+  const ans = (intakeRow && intakeRow.answers) || {};
+  const enrolled = (company.enrolled_disciplines && company.enrolled_disciplines.length)
+    ? company.enrolled_disciplines : DISC_META.map(d=>d.key);
+
+  const section = (title, colour, note, qs) =>
+    '<div style="border:1px solid var(--border);border-top:3px solid '+colour+';border-radius:var(--radius-card);'
+    + 'padding:20px;margin-bottom:18px;background:var(--surface)">'
+    + '<div style="font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.14em;'
+    + 'text-transform:uppercase;color:'+colour+';margin-bottom:4px">'+esc(title)+'</div>'
+    + (note ? '<div class="sub" style="margin-bottom:14px;font-size:12px">'+esc(note)+'</div>' : '')
+    + qs.map(q =>
+        '<div style="margin:14px 0">'
+        + '<label for="iq-'+esc(q.qkey)+'" style="display:block;font-size:13.5px;font-weight:600;margin-bottom:5px">'
+        + esc(q.prompt) + (q.required ? ' <span style="color:var(--terra)">*</span>' : '') + '</label>'
+        + (q.help ? '<div class="sub" style="font-size:12px;margin-bottom:6px">'+esc(q.help)+'</div>' : '')
+        + intakeField(q, ans[q.qkey]) + '</div>').join('')
+    + '</div>';
+
+  const core = intakeQs.filter(q => q.section === 'core');
+  let html = '';
+
+  const done = intakeRow ? intakeRow.completeness : 0;
+  const submitted = intakeRow && intakeRow.status === 'submitted';
+  html += '<div style="display:flex;align-items:center;gap:14px;margin-bottom:18px">'
+    + '<div style="flex:1;height:6px;background:var(--border);border-radius:3px;overflow:hidden">'
+    + '<div style="height:100%;width:'+done+'%;background:'+(done===100?'#8AAB5C':'var(--ochre)')+'"></div></div>'
+    + '<div class="sub" style="font-size:12px;white-space:nowrap">'+done+'% of the essentials'
+    + (submitted ? ' · shared with your coaches' : '') + '</div></div>';
+
+  html += section('The essentials', 'var(--terra)',
+    'Every coach reads these.', core);
+
+  DISC_META.forEach(d => {
+    if(enrolled.indexOf(d.key) < 0) return;
+    const qs = intakeQs.filter(q => q.section === d.key);
+    if(!qs.length) return;
+    html += section(d.label + ' · ' + d.coach, d.color,
+      'Only ' + d.coach + ' sees this section.', qs);
+  });
+
+  html += '<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">'
+    + '<button class="btn" type="button" onclick="saveIntake(false)">Save progress</button>'
+    + '<button class="btn" type="button" onclick="saveIntake(true)" '
+    + 'style="background:var(--terra);color:#fff;border-color:var(--terra)">'
+    + (submitted ? 'Save &amp; re-share with coaches' : 'Share with my coaches') + '</button>'
+    + '<span class="sub" id="intake-msg" style="font-size:12px"></span></div>';
+
+  el.innerHTML = html;
+  intakeDirty = false;
+}
+
+async function saveIntake(submit){
+  const msg = document.getElementById('intake-msg');
+  if(!company) return;
+  const answers = {};
+  document.querySelectorAll('#intake-body [data-qkey]').forEach(f => {
+    const v = (f.value == null ? '' : String(f.value)).trim();
+    if(v !== '') answers[f.getAttribute('data-qkey')] = v;
+  });
+
+  // Only block on required questions when they are SHARING. A founder must always
+  // be able to save half an answer and come back to it.
+  if(submit){
+    const missing = intakeQs.filter(q => q.section==='core' && q.required && !answers[q.qkey]);
+    if(missing.length){
+      if(msg){ msg.textContent = missing.length+' essential question'+(missing.length>1?'s':'')+' still to answer.'; msg.style.color='var(--terra)'; }
+      const first = document.getElementById('iq-'+missing[0].qkey);
+      if(first){ first.focus(); first.scrollIntoView({block:'center',behavior:'smooth'}); }
+      return;
+    }
+  }
+
+  const body = { answers, company_id: company.id, founder_id: profile.id };
+  if(submit) body.status = 'submitted';
+  try{
+    if(intakeRow) await _pgWrite('PATCH','founder_intake','id=eq.'+intakeRow.id, body);
+    else          await _pgWrite('POST','founder_intake','', body);
+    intakeRow = null;                       // completeness is recomputed server-side
+    await renderIntake();
+    const m2 = document.getElementById('intake-msg');
+    if(m2){ m2.textContent = submit ? 'Shared with your coaches. Thank you.' : 'Saved.'; m2.style.color='#8AAB5C'; }
+    renderIntakeNudge();
+  }catch(e){
+    if(msg){ msg.textContent = 'Could not save — '+e.message; msg.style.color='var(--terra)'; }
+  }
+}
+
+// Overview nudge — a strong prompt, never a lock. A founder who has paid is
+// never barred from a class by an unfinished form.
+function renderIntakeNudge(){
+  const el = document.getElementById('intake-nudge'); if(!el) return;
+  const done = intakeRow ? intakeRow.completeness : 0;
+  if(!company || done === 100){ el.style.display='none'; return; }
+  el.style.display='block';
+  el.innerHTML = '<div style="font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.14em;'
+    + 'text-transform:uppercase;color:var(--ochre-deep);margin-bottom:6px">Before your first session</div>'
+    + '<div style="font-size:14px;line-height:1.6;margin-bottom:12px">Your coaches know your name and nothing else about your business yet. '
+    + (done > 0 ? 'You\'re '+done+'% of the way through — ' : '')
+    + 'ten minutes now and they arrive already understanding what you\'re building.</div>'
+    + '<a class="btn" href="#" onclick="switchTab(\'intake\');return false" style="text-decoration:none;display:inline-block">'
+    + (done > 0 ? 'Finish telling them' : 'Tell them about your business') + '</a>';
 }
 
 // ── Workbench: self-guided interactive modules ("the pamphlet") ──

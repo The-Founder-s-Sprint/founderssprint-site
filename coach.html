@@ -422,13 +422,61 @@ async function openFounder(fid){
   if(_comp&&_adisc){ try{ const r=await _q('founder_coach_assessment','company_id=eq.'+_comp.id+'&coach_id=eq.'+coach.id+'&discipline_key=eq.'+encodeURIComponent(_adisc)+'&select=*&limit=1'); _ex=(r&&r[0])||null; }catch(e){} }
   const _didx=(TAXONOMY.find(t=>t.key===_adisc)||{}).idx;
   const _basis={ track:(founderMeta[fid]||{}).track||null, courses:[...done].filter(k=>String(k.split('-')[0])===String(_didx)).length };
+
+  // What the founder told us about their business before teaching started. RLS
+  // returns this only for founders this coach actually covers; read-only by
+  // policy — a coach must never edit a founder's own account of their business.
+  let _intake=null, _iqs=[];
+  if(_comp){
+    try{
+      const r=await Promise.all([
+        _q('founder_intake','company_id=eq.'+_comp.id+'&select=*&limit=1'),
+        _q('intake_questions','active=eq.true&order=sort_order&select=qkey,section,prompt')
+      ]);
+      _intake=(r[0]&&r[0][0])||null; _iqs=r[1]||[];
+    }catch(e){}
+  }
+
   dv.innerHTML='<span class="back" onclick="closeFounder()">← All founders</span>'
     +'<div class="page-eyebrow">Mark progress</div>'
     +'<div class="page-title">'+esc(f.company_name||((f.first_name||'')+' '+(f.last_name||'')))+'</div>'
     +'<div class="page-sub">Tick a course once the founder has completed it. You can mark courses in <strong>your</strong> discipline'+(TAXONOMY.filter(t=>myDiscKeys.has(t.key)).length?' ('+TAXONOMY.filter(t=>myDiscKeys.has(t.key)).map(t=>t.label).join(', ')+')':'')+'; other disciplines are read-only here.</div>'
+    +intakePanel(_intake,_iqs,_adisc,f)
     +blocks
     +(_comp&&_adisc?assessmentPanel(_comp,_adisc,_ex,_basis):'');
   window.scrollTo(0,0);
+}
+
+// ── What the founder told us, before you teach them ──────────────────────────
+// Shown ABOVE the course checklist: it is what a coach needs first, and burying
+// context under a 49-row tick list means nobody reads it.
+function intakePanel(intake, qs, myDisc, f){
+  const name=(f.first_name||'this founder');
+  const wrap=(inner)=>'<div style="border:1px solid var(--border);border-top:3px solid var(--ochre);'
+    +'border-radius:var(--radius-card,10px);padding:20px;margin:0 0 22px;background:var(--surface)">'
+    +'<div class="section-title" style="margin-top:0">About the business</div>'+inner+'</div>';
+
+  if(!intake || !intake.answers || !Object.keys(intake.answers).length)
+    return wrap('<div class="sub">'+esc(name)+' hasn\'t filled this in yet. It\'s a ten-minute form on their dashboard — '
+      +'nudge them, or ask in the session and it will fill itself in.</div>');
+
+  const a=intake.answers;
+  const row=(q)=>{
+    const v=a[q.qkey]; if(v==null||String(v).trim()==='') return '';
+    return '<div style="margin:0 0 14px"><div style="font-size:12px;color:var(--muted);margin-bottom:3px">'
+      +esc(q.prompt)+'</div><div style="font-size:14px;line-height:1.55;white-space:pre-wrap">'+esc(v)+'</div></div>';
+  };
+  const core=qs.filter(q=>q.section==='core').map(row).join('');
+  // A coach sees the core plus their own discipline's questions — the sections
+  // were written for one coach each, so showing all five is noise.
+  const mine=qs.filter(q=>q.section===myDisc).map(row).join('');
+
+  const stale = intake.status!=='submitted'
+    ? '<div class="sub" style="font-size:12px;margin-bottom:12px;color:var(--ochre-deep)">Still a draft — they may add more.</div>' : '';
+
+  return wrap(stale + core
+    + (mine ? '<div class="section-title" style="margin:18px 0 10px">For your discipline</div>'+mine : '')
+    + '<div class="sub" style="font-size:11px;margin-top:14px">Written by '+esc(name)+' before coaching began. Read-only.</div>');
 }
 function closeFounder(){document.getElementById('view-founder').style.display='none';document.getElementById('view-roster').style.display='block';loadRoster();window.scrollTo(0,0);}
 async function toggleCourse(elm,fid,l1,l2,l3,label){
