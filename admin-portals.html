@@ -496,7 +496,15 @@ function syncDashNav(c){
 }
 function switchPortal(k){ active=k; document.getElementById('search').value=''; renderTabs();
   document.getElementById('portal-title').textContent=PORTALS.find(p=>p.key===k).label;
-  document.getElementById('portal-sub').textContent=PORTAL_SUB[k]; renderActive(); }
+  document.getElementById('portal-sub').textContent=PORTAL_SUB[k];
+  // Every portal loads its own stats asynchronously. Without clearing first, the
+  // PREVIOUS portal's numbers sit under the new portal's title until that finishes —
+  // so Corporate opened showing "9 Founders · 0 Companies". Blank beats wrong.
+  stats([]);
+  // Landing inside whatever engagement was last opened is not what clicking
+  // "Corporate" means. Always come back to the list.
+  if(k==='corporate'){ corpCur=null; corpDetail=null; }
+  renderActive(); }
 
 function match(q,...fields){ q=q.trim().toLowerCase(); if(!q)return true; return fields.some(f=>String(f||'').toLowerCase().includes(q)); }
 function tbl(headers,rows){
@@ -553,15 +561,21 @@ async function loadCorporate(){
   }catch(e){ document.getElementById('roster').innerHTML=tbl(['Engagement'],[]); showToast('Could not load engagements — '+e.message,'error'); }
 }
 
-function renderCorpList(){
-  corpCur=null;
-  const q=searchVal().toLowerCase();
+// The portfolio numbers, set by BOTH the list and the engagement detail view —
+// the stat row belongs to the portal, not to one screen inside it.
+function corpStats(){
   stats([
     {v:corpEngs.length,l:'Engagements'},
     {v:corpEngs.filter(e=>e.status==='active').length,l:'Active'},
     {v:corpEngs.filter(e=>['nda_pending','nda_signed','intake','dd_collection','analysis'].includes(e.stage)).length,l:'In progress'},
     {v:corpEngs.filter(e=>e.stage==='delivery').length,l:'In delivery'}
   ]);
+}
+
+function renderCorpList(){
+  corpCur=null;
+  const q=searchVal().toLowerCase();
+  corpStats();
   const rows=corpEngs.filter(e=>!q||[corpClientName(e.client_id),e.title,e.code].some(x=>String(x||'').toLowerCase().includes(q)))
    .map(e=>'<tr style="cursor:pointer" onclick="openEngagement(\''+e.id+'\')">'
      +'<td><strong>'+esc(corpClientName(e.client_id))+'</strong>'+(e.code?' <span class="sub">'+esc(e.code)+'</span>':'')+'</td>'
@@ -714,6 +728,7 @@ function ndaSigned(){ return (corpDetail&&corpDetail.contracts||[]).some(c=>c.ty
 
 function renderEngagement(){
   const e=corpEng(), d=corpDetail; if(!d){ loadCorporate(); return; }
+  corpStats();
   const back='<span class="back" onclick="renderCorpList()" style="font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ochre-deep);cursor:pointer;display:inline-block;margin-bottom:14px">← All engagements</span>';
   const nda=ndaSigned();
   // A firm member of THIS engagement can do the delivery work (DD review, deliverables,
@@ -2184,6 +2199,12 @@ async function loadTestimonials(){
 function tstFilterSet(f){ tstFilter=f; loadTestimonials(); }
 function renderTestimonials(){
   const q=searchVal();
+  stats([
+    {v:tstRows.length,l:'Testimonials'},
+    {v:tstRows.filter(t=>t.status==='new').length,l:'Pending'},
+    {v:tstRows.filter(t=>t.status==='approved').length,l:'Live'},
+    {v:tstRows.filter(t=>t.rating!=null).length,l:'With rating'}
+  ]);
   const rows=tstRows.filter(t=>match(q,t.name,t.company,t.role_title,t.testimonial,tstTargetLabel(t.for_target)));
   const chips=[['new','Pending'],['approved','Live'],['rejected','Declined'],['revoked','Revoked'],['all','All']]
     .map(c=>'<button class="seg'+(tstFilter===c[0]?' on':'')+'" onclick="tstFilterSet(\''+c[0]+'\')">'+c[1]+'</button>').join('');
