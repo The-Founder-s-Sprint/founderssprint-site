@@ -967,8 +967,10 @@ async function loadAll(user){
 
   applyAvatar();
   renderTimeline(); renderOverview(); renderDataRoom(); renderSessions(); renderPayments(); fillProfile();
-  // Non-blocking: the nudge appears once we know how far through the intake they are.
-  loadIntake().then(renderIntakeNudge).catch(()=>{});
+  // Non-blocking: the nudge appears once we know how far through the intake they
+  // are. ensureCompany() first, so a founder who named their venture before the
+  // companies table existed gets one without having to re-save their profile.
+  ensureCompany().then(loadIntake).then(renderIntakeNudge).catch(()=>{});
   loadReadiness();   // async, non-blocking: imports any anonymous run taken before signup
 }
 
@@ -1735,12 +1737,57 @@ async function saveProfile(e){
     btn.disabled = true; btn.textContent = 'Saving…';
     const updated = await _pgWrite('PATCH', 'founder_profiles', 'id=eq.'+profile.id, payload);
     profile = Object.assign(profile, Array.isArray(updated)?updated[0]:updated);
+    await ensureCompany();
     updateProfCompleteness();
     renderOverview();
+    renderIntakeNudge();
     showToast('Profile saved','success');
   } catch(err){ showToast('Save failed — '+err.message,'error'); }
   finally { btn.disabled = false; btn.textContent = 'Save Profile'; }
   return false;
+}
+
+/**
+ * The Profile tab has a "Company / Venture" field, but it writes
+ * founder_profiles.company_name — a label on the person. Everything that
+ * matters downstream (intake, data room, deliverables, coach assessments,
+ * module runs) hangs off a row in `companies`, and nothing on this page ever
+ * created one. So a founder could fill in their company, be told "add your
+ * company first", and have no way to comply.
+ *
+ * Creating the company here makes the field mean what it says. Registration
+ * does the same server-side for anyone who pays; this covers the founder who
+ * signs up and looks around first.
+ */
+async function ensureCompany(){
+  const name = (profile && profile.company_name || '').trim();
+  if(!name) return null;                       // nothing to name it after
+  if(company) {
+    // Keep the two in step if they renamed the venture on the Profile tab.
+    if(company.name !== name){
+      try{
+        await _pgWrite('PATCH','companies','id=eq.'+company.id,{ name, updated_at:new Date().toISOString() });
+        company.name = name;
+      }catch(e){ console.error('[company] rename failed:', e.message); }
+    }
+    return company;
+  }
+  try{
+    const rows = await _pgWrite('POST','companies','',{
+      founder_id: profile.id,
+      name,
+      sector: profile.sector || null,
+      stage: profile.stage || null,
+      is_primary: true,
+      status: 'active'
+    });
+    company = Array.isArray(rows) ? rows[0] : rows;
+    if(company) companies = [company].concat(companies.filter(c=>c.id!==company.id));
+    return company;
+  }catch(e){
+    console.error('[company] create failed:', e.message);
+    return null;
+  }
 }
 
 // ── UI helpers ──
@@ -1790,8 +1837,16 @@ function intakeField(q, val){
 
 async function renderIntake(){
   const el = document.getElementById('intake-body'); if(!el) return;
+  // A founder who already named their venture on the Profile tab shouldn't be
+  // sent back there — create the company from what they've told us and carry on.
+  if(!company && profile && (profile.company_name||'').trim()){
+    el.innerHTML = '<div class="sub">Setting up…</div>';
+    await ensureCompany();
+  }
   if(!company){
-    el.innerHTML = '<div class="sub">Add your company first, on the Profile tab, and this will open up.</div>';
+    el.innerHTML = '<div class="sub">Add your company on the '
+      + '<a href="#" onclick="switchTab(\'profile\');return false" style="color:var(--terra);font-weight:600">Profile tab</a>'
+      + ' — just the name is enough — and this opens up.</div>';
     return;
   }
   try { await loadIntake(); }
