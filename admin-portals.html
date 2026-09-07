@@ -872,31 +872,15 @@ function renderEngagement(){
       +'<button class="btn-sm" style="background:var(--terra);border:none;color:#fff" onclick="inviteClient()">Invite →</button></div>'
       +'<div class="sub" style="margin-top:6px">Coaches do the delivery work (DD review, deliverables, tasks) on engagements they\'re seated on. <strong>Invite each client-side person separately</strong> — the CEO and their counsel each get their own login, so the signature and download trail shows who actually did what. Never share one login between them. Each invite emails that person a link to sign the NDA and open the vault.</div>';
   }
-  // Activity sits near the top — it answers "what just happened on this
-  // engagement", which is the first thing you want on opening it, and it was
-  // stranded below a 49-row DD vault. Kept compact so it informs without
-  // displacing the vault, which is where the work actually happens.
-  const logRow=l=>'<tr><td class="sub" style="width:130px;font-size:11px">'
-    +(l.created_at?l.created_at.replace('T',' ').slice(0,16):'')+'</td><td>'+esc(l.action)
-    +(l.target?(' <span class="sub">'+esc(l.target)+'</span>'):'')+'</td></tr>';
-  let logHtml='<h3 style="font-family:var(--display);font-size:16px;font-weight:600;margin:18px 0 8px">Activity</h3>';
-  if(!d.log.length){
-    logHtml+='<div class="sub">No activity recorded yet.</div>';
-  } else {
-    const recent=d.log.slice(0,5), rest=d.log.slice(5);
-    logHtml+='<div class="tbl-wrap"><table><tbody>'+recent.map(logRow).join('')+'</tbody></table></div>';
-    if(rest.length){
-      // <details> rather than a toggle handler: no state to track, and it
-      // survives the re-render that every action on this page triggers.
-      logHtml+='<details style="margin-top:6px">'
-        +'<summary style="cursor:pointer;font-family:var(--sans);font-size:10px;font-weight:600;'
-        +'letter-spacing:.12em;text-transform:uppercase;color:var(--ochre-deep);padding:6px 0">'
-        +'Earlier activity ('+rest.length+')</summary>'
-        +'<div class="tbl-wrap"><table><tbody>'+rest.map(logRow).join('')+'</tbody></table></div></details>';
-    }
-  }
+  let logHtml='<h3 style="font-family:var(--display);font-size:16px;font-weight:600;margin:22px 0 8px">Activity</h3>';
+  logHtml+= d.log.length? ('<div class="tbl-wrap"><table><tbody>'+d.log.map(l=>
+      '<tr><td class="sub" style="width:130px;font-size:11px">'+(l.created_at?l.created_at.replace('T',' ').slice(0,16):'')+'</td><td>'+esc(l.action)+(l.target?(' <span class="sub">'+esc(l.target)+'</span>'):'')+'</td></tr>').join('')+'</tbody></table></div>') : '<div class="sub">No activity recorded yet.</div>';
 
-  document.getElementById('roster').innerHTML=back+head+logHtml+ddHtml+intakeHtml+delivHtml+taskHtml+contrHtml+memHtml;
+  // People first. Seating a coach and inviting the client are the actions you
+  // take when opening an engagement — they were stranded below the 49-row DD
+  // vault, so every invite meant scrolling past the whole checklist. Activity
+  // is a reference feed and stays at the foot.
+  document.getElementById('roster').innerHTML=back+head+memHtml+ddHtml+intakeHtml+delivHtml+taskHtml+contrHtml+logHtml;
 }
 
 async function seedDocs(){ try{ const n=await _rpc('seed_engagement_documents',{p_eng:corpCur}); showToast((n||0)+' items seeded','success'); openEngagement(corpCur); }catch(e){ showToast('Seed failed — '+e.message,'error'); } }
