@@ -2608,6 +2608,9 @@ async function loadAllData() {
 }
 
 function cohortName(id) {
+  // A registration with no cohort (a standalone 1-on-1) rendered as the string
+  // "Cohort null", which reads like a broken record rather than an absent one.
+  if (id === null || id === undefined || id === '') return '—';
   const c = allCohorts.find(c => c.id === id);
   return c ? c.name : `Cohort ${id}`;
 }
@@ -2620,7 +2623,15 @@ function prettySpec(s){ return String(s||'').split('-').map(function(w){return w
 function specCell(r){
   var a = Array.isArray(r.enrolled_specialties) ? r.enrolled_specialties.filter(Boolean) : [];
   if(!a.length) return '';
-  return '<br><span style="color:var(--muted);font-size:10px">' + a.map(function(s){return esc(prettySpec(s));}).join(', ') + '</span>';
+  var muted = function(t){ return '<br><span style="color:var(--muted);font-size:10px">' + t + '</span>'; };
+  // A cohort seat IS every specialty, so enumerating them says nothing and
+  // turned one row into a 49-line wall that pushed the rest of the table off
+  // screen. The count is the only informative part.
+  if(r.track === 'cohort') return muted('All ' + a.length + ' specialties');
+  // single = 1, pick3 = 3, so the list is short by construction — but never
+  // trust that a row can't hold more than it should.
+  if(a.length > 6) return muted(a.slice(0,6).map(function(s){return esc(prettySpec(s));}).join(', ') + ' +' + (a.length-6) + ' more');
+  return muted(a.map(function(s){return esc(prettySpec(s));}).join(', '));
 }
 var METHOD_LABEL = { mobile_money:'MoMo', card:'Card' };
 function methodTag(pr){
