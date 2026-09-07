@@ -153,6 +153,23 @@
   .mat-row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:7px 0;border-top:1px solid var(--border);font-size:12.5px;}
   .app-card select,.app-card input{width:100%;background:var(--bg);border:1px solid var(--border);padding:8px 10px;font-size:13px;font-family:var(--font);color:var(--text);}
   .app-card select:focus,.app-card input:focus{outline:none;border-color:var(--ochre);}
+  /* Form controls were themed only inside .app-card. Anything rendered into
+     #roster — the engagement invite row, for one — fell back to the browser's
+     default grey chrome, which reads as white-on-grey against this ground.
+     Theme every control in the console; both palettes come from the same vars,
+     so this is correct in light mode too. Width is deliberately NOT set here:
+     these controls sit inline, unlike the stacked ones in .app-card. */
+  #roster input:not([type=checkbox]):not([type=radio]),
+  #roster select, #roster textarea{
+    background:var(--bg); color:var(--text); border:1px solid var(--border-hi);
+    padding:8px 10px; font-size:13px; font-family:var(--font); border-radius:2px;
+  }
+  #roster input:focus, #roster select:focus, #roster textarea:focus{
+    outline:none; border-color:var(--ochre);
+  }
+  /* The theme roots already declare color-scheme, and it inherits — so the
+     native dropdown list and caret follow the palette without help here. */
+  #roster ::placeholder{color:var(--muted);opacity:1;}
   /* branded select (replaces btn-sm on the status/format dropdowns — legible, normal-case, with a custom chevron) */
   .m-sel{font-family:var(--font);font-size:14px;color:var(--ink);background-color:var(--bg);border:1px solid var(--border-hi);padding:9px 30px 9px 11px;border-radius:0;cursor:pointer;
     -webkit-appearance:none;-moz-appearance:none;appearance:none;
@@ -395,6 +412,8 @@ async function boot(user){
   try{
     const me=await _q('user_roles','user_id=eq.'+user.id+'&select=role');
     myRoles=(me||[]).map(r=>r.role);
+    // Does this admin also coach? Drives the sidebar's coach-dashboard link.
+    try{ const c=await _q('coaches','user_id=eq.'+user.id+'&select=id&limit=1'); window.__isCoachToo=!!(c&&c.length); }catch(_){ window.__isCoachToo=false; }
     const _ops=document.getElementById('cc-ops-link'); if(_ops) _ops.style.display=isSuper()?'block':'none';
     const isStaff = STAFF_ROLES.some(r=>myRoles.includes(r));
     // corporate access = finance/super OR a firm member of ≥1 engagement (RLS returns only theirs)
@@ -468,6 +487,10 @@ function initAdminNav(){
   if(dashNavReady||!window.FSDash) return;
   const links=[];
   if(isSuper()) links.push({label:'↩ Ops dashboard',href:'/dashboard.html'});
+  // One Supabase session serves every dashboard on this origin, so someone who
+  // is both admin and coach never needs a second login — they just need the door.
+  // Shown only to users who actually hold a coaches row.
+  if(window.__isCoachToo) links.push({label:'◇ My coach dashboard',href:'/coach.html'});
   links.push({label:'◐ Light / dark',onClick:function(){try{toggleTheme();}catch(e){}}});
   links.push({label:'Sign out',onClick:function(){try{signOut();}catch(e){}}});
   FSDash.init({
@@ -849,11 +872,31 @@ function renderEngagement(){
       +'<button class="btn-sm" style="background:var(--terra);border:none;color:#fff" onclick="inviteClient()">Invite →</button></div>'
       +'<div class="sub" style="margin-top:6px">Coaches do the delivery work (DD review, deliverables, tasks) on engagements they\'re seated on. <strong>Invite each client-side person separately</strong> — the CEO and their counsel each get their own login, so the signature and download trail shows who actually did what. Never share one login between them. Each invite emails that person a link to sign the NDA and open the vault.</div>';
   }
-  let logHtml='<h3 style="font-family:var(--display);font-size:16px;font-weight:600;margin:22px 0 8px">Activity</h3>';
-  logHtml+= d.log.length? ('<div class="tbl-wrap"><table><tbody>'+d.log.map(l=>
-      '<tr><td class="sub" style="width:130px;font-size:11px">'+(l.created_at?l.created_at.replace('T',' ').slice(0,16):'')+'</td><td>'+esc(l.action)+(l.target?(' <span class="sub">'+esc(l.target)+'</span>'):'')+'</td></tr>').join('')+'</tbody></table></div>') : '<div class="sub">No activity recorded yet.</div>';
+  // Activity sits near the top — it answers "what just happened on this
+  // engagement", which is the first thing you want on opening it, and it was
+  // stranded below a 49-row DD vault. Kept compact so it informs without
+  // displacing the vault, which is where the work actually happens.
+  const logRow=l=>'<tr><td class="sub" style="width:130px;font-size:11px">'
+    +(l.created_at?l.created_at.replace('T',' ').slice(0,16):'')+'</td><td>'+esc(l.action)
+    +(l.target?(' <span class="sub">'+esc(l.target)+'</span>'):'')+'</td></tr>';
+  let logHtml='<h3 style="font-family:var(--display);font-size:16px;font-weight:600;margin:18px 0 8px">Activity</h3>';
+  if(!d.log.length){
+    logHtml+='<div class="sub">No activity recorded yet.</div>';
+  } else {
+    const recent=d.log.slice(0,5), rest=d.log.slice(5);
+    logHtml+='<div class="tbl-wrap"><table><tbody>'+recent.map(logRow).join('')+'</tbody></table></div>';
+    if(rest.length){
+      // <details> rather than a toggle handler: no state to track, and it
+      // survives the re-render that every action on this page triggers.
+      logHtml+='<details style="margin-top:6px">'
+        +'<summary style="cursor:pointer;font-family:var(--sans);font-size:10px;font-weight:600;'
+        +'letter-spacing:.12em;text-transform:uppercase;color:var(--ochre-deep);padding:6px 0">'
+        +'Earlier activity ('+rest.length+')</summary>'
+        +'<div class="tbl-wrap"><table><tbody>'+rest.map(logRow).join('')+'</tbody></table></div></details>';
+    }
+  }
 
-  document.getElementById('roster').innerHTML=back+head+ddHtml+intakeHtml+delivHtml+taskHtml+contrHtml+memHtml+logHtml;
+  document.getElementById('roster').innerHTML=back+head+logHtml+ddHtml+intakeHtml+delivHtml+taskHtml+contrHtml+memHtml;
 }
 
 async function seedDocs(){ try{ const n=await _rpc('seed_engagement_documents',{p_eng:corpCur}); showToast((n||0)+' items seeded','success'); openEngagement(corpCur); }catch(e){ showToast('Seed failed — '+e.message,'error'); } }
@@ -1646,6 +1689,8 @@ function editFounder(fid){
   document.getElementById('roster').innerHTML='<span class="back" onclick="loadFounders()" style="font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ochre-deep);cursor:pointer;display:inline-block;margin-bottom:14px">← All founders</span>'
     +'<div class="app-card"><div class="app-head"><div><span class="nm">'+esc((f.first_name||'')+' '+(f.last_name||''))+'</span> <span class="sub">'+esc(f.email||'')+'</span></div></div>'
     +'<div class="sub" style="margin:6px 0 14px">Administrative controls — you manage account state and payments; you don\'t rewrite the founder\'s own data-room content.</div>'
+    +'<div class="section-title" style="margin:0 0 6px;font-size:10px">What they see right now</div>'
+    +'<div id="ef-snap" class="sub">Loading…</div>'
     +'<div class="kv">'
       +'<div><div class="k">Account status</div><select id="ef-status"><option value="active"'+(f.status!=='archived'?' selected':'')+'>Active</option><option value="archived"'+(f.status==='archived'?' selected':'')+'>Archived</option></select></div>'
       +'<div><div class="k">Investor visibility (moderation)</div><select id="ef-vis"><option value="on"'+(vis?' selected':'')+'>Visible to investors</option><option value="off"'+(!vis?' selected':'')+'>Hidden</option></select></div>'
@@ -1654,6 +1699,9 @@ function editFounder(fid){
     +'<div style="margin-top:14px"><button class="btn-sm approve" onclick="saveFounder(\''+fid+'\')">Save</button></div>'
     +'<div class="section-title" style="margin:18px 0 6px;font-size:10px">Payments (manual override)</div>'+payRows
     +'<div class="sub" style="margin-top:8px;font-size:11px">Use overrides only for confirmed off-platform payments; ioTec reconciliation sets these automatically once live.</div>'
+    +(cos.length?('<div class="section-title" style="margin:20px 0 6px;font-size:10px">Business intake</div>'
+      +'<div class="sub" style="margin-bottom:10px;font-size:11px">What the founder told their coaches before teaching began. Coaches only see it once the founder shares it — you can see a draft too, so you can help someone who is stuck.</div>'
+      +'<div id="ef-intake">Loading…</div>'):'')
     +(fregs.length?('<div class="section-title" style="margin:20px 0 6px;font-size:10px">Documents</div>'
       +'<div class="sub" style="margin-bottom:10px;font-size:11px">Issued automatically on payment. Numbers are gapless and permanent — correcting a bill-to re-renders the same document, it never re-numbers it.</div>'
       +'<div id="ef-docs">Loading…</div>'):'')
@@ -1661,6 +1709,88 @@ function editFounder(fid){
     +'</div>';
   if(fin && cos.length) loadFounderOutcomes(cos.map(c=>c.id));
   if(fregs.length) loadFounderDocs(fregs.map(r=>r.id), fid);
+  if(cos.length) loadFounderIntake(cos.map(c=>c.id));
+  loadFounderSnapshot(fid);
+}
+
+// ── "What they see right now" ────────────────────────────────────────────────
+// Reviewing, not impersonating: no session swap, no writes, acts as nobody.
+// Answers the question support actually has — which gate is closed, and why —
+// so a founder doesn't have to send a screenshot for us to guess.
+async function loadFounderSnapshot(fid){
+  const el=document.getElementById('ef-snap'); if(!el) return;
+  try{
+    const s=await _rpc('founder_support_snapshot',{p_founder_id:fid});
+    if(!s){ el.textContent='No snapshot.'; return; }
+    const when=t=>t?new Date(t).toLocaleString('en-GB',{timeZone:'Africa/Kampala',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',hour12:false})+' EAT':'never';
+    const yes=(b,g,r)=>'<span class="pill '+(b?'pill-green':'pill-terra')+'">'+(b?g:r)+'</span>';
+
+    const si=s.sign_in||{}, ac=s.access||{}, rg=s.registration, pl=s.plan||{}, em=s.emails||{}, ik=s.intake;
+
+    // Lead with whatever is actually wrong. A wall of green tells you nothing.
+    const flags=[];
+    if(!si.has_account)            flags.push('No login account exists for this founder.');
+    else if(si.never_signed_in)    flags.push('Has never successfully signed in — likely a password they mistyped at booking.');
+    if(si.no_password)             flags.push('Account has no password set — they must use Forgot password.');
+    if(si.banned)                  flags.push('Account is disabled.');
+    if(!si.email_confirmed)        flags.push('Email never confirmed.');
+    if(!ac.granted)                flags.push('No access: '+ac.reason);
+    if(pl.active && pl.in_arrears) flags.push('Instalment plan in arrears — access suspended, seat kept.');
+    if(em.failed)                  flags.push(em.failed+' email(s) failed to send.');
+    if(!s.companies)               flags.push('No company record — deliverables and assessments cannot be written.');
+
+    const flagBox = flags.length
+      ? '<div style="border-left:3px solid var(--terra);padding:8px 12px;margin:0 0 12px;background:rgba(200,83,31,.08)">'
+        + flags.map(f=>'<div style="font-size:12.5px;line-height:1.6">'+esc(f)+'</div>').join('') + '</div>'
+      : '<div style="border-left:3px solid var(--success);padding:8px 12px;margin:0 0 12px;background:rgba(46,160,110,.08);font-size:12.5px">Nothing blocking them.</div>';
+
+    const line=(l,v)=>'<div class="mat-row"><span>'+l+'</span><span class="sub">'+v+'</span></div>';
+    el.innerHTML = flagBox
+      + line('Last sign-in', when(si.last_sign_in))
+      + line('Access', yes(ac.granted,'Granted','Blocked')+' <span class="sub" style="margin-left:8px">'+esc(ac.reason||'')+'</span>')
+      + (rg ? line('Payment', 'Deposit '+(rg.deposit_paid?'✓':'—')+' · Balance '+(rg.balance_paid?'✓':'—')
+              + ' · '+Number(rg.amount_paid||0).toLocaleString('en-US')+' received') : line('Payment','No registration'))
+      + (pl.active ? line('Instalment plan', pl.paid+' of '+pl.total+' paid · next due '+esc(pl.next_due||'—')) : '')
+      + line('Terms', s.terms ? ('accepted '+when(s.terms.accepted_at)+' · v'+esc(s.terms.version)) : '<span style="color:var(--terra)">not accepted</span>')
+      + line('Welcome seen', when(s.welcomed_at))
+      + line('Business intake', ik ? (esc(ik.status)+' · '+ik.completeness+'%') : 'not started')
+      + line('Sessions booked', s.sessions_booked)
+      + (s.next_session ? line('Next session', esc(s.next_session.when_eat)+' · '+(s.next_session.has_meet?'Meet link ready':'<span style="color:var(--terra)">no Meet link</span>')) : '')
+      + line('Data-room files', s.data_room_files)
+      + line('Emails', em.sent+' sent'+(em.failed?(' · '+em.failed+' failed'):'')
+              + (em.last?(' · last: '+esc(em.last.type)+' '+when(em.last.at)):''));
+  }catch(e){ el.innerHTML='Could not load — '+esc(e.message); }
+}
+
+// ── Business intake (read-only for staff) ────────────────────────────────────
+// Staff RLS returns the row at ANY status, so ops can see a half-finished draft
+// and help. Coaches, by policy, only ever see it once the founder shares it —
+// the label says so, because an admin reading a private draft should know that
+// is what they are doing.
+async function loadFounderIntake(companyIds){
+  const el=document.getElementById('ef-intake'); if(!el) return;
+  try{
+    const [rows,qs]=await Promise.all([
+      _q('founder_intake','company_id=in.('+companyIds.join(',')+')&select=*'),
+      _q('intake_questions','active=eq.true&order=sort_order&select=qkey,section,prompt')
+    ]);
+    const r=(rows&&rows[0])||null;
+    if(!r){ el.innerHTML='<div class="sub">No intake started.</div>'; return; }
+
+    const shared = r.status==='submitted';
+    const head='<div class="mat-row"><span>'
+      +(shared?'<span class="pill pill-green">Shared with coaches</span>'
+              :'<span class="pill pill-terra">Draft — coaches cannot see this yet</span>')
+      +'</span><span class="sub">'+r.completeness+'% of the essentials</span></div>';
+
+    const ans=r.answers||{};
+    const filled=(qs||[]).filter(q=>ans[q.qkey]!=null&&String(ans[q.qkey]).trim()!=='');
+    if(!filled.length){ el.innerHTML=head+'<div class="sub" style="margin-top:8px">Nothing answered yet.</div>'; return; }
+
+    el.innerHTML=head+filled.map(q=>
+      '<div style="margin:12px 0"><div class="sub" style="font-size:11px;margin-bottom:2px">'+esc(q.prompt)+'</div>'
+      +'<div style="font-size:13px;line-height:1.5;white-space:pre-wrap">'+esc(ans[q.qkey])+'</div></div>').join('');
+  }catch(e){ el.innerHTML='<div class="sub">Could not load — '+esc(e.message)+'</div>'; }
 }
 
 // ── Documents (invoices + receipts) ──────────────────────────────────────────
