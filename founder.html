@@ -987,7 +987,15 @@ async function loadAll(user){
 }
 
 // ════ RENDER ════
-function enrolledSet(){ return new Set((company && company.enrolled_disciplines) || profile.enrolled_disciplines || []); }
+function enrolledSet(){
+  // A cohort seat IS all five disciplines — that's what the product is. Deriving
+  // it from the track rather than trusting enrolled_disciplines matters because a
+  // hand-created registration can arrive with that array empty, which showed a
+  // fully-paid cohort founder "Enrol in…" buttons for courses he'd already bought.
+  const onCohort = (myRegs||[]).some(r => r.track === 'cohort' && !r.forfeited);
+  if (onCohort) return new Set(DISC_META.map(d => d.key));
+  return new Set((company && company.enrolled_disciplines) || profile.enrolled_disciplines || []);
+}
 function isShared(){ return !!(company ? company.data_room_shared : profile.data_room_shared); }
 function simil(a,b){ a=String(a||'').toLowerCase().trim(); b=String(b||'').toLowerCase().trim(); return !!a && !!b && (a===b || a.includes(b) || b.includes(a)); }
 
@@ -1864,7 +1872,9 @@ async function renderMaterials(){
 
     const cta = canOpen ? ''
       : '<div style="margin-top:12px">'
-        + '<a class="btn" href="/beta/book/" style="text-decoration:none;display:inline-block">'
+        // /beta is password-protected staging — linking a founder there returns a
+        // 401 that Bluehost renders as a 500. Production booking lives at root.
+        + '<a class="btn" href="/book/" style="text-decoration:none;display:inline-block">'
         + (isEnrolled ? 'Complete your payment to unlock' : 'Enrol in '+esc(d.label))
         + '</a></div>';
 

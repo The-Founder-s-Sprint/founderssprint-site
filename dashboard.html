@@ -2365,6 +2365,9 @@ async function bootApp(user) {
     } catch(e) {}
     // Close dropdown on outside click
     document.addEventListener('click', function(e) { var w = document.getElementById('dash-avatar-wrap'); if (w && !w.contains(e.target)) w.classList.remove('open'); });
+    // Specialty display names, in parallel — cosmetic, so it must not delay
+    // or fail the dashboard load.
+    loadSpecNames().then(function(){ try { renderRegistrations(); } catch(e) {} }).catch(function(){});
     await loadAllData();
     // Background: refresh the auth token now that data is loaded
     sb.auth.refreshSession().catch(() => {});
@@ -2619,7 +2622,20 @@ function iotecPayment(regId, paymentType) {
   return allPayReqs.find(p => p.registration_id === regId && p.payment_type === paymentType) || null;
 }
 // Which 1-on-1 specialty/specialties (L3 slugs → readable labels), shown under the Track badge.
-function prettySpec(s){ return String(s||'').split('-').map(function(w){return w?w.charAt(0).toUpperCase()+w.slice(1):w;}).join(' '); }
+// Display names come from taxonomy_specialties — the source of truth for the 49
+// L3 labels ("CAC & LTV", "SEO & Discoverability"). Title-casing the slug gave
+// "Cac And Ltv", which invents a label for data we already store. Loaded once at
+// boot; the slug fallback covers a specialty the table hasn't caught up with.
+var SPEC_NAMES = {};
+async function loadSpecNames(){
+  try{
+    var rows = await _pgQuery('taxonomy_specialties','select=slug,name&limit=200');
+    (rows||[]).forEach(function(r){ SPEC_NAMES[r.slug] = r.name; });
+  }catch(e){ /* labels are cosmetic — never block the dashboard on them */ }
+}
+function prettySpec(s){
+  return SPEC_NAMES[s] || String(s||'').split('-').map(function(w){return w?w.charAt(0).toUpperCase()+w.slice(1):w;}).join(' ');
+}
 function specCell(r){
   var a = Array.isArray(r.enrolled_specialties) ? r.enrolled_specialties.filter(Boolean) : [];
   if(!a.length) return '';
