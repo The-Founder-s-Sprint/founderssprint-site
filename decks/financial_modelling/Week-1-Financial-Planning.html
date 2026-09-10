@@ -1,0 +1,612 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Financial Modelling · Week 1 · Orientation & Financial Planning · The Founder's Sprint</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1A1A1A; --ink-soft:#2A2826; --ink-mid:#444; --ink-mute:#5A564F;
+  --paper:#EFE7D8; --paper-mid:#C0B8A8; --paper-dim:#A09888; --paper-deep:#E6DCC7;
+  --terra:#C8531F; --ochre:#C9923A; --sage:#8AAB5C; --moss:#3D4A2E; --stone:#777770;
+  --rule:rgba(26,26,26,0.18);
+  --sans:'Josefin Sans',Inter,system-ui,sans-serif;
+  --display:'Cormorant Garamond',Georgia,serif;
+  --body:'Inter',system-ui,sans-serif;
+  --accent:#C9923A; --accent-deep:#9A6E1E;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--ink);color:var(--paper);font-family:var(--body);overflow:hidden;}
+.deck{position:fixed;inset:0;}
+.slide{position:absolute;inset:0;display:none;flex-direction:column;padding:clamp(28px,4.4vw,76px) clamp(26px,5vw,96px) clamp(56px,5vw,82px);opacity:0;}
+.slide.active{display:flex;opacity:1;}
+.slide.active .anim{animation:riseIn .52s cubic-bezier(.25,1,.5,1) both;}
+.slide.active .anim:nth-child(1){animation-delay:.06s}.slide.active .anim:nth-child(2){animation-delay:.12s}.slide.active .anim:nth-child(3){animation-delay:.17s}.slide.active .anim:nth-child(4){animation-delay:.22s}.slide.active .anim:nth-child(5){animation-delay:.27s}.slide.active .anim:nth-child(6){animation-delay:.32s}.slide.active .anim:nth-child(7){animation-delay:.37s}.slide.active .anim:nth-child(8){animation-delay:.42s}
+@keyframes riseIn{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
+.s-paper{background:var(--paper);color:var(--ink);}.s-dark{background:var(--ink);color:var(--paper);}
+.s-paper .chip-bar,.s-dark .chip-bar{display:flex;justify-content:space-between;align-items:center;font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.18em;text-transform:uppercase;}
+.s-paper .chip-bar{color:rgba(26,26,26,0.5);}.s-dark .chip-bar{color:rgba(239,231,216,0.5);}
+.accent-top{position:absolute;top:0;left:0;right:0;height:5px;background:var(--accent);}
+.mark-corner{position:absolute;top:clamp(20px,3vw,40px);right:clamp(20px,4vw,64px);width:clamp(34px,3.4vw,52px);height:auto;opacity:.95;z-index:3;}
+.eyebrow{font-family:var(--sans);font-size:clamp(10px,1.05vw,13px);font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:var(--accent-deep);}
+.s-dark .eyebrow{color:var(--ochre);}
+h1.title{font-family:var(--display);font-weight:300;letter-spacing:-0.012em;font-size:clamp(30px,4.6vw,62px);line-height:1.04;margin-top:.32em;}
+.lede{font-family:var(--display);font-style:italic;font-weight:400;font-size:clamp(17px,2.1vw,30px);line-height:1.32;color:var(--ink-mute);margin-top:.5em;max-width:24ch;}
+.s-dark .lede{color:var(--paper-mid);}
+.body-col{margin-top:clamp(14px,2vw,26px);max-width:62ch;}
+p.body{font-size:clamp(14px,1.45vw,20px);line-height:1.55;font-weight:400;color:var(--ink-mid);}
+.s-dark p.body{color:var(--paper-mid);}
+strong{color:var(--accent-deep);font-weight:600;}.s-dark strong{color:var(--ochre);font-weight:500;}
+.slide-body{flex:1;display:flex;flex-direction:column;justify-content:center;min-height:0;}
+.foot{position:absolute;bottom:clamp(16px,2.4vw,30px);left:clamp(26px,5vw,96px);right:clamp(26px,5vw,96px);display:flex;justify-content:space-between;align-items:center;font-family:var(--sans);font-size:clamp(8px,.85vw,11px);letter-spacing:0.22em;text-transform:uppercase;}
+.s-paper .foot{color:rgba(26,26,26,0.4);}.s-dark .foot{color:rgba(239,231,216,0.4);}
+.foot .tag{font-family:var(--display);font-style:italic;letter-spacing:0;text-transform:none;color:var(--accent-deep);opacity:.8;}
+#s-title{padding:0;background:var(--ink);}
+.title-bg{position:absolute;inset:0;overflow:hidden;}
+.title-photo{position:absolute;inset:0;background:#1A1A1A url('assets/title-fm.jpg') center 22%/cover no-repeat;filter:grayscale(1) contrast(1.06) brightness(0.5);}
+.title-tint{position:absolute;inset:0;background:radial-gradient(95% 95% at 22% 16%, rgba(201,146,58,0.42) 0%, transparent 55%),linear-gradient(180deg, rgba(26,26,26,0.42) 0%, rgba(26,26,26,0.30) 40%, rgba(26,26,26,0.88) 100%);}
+.title-grain{position:absolute;inset:0;opacity:.06;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+.title-vignette{position:absolute;inset:0;background:radial-gradient(118% 118% at 50% 42%, transparent 50%, rgba(0,0,0,0.55) 100%);}
+.title-inner{position:relative;z-index:4;height:100%;display:flex;flex-direction:column;padding:clamp(30px,4vw,64px) clamp(30px,5.5vw,104px);}
+.title-top{display:flex;align-items:center;gap:14px;}
+.title-top .mark{width:clamp(34px,3.2vw,46px);height:auto;animation:spin 64s linear infinite;}
+.title-top .wm{font-family:var(--sans);font-size:clamp(10px,1.05vw,13px);font-weight:700;letter-spacing:0.24em;text-transform:uppercase;color:var(--paper);}
+.title-mid{margin-top:auto;margin-bottom:auto;}
+.title-series{display:flex;align-items:stretch;gap:clamp(13px,1.5vw,20px);margin-bottom:clamp(16px,2.2vw,28px);}
+.ts-week{display:flex;flex-direction:column;justify-content:center;padding:clamp(7px,.9vw,11px) clamp(12px,1.4vw,18px);border:1.5px solid rgba(239,231,216,0.28);border-left:3px solid var(--ochre);}
+.ts-wk{font-family:var(--display);font-weight:400;font-size:clamp(18px,2.2vw,29px);line-height:1;color:var(--paper);letter-spacing:-0.01em;}
+.ts-of{font-family:var(--sans);font-size:clamp(8px,.92vw,11px);font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:var(--ochre);margin-top:.45em;}
+.ts-info{display:flex;flex-direction:column;justify-content:center;min-width:0;}
+.ts-disc{font-family:var(--sans);font-size:clamp(11px,1.35vw,16px);font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--paper);line-height:1.15;}
+.ts-coach{font-family:var(--display);font-style:italic;font-size:clamp(13px,1.5vw,19px);color:var(--paper);opacity:.74;margin-top:.32em;line-height:1.1;}
+.ts-coach .ts-dot{margin:0 .5em;opacity:.5;font-style:normal;}
+.title-h{font-family:var(--display);font-weight:300;font-size:clamp(38px,6.6vw,98px);line-height:0.98;letter-spacing:-0.02em;color:var(--paper);}
+.title-h em{font-style:italic;color:var(--ochre);}
+.title-sub{font-family:var(--display);font-style:italic;font-size:clamp(16px,2.1vw,28px);color:var(--paper);opacity:.82;margin-top:.7em;max-width:32ch;text-wrap:balance;}
+.title-foot{margin-top:clamp(20px,3vw,38px);display:flex;flex-wrap:wrap;gap:8px 26px;align-items:baseline;font-family:var(--sans);font-size:clamp(9px,1vw,12px);letter-spacing:0.2em;text-transform:uppercase;color:var(--paper);opacity:.72;}
+.title-foot .dot{color:var(--ochre);}
+.title-cta{position:absolute;left:clamp(30px,5.5vw,104px);bottom:clamp(22px,3vw,42px);font-family:var(--sans);font-size:clamp(9px,1vw,11px);letter-spacing:0.18em;text-transform:uppercase;color:var(--paper);opacity:.5;z-index:5;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.s-divider{background:var(--ink);color:var(--paper);overflow:hidden;justify-content:center;}
+.s-divider .div-photo{position:absolute;inset:0;background-position:center 30%;background-size:cover;filter:sepia(.85) saturate(1.05) hue-rotate(-8deg) contrast(1.05) brightness(.55);opacity:.6;}
+.s-divider .div-overlay{position:absolute;inset:0;background:linear-gradient(110deg,rgba(26,26,26,0.72) 0%,rgba(26,26,26,0.38) 45%,rgba(26,26,26,0.80) 100%);}
+.s-divider .div-mark{position:absolute;top:clamp(26px,4vw,58px);right:clamp(26px,4.5vw,72px);width:clamp(50px,7vw,105px);height:auto;animation:spin 18s linear infinite;opacity:.85;z-index:2;}
+.div-inner{position:relative;z-index:3;display:flex;flex-direction:column;align-items:flex-start;}
+.div-num{font-family:var(--display);font-weight:300;font-size:clamp(40px,6vw,86px);line-height:1;color:rgba(239,231,216,0.22);letter-spacing:-0.02em;margin-bottom:.18em;}
+.div-eyebrow{font-family:var(--sans);font-size:clamp(10px,1.05vw,13px);font-weight:700;letter-spacing:0.34em;text-transform:uppercase;color:var(--paper);opacity:.4;margin-bottom:.35em;}
+.div-title{font-family:var(--display);font-style:italic;font-weight:300;font-size:clamp(30px,5.4vw,84px);line-height:1.04;color:var(--paper);letter-spacing:-0.01em;}
+.div-meta{margin-top:1em;font-family:var(--display);font-style:italic;font-size:clamp(14px,1.7vw,22px);line-height:1.4;color:var(--ochre);opacity:.95;max-width:34ch;text-wrap:pretty;}
+.grid{display:grid;gap:clamp(12px,1.6vw,22px);}
+.g2{grid-template-columns:repeat(2,1fr);}.g3{grid-template-columns:repeat(3,1fr);}.g4{grid-template-columns:repeat(4,1fr);}
+.card{border-radius:0 0 24px 0;background:var(--paper-deep);border-left:3px solid var(--accent);padding:clamp(14px,1.7vw,24px);}
+.s-dark .card{background:rgba(239,231,216,0.06);border-left-color:var(--ochre);}
+.card h4{font-family:var(--sans);font-size:clamp(11px,1.15vw,15px);font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink);margin-bottom:.45em;}
+.s-dark .card h4{color:var(--paper);}
+.card p{font-size:clamp(12px,1.25vw,16px);line-height:1.5;color:var(--ink-mute);}.s-dark .card p{color:var(--paper-mid);}
+.card .num{font-family:var(--display);font-weight:300;font-size:clamp(26px,3vw,46px);color:var(--accent-deep);line-height:1;}.s-dark .card .num{color:var(--ochre);}
+ul.list{list-style:none;margin-top:.4em;}
+ul.list li{position:relative;padding-left:1.4em;margin-bottom:.55em;font-size:clamp(12px,1.35vw,18px);line-height:1.48;color:var(--ink-mid);}
+.s-dark ul.list li{color:var(--paper-mid);}
+ul.list li::before{content:"";position:absolute;left:0;top:.5em;width:9px;height:9px;background:var(--accent);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);}
+.s-dark ul.list li::before{background:var(--ochre);}
+.pull{font-family:var(--display);font-style:italic;font-weight:300;font-size:clamp(24px,4vw,56px);line-height:1.16;color:var(--paper);letter-spacing:-0.01em;max-width:20ch;text-wrap:balance;}
+.pull .by{display:block;margin-top:.7em;font-family:var(--sans);font-style:normal;font-size:clamp(10px,1.1vw,14px);font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--ochre);}
+.pick-wrap{display:grid;grid-template-columns:0.85fr 1.15fr;gap:clamp(16px,2.5vw,42px);align-items:start;margin-top:clamp(14px,2vw,28px);}
+.pick-chips{display:flex;flex-direction:column;gap:8px;}
+.pick-chip{font-family:var(--sans);font-size:clamp(10px,1.15vw,14px);font-weight:600;letter-spacing:0.04em;border:1.5px solid var(--rule);background:var(--paper-deep);color:var(--ink);padding:12px 16px;cursor:pointer;transition:all .2s ease;text-align:left;}
+.pick-chip:hover{border-color:var(--accent);}
+.pick-chip.on{background:var(--accent);color:var(--ink);border-color:var(--accent);}
+.pick-detail{border-radius:0 0 24px 0;background:var(--paper-deep);border-top:4px solid var(--accent);padding:clamp(16px,2vw,28px);min-height:clamp(190px,23vw,260px);}
+.pick-detail .pk{font-family:var(--sans);font-size:clamp(12px,1.3vw,17px);font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent-deep);margin-bottom:.2em;}
+.pick-detail .ptag{display:inline-block;font-family:var(--display);font-style:italic;font-size:clamp(15px,1.9vw,26px);color:var(--ink);margin-bottom:.4em;}
+.pick-detail .pv{font-size:clamp(13px,1.45vw,19px);line-height:1.55;color:var(--ink-mid);}
+.pick-detail .peg{margin-top:.85em;font-family:var(--display);font-style:italic;font-size:clamp(14px,1.6vw,21px);color:var(--accent-deep);}
+.jrail{position:relative;display:flex;gap:4px;margin-top:clamp(16px,2.4vw,30px);}
+.jrail::before{content:"";position:absolute;top:clamp(21px,2.3vw,28px);left:10%;right:10%;height:2px;background:var(--rule);z-index:0;}
+.jnode{position:relative;z-index:1;flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;text-align:center;cursor:pointer;}
+.jdot{width:clamp(42px,4.4vw,55px);height:clamp(42px,4.4vw,55px);border-radius:50%;background:var(--paper);border:2px solid var(--paper-mid);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:500;font-size:clamp(15px,1.7vw,22px);color:var(--ink-mute);transition:all .25s ease;}
+.jnode:hover .jdot{border-color:var(--accent);color:var(--accent-deep);}
+.jnode.on .jdot{background:var(--accent);border-color:var(--accent);color:var(--ink);transform:scale(1.14);box-shadow:0 8px 20px rgba(201,146,58,0.45);}
+.jname{font-family:var(--display);font-size:clamp(14px,1.6vw,22px);color:var(--ink-mid);margin-top:.5em;line-height:1.05;}
+.jnode.on .jname{color:var(--accent-deep);font-style:italic;}
+.jcap{font-family:var(--sans);font-size:clamp(8px,.9vw,11px);font-weight:600;letter-spacing:0.05em;color:var(--paper-dim);margin-top:.28em;}
+.jnode.on .jcap{color:var(--accent-deep);}
+.step-detail{border-radius:0 0 24px 0;margin-top:clamp(16px,2.2vw,28px);background:var(--paper-deep);padding:clamp(16px,2vw,28px);border-left:4px solid var(--accent);min-height:clamp(112px,14vw,158px);}
+.step-detail .sd-q{font-family:var(--display);font-style:italic;font-size:clamp(16px,2vw,26px);color:var(--ink);}
+.step-detail .sd-v{font-size:clamp(13px,1.4vw,18px);line-height:1.5;color:var(--ink-mid);margin-top:.55em;}
+.step-detail .sd-v b{color:var(--accent-deep);}
+.step-detail .sd-trap{margin-top:.6em;font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--terra);}
+.dr-wrap{display:grid;grid-template-columns:1.35fr 1fr;gap:clamp(18px,3vw,46px);align-items:start;margin-top:clamp(12px,1.8vw,24px);}
+.dr-list{display:flex;flex-direction:column;gap:clamp(7px,1vw,11px);}
+.dr-item{display:flex;align-items:flex-start;gap:13px;cursor:pointer;background:var(--paper-deep);padding:clamp(11px,1.3vw,16px) clamp(13px,1.5vw,18px);border-left:3px solid var(--rule);transition:all .18s ease;}
+.dr-item:hover{border-left-color:var(--accent);}
+.dr-item.on{border-left-color:var(--accent);background:rgba(201,146,58,0.13);}
+.dr-cb{flex:none;width:clamp(20px,2vw,25px);height:clamp(20px,2vw,25px);border:1.5px solid var(--accent);display:flex;align-items:center;justify-content:center;margin-top:1px;}
+.dr-item.on .dr-cb::after{content:"";width:48%;height:48%;background:var(--accent);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);}
+.dr-tx .dt{font-family:var(--sans);font-size:clamp(11px,1.2vw,15px);font-weight:700;letter-spacing:0.04em;color:var(--ink);text-transform:uppercase;}
+.dr-tx .dd{font-size:clamp(11px,1.2vw,15px);line-height:1.4;color:var(--ink-mute);margin-top:.18em;}
+.dr-out{border-radius:0 0 24px 0;background:var(--ink);color:var(--paper);padding:clamp(18px,2.2vw,30px);text-align:center;}
+.dr-out .do-k{font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--paper-mid);}
+.dr-out .do-n{font-family:var(--display);font-weight:300;font-size:clamp(40px,6vw,76px);line-height:1;color:var(--paper);margin:.05em 0;}
+.dr-out .do-n small{font-size:.42em;color:var(--paper-mid);}
+.dr-bar{height:8px;background:rgba(239,231,216,0.16);margin:.4em 0 0;}
+.dr-fill{height:100%;width:0;background:var(--ochre);transition:width .3s ease;}
+.dr-verdict{margin-top:1em;font-family:var(--sans);font-size:clamp(11px,1.3vw,16px);font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:10px;}
+.dr-verdict.ready{background:rgba(138,171,92,0.22);color:var(--sage);}.dr-verdict.mid{background:rgba(201,146,58,0.2);color:var(--ochre);}.dr-verdict.low{background:rgba(200,83,31,0.2);color:#E27A4A;}
+.box{border-radius:0 0 24px 0;border:1.5px solid var(--accent);padding:clamp(16px,2.2vw,32px);background:rgba(201,146,58,0.09);}
+.s-dark .box{border-color:var(--ochre);background:rgba(201,146,58,0.08);}
+.box .bk{font-family:var(--sans);font-size:clamp(10px,1.1vw,14px);font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent-deep);margin-bottom:.6em;}.s-dark .box .bk{color:var(--ochre);}
+.matrix{width:100%;border-collapse:collapse;margin-top:clamp(12px,1.6vw,20px);font-size:clamp(11px,1.25vw,16px);}
+.matrix th,.matrix td{text-align:left;padding:clamp(8px,1.05vw,13px) clamp(8px,1.2vw,16px);border-bottom:1px solid var(--rule);vertical-align:top;}
+.matrix th{font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent-deep);}
+.matrix td{color:var(--ink-mid);}
+.matrix td:first-child{font-weight:600;color:var(--ink);font-family:var(--sans);font-size:clamp(11px,1.2vw,15px);text-transform:uppercase;letter-spacing:0.04em;}
+.matrix .trap{color:var(--terra);font-style:italic;font-family:var(--display);font-size:clamp(12px,1.35vw,17px);}
+.ex-head{display:flex;flex-wrap:wrap;align-items:flex-end;gap:14px 20px;}
+.ex-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(10px,1.3vw,18px);margin-top:clamp(14px,2vw,26px);}
+.ex-card{border-radius:0 0 24px 0;position:relative;background:var(--paper-deep);border-top:3px solid var(--accent);padding:clamp(15px,1.8vw,24px) clamp(14px,1.5vw,20px) clamp(16px,1.8vw,24px);overflow:hidden;display:flex;flex-direction:column;}
+.ex-card .exn{position:absolute;top:-0.12em;right:8px;font-family:var(--display);font-weight:300;font-size:clamp(60px,7vw,118px);line-height:1;color:rgba(201,146,58,0.16);pointer-events:none;}
+.ex-card .exk{position:relative;font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--accent-deep);}
+.ex-card .ext{position:relative;font-family:var(--display);font-weight:500;font-size:clamp(17px,1.9vw,26px);color:var(--ink);margin:.14em 0 .3em;line-height:1.08;}
+.ex-card .exp{position:relative;font-size:clamp(11px,1.2vw,15px);line-height:1.45;color:var(--ink-mute);}
+.ex-card .exeg{position:relative;margin-top:.6em;padding-left:10px;border-left:2px solid var(--ochre);font-family:var(--display);font-style:italic;font-size:clamp(12px,1.3vw,17px);line-height:1.32;color:var(--accent-deep);}
+.ex-card .exeg b{font-style:normal;font-family:var(--sans);font-weight:700;font-size:.7em;letter-spacing:0.14em;text-transform:uppercase;color:#9A6E1E;display:block;margin-bottom:.2em;}
+.ex-card .write{margin-top:auto;padding-top:1em;}.ex-card .write span{display:block;border-bottom:1.5px dashed var(--paper-dim);height:1.15em;}
+.due-tag{display:inline-flex;align-items:center;gap:8px;font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink);background:var(--ochre);padding:7px 15px;}
+.due-tag .d{width:9px;height:9px;background:var(--ink);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);}
+.hw-grid{display:grid;grid-template-columns:1.12fr .88fr;gap:clamp(20px,3.4vw,56px);align-items:start;margin-top:clamp(14px,2vw,26px);}
+.hw-klbl{font-family:var(--sans);font-size:clamp(10px,1.1vw,13px);font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--ochre);margin-bottom:.4em;}
+.hw-check{list-style:none;}
+.hw-check li{display:flex;gap:14px;align-items:flex-start;padding:clamp(10px,1.3vw,15px) 0;border-bottom:1px solid rgba(239,231,216,0.14);font-size:clamp(13px,1.4vw,18px);line-height:1.45;color:var(--paper-mid);}
+.hw-check li:last-child{border-bottom:none;}
+.hw-check .cbx{flex:none;width:clamp(21px,2vw,27px);height:clamp(21px,2vw,27px);border:1.5px solid var(--ochre);display:flex;align-items:center;justify-content:center;margin-top:1px;}
+.hw-check .cbx::after{content:"";width:46%;height:46%;background:var(--ochre);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);}
+.hw-check b{color:var(--paper);font-weight:600;}
+.hw-quote{border-radius:0 0 24px 0;background:rgba(201,146,58,0.12);border-left:3px solid var(--ochre);padding:clamp(18px,2.3vw,32px) clamp(18px,2.2vw,30px) clamp(20px,2.4vw,30px);}
+.hw-quote .qm{font-family:var(--display);font-size:clamp(52px,6vw,96px);line-height:.4;color:var(--ochre);display:block;height:.5em;}
+.hw-quote .qt{font-family:var(--display);font-style:italic;font-weight:300;font-size:clamp(19px,2.3vw,32px);line-height:1.26;color:var(--paper);text-wrap:balance;}
+.hw-quote .qb{font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--ochre);margin-top:1em;}
+.hw-bridge{margin-top:clamp(13px,1.7vw,20px);font-size:clamp(13px,1.4vw,18px);line-height:1.55;color:var(--paper-mid);text-wrap:pretty;}
+#s-close{align-items:center;justify-content:center;text-align:center;}
+#s-close .mark{width:clamp(90px,13vw,180px);height:auto;}
+#s-close .ct{font-family:var(--display);font-style:italic;font-weight:300;font-size:clamp(22px,3.2vw,44px);color:var(--paper);margin-top:.6em;}
+#s-close .cc{font-family:var(--sans);font-size:clamp(9px,1vw,12px);letter-spacing:0.24em;text-transform:uppercase;color:var(--paper-mid);margin-top:1.4em;}
+.progress{position:fixed;bottom:0;left:0;height:4px;background:var(--accent);width:0;z-index:41;transition:width .3s ease;}
+.nav{position:fixed;bottom:clamp(14px,2vw,26px);right:clamp(16px,2.5vw,34px);display:flex;gap:8px;z-index:42;}
+.nav button{width:clamp(38px,3.6vw,46px);height:clamp(38px,3.6vw,46px);border:1px solid rgba(239,231,216,0.3);background:rgba(26,26,26,0.55);color:var(--paper);font-size:18px;cursor:pointer;backdrop-filter:blur(4px);transition:all .2s;display:flex;align-items:center;justify-content:center;}
+body.on-paper .nav button{border-color:rgba(26,26,26,0.25);background:rgba(239,231,216,0.7);color:var(--ink);}
+.nav button:hover{border-color:var(--accent);color:var(--accent-deep);}
+.counter{position:fixed;bottom:clamp(16px,2vw,28px);left:clamp(18px,2.5vw,34px);z-index:42;font-family:var(--sans);font-size:clamp(10px,1.1vw,13px);font-weight:600;letter-spacing:0.16em;color:var(--paper-mid);pointer-events:none;}
+body.on-paper .counter{color:var(--ink-mute);}
+.kbd-hint{position:fixed;bottom:clamp(16px,2vw,28px);left:50%;transform:translateX(-50%);z-index:42;font-family:var(--sans);font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--paper-dim);opacity:.7;pointer-events:none;}
+.overview{position:fixed;inset:0;background:rgba(13,16,10,0.96);z-index:60;display:none;padding:clamp(20px,3vw,48px);overflow-y:auto;}
+.overview.show{display:block;}
+.ov-title{font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--ochre);margin-bottom:18px;}
+.ov-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;}
+.ov-item{background:rgba(239,231,216,0.06);border:1px solid rgba(239,231,216,0.14);padding:14px;cursor:pointer;transition:all .2s;}
+.ov-item:hover{border-color:var(--accent);background:rgba(201,146,58,0.2);}
+.ov-item .oi-n{font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:0.16em;color:var(--ochre);}
+.ov-item .oi-t{font-family:var(--display);font-size:18px;color:var(--paper);margin-top:4px;line-height:1.15;}
+.pick-hint,.step-hint,.dr-hint,.gen-hint{font-family:var(--sans);font-size:clamp(10px,1.1vw,12px);font-weight:600;letter-spacing:0.16em;text-transform:uppercase;line-height:1.5;margin-top:clamp(12px,1.6vw,20px);color:var(--paper-dim);text-wrap:pretty;}
+.s-paper .pick-hint,.s-paper .step-hint,.s-paper .dr-hint,.s-paper .gen-hint{color:var(--ink-mute);}
+.slide h1,.slide h4,.slide p,.slide li,.lede,.div-meta,.title-sub,.step-detail,.pick-detail .pv{text-wrap:pretty;}
+h1.title,.title-h,.div-title,.lede,.pull,.card h4,.ex-card .ext,.hw-quote .qt,.title-sub{text-wrap:balance;}
+@media (max-width:880px){.ex-grid{grid-template-columns:repeat(2,1fr);}}
+@media (max-width:768px){.grid.g3,.grid.g4{grid-template-columns:repeat(2,1fr);}.pick-wrap,.dr-wrap,.hw-grid{grid-template-columns:1fr;}.kbd-hint{display:none;}}
+@media (max-width:560px){.grid.g2,.grid.g3,.grid.g4{grid-template-columns:1fr;}}
+@media (max-width:520px){.ex-grid{grid-template-columns:1fr;}}
+@media (prefers-reduced-motion:reduce){.title-top .mark,.s-divider .div-mark{animation:none;}.slide.active .anim{animation:none;}}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<!-- 1 · TITLE -->
+<section class="slide" id="s-title" data-surface="dark" data-title="Title">
+  <div class="title-bg"><div class="title-photo"></div><div class="title-tint"></div><div class="title-grain"></div><div class="title-vignette"></div></div>
+  <div class="title-inner">
+    <div class="title-top"><svg class="mark" viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.82"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.78" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.96" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.8" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.78" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg><span class="wm">The Founder's Sprint</span></div>
+    <div class="title-mid">
+      <div class="title-series">
+        <div class="ts-week"><span class="ts-wk">Week 1</span><span class="ts-of">of 5 · Financial Modelling</span></div>
+        <div class="ts-info"><div class="ts-disc">Financial Modelling</div><div class="ts-coach">Coach Barry Wojega<span class="ts-dot">·</span>Models you can defend</div></div>
+      </div>
+      <h1 class="title-h">Numbers you<br>can <em>defend</em>.</h1>
+      <div class="title-sub">Get oriented as a founder, meet the discipline, and build the Financial Planning stack — models, margins and runway you can defend line by line.</div>
+      <div class="title-foot">
+        <span><span class="dot">●</span> Orientation · the Six Questions</span>
+        <span><span class="dot">●</span> The discipline</span>
+        <span><span class="dot">●</span> Module 1 · Financial Planning</span>
+      </div>
+    </div>
+    <div class="title-cta">Press &rarr; or Space to begin &nbsp;·&nbsp; O overview &nbsp;·&nbsp; P presenter notes</div>
+  </div>
+</section>
+
+<!-- 2 · AGENDA -->
+<section class="slide s-paper" data-surface="paper" data-title="What we'll cover">
+  <div class="accent-top"></div><svg class="mark-corner" viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.82"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.78" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.96" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.8" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.78" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#1A1A1A"/><circle cx="50" cy="50" r="2" fill="#EFE7D8"/></svg>
+  <div class="chip-bar anim"><span>Financial Modelling · Week 1</span><span>Orientation &amp; Financial Planning</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Before we touch a single number</div>
+    <h1 class="title anim">Orient the founder, then build the plan.</h1>
+    <div class="grid g4 anim" style="margin-top:clamp(18px,2.5vw,34px)">
+      <div class="card"><div class="num">01</div><h4>Orientation</h4><p>The Six Questions — who you are, what you do, where you're headed.</p></div>
+      <div class="card"><div class="num">02</div><h4>The discipline</h4><p>Three modules, ten specialties — and what you walk away with.</p></div>
+      <div class="card"><div class="num">03</div><h4>Financial Planning</h4><p>Forecast, burn, cash flow and tax — the revenue-to-cash stack.</p></div>
+      <div class="card"><div class="num">04</div><h4>The dependency</h4><p>Why the order matters — each specialty feeds the next.</p></div>
+    </div>
+    <div class="box anim" style="margin-top:clamp(16px,2.2vw,28px)"><div class="bk">Leave with</div><p class="body" style="color:var(--ink)">A shared picture of your venture, and a <strong>Financial Planning stack</strong> to build toward.</p></div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<section class="slide s-divider" data-surface="dark" data-title="01 · Orientation" data-photo="assets/fm-01.jpg">
+  <div class="div-photo"></div><div class="div-overlay"></div><svg class="div-mark" viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.82"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.78" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.96" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.8" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.78" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+  <div class="div-inner"><div class="div-num anim">01</div><div class="div-eyebrow anim">Financial Modelling · Orientation</div>
+  <div class="div-title anim">Before we touch<br>a single number.</div><div class="div-meta anim">Every financial model is a translation of decisions you've already made. Fifteen minutes of context up front saves an hour of rebuilding assumptions later.</div></div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 4 · OBJECTIVE (orientation) -->
+<section class="slide s-paper" data-surface="paper" data-title="Get oriented first">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Financial Modelling · Week 1</span><span>Get oriented as a founder and a business</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">The on-ramp into every discipline in the Sprint</div>
+    <h1 class="title anim" style="font-size:clamp(26px,3.8vw,50px)">A model is only as honest as the context behind it.</h1>
+    <div class="grid g2 anim" style="align-items:center;gap:clamp(20px,4vw,56px);margin-top:clamp(14px,2vw,26px)">
+      <p class="body">Who you are, what you're building, where you stand right now — these decisions are already made. The model just translates them into numbers. Spend the context up front, and you never rebuild assumptions later.</p>
+      <div class="box"><div class="bk">Beyond the numbers</div><p class="body" style="color:var(--ink);font-family:var(--display);font-style:italic;font-size:clamp(16px,2vw,26px)">Elaborate your ikigai — a unique sense of purpose, beyond solving problems and creating impact.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 5 · THE SIX QUESTIONS (jrail) -->
+<section class="slide s-paper" data-surface="paper" data-title="The Six Questions">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Financial Modelling · Week 1</span><span>The Six Questions · tap one</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Interactive · the same framework across all five disciplines</div>
+    <h1 class="title anim" style="font-size:clamp(26px,3.8vw,50px)">Six questions, one honest picture.</h1>
+    <div class="jrail anim" id="sqRail">
+      <div class="jnode on" data-s="0"><div class="jdot">1</div><div class="jname">Who are you?</div><div class="jcap">Leadership</div></div>
+      <div class="jnode" data-s="1"><div class="jdot">2</div><div class="jname">What do you do?</div><div class="jcap">The ikigai</div></div>
+      <div class="jnode" data-s="2"><div class="jdot">3</div><div class="jname">Where now?</div><div class="jcap">Diagnostic</div></div>
+      <div class="jnode" data-s="3"><div class="jdot">4</div><div class="jname">Where to?</div><div class="jcap">The plan</div></div>
+      <div class="jnode" data-s="4"><div class="jdot">5</div><div class="jname">How?</div><div class="jcap">Tactics</div></div>
+      <div class="jnode" data-s="5"><div class="jdot">6</div><div class="jname">Success?</div><div class="jcap">KPIs</div></div>
+    </div>
+    <div class="step-detail anim" id="sqDetail"></div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 6 · HOW SIX FEED THE MODEL -->
+<section class="slide s-paper" data-surface="paper" data-title="How this feeds your model">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Financial Modelling · Week 1</span><span>Three of the six turn directly into modelling work</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">The orientation isn't abstract — it becomes the model</div>
+    <h1 class="title anim" style="font-size:clamp(26px,3.8vw,50px)">Your answers are your first assumptions.</h1>
+    <div class="grid g3 anim" style="margin-top:clamp(16px,2.4vw,32px)">
+      <div class="card"><div class="num">04</div><h4>&ldquo;Where you want to be&rdquo;</h4><p>Becomes the revenue and growth targets your model forecasts toward.</p></div>
+      <div class="card"><div class="num">05</div><h4>&ldquo;How you'll get there&rdquo;</h4><p>Becomes the functional plan — modelling and projections sit inside this step by name.</p></div>
+      <div class="card"><div class="num">06</div><h4>&ldquo;What success looks like&rdquo;</h4><p>Becomes the KPIs and balanced scorecard your model reports against — not revenue alone.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<section class="slide s-divider" data-surface="dark" data-title="02 · The discipline" data-photo="assets/fm-02.jpg">
+  <div class="div-photo"></div><div class="div-overlay"></div><svg class="div-mark" viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.82"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.78" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.96" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.8" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.78" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+  <div class="div-inner"><div class="div-num anim">02</div><div class="div-eyebrow anim">Financial Modelling · The Discipline</div>
+  <div class="div-title anim">Every shilling<br>has a job.</div><div class="div-meta anim">Modelling here isn't retrospective accounting — it's predictive discipline. Before a shilling is spent, the model states what it's for; after, it's checked against what happened.</div></div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 8 · OBJECTIVE (discipline) -->
+<section class="slide s-paper" data-surface="paper" data-title="Profit is an opinion">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Financial Modelling · Week 1</span><span>Know what every shilling is supposed to do — and prove it</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Profit is an opinion; cash is a fact</div>
+    <h1 class="title anim" style="font-size:clamp(26px,3.8vw,50px)">Built around the fact, not the opinion.</h1>
+    <div class="grid g2 anim" style="align-items:center;gap:clamp(20px,4vw,56px);margin-top:clamp(14px,2vw,26px)">
+      <p class="body">Before a shilling is spent, the model states what that shilling is supposed to do. After it's spent, the model gets checked against what actually happened. This discipline is built around cash — the fact — not profit, the opinion.</p>
+      <div class="box"><div class="bk">Why it matters</div><p class="body" style="color:var(--ink);font-family:var(--display);font-style:italic;font-size:clamp(16px,2vw,26px)">Investors don't fund the best idea in the room. They fund the founder whose numbers they believe.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 9 · THREE MODULES (pick) -->
+<section class="slide s-paper" data-surface="paper" data-title="Three modules">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Financial Modelling · Week 1</span><span>Three modules · ten specialties · tap a module</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Interactive · each module is a self-contained set of specialties</div>
+    <h1 class="title anim" style="font-size:clamp(26px,3.8vw,50px)">The discipline, in three parts.</h1>
+    <div class="pick-wrap" id="modWrap">
+      <div class="pick-chips" id="modChips">
+        <button class="pick-chip on" data-k="plan">1 · Financial Planning</button>
+        <button class="pick-chip" data-k="unit">2 · Unit Economics</button>
+        <button class="pick-chip" data-k="cap">3 · Capital Architecture</button>
+      </div>
+      <div class="pick-detail" id="modDetail"></div>
+    </div>
+    <p class="pick-hint anim">Each of the ten specialties is a single, bookable <strong>2-hour 1:1 session</strong>. The full discipline runs end-to-end only in the Full Cohort — this week, we start with Module 1.</p>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 10 · HOW TO ENGAGE -->
+<section class="slide s-paper" data-surface="paper" data-title="How to engage">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Financial Modelling · Week 1</span><span>Four ways into the discipline</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">From a single gap to the full leadership team</div>
+    <h1 class="title anim" style="font-size:clamp(24px,3.4vw,44px)">Book a gap, a bundle, or the whole discipline.</h1>
+    <div class="grid g4 anim" style="margin-top:clamp(14px,2vw,26px)">
+      <div class="card"><div class="num" style="font-size:clamp(18px,2vw,28px)">UGX 500K</div><h4>1:1 Session</h4><p>One 2-hour session, any single specialty. Best for one specific gap.</p></div>
+      <div class="card"><div class="num" style="font-size:clamp(18px,2vw,28px)">UGX 1M</div><h4>Pick 3</h4><p>Three 2-hour sessions — 33% saving. Mix specialties across modules.</p></div>
+      <div class="card"><div class="num" style="font-size:clamp(18px,2vw,28px)">UGX 2.5M</div><h4>Full Cohort</h4><p>All ten specialties in sequence · ~50 hours of group coaching over 5 weeks.</p></div>
+      <div class="card"><div class="num" style="font-size:clamp(18px,2vw,28px)">UGX 5M</div><h4>VIP Leadership</h4><p>Private sessions for the leadership team · 3-month advisory tail included.</p></div>
+    </div>
+    <p class="pick-hint anim">Every engagement produces one deliverable built to be handed off — a <strong>36-month model in Excel</strong>, every assumption documented, and a real sign-off. It's one of the five pieces of your investor-ready Data Room.</p>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<section class="slide s-divider" data-surface="dark" data-title="03 · Module 1 · Financial Planning" data-photo="assets/fm-03.jpg">
+  <div class="div-photo"></div><div class="div-overlay"></div><svg class="div-mark" viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.82"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.78" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.96" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.8" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.78" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+  <div class="div-inner"><div class="div-num anim">03</div><div class="div-eyebrow anim">Financial Modelling · Module 1</div>
+  <div class="div-title anim">A plan is a guess<br>until cash proves it.</div><div class="div-meta anim">Four checks on one promise: a revenue forecast, a burn number, a cash flow forecast and a tax obligation — four angles on whether the business can keep the promises it makes about money.</div></div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 12 · DEPENDENCY CHAIN -->
+<section class="slide s-paper" data-surface="paper" data-title="The dependency chain">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Financial Modelling · Week 1</span><span>Four specialties, in the order they depend on each other</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Each specialty feeds the next — this is why the order matters</div>
+    <h1 class="title anim" style="font-size:clamp(24px,3.4vw,44px)">Revenue first. Tax last. Never skipped.</h1>
+    <div class="grid g4 anim" style="margin-top:clamp(14px,2vw,26px)">
+      <div class="card"><div class="num">01</div><h4>Forecast revenue</h4><p>Everything sits on top of this number — get the drivers right first.</p></div>
+      <div class="card"><div class="num">02</div><h4>Know your burn</h4><p>Burn and runway only mean something once there's a revenue line to net against.</p></div>
+      <div class="card"><div class="num">03</div><h4>Track the cash</h4><p>Cash flow shows when revenue and burn actually hit the bank — not when they're booked.</p></div>
+      <div class="card"><div class="num">04</div><h4>Account for tax</h4><p>Compliance sits on top of all three — modelled last, but never left out.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 13 · PLANNING STACK (dr-meter) -->
+<section class="slide s-paper" data-surface="paper" data-title="Your planning stack">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Financial Modelling · Week 1</span><span>Your Financial Planning stack · tick what you already have</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Interactive · four checks on one promise</div>
+    <h1 class="title anim" style="font-size:clamp(24px,3.4vw,46px)">How much of the stack can you defend today?</h1>
+    <div class="dr-wrap anim">
+      <div class="dr-list" id="psList"></div>
+      <div class="dr-out">
+        <div class="do-k">Planning stack</div>
+        <div class="do-n"><span id="psNum">0</span><small> / 4</small></div>
+        <div class="dr-bar"><div class="dr-fill" id="psFill"></div></div>
+        <div class="dr-verdict low" id="psVerdict">A guess — the cash flow hasn't proved it yet</div>
+      </div>
+    </div>
+    <div class="dr-hint anim">Whatever you can't tick is where we start. Revenue Forecasting is the natural first specialty — everything else in the model sits on top of it.</div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 14 · RECAP -->
+<section class="slide s-dark" data-surface="dark" data-title="Recap">
+  <div class="chip-bar anim"><span>Financial Modelling · Week 1</span><span>What we locked down</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">The through-line</div>
+    <h1 class="title anim" style="color:var(--paper)">A plan is a guess until the cash flow proves it.</h1>
+    <div class="grid g3 anim" style="margin-top:clamp(16px,2.4vw,32px)">
+      <div class="card"><h4>Context first</h4><p>The Six Questions orient the founder before the numbers.</p></div>
+      <div class="card"><h4>Answers are assumptions</h4><p>Three of the six feed straight into the model.</p></div>
+      <div class="card"><h4>Cash is the fact</h4><p>Profit is an opinion; the discipline is built around cash.</p></div>
+      <div class="card"><h4>Three modules</h4><p>Planning, Unit Economics, Capital Architecture.</p></div>
+      <div class="card"><h4>Order matters</h4><p>Revenue → burn → cash flow → tax. Each feeds the next.</p></div>
+      <div class="card" style="border-left-color:var(--sage)"><h4>Next session</h4><p>Start the stack: <em>Revenue Forecasting</em>.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 15 · EXERCISE -->
+<section class="slide s-paper" data-surface="paper" data-title="In-session exercise">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Financial Modelling · Week 1</span><span>Self-guided worksheet · in session</span></div>
+  <div class="slide-body">
+    <div class="ex-head anim">
+      <div>
+        <div class="eyebrow">Orient your model · do it now</div>
+        <h1 class="title" style="margin-top:.15em">Turn context into assumptions in 4 moves.</h1>
+      </div>
+      <span style="margin-left:auto;margin-bottom:.2em;display:inline-block;font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--paper);background:var(--ink);padding:5px 12px">⏱ 20 min solo · plain numbers</span>
+    </div>
+    <div class="ex-grid anim">
+      <div class="ex-card"><span class="exn">1</span><div class="exk">Where you want to be</div><div class="ext">12-month target</div><div class="exp">One revenue or growth number your model forecasts toward.</div><div class="exeg"><b>Example</b>"UGX 300m ARR by this time next year."</div><div class="write"><span></span></div></div>
+      <div class="ex-card"><span class="exn">2</span><div class="exk">Your revenue drivers</div><div class="ext">2–3 levers</div><div class="exp">The handful of things that actually move revenue.</div><div class="exeg"><b>Example</b>"Outlets &times; baskets/week &times; average basket."</div><div class="write"><span></span></div></div>
+      <div class="ex-card"><span class="exn">3</span><div class="exk">Your monthly burn</div><div class="ext">One number</div><div class="exp">Roughly what leaves the account each month, gross.</div><div class="exeg"><b>Example</b>"About UGX 18m a month, salaries-heavy."</div><div class="write"><span></span></div></div>
+      <div class="ex-card"><span class="exn">4</span><div class="exk">Your biggest cash gap</div><div class="ext">Name it</div><div class="exp">Where cash gets stuck between earning it and collecting it.</div><div class="exeg"><b>Example</b>"Schools pay 60 days after invoicing."</div><div class="write"><span></span></div></div>
+    </div>
+    <p class="pick-hint anim">Bring these four to your first Revenue Forecasting session — we turn them straight into model assumptions. Plain numbers over polish; a rough honest figure beats a precise guess.</p>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 16 · LEAVE WITH -->
+<section class="slide s-dark" data-surface="dark" data-title="Leave with">
+  <div class="chip-bar anim"><span>Financial Modelling · Week 1</span><span>Your next step · after this session</span></div>
+  <div class="slide-body">
+    <div class="anim"><span class="due-tag"><span class="d"></span>Next · Revenue Forecasting</span></div>
+    <h1 class="title anim" style="color:var(--paper);margin-top:.5em">Book the first specialty and bring your four numbers.</h1>
+    <div class="hw-grid anim">
+      <div>
+        <div class="hw-klbl">Three moves</div>
+        <ul class="hw-check">
+          <li><span class="cbx"></span><div><b>Book Revenue Forecasting</b> — the natural starting point for the stack.</div></li>
+          <li><span class="cbx"></span><div><b>Bring your Six-Question answers</b> — we turn them into model assumptions.</div></li>
+          <li><span class="cbx"></span><div><b>Take the Readiness Check</b> — see where the other four disciplines stand.</div></li>
+        </ul>
+      </div>
+      <div>
+        <div class="hw-quote">
+          <span class="qm">&ldquo;</span>
+          <div class="qt">Investors don't fund the best idea in the room. They fund the founder whose numbers they believe.</div>
+          <div class="qb">Barry Wojega · Financial Modelling</div>
+        </div>
+        <p class="hw-bridge">You leave with a financial model you could hand an investor tomorrow and <strong>defend line by line</strong> — built one specialty, or one module, at a time.</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 17 · CLOSER -->
+<section class="slide s-dark" id="s-close" data-surface="dark" data-title="Close">
+  <svg class="mark" viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.82"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.78" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.96" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.8" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.78" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+  <div class="ct anim">Build with direction.</div>
+  <div class="cc anim">The Founder's Sprint · Financial Modelling · Week 1 of 5 · Kampala</div>
+</section>
+
+</div>
+
+<div class="progress" id="progress"></div>
+<div class="counter" id="counter">01 / 15</div>
+<div class="kbd-hint">← → navigate · O overview · P presenter · F fullscreen</div>
+<div class="nav">
+  <button id="presBtn" aria-label="Presenter view" title="Presenter view — private speaker notes (P)"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="13" rx="1.5"/><line x1="8" y1="20" x2="16" y2="20"/></svg></button>
+  <button id="resetBtn" aria-label="Restart from first slide" title="Restart">⟲</button>
+  <button id="prevBtn" aria-label="Previous slide">‹</button>
+  <button id="nextBtn" aria-label="Next slide">›</button>
+</div>
+<div class="overview" id="overview"><div class="ov-title">Slide overview · click to jump · Esc to close</div><div class="ov-grid" id="ovGrid"></div></div>
+
+<script>
+(function(){
+  "use strict";
+  const slides=Array.from(document.querySelectorAll('.slide'));
+  let i=0;
+  const counter=document.getElementById('counter'), progress=document.getElementById('progress');
+  document.querySelectorAll('.s-divider').forEach(s=>{const p=s.getAttribute('data-photo');if(p){const el=s.querySelector('.div-photo');if(el)el.style.backgroundImage="url('"+p+"')";}});
+  function show(n){n=Math.max(0,Math.min(slides.length-1,n));slides[i].classList.remove('active');i=n;const cur=slides[i];cur.classList.add('active');cur.querySelectorAll('.anim').forEach(el=>{el.style.animation='none';void el.offsetWidth;el.style.animation='';});counter.textContent=String(i+1).padStart(2,'0')+' / '+String(slides.length).padStart(2,'0');progress.style.width=((i)/(slides.length-1)*100)+'%';document.body.classList.toggle('on-paper',cur.getAttribute('data-surface')==='paper');presSync();}
+  const next=()=>show(i+1), prev=()=>show(i-1);
+  document.getElementById('nextBtn').addEventListener('click',next);
+  document.getElementById('prevBtn').addEventListener('click',prev);
+  document.getElementById('resetBtn').addEventListener('click',()=>show(0));
+  const overview=document.getElementById('overview'), ovGrid=document.getElementById('ovGrid');
+  slides.forEach((s,idx)=>{const t=s.getAttribute('data-title')||('Slide '+(idx+1));const d=document.createElement('div');d.className='ov-item';d.innerHTML='<div class="oi-n">'+String(idx+1).padStart(2,'0')+'</div><div class="oi-t">'+t+'</div>';d.addEventListener('click',()=>{overview.classList.remove('show');show(idx);});ovGrid.appendChild(d);});
+  const toggleOverview=()=>overview.classList.toggle('show');
+  document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' '){e.preventDefault();next();}else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();prev();}else if(e.key==='Home'){show(0);}else if(e.key==='End'){show(slides.length-1);}else if(e.key==='o'||e.key==='O'){toggleOverview();}else if(e.key==='Escape'){overview.classList.remove('show');}else if((e.key==='p'||e.key==='P')&&!e.metaKey&&!e.ctrlKey){openPresenter();}else if(e.key==='f'||e.key==='F'){if(!document.fullscreenElement){document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();}else{document.exitFullscreen&&document.exitFullscreen();}}});
+  let tx=0,ty=0;document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;ty=e.touches[0].clientY;},{passive:true});
+  document.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-tx,dy=e.changedTouches[0].clientY-ty;if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)){dx<0?next():prev();}},{passive:true});
+
+  // ── interactive ──
+  // ── The Six Questions ──
+  const sq=[
+    {q:'1 · Who are you?',v:'Self-aware leadership, and the vision, mission and values behind the business. Investors read the founder before the forecast.',trap:'Feeds: the tone and credibility of the whole model'},
+    {q:'2 · What do you do?',v:'The problem, the solution and the impact — your ikigai, beyond just solving problems. The reason the numbers are worth forecasting.',trap:'Feeds: what the model is actually measuring'},
+    {q:'3 · Where are you now?',v:'An honest internal and external diagnostic — strategy, systems, structure, skills and funding. The starting line the model builds from.',trap:'Feeds: the base case and current-state assumptions'},
+    {q:'4 · Where do you want to be?',v:'The strategic, business and operational plan — what\'s at the end of the rainbow. This becomes the revenue and growth targets the model forecasts toward.',trap:'Feeds: the model\'s targets and forecast horizon'},
+    {q:'5 · How will you get there?',v:'Tactics and functional plans — marketing, HR, and financial modelling and projections. Modelling sits inside this step by name.',trap:'Feeds: the functional plan — the model lives here'},
+    {q:'6 · What does success look like?',v:'KPIs and a balanced scorecard — growth, profitability and return on investment. What the model must report against, not revenue alone.',trap:'Feeds: the KPIs and scorecard the model outputs'}
+  ];
+  const sqRail=document.getElementById('sqRail'), sqDetail=document.getElementById('sqDetail');
+  function renderSq(n){const d=sq[n];sqDetail.innerHTML='<div class="sd-q">'+d.q+'</div><div class="sd-v">'+d.v+'</div><div class="sd-trap">'+d.trap+'</div>';sqRail.querySelectorAll('.jnode').forEach((s,idx)=>s.classList.toggle('on',idx===n));}
+  if(sqRail){sqRail.addEventListener('click',e=>{const s=e.target.closest('.jnode');if(s)renderSq(+s.getAttribute('data-s'));});renderSq(0);}
+
+  // ── Three Modules ──
+  const mod={
+    plan:{k:'Financial Planning',tag:'A plan is just a guess until the cash flow proves it',v:'The revenue-to-cash stack: Revenue Forecasting, Burn Rate & Runway, Cash Flow Management, and Tax & Compliance. Four checks on whether the business can keep its promises about money.',eg:'This week: Module 1 \u2014 four specialties.'},
+    unit:{k:'Unit Economics',tag:'If a single sale doesn\'t make sense, a million won\'t either',v:'The economics of one customer: CAC & LTV, Payback Period, and Contribution Margin. If the unit doesn\'t work, scale only multiplies the loss.',eg:'Next module: three specialties.'},
+    cap:{k:'Capital Architecture',tag:'Raising money is easy; keeping your company is the craft',v:'How the money is structured: Valuation Methods, Cap Table Design, and Term Sheet Analysis. Raising capital without giving the company away.',eg:'Final module: three specialties.'}
+  };
+  const modChips=document.getElementById('modChips'), modDetail=document.getElementById('modDetail');
+  function renderMod(key){const d=mod[key];modDetail.innerHTML='<div class="pk">'+d.k+'</div><div class="ptag">'+d.tag+'</div><div class="pv">'+d.v+'</div><div class="peg">'+d.eg+'</div>';modChips.querySelectorAll('.pick-chip').forEach(c=>c.classList.toggle('on',c.getAttribute('data-k')===key));}
+  if(modChips){modChips.addEventListener('click',e=>{const b=e.target.closest('.pick-chip');if(b)renderMod(b.getAttribute('data-k'));});renderMod('plan');}
+
+  // ── Planning stack readiness ──
+  const psItems=[
+    {t:'A revenue forecast',d:'Driver-based, not a hockey-stick guess — you can name what moves it.'},
+    {t:'A burn & runway number',d:'You know how many months of life the business has, and what changes it.'},
+    {t:'A cash flow view',d:'You track when money actually hits the bank, not just when it\'s booked.'},
+    {t:'Tax built in',d:'Your tax obligation is a verified line in the model, not an afterthought.'}
+  ];
+  const psState=psItems.map(()=>false);
+  const psList=document.getElementById('psList');
+  function buildPs(){psList.innerHTML=psItems.map(function(it,ci){return '<div class="dr-item'+(psState[ci]?' on':'')+'" data-i="'+ci+'"><span class="dr-cb"></span><span class="dr-tx"><span class="dt">'+it.t+'</span><span class="dd">'+it.d+'</span></span></div>';}).join('');}
+  function recomputePs(){const have=psState.filter(Boolean).length,pct=Math.round(have/psItems.length*100);document.getElementById('psNum').textContent=have;document.getElementById('psFill').style.width=pct+'%';const v=document.getElementById('psVerdict');if(have>=4){v.className='dr-verdict ready';v.textContent='Defensible — the stack holds together';}else if(have>=2){v.className='dr-verdict mid';v.textContent='Half a plan — the gaps are the work';}else{v.className='dr-verdict low';v.textContent='A guess — the cash flow hasn\'t proved it yet';}}
+  if(psList){buildPs();recomputePs();psList.addEventListener('click',function(e){const it=e.target.closest('.dr-item');if(!it)return;const ci=+it.getAttribute('data-i');psState[ci]=!psState[ci];buildPs();recomputePs();});}
+
+  // ── Presenter View ──
+  var presenterWin = null;
+  const NOTES = [
+    ["Welcome to Financial Modelling, Week 1, with Barry Wojega. Today is orientation + the Financial Planning module.","Anchor: a plan is just a guess until the cash flow proves it.","Frame: we orient the founder BEFORE we touch a single number."],
+    ["Preview the three parts; the deliverable is four numbers to bring to Revenue Forecasting.","Every tool applies to THEIR business, in plain numbers."],
+    ["Transition: before we touch a single number."],
+    ["The model is a translation of decisions already made — context first saves rebuilding later.","Push the ikigai: purpose beyond solving problems.","Fifteen minutes here saves an hour of reworked assumptions."],
+    ["Tap each of the Six Questions; the same framework runs across all five disciplines.","Stress that questions 4, 5 and 6 turn directly into modelling work.","Have a founder answer 'where do you want to be' aloud in one number."],
+    ["Walk the three that feed the model: targets, functional plan, KPIs.","The orientation isn't abstract — it becomes the first assumptions.","Ask: which of the three is weakest for you right now?"],
+    ["Transition: every shilling has a job."],
+    ["Profit is an opinion; cash is a fact — the discipline is built around cash.","Before spending, the model says what the shilling is for; after, it's checked.","Land: investors fund the founder whose numbers they believe."],
+    ["Tap each module; ten specialties, each a bookable 2-hour 1:1.","This week we start with Module 1 — Financial Planning.","The full discipline runs end-to-end only in the Full Cohort."],
+    ["Walk the four engagement options and the UGX pricing.","Every engagement = one real deliverable: a 36-month Excel model, assumptions documented.","It's one of the five pieces of the investor-ready Data Room."],
+    ["Transition: Module 1 — a plan is a guess until cash proves it."],
+    ["Walk the dependency chain: revenue → burn → cash flow → tax.","Order matters — burn means nothing without a revenue line to net against.","Tax is modelled last but never left out."],
+    ["Have a founder score their planning stack — which of the four can they defend?","Whatever they can't tick is where we start.","Revenue Forecasting is the natural first specialty — everything sits on it."],
+    ["Recall: context first, answers are assumptions, cash is the fact, three modules, order matters.","Repeat the anchor: a plan is a guess until the cash flow proves it.","Tease the next specialty: Revenue Forecasting."],
+    ["20 minutes solo on the four numbers — CIRCULATE, keep it plain.","Rough honest figures beat precise guesses.","They bring these straight into the Revenue Forecasting session."],
+    ["Book Revenue Forecasting; bring the Six-Question answers; take the Readiness Check.","They leave with a model they could hand an investor tomorrow and defend line by line.","Set the next step before they leave."],
+    ["Tagline: Build with direction.","Next = Revenue Forecasting, the first specialty of the stack.","Thank them."]
+  ];
+  function notesHTML(idx){const a=NOTES[idx]||[];if(!a.length)return '<p class="empty">No speaker notes for this slide yet.</p>';return '<ul>'+a.map(function(b){return '<li>'+b+'</li>';}).join('')+'</ul>';}
+  function presSync(){ if(presenterWin&&!presenterWin.closed){ try{ presenterWin.postMessage({type:'goto',i:i,total:slides.length,title:(slides[i].getAttribute('data-title')||('Slide '+(i+1))),notes:notesHTML(i),next:(slides[i+1]?(slides[i+1].getAttribute('data-title')||''):'')},'*'); }catch(e){} } }
+  const PRESENTER_DOC='<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Presenter · The Founder\'s Sprint</title>'
+    +'<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">'
+    +'<style>:root{--paper:#EFE7D8;--ochre:#C9923A;--sage:#8AAB5C;--mut:#A09888;--sans:\'Josefin Sans\',sans-serif;--disp:\'Cormorant Garamond\',serif;--body:\'Inter\',sans-serif;}'
+    +'*{box-sizing:border-box;margin:0;padding:0;}body{background:#11140E;color:var(--paper);font-family:var(--body);min-height:100vh;display:flex;flex-direction:column;padding:22px 26px;}'
+    +'.top{display:flex;justify-content:space-between;align-items:center;font-family:var(--sans);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mut);border-bottom:1px solid rgba(239,231,216,.14);padding-bottom:12px;gap:12px;}'
+    +'.top .brand{color:var(--ochre);font-weight:700;}.pnum{font-weight:700;color:var(--paper);margin-left:auto;}.clock{font-family:var(--disp);font-size:24px;color:var(--ochre);}'
+    +'.eyebrow{font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--ochre);margin-top:16px;}'
+    +'.cur{font-family:var(--disp);font-size:30px;line-height:1.12;color:var(--paper);margin:4px 0 0;}'
+    +'.notes{flex:1;overflow:auto;margin-top:16px;}.notes ul{list-style:none;}.notes li{position:relative;padding-left:24px;margin-bottom:15px;font-size:18px;line-height:1.5;color:#EDE6D6;}'
+    +'.notes li::before{content:"";position:absolute;left:0;top:9px;width:9px;height:9px;background:var(--ochre);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);}'
+    +'.notes .empty{color:var(--mut);font-style:italic;font-family:var(--disp);font-size:20px;}'
+    +'.next{font-family:var(--sans);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);padding-top:14px;border-top:1px solid rgba(239,231,216,.14);}.next b{color:var(--paper);font-weight:600;}'
+    +'.ctrl{display:flex;gap:10px;margin-top:14px;}.ctrl button{flex:1;background:rgba(239,231,216,.08);border:1px solid rgba(239,231,216,.25);color:var(--paper);font-family:var(--sans);font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:13px;cursor:pointer;transition:.15s;}'
+    +'.ctrl button:hover{border-color:var(--ochre);color:var(--ochre);}</style></head><body>'
+    +'<div class="top"><span class="brand">The Founder\'s Sprint · Presenter</span><span class="pnum" id="pnum">—</span><span class="clock" id="clock">00:00</span></div>'
+    +'<div class="eyebrow">Now presenting</div><div class="cur" id="cur">—</div><div class="notes" id="notes"></div><div class="next" id="next"></div>'
+    +'<div class="ctrl"><button id="pp">‹ Prev</button><button id="nn">Next ›</button></div>'
+    +'<scr'+'ipt>var t0=Date.now();function pad(n){return String(n).padStart(2,"0");}'
+    +'setInterval(function(){var s=Math.floor((Date.now()-t0)/1000);document.getElementById("clock").textContent=pad(Math.floor(s/60))+":"+pad(s%60);},500);'
+    +'function nav(d){if(window.opener&&!window.opener.closed){window.opener.postMessage({type:"fs-nav",dir:d},"*");}}'
+    +'document.getElementById("pp").onclick=function(){nav(-1);};document.getElementById("nn").onclick=function(){nav(1);};'
+    +'window.addEventListener("keydown",function(e){if(e.key==="ArrowRight"||e.key===" "||e.key==="PageDown"){e.preventDefault();nav(1);}else if(e.key==="ArrowLeft"||e.key==="PageUp"){e.preventDefault();nav(-1);}});'
+    +'window.addEventListener("message",function(e){var m=e.data||{};if(m.type==="goto"){document.getElementById("pnum").textContent=(m.i+1)+" / "+m.total;document.getElementById("cur").textContent=m.title;document.getElementById("notes").innerHTML=m.notes||"";document.getElementById("next").innerHTML=m.next?("Next &rarr; <b>"+m.next+"</b>"):"End of deck";}});'
+    +'if(window.opener&&!window.opener.closed){window.opener.postMessage({type:"fs-ready"},"*");}'
+    +'<\/scr'+'ipt></body></html>';
+  function openPresenter(){if(presenterWin&&!presenterWin.closed){presenterWin.focus();presSync();return;}presenterWin=window.open('','fsPresenter','width=760,height=860');if(!presenterWin){alert('Please allow pop-ups for this page to open Presenter View.');return;}presenterWin.document.open();presenterWin.document.write(PRESENTER_DOC);presenterWin.document.close();setTimeout(presSync,350);}
+  window.addEventListener('message',function(e){const m=e.data||{};if(m.type==='fs-nav'){m.dir>0?next():prev();}else if(m.type==='fs-ready'){presSync();}});
+  var _pBtn=document.getElementById('presBtn'); if(_pBtn) _pBtn.addEventListener('click',openPresenter);
+  show(0);
+})();
+</script>
+<script src="/decks/_sponsors.js?v=1"></script>
+</body>
+</html>
