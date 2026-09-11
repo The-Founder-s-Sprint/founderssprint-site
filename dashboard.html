@@ -632,6 +632,36 @@
   }
   .btn-cancel:hover { border-color: var(--gold); color: var(--gold); }
 
+  /* ══ SECTION HEADER ACTIONS ═══════════════════════════════════════════════
+     .btn-confirm/.btn-cancel are MODAL FOOTER buttons — flex:1, 12px padding,
+     built to fill a dialog. Reusing them in a section header is why that row
+     needed inline font-size/padding overrides and still sat at mismatched
+     heights. These are header-sized, and they follow the brand book's button
+     role: Josefin Sans, 11px, 700, 4px tracking, uppercase — not Inter at 2px. */
+  .hdr-actions { display: flex; align-items: center; gap: 10px; }
+  /* A filter is a control, not an action. The rule separates the two so the eye
+     doesn't read three equal-weight buttons. */
+  .hdr-actions .hdr-divider {
+    width: 1px; height: 20px; background: var(--border); margin: 0 2px;
+  }
+  .hdr-btn {
+    display: inline-flex; align-items: center; justify-content: center;
+    height: 34px; padding: 0 16px; white-space: nowrap;   /* never wrap to two lines */
+    font-family: var(--sans); font-size: 11px; font-weight: 700;
+    letter-spacing: 4px; text-transform: uppercase;
+    background: transparent; color: var(--ink-mid);
+    border: 1px solid var(--border-hi); border-radius: 2px;
+    cursor: pointer; transition: border-color .18s, color .18s, background .18s;
+  }
+  .hdr-btn:hover { border-color: var(--terra); color: var(--terra); }
+  /* Exactly one primary per header — the action you came here to take. */
+  .hdr-btn--primary {
+    background: var(--terra); border-color: var(--terra); color: #fff;
+  }
+  .hdr-btn--primary:hover { background: var(--gold-light); border-color: var(--gold-light); color: #fff; }
+  /* Match the control to the buttons so the row sits on one baseline. */
+  .hdr-actions .filter-select { height: 34px; padding: 0 10px; }
+
   /* ══ TOAST ════════════════════════════════════════════════════════════════ */
   #toast {
     position: fixed; bottom: 28px; right: 28px;
@@ -1361,7 +1391,7 @@ html[data-theme="dark"]{
     <div class="tab-panel" id="panel-sessions">
       <div class="section-head" style="margin-bottom:16px">
         <span class="section-title">Sessions</span>
-        <div style="display:flex;gap:8px;align-items:center">
+        <div class="hdr-actions">
           <select class="filter-select" id="session-status-filter" onchange="loadSessions()">
             <option value="">All Statuses</option>
             <option value="scheduled" selected>Scheduled</option>
@@ -1369,8 +1399,14 @@ html[data-theme="dark"]{
             <option value="cancelled">Cancelled</option>
             <option value="no_show">No Show</option>
           </select>
-          <button class="btn-cancel" onclick="generateCohortSessions()" style="font-size:13px;padding:6px 14px" title="Create a cohort's whole session series at once, each with a Meet link">⚡ Generate cohort series</button>
-          <button class="btn-confirm" onclick="toggleSessionForm()" style="font-size:13px;padding:6px 14px">+ New Session</button>
+          <span class="hdr-divider"></span>
+          <!-- No emoji: the V6 mark is the icon system, and a ⚡ is a generic
+               icon-pack glyph the brand explicitly rules out. The label is
+               shortened because "cohort" is already the context here — the
+               tooltip carries the detail. -->
+          <button class="hdr-btn" onclick="generateCohortSessions()"
+                  title="Create a cohort's whole session series at once — five disciplines × five weeks, each with its own Meet link">Generate series</button>
+          <button class="hdr-btn hdr-btn--primary" onclick="toggleSessionForm()">New session</button>
         </div>
       </div>
 
@@ -1456,11 +1492,12 @@ html[data-theme="dark"]{
     <div class="tab-panel" id="panel-presentations" style="display:none!important">
       <div class="section-head" style="margin-bottom:16px">
         <span class="section-title">Coach Presentations</span>
-        <div style="display:flex;gap:8px;align-items:center">
+        <div class="hdr-actions">
           <select class="filter-select" id="pres-coach-filter" onchange="loadPresentations()">
             <option value="">All Coaches</option>
           </select>
-          <button class="btn-confirm" onclick="togglePresForm()" style="font-size:13px;padding:6px 14px">+ Link Presentation</button>
+          <span class="hdr-divider"></span>
+          <button class="hdr-btn hdr-btn--primary" onclick="togglePresForm()">Link presentation</button>
         </div>
       </div>
 
@@ -1548,7 +1585,7 @@ html[data-theme="dark"]{
     <div class="tab-panel" id="panel-cohorts">
       <div class="section-head" style="margin-bottom:16px">
         <span class="section-title">Cohort Management</span>
-        <button class="btn-confirm" onclick="toggleCohortForm()" style="font-size:13px;padding:6px 14px">+ New Cohort</button>
+        <div class="hdr-actions"><button class="hdr-btn hdr-btn--primary" onclick="toggleCohortForm()">New cohort</button></div>
       </div>
 
       <!-- Create cohort form (hidden by default) -->
@@ -1833,7 +1870,8 @@ html[data-theme="dark"]{
             <option value="in_review">In Review</option>
             <option value="published">Published</option>
           </select>
-          <button class="btn-confirm" onclick="toggleMatForm()" style="font-size:13px;padding:6px 14px">+ Add Module</button>
+          <span class="hdr-divider"></span>
+          <button class="hdr-btn hdr-btn--primary" onclick="toggleMatForm()">Add module</button>
         </div>
       </div>
 
