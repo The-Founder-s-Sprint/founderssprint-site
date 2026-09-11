@@ -27,11 +27,11 @@
   var API = '';  // same-origin → Cloudflare /api/* proxy → api.founderssprint.co
 
   // ── Booking mode ───────────────────────────────────────────
-  // PREVIEW LAUNCH: ioTec (mobile-money) is not live yet, so we don't charge.
-  // Founders can still create an account and SAVE their booking as interest; when
-  // payments go live we flip this ONE flag to true and the full deposit → STK-push
-  // → confirmation flow (already built below) takes over. No other change needed.
-  var BOOKING_OPEN = false;
+  // Payments are LIVE. ioTec was proven on MTN, Airtel and card on 31 Aug 2026,
+  // so the deposit → STK-push → confirmation flow below is the real path.
+  // While this was false every booking took the interest route: no payment taken
+  // AND no seat hold set, so the reminder and lapse crons never saw the founder.
+  var BOOKING_OPEN = true;
 
   // ── State ──────────────────────────────────────────────────
   const state = {
