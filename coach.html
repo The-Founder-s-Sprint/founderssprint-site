@@ -194,6 +194,14 @@ html[data-theme="dark"]{
       <div class="page-sub">Your standing group cohort session runs every week on your discipline's day, 10:00–12:00 EAT. One-to-one intensives appear here once founders book them inside your availability windows.</div>
       <div class="section-title" style="margin-top:0">Group cohort sessions</div>
       <div class="card" id="cohort-sessions"></div>
+      <!-- Attendance is the record that the session was DELIVERED — separate from
+           whether the founder completed the material, which stays your judgement
+           on the L3 checklist. Partial attendance still counts: people lose
+           network, leave early, have emergencies. -->
+      <div class="section-title">Attendance</div>
+      <div class="sub" style="margin:-6px 0 10px;font-size:12px">Mark who joined. This records that the session was delivered — it doesn't mark the course complete, which stays with you on each founder's checklist.</div>
+      <div class="card" id="session-attendance"></div>
+
       <div class="section-title">One-to-one sessions</div>
       <div class="card" id="oneonone-sessions"></div>
     </div>
@@ -543,7 +551,65 @@ async function saveAssessment(companyId, disc, status){
 
 // ── SESSIONS ──
 function fmtDateTime(s){ if(!s)return '—'; const d=new Date(s); return d.toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}); }
+// ── Attendance ───────────────────────────────────────────────────────────────
+// Sessions that have already run, with who joined. Marked here because the coach
+// was in the call and knows; the Meet reconciliation cron writes the same record
+// through the same RPC once the API scope is granted, and this stays the
+// override for anyone it misses (phone joins, personal Google accounts).
+let attRows = null;
+
+async function renderAttendance(){
+  const el = document.getElementById('session-attendance'); if(!el) return;
+  // Sessions that have started, most recent first. Nothing to mark before a call.
+  const past = (sessions||[])
+    .filter(s => s.scheduled_at && new Date(s.scheduled_at) <= new Date() && s.status !== 'cancelled')
+    .sort((a,b) => new Date(b.scheduled_at) - new Date(a.scheduled_at))
+    .slice(0, 12);
+
+  if(!past.length){ el.innerHTML = '<div class="empty">No sessions have run yet. Once one does, mark who joined here.</div>'; return; }
+
+  try{
+    const ids = past.map(s=>s.id).join(',');
+    attRows = await _q('session_attendees','session_id=in.('+ids+')&select=session_id,email,name,attended,minutes_attended,attendance_source&order=name');
+  }catch(e){ el.innerHTML = '<div class="empty">Could not load attendance — '+esc(e.message)+'</div>'; return; }
+
+  el.innerHTML = past.map(s => {
+    const people = (attRows||[]).filter(a => a.session_id === s.id);
+    const when = new Date(s.scheduled_at).toLocaleString('en-GB',
+      {timeZone:'Africa/Kampala', weekday:'short', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit', hour12:false});
+    const marked = people.filter(p=>p.attended).length;
+    const head = '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">'
+      + '<div><div class="list-main">'+esc(s.title||'Session')+'</div>'
+      + '<div class="list-sub">'+esc(when)+' EAT</div></div>'
+      + '<span class="pill '+(marked?'pill-green':'pill-grey')+'">'+marked+' of '+people.length+' joined</span></div>';
+
+    const rows = people.length ? people.map(p => {
+      const src = p.attendance_source === 'meet_api' ? ' <span class="sub" style="font-size:10px">· from Meet</span>' : '';
+      const mins = p.attended && p.minutes_attended ? ' <span class="sub" style="font-size:10px">· '+p.minutes_attended+' min</span>' : '';
+      return '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:7px 0;border-top:1px solid var(--border)">'
+        + '<span style="font-size:13px">'+esc(p.name || p.email)+mins+src+'</span>'
+        + '<button class="btn-sm" style="border:1px solid var(--border-hi);'
+        +   'background:'+(p.attended?'var(--success)':'none')+';color:'+(p.attended?'#fff':'var(--ink-mid)')+'" '
+        +   'onclick="markAttended('+s.id+',\''+esc(p.email).replace(/'/g,"\\'")+'\','+(!p.attended)+')">'
+        +   (p.attended ? 'Joined ✓' : 'Mark joined') + '</button></div>';
+    }).join('') : '<div class="sub" style="padding-top:8px">No founders on this session\'s roster.</div>';
+
+    return '<div class="list-row" style="flex-direction:column;align-items:stretch;gap:0">'+head+rows+'</div>';
+  }).join('');
+}
+
+async function markAttended(sessionId, email, attended){
+  try{
+    const r = await _rpc('record_session_attendance', {
+      p_session_id: sessionId, p_email: email, p_attended: attended, p_source: 'coach' });
+    if(r && r.ok === false){ showToast(r.reason || 'Could not record', 'error'); return; }
+    showToast(attended ? 'Marked as joined' : 'Cleared', 'success');
+    await renderAttendance();
+  }catch(e){ showToast('Could not record — '+e.message, 'error'); }
+}
+
 function renderSessions(){
+  renderAttendance();
   // group cohort sessions: derived from the coach's discipline(s) weekday map
   const co=document.getElementById('cohort-sessions');
   const mine=[...myDiscKeys].filter(k=>DISC_DAY[k]);
