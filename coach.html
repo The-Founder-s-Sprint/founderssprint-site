@@ -198,6 +198,13 @@ html[data-theme="dark"]{
            whether the founder completed the material, which stays your judgement
            on the L3 checklist. Partial attendance still counts: people lose
            network, leave early, have emergencies. -->
+      <!-- Running late? Tell the people already sitting in the waiting room.
+           This lands on their dashboard, not their inbox — a founder waiting on
+           a Meet is not reading email. -->
+      <div class="section-title">Next up</div>
+      <div class="sub" style="margin:-6px 0 10px;font-size:12px">Running late or need to move a session? Post a notice and it appears on your founders' dashboards straight away.</div>
+      <div class="card" id="upcoming-sessions"></div>
+
       <div class="section-title">Attendance</div>
       <div class="sub" style="margin:-6px 0 10px;font-size:12px">Mark who joined. This records that the session was delivered — it doesn't mark the course complete, which stays with you on each founder's checklist.</div>
       <div class="card" id="session-attendance"></div>
@@ -551,6 +558,78 @@ async function saveAssessment(companyId, disc, status){
 
 // ── SESSIONS ──
 function fmtDateTime(s){ if(!s)return '—'; const d=new Date(s); return d.toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}); }
+// ── Upcoming sessions + "running late" notice ────────────────────────────────
+async function renderUpcoming(){
+  const el = document.getElementById('upcoming-sessions'); if(!el) return;
+  const soon = (sessions||[])
+    .filter(s => s.scheduled_at && new Date(s.scheduled_at) > new Date() && s.status !== 'cancelled')
+    .sort((a,b) => new Date(a.scheduled_at) - new Date(b.scheduled_at))
+    .slice(0, 6);
+  if(!soon.length){ el.innerHTML = '<div class="empty">Nothing scheduled ahead.</div>'; return; }
+
+  // Notices already posted, so a coach can see what their founders are seeing.
+  let live = [];
+  try{
+    live = await _q('session_notices','session_id=in.('+soon.map(s=>s.id).join(',')+')'
+      +'&expires_at=gt.'+new Date().toISOString()+'&select=session_id,body,kind,created_at&order=created_at.desc');
+  }catch(e){ live = []; }
+
+  el.innerHTML = soon.map(s => {
+    const when = new Date(s.scheduled_at).toLocaleString('en-GB',
+      {timeZone:'Africa/Kampala', weekday:'short', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit', hour12:false});
+    const mins = Math.round((new Date(s.scheduled_at) - new Date())/60000);
+    const soonish = mins <= 120;
+    const posted = (live||[]).filter(n => n.session_id === s.id)[0];
+    const notice = posted
+      ? '<div style="margin-top:8px;padding:8px 10px;background:rgba(201,146,58,.14);border-left:2px solid var(--ochre);font-size:12px">'
+        + 'Your founders can see: “'+esc(posted.body)+'”</div>'
+      : '';
+    return '<div class="list-row" style="flex-direction:column;align-items:stretch;gap:0">'
+      + '<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">'
+      +   '<div><div class="list-main">'+esc(s.title||'Session')+'</div>'
+      +   '<div class="list-sub">'+esc(when)+' EAT'+(soonish && mins>0 ? ' · in '+mins+' min' : '')+'</div></div>'
+      +   '<button class="btn-sm" style="border:1px solid var(--border-hi);background:none;color:var(--terra);font-weight:600" '
+      +     'onclick="tellFounders('+s.id+')">✎ Tell founders</button></div>'
+      + notice + '</div>';
+  }).join('');
+}
+
+// Presets because a coach doing this is late, on a phone, and not composing prose.
+const NOTICE_PRESETS = [
+  ['Running 10 minutes late — please hold on.', 10],
+  ['Running 15 minutes late — please hold on.', 15],
+  ['Running 30 minutes late — apologies, please hold on.', 30],
+  ['Starting now — joining the call.', 0],
+];
+
+async function tellFounders(sessionId){
+  const opts = NOTICE_PRESETS.map((p,i)=>({label:p[0], value:String(i)}))
+    .concat([{label:'Write my own…', value:'custom'}]);
+  let choice;
+  try{ choice = await fsChoice('What should your founders see?', {title:'Tell founders', options:opts}); }
+  catch(e){ return; }
+  if(choice === null || choice === undefined) return;
+
+  let body, minutes = null;
+  if(choice === 'custom'){
+    body = await fsPrompt('Your message to the founders on this session', {
+      title:'Tell founders', okText:'Send', placeholder:'Keep it short — they are waiting.' });
+    if(!body || !body.trim()) return;
+  } else {
+    const p = NOTICE_PRESETS[Number(choice)];
+    body = p[0]; minutes = p[1];
+  }
+
+  try{
+    const r = await _rpc('post_session_notice', {
+      p_session_id: sessionId, p_body: body,
+      p_kind: minutes === 0 ? 'starting' : 'late', p_minutes: minutes });
+    if(r && r.ok === false){ showToast('Could not post','error'); return; }
+    showToast('Founders notified','success');
+    await renderUpcoming();
+  }catch(e){ showToast('Could not post — '+e.message,'error'); }
+}
+
 // ── Attendance ───────────────────────────────────────────────────────────────
 // Sessions that have already run, with who joined. Marked here because the coach
 // was in the call and knows; the Meet reconciliation cron writes the same record
@@ -609,6 +688,7 @@ async function markAttended(sessionId, email, attended){
 }
 
 function renderSessions(){
+  renderUpcoming();
   renderAttendance();
   // group cohort sessions: derived from the coach's discipline(s) weekday map
   const co=document.getElementById('cohort-sessions');

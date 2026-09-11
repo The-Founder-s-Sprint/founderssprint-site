@@ -343,6 +343,11 @@
 
       <!-- ── READINESS CHECK — self-assessment. Deliberately NOT the investor-facing
            data-room completeness signal, and never shown to investors. ── -->
+      <!-- A coach running late posts here. Top of the dashboard, above
+           everything, because the only moment it matters is the moment the
+           founder is sitting waiting for the call to start. -->
+      <div id="session-notice" style="display:none;margin-bottom:22px"></div>
+
       <div id="intake-nudge" style="display:none;background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--ochre);border-radius:var(--radius-card);padding:20px;margin-bottom:22px"></div>
 
       <div id="rdy-card" style="display:none;background:var(--surface);border:1px solid var(--border);border-top:3px solid var(--ochre);border-radius:var(--radius-card);padding:20px;margin-bottom:22px"></div>
@@ -983,6 +988,10 @@ async function loadAll(user){
   // are. ensureCompany() first, so a founder who named their venture before the
   // companies table existed gets one without having to re-save their profile.
   ensureCompany().then(loadIntake).then(renderIntakeNudge).catch(()=>{});
+  // A delay notice is only useful while the founder is waiting, so keep it fresh
+  // without making them reload. Cheap: one indexed query a minute.
+  renderSessionNotice();
+  setInterval(renderSessionNotice, 60000);
   loadReadiness();   // async, non-blocking: imports any anonymous run taken before signup
 }
 
@@ -1903,6 +1912,39 @@ async function renderMaterials(){
       + 'the Full Cohort covers all five disciplines.</div></div>';
 
   el.innerHTML = preamble + html;
+}
+
+// ── Session notices ("your coach is running late") ───────────────────────────
+// Polled rather than pushed: the founder is sitting on this page waiting for a
+// call to start, so a 60-second refresh is timely enough and costs one small
+// indexed query. Notices expire on their own, so a stale "running late" can
+// never sit here tomorrow looking current.
+async function renderSessionNotice(){
+  const el = document.getElementById('session-notice'); if(!el) return;
+  let rows = [];
+  try{
+    rows = await _pgQuery('session_notices',
+      'expires_at=gt.' + new Date().toISOString()
+      + '&select=body,kind,created_at,sessions(title,scheduled_at)&order=created_at.desc&limit=3');
+  }catch(e){ return; }                      // never let a notice break the dashboard
+
+  if(!rows || !rows.length){ el.style.display='none'; el.innerHTML=''; return; }
+
+  el.style.display='block';
+  el.innerHTML = rows.map(n => {
+    const s = n.sessions || {};
+    const when = s.scheduled_at
+      ? new Date(s.scheduled_at).toLocaleString('en-GB',{timeZone:'Africa/Kampala',hour:'2-digit',minute:'2-digit',hour12:false}) + ' EAT'
+      : '';
+    const accent = n.kind === 'cancelled' ? 'var(--terra)' : 'var(--ochre)';
+    return '<div style="background:var(--surface);border:1px solid var(--border);border-left:4px solid '+accent+';'
+      + 'border-radius:var(--radius-card);padding:16px 20px;margin-bottom:10px">'
+      + '<div style="font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.14em;'
+      + 'text-transform:uppercase;color:'+accent+';margin-bottom:5px">From your coach</div>'
+      + '<div style="font-size:15px;line-height:1.5">'+esc(n.body)+'</div>'
+      + (s.title ? '<div class="sub" style="font-size:12px;margin-top:6px">'+esc(s.title)+(when?' · '+when:'')+'</div>' : '')
+      + '</div>';
+  }).join('');
 }
 
 // ── Your Business — pre-coaching intake ──────────────────────────────────────
