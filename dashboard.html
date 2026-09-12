@@ -5845,7 +5845,20 @@ async function cancelSession(id) {
 }
 
 async function completeSession(id) {
-  if (!(await fsConfirm('Mark this session as completed?',{title:'Complete session',okText:'Mark completed'}))) return;
+  // A session that hasn't started can't have been completed. This row is dense —
+  // Cancel and Complete sit side by side across 25 rows — and a mis-click here
+  // is silent and consequential: a "completed" future session is skipped forever
+  // by the attendance cron, so its delivery is never recorded.
+  const s = (allSessions || []).find(x => String(x.id) === String(id));
+  if (s && s.scheduled_at && new Date(s.scheduled_at) > new Date()) {
+    const when = new Date(s.scheduled_at).toLocaleString('en-GB',
+      { timeZone:'Africa/Kampala', weekday:'short', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit', hour12:false });
+    if (!(await fsConfirm(
+      'This session hasn\'t run yet — it\'s scheduled for ' + when + ' EAT. Mark it completed anyway?',
+      { title:'Session is in the future', okText:'Mark completed anyway', danger:true }))) return;
+  } else if (!(await fsConfirm('Mark this session as completed?',{title:'Complete session',okText:'Mark completed'}))) {
+    return;
+  }
   try {
     const headers = await getAuthHeaders();
     const res = await fetch(`${API_BASE}/api/sessions/${id}`, {
