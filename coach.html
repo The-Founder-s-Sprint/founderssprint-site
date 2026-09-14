@@ -605,9 +605,12 @@ const NOTICE_PRESETS = [
 async function tellFounders(sessionId){
   const opts = NOTICE_PRESETS.map((p,i)=>({label:p[0], value:String(i)}))
     .concat([{label:'Write my own…', value:'custom'}]);
+  // fsChoice takes the options ARRAY positionally, not inside the opts object.
+  // Passing it as {options:…} made .map throw, and the catch below ate it — the
+  // button looked dead. Never swallow a dialog failure silently again.
   let choice;
-  try{ choice = await fsChoice('What should your founders see?', {title:'Tell founders', options:opts}); }
-  catch(e){ return; }
+  try{ choice = await fsChoice('What should your founders see?', opts, {title:'Tell founders'}); }
+  catch(e){ console.error('tellFounders', e); showToast('Could not open the notice picker — '+e.message,'error'); return; }
   if(choice === null || choice === undefined) return;
 
   let body, minutes = null;
