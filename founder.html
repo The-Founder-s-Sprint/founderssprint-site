@@ -1716,8 +1716,12 @@ async function submitEnrChange(kind, regId, btn){
   }
   btn.disabled = true;
   try{
-    await _pgRpc('request_enrollment_change', {
+    const out = await _pgRpc('request_enrollment_change', {
       p_reg_id: regId, p_kind: kind, p_reason: reason.trim(), p_target_cohort: target });
+    // The request is saved either way. Email is what stops it sitting unseen in
+    // a dashboard nobody has open, so a failure here is reported, not swallowed.
+    try{ await fasgNotifyEnr((out && out.id) || null); }
+    catch(e){ showToast('Saved, but the notification email didn\'t send — reply to any email from us','error'); }
     enrOpen = null;
     await renderEnrChange();
     showToast('Request submitted — we\'ll be in touch','success');
@@ -2174,6 +2178,18 @@ function fasgModuleBlock(key){
     +'<div style="font-weight:600;margin-top:4px">'+esc(m.title)+'</div>'
     +'<div style="font-size:12.5px;line-height:1.55;color:var(--muted);margin-top:2px">'+esc(m.desc)+'</div>'
     +'<div style="margin-top:10px"><button class="btn btn-ghost" onclick="fasgOpenModule(\''+esc(m.key)+'\')">Open the module →</button></div></div>';
+}
+
+// Fires the two emails behind a postponement/withdrawal request: our team gets
+// told a decision is needed, the founder gets an acknowledgement with the numbers.
+async function fasgNotifyEnr(changeId){
+  if(!changeId) return;
+  const token = await _getValidToken();
+  const r = await fetch('/api/enrollment/notify',{method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+    body: JSON.stringify({ change_id: changeId })});
+  if(!r.ok) throw new Error('notify '+r.status);
+  return r.json();
 }
 
 async function fasgNotify(path,body){
