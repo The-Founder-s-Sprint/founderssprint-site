@@ -824,6 +824,7 @@ html[data-theme="dark"]{
     <button class="tab active" onclick="switchTab('overview')">Overview</button>
     <button class="tab" onclick="switchTab('registrations')">Registrations</button>
     <button class="tab" onclick="switchTab('revenue')">Revenue</button>
+    <button class="tab" onclick="switchTab('finance')">Finance</button>
     <button class="tab" onclick="switchTab('documents')">Documents</button>
     <button class="tab" onclick="switchTab('directory')">Directory <span class="badge" id="dir-app-count-badge" style="display:none">0</span></button>
     <button class="tab" onclick="switchTab('sessions')">Sessions</button>
@@ -1124,6 +1125,26 @@ html[data-theme="dark"]{
           </table>
         </div>
       </div>
+    </div>
+
+    <!-- ── FINANCE — daily cash + collections ────────────────────────────
+         Reads ONE server-side aggregate (admin_finance_overview), gated to
+         super-admin or finance. Our ledger is the source of truth; the
+         accounting platform mirrors it, so nothing here waits on a connector. -->
+    <div class="tab-panel" id="panel-finance">
+      <div class="hdr-actions" style="justify-content:flex-end;margin-bottom:18px">
+        <select id="fin-window" class="filter-select" onchange="loadFinance()">
+          <option value="7">Last 7 days</option>
+          <option value="30" selected>Last 30 days</option>
+          <option value="90">Last 90 days</option>
+          <option value="365">Last 12 months</option>
+        </select>
+        <button class="hdr-btn" onclick="loadFinance()">Refresh</button>
+      </div>
+      <div id="fin-body"><div class="empty">Loading…</div></div>
+      <!-- Deferral / withdrawal requests. Lives under Finance because approving
+           one moves money and a cohort seat in the same action. -->
+      <div id="enr-queue" style="margin-top:28px"></div>
     </div>
 
     <!-- ── DOCUMENTS ─────────────────────────────────────────────────── -->
@@ -2734,6 +2755,223 @@ async function sendIotecRequest(regId, paymentType) {
   }
 }
 
+// ── FINANCE ────────────────────────────────────────────────────────────────
+// One aggregate call. Never pull payment_events into the browser — the payments
+// table is the one that grows fastest and it is nobody's business client-side.
+let finLoading = false;
+async function loadFinance() {
+  const el = document.getElementById('fin-body');
+  if (!el || finLoading) return;
+  finLoading = true;
+  const days = Number((document.getElementById('fin-window') || {}).value) || 30;
+  try {
+    const d = await _pgRpc('admin_finance_overview', { p_days: days });
+    renderFinance(el, d);
+    loadEnrQueue();
+  } catch (e) {
+    // 42501 means the signed-in staff member isn't finance — say so plainly
+    // rather than showing an empty page that looks like "no money yet".
+    const denied = /42501|Not authorised/i.test(e.message || '');
+    el.innerHTML = '<div class="empty">' + (denied
+      ? 'Finance figures are restricted to finance and super-admin roles.'
+      : 'Could not load finance data — ' + esc(e.message)) + '</div>';
+  } finally { finLoading = false; }
+}
+
+function finMoney(n) { return 'UGX ' + Number(n || 0).toLocaleString('en-GB'); }
+
+// ── Deferral / withdrawal queue ─────────────────────────────────────────────
+// Approving executes: the seat moves, the calendar invites are withdrawn and the
+// instalment plan pauses, all in one action. It is deliberately not a flag that
+// somebody tidies up afterwards — that gap is where a postponed founder keeps
+// getting Meet invites for three months.
+async function loadEnrQueue() {
+  const el = document.getElementById('enr-queue');
+  if (!el) return;
+  let rows = [];
+  try {
+    rows = await _pgQuery('enrollment_changes',
+      'status=eq.requested&select=id,kind,reason,requested_at,target_cohort_id,registration_id,'
+      + 'amount_paid,deposit_retained,delivery_charge,refund_amount,credit_amount,'
+      + 'sessions_delivered,sessions_total,registrations(first_name,last_name,email,cohort_id)'
+      + '&order=requested_at');
+  } catch (e) { el.innerHTML = ''; return; }
+
+  if (!rows.length) { el.innerHTML = ''; return; }   // stay silent when there's nothing
+
+  el.innerHTML = '<div class="chart-card">'
+    + '<div class="chart-header"><div><div class="chart-title">Postponement &amp; withdrawal requests</div>'
+    + '<div class="chart-title-accent"></div></div></div>'
+    + rows.map(r => {
+        const who  = esc(((r.registrations || {}).first_name || '') + ' ' + ((r.registrations || {}).last_name || '')).trim();
+        const isD  = r.kind === 'defer';
+        const sums = isD
+          ? finMoney(r.credit_amount) + ' carries forward · nothing charged'
+          : finMoney(r.amount_paid) + ' paid · ' + finMoney(r.deposit_retained) + ' deposit kept · '
+            + finMoney(r.delivery_charge) + ' for ' + r.sessions_delivered + '/' + r.sessions_total
+            + ' delivered · <strong>refund ' + finMoney(r.refund_amount) + '</strong>';
+        return '<div style="padding:14px 0;border-top:1px solid var(--border)">'
+          + '<div style="display:flex;justify-content:space-between;gap:14px;align-items:flex-start">'
+          +   '<div><div style="font-weight:600">' + who + ' — '
+          +     (isD ? 'postpone' : '<span style="color:var(--terra)">withdraw</span>') + '</div>'
+          +     '<div style="font-size:12px;color:var(--muted);margin-top:2px">'
+          +     esc((r.registrations || {}).email || '') + ' · booking #' + r.registration_id
+          +     ' · asked ' + new Date(r.requested_at).toLocaleDateString('en-GB', { timeZone:'Africa/Kampala', day:'numeric', month:'short' })
+          +     '</div></div>'
+          + '</div>'
+          + '<div style="margin-top:8px;padding:10px 12px;background:var(--bg);font-size:13px;line-height:1.6;white-space:pre-wrap">'
+          +   esc(r.reason || '') + '</div>'
+          + '<div style="margin-top:8px;font-size:12.5px">' + sums + '</div>'
+          + (isD
+              ? '<div style="margin-top:10px"><label style="font-size:11px;color:var(--muted)">Move to</label> '
+                + '<select id="enr-t-' + r.id + '" class="filter-select"></select></div>'
+              : '')
+          + '<div style="margin-top:12px;display:flex;gap:10px">'
+          +   '<button class="hdr-btn hdr-btn--primary" onclick="decideEnr(\'' + r.id + '\',\'approve\',this)">Approve</button>'
+          +   '<button class="hdr-btn" onclick="decideEnr(\'' + r.id + '\',\'decline\',this)">Decline</button>'
+          + '</div></div>';
+      }).join('')
+    + '</div>';
+
+  // Populate the target-cohort pickers, defaulting to what the founder asked for.
+  try {
+    const cs = await _pgQuery('cohorts', 'status=neq.closed&select=id,name,start_date&order=start_date');
+    rows.filter(r => r.kind === 'defer').forEach(r => {
+      const sel = document.getElementById('enr-t-' + r.id);
+      if (!sel) return;
+      (cs || []).filter(c => c.id !== (r.registrations || {}).cohort_id).forEach(c => {
+        const o = document.createElement('option');
+        o.value = c.id; o.textContent = c.name;
+        if (c.id === r.target_cohort_id) o.selected = true;
+        sel.appendChild(o);
+      });
+    });
+  } catch (e) {}
+}
+
+async function decideEnr(id, decision, btn) {
+  const sel = document.getElementById('enr-t-' + id);
+  const target = sel ? Number(sel.value) || null : null;
+  const label = decision === 'approve' ? 'Approve' : 'Decline';
+  if (!(await fsConfirm(
+        decision === 'approve'
+          ? 'Approving moves their seat, withdraws the calendar invites and pauses any instalment plan. Continue?'
+          : 'Decline this request? The founder will need to be told why.',
+        { title: label + ' request', okText: label, danger: decision !== 'approve' }))) return;
+
+  btn.disabled = true;
+  try {
+    const token = await _getValidToken();
+    const r = await fetch(API_BASE + '/api/enrollment/decide', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ change_id: id, decision, target_cohort: target }),
+    });
+    const j = await r.json();
+    if (!r.ok) throw new Error(j.error || r.status);
+    const cal = j.calendar || {};
+    // Report the calendar outcome plainly — a partial cleanup that reads as a
+    // clean success is how stale invites survive.
+    const msg = decision === 'decline' ? 'Declined'
+      : 'Done — ' + (cal.removed || 0) + ' invites withdrawn'
+        + (cal.problems && cal.problems.length ? ', ' + cal.problems.length + ' failed (see console)' : '');
+    if (cal.problems && cal.problems.length) console.warn('[enrollment] calendar problems', cal.problems);
+    showToast(msg, cal.problems && cal.problems.length ? 'error' : 'success');
+    await loadEnrQueue();
+    await loadFinance();
+  } catch (e) {
+    showToast('Could not complete — ' + e.message, 'error');
+  } finally { btn.disabled = false; }
+}
+
+function renderFinance(el, d) {
+  const cash = d.cash || {}, out = d.outstanding || {}, doc = d.documents || {};
+  const set  = d.settlement || {}, rec = d.reconciliation || {};
+
+  const card = (label, value, sub, cls) =>
+    '<div class="stat-card"><div class="stat-label">' + esc(label) + '</div>'
+    + '<div class="stat-value' + (cls ? ' ' + cls : '') + '">' + value + '</div>'
+    + '<div class="stat-sub">' + sub + '</div></div>';
+
+  // Cash received must equal settlement gross. A gap means money is booked that
+  // was never received (or vice versa) — state it, never let it be inferred.
+  const recBlock = rec.balanced
+    ? '<div class="stat-sub" style="color:#0A8F64">✓ Cash and settlements reconcile</div>'
+    : '<div class="stat-sub" style="color:var(--terra);font-weight:600">Gap of '
+      + finMoney(Math.abs(rec.gap)) + ' between cash received and settlements booked — investigate before any payout.</div>';
+
+  const debtors = (d.debtors || []);
+  const debtorRows = debtors.length
+    ? debtors.map(x =>
+        '<tr><td>' + esc(x.name || '—') + '<div style="font-size:11px;color:var(--muted)">' + esc(x.email || '') + '</div></td>'
+        + '<td>' + finMoney(x.owed) + '</td>'
+        + '<td>' + (x.due
+            ? (x.overdue ? '<span style="color:var(--terra);font-weight:600">' : '<span>')
+              + new Date(x.due).toLocaleDateString('en-GB', { timeZone:'Africa/Kampala', day:'numeric', month:'short', year:'numeric' })
+              + (x.overdue ? ' · overdue' : '') + '</span>'
+            : '<span style="color:var(--muted)">no deadline set</span>') + '</td></tr>')
+      .join('')
+    : '<tr><td colspan="3" style="color:var(--muted)">Nobody owes anything.</td></tr>';
+
+  const pipe = (d.pipeline || []).map(p =>
+    '<tr><td>' + esc(p.cohort) + '</td><td>' + (p.paid_seats || 0) + '</td>'
+    + '<td>' + finMoney(p.collected) + '</td>'
+    + '<td>' + (p.start ? new Date(p.start).toLocaleDateString('en-GB', { day:'numeric', month:'short', year:'numeric' }) : '—') + '</td></tr>'
+  ).join('') || '<tr><td colspan="4" style="color:var(--muted)">No open cohorts.</td></tr>';
+
+  el.innerHTML =
+    '<div class="stats-grid" style="margin-bottom:10px">'
+    + card('Received today',    finMoney(cash.today),     'confirmed payments, Kampala day')
+    + card('Received (' + d.window_days + 'd)', finMoney(cash.in_window), 'excludes test payments', 'green')
+    + card('Outstanding',       finMoney(out.total),      (out.count || 0) + ' founder' + ((out.count === 1) ? '' : 's') + ' owing', 'orange')
+    + card('Overdue',           finMoney(out.overdue),    'past the balance deadline', (out.overdue ? 'orange' : ''))
+    + '</div>'
+    + '<div style="margin:0 0 26px">' + recBlock + '</div>'
+
+    + '<div class="revenue-grid">'
+    + '<div class="chart-card">'
+    +   '<div class="chart-header"><div><div class="chart-title">Who owes money</div><div class="chart-title-accent"></div></div></div>'
+    +   '<table class="rev-table"><thead><tr><th>Founder</th><th>Owed</th><th>Balance due</th></tr></thead>'
+    +   '<tbody>' + debtorRows + '</tbody></table>'
+    + '</div>'
+    + '<div class="chart-card">'
+    +   '<div class="chart-header"><div><div class="chart-title">Owed to coaches</div><div class="chart-title-accent"></div></div></div>'
+    +   '<table class="rev-table"><tbody>'
+    +     '<tr><td>Gross settled</td><td>' + finMoney(set.gross) + '</td></tr>'
+    +     '<tr><td>Platform (20%)</td><td>' + finMoney(set.platform_cut) + '</td></tr>'
+    +     '<tr><td><strong>Provider pool</strong></td><td><strong>' + finMoney(set.provider_pool) + '</strong></td></tr>'
+    +     (set.voided ? '<tr><td style="color:var(--muted)">Voided / test rows</td><td style="color:var(--muted)">'
+          + set.voided + ' excluded</td></tr>' : '')
+    +   '</tbody></table>'
+    +   '<div class="stat-sub" style="margin-top:10px">Payouts are manual — this is what has accrued, not what has been paid.</div>'
+    + '</div>'
+    + '</div>'
+
+    + '<div class="revenue-grid" style="margin-top:20px">'
+    + '<div class="chart-card">'
+    +   '<div class="chart-header"><div><div class="chart-title">Document integrity</div><div class="chart-title-accent"></div></div></div>'
+    +   '<table class="rev-table"><tbody>'
+    +     '<tr><td>Invoices issued</td><td>' + (doc.invoices || 0) + '</td></tr>'
+    +     '<tr><td>Receipts issued</td><td>' + (doc.receipts || 0) + '</td></tr>'
+    +     '<tr><td>Awaiting billing details</td><td>' + (doc.bill_to_pending || 0) + '</td></tr>'
+    +     '<tr><td>' + (doc.unissued ? '<strong style="color:var(--terra)">Payments with no receipt</strong>' : 'Payments with no receipt')
+          + '</td><td>' + (doc.unissued
+            ? '<strong style="color:var(--terra)">' + doc.unissued + '</strong>' : '0') + '</td></tr>'
+    +   '</tbody></table>'
+    +   (doc.unissued ? '<div class="stat-sub" style="margin-top:10px;color:var(--terra)">'
+          + 'A payment without a receipt is a hole in the books. The reconcile cron retries these.</div>' : '')
+    + '</div>'
+    + '<div class="chart-card">'
+    +   '<div class="chart-header"><div><div class="chart-title">Forward book</div><div class="chart-title-accent"></div></div></div>'
+    +   '<table class="rev-table"><thead><tr><th>Cohort</th><th>Seats</th><th>Collected</th><th>Starts</th></tr></thead>'
+    +   '<tbody>' + pipe + '</tbody></table>'
+    + '</div>'
+    + '</div>'
+
+    + '<div class="stat-sub" style="margin-top:22px">Our ledger is the source of truth; the accounting platform mirrors it. '
+    + 'Figures exclude test payments. Generated ' + new Date(d.generated_at).toLocaleString('en-GB', { timeZone:'Africa/Kampala' }) + ' EAT.</div>';
+}
+
 function fmtUGX(n) {
   if (!n) return '—';
   if (n >= 1000000) return 'UGX ' + (n / 1000000).toFixed(n % 1000000 === 0 ? 0 : 1) + 'M';
@@ -3791,6 +4029,7 @@ const OPS_NAV_GROUPS = [
       { key: 'sessions',      label: 'Sessions' },
       { key: 'registrations', label: 'Registrations' } ] },
   { label: 'Money', items: [
+      { key: 'finance', label: 'Finance' },
       { key: 'revenue', label: 'Revenue' },
       { key: 'pricing', label: 'Pricing' },
       { key: 'capital', label: 'Founder capital' } ] },
@@ -3828,6 +4067,7 @@ function switchTab(name) {
   if (window.FSDash) FSDash.setActive(name);   // keep the sidebar in step with in-page links
   document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
   document.getElementById(`panel-${name}`).classList.add('active');
+  if (name === 'finance') loadFinance();
   if (name === 'directory' && !directoryLoaded) loadDirectoryData();
   if (name === 'coaches' && !coachAppsLoaded) loadCoachApplications();
   if (name === 'sessions' && !sessionsLoaded) loadSessions();

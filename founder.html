@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://ivedeivyotwevjxvcuoe.supabase.co" crossorigin>
 <link rel="dns-prefetch" href="https://ivedeivyotwevjxvcuoe.supabase.co">
+<script src="/workbench-modules.js?v=1"></script>
 <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600;1,700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="/vendor/supabase-js.min.js?v=2110"></script>
 <script>window.supabase||document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"><\/script>')</script>
@@ -319,6 +320,7 @@
   <div class="tabs-wrap">
     <button class="tab active" onclick="switchTab('overview')">Overview</button>
     <button class="tab" onclick="switchTab('intake')">Your Business</button>
+    <button class="tab" onclick="switchTab('assignments')">Assignments <span id="fasg-badge" style="display:none;background:var(--terra);color:#fff;border-radius:9px;font-size:9px;padding:1px 6px;margin-left:3px">0</span></button>
     <button class="tab" onclick="switchTab('dataroom')">Data Room</button>
     <button class="tab" onclick="switchTab('materials')">Course Materials</button>
     <button class="tab" onclick="switchTab('workbench')">Workbench</button>
@@ -414,6 +416,16 @@
       <div id="intake-body" class="sub" style="margin-top:18px">Loading…</div>
     </div>
 
+    <!-- ── ASSIGNMENTS — work your coaches set, and the conversation about it.
+         Deliberately a full tab rather than a card on Overview: this is where a
+         founder is expected to do something, not just read. ── -->
+    <div class="tab-panel" id="panel-assignments">
+      <div class="page-eyebrow">Coaching</div>
+      <div class="page-title">Assignments</div>
+      <div class="page-sub">Work your coaches have set, with a thread for each one. Ask your question here rather than over WhatsApp — your coach gets emailed, and the answer stays attached to the work it belongs to.</div>
+      <div id="fasg-body" style="font-size:12.5px;line-height:1.55;color:var(--muted);margin-top:18px">Loading…</div>
+    </div>
+
     <div class="tab-panel" id="panel-dataroom">
       <div class="page-eyebrow">Investor-ready</div>
       <div class="page-title">Your Data Room</div>
@@ -485,6 +497,13 @@
       </div>
       <div class="section-title">Enrollment</div>
       <div class="card" id="pay-list"></div>
+
+      <!-- Life happens. Postponing or withdrawing is a formal, written request
+           because money and a cohort seat move with it — not a WhatsApp message
+           that gets lost. Placed under Payments so the financial consequence is
+           read in the same breath as the decision. -->
+      <div class="section-title">Need to change your plans?</div>
+      <div class="card" id="enr-change"></div>
     </div>
 
     <!-- ── INVESTORS (marketplace) ── -->
@@ -606,6 +625,8 @@ const sb = supabase.createClient(location.origin+'/sb', SUPABASE_ANON, {
 window.requestIdleCallback = window.requestIdleCallback || function(cb, opts){ return setTimeout(() => cb({didTimeout:false,timeRemaining:()=>50}), opts?.timeout||1); };
 
 // ── STATE ──
+let authUser = null;            // the signed-in auth user; assignment_messages
+function currentUserId(){ return authUser && authUser.id; }   // stamps author_id
 let profile = null;
 let deliverables = [];
 let myRegs = [];
@@ -816,7 +837,7 @@ let _redir=false; function _toLogin(){ if(_redir||booted) return; _redir=true; l
 // ════ BOOT ════
 async function bootApp(user){
   if(booted || !user) return;
-  booted = true;
+  booted = true; authUser = user;
   try {
     document.getElementById('login-screen').style.display='none';
     document.getElementById('app').style.display='block';
@@ -992,6 +1013,7 @@ async function loadAll(user){
   // without making them reload. Cheap: one indexed query a minute.
   renderSessionNotice();
   setInterval(renderSessionNotice, 60000);
+  loadFAssignments();   // badge only; the panel renders on first open
   loadReadiness();   // async, non-blocking: imports any anonymous run taken before signup
 }
 
@@ -1584,6 +1606,125 @@ function balanceDueDate(r){
   if(up) return new Date(new Date(up.scheduled_at).getTime() - 48*3600*1000);
   return null;
 }
+// ── Postpone or withdraw ─────────────────────────────────────────────────────
+// Two paths, and the difference in money between them is shown BEFORE the
+// founder chooses. Someone deciding this is usually having a bad week; they
+// should not have to work out what it costs them from a terms page.
+let enrOpen = null, enrQuotes = {};
+
+async function renderEnrChange(){
+  const el = document.getElementById('enr-change'); if(!el) return;
+  const live = (myRegs||[]).filter(r => r.deposit_paid && !r.forfeited && r.cohort_id);
+  if(!live.length){ el.innerHTML = '<div style="font-size:12.5px;color:var(--muted)">Nothing booked to change.</div>'; return; }
+
+  let pending = [];
+  try{
+    pending = await _pgQuery('enrollment_changes',
+      'registration_id=in.('+live.map(r=>r.id).join(',')+')&status=eq.requested'
+      +'&select=id,kind,reason,requested_at,registration_id&order=requested_at.desc');
+  }catch(e){ pending = []; }
+
+  if(pending.length){
+    const p = pending[0];
+    el.innerHTML = '<div style="padding:12px 14px;background:rgba(201,146,58,.14);border-left:2px solid var(--ochre)">'
+      +'<div style="font-weight:600">Your '+(p.kind==='defer'?'postponement':'withdrawal')+' request is with us.</div>'
+      +'<div style="font-size:12.5px;color:var(--muted);margin-top:4px">Submitted '
+      + esc(new Date(p.requested_at).toLocaleDateString('en-GB',{timeZone:'Africa/Kampala',day:'numeric',month:'long',year:'numeric'}))
+      +'. We\'ll come back to you — if it\'s urgent, reply to any email from us.</div></div>';
+    return;
+  }
+
+  const r = live[0];
+  el.innerHTML =
+    '<div style="font-size:13.5px;line-height:1.65">If you can\'t give the cohort the focus it needs right now, say so — '
+    + 'we would far rather move you than watch you lose the value of it.</div>'
+    + '<div style="margin-top:14px;display:flex;gap:10px;flex-wrap:wrap">'
+    + '<button class="btn btn-ghost" onclick="openEnrForm(\'defer\','+r.id+')">Postpone to a later cohort</button>'
+    + '<button class="btn btn-ghost" onclick="openEnrForm(\'cancel\','+r.id+')">Withdraw completely</button>'
+    + '</div><div id="enr-form"></div>';
+}
+
+async function openEnrForm(kind, regId){
+  const host = document.getElementById('enr-form'); if(!host) return;
+  if(enrOpen === kind){ enrOpen = null; host.innerHTML = ''; return; }
+  enrOpen = kind;
+  host.innerHTML = '<div style="margin-top:16px;font-size:12.5px;color:var(--muted)">Working out what this means…</div>';
+
+  let q = null;
+  try{ q = await _pgRpc('fs_enrollment_quote', { p_reg_id: regId, p_kind: kind }); }
+  catch(e){ host.innerHTML = '<div style="margin-top:16px;color:var(--terra)">Could not load the details — '+esc(e.message)+'</div>'; return; }
+  enrQuotes[kind] = q;
+
+  const money = n => 'UGX ' + Number(n||0).toLocaleString('en-GB');
+  const isDefer = kind === 'defer';
+  const box = isDefer
+    ? '<div style="padding:12px 14px;background:var(--surface)">'
+      + '<div style="font-weight:600">Everything you\'ve paid moves with you.</div>'
+      + '<div style="font-size:12.5px;line-height:1.6;margin-top:6px">'
+      + money(q.credit_amount) + ' carries to the cohort you choose, and you start again at Week 1 — '
+      + 'the five weeks build on each other, so picking up mid-way would short-change you. '
+      + 'Nothing is charged for postponing.</div></div>'
+    : '<div style="padding:12px 14px;background:var(--surface)">'
+      + '<div style="font-weight:600">What you\'d get back: ' + money(q.refund_amount) + '</div>'
+      + '<table style="width:100%;margin-top:10px;font-size:12.5px">'
+      + '<tr><td>You have paid</td><td style="text-align:right">'+money(q.amount_paid)+'</td></tr>'
+      + '<tr><td>Deposit (non-refundable)</td><td style="text-align:right">− '+money(q.deposit_retained)+'</td></tr>'
+      + '<tr><td>'+q.sessions_delivered+' of '+q.sessions_total+' sessions already delivered</td>'
+      +     '<td style="text-align:right">− '+money(q.delivery_charge)+'</td></tr>'
+      + '<tr><td style="padding-top:6px;border-top:1px solid var(--border)"><strong>Refund</strong></td>'
+      +     '<td style="text-align:right;padding-top:6px;border-top:1px solid var(--border)"><strong>'+money(q.refund_amount)+'</strong></td></tr>'
+      + '</table>'
+      + '<div style="font-size:12px;color:var(--muted);margin-top:8px">Withdrawing is final. '
+      + 'If you might come back, postpone instead — it costs you nothing.</div></div>';
+
+  host.innerHTML = '<div style="margin-top:16px">' + box
+    + '<div style="margin-top:14px"><label style="font-size:12px;color:var(--muted)">'
+    + 'Tell us what\'s going on (required — this is the formal request)</label>'
+    + '<textarea id="enr-reason" rows="4" style="width:100%;margin-top:6px" '
+    + 'placeholder="A sentence is enough. It stays between you and our team."></textarea></div>'
+    + (isDefer ? '<div style="margin-top:10px"><label style="font-size:12px;color:var(--muted)">Which cohort would you like?</label>'
+        + '<select id="enr-target" style="margin-top:6px"><option value="">Choose…</option></select></div>' : '')
+    + '<div style="margin-top:14px;display:flex;gap:10px">'
+    + '<button class="btn" onclick="submitEnrChange(\''+kind+'\','+regId+',this)">Submit request</button>'
+    + '<button class="btn btn-ghost" onclick="openEnrForm(\''+kind+'\','+regId+')">Cancel</button>'
+    + '</div></div>';
+
+  if(isDefer){
+    try{
+      const cs = await _pgQuery('cohorts','status=neq.closed&select=id,name,start_date&order=start_date');
+      const sel = document.getElementById('enr-target');
+      (cs||[]).filter(c => String(c.id) !== String((myRegs.find(x=>x.id===regId)||{}).cohort_id))
+        .forEach(c => {
+          const o = document.createElement('option');
+          o.value = c.id;
+          o.textContent = c.name + ' — starts ' + new Date(c.start_date).toLocaleDateString('en-GB',{day:'numeric',month:'long',year:'numeric'});
+          sel.appendChild(o);
+        });
+    }catch(e){}
+  }
+}
+
+async function submitEnrChange(kind, regId, btn){
+  const reason = (document.getElementById('enr-reason')||{}).value || '';
+  if(!reason.trim()){ showToast('Please tell us what\'s going on','error'); return; }
+  const target = kind==='defer' ? Number((document.getElementById('enr-target')||{}).value)||null : null;
+  if(kind==='defer' && !target){ showToast('Choose which cohort you\'d like','error'); return; }
+  if(kind==='cancel'){
+    const q = enrQuotes.cancel || {};
+    if(!confirm('Withdrawing is final and cannot be undone. You would be refunded UGX '
+       + Number(q.refund_amount||0).toLocaleString('en-GB') + '. Submit this request?')) return;
+  }
+  btn.disabled = true;
+  try{
+    await _pgRpc('request_enrollment_change', {
+      p_reg_id: regId, p_kind: kind, p_reason: reason.trim(), p_target_cohort: target });
+    enrOpen = null;
+    await renderEnrChange();
+    showToast('Request submitted — we\'ll be in touch','success');
+  }catch(e){ showToast('Could not submit — '+esc(e.message),'error'); }
+  finally{ btn.disabled = false; }
+}
+
 function renderPayments(){
   let fee=0, paid=0, bal=0;
   myRegs.forEach(r => { const pd=productFor(r); fee+=pd.fee; paid+=(r.deposit_paid?pd.deposit:0)+(r.balance_paid?pd.balance:0); bal+=(r.deposit_paid?0:pd.deposit)+(r.balance_paid?0:pd.balance); });
@@ -1827,7 +1968,221 @@ function switchTab(name){
   if(name==='workbench') renderWorkbench();
   if(name==='intake') renderIntake();
   if(name==='materials') renderMaterials();
+  if(name==='assignments') renderFAssignments();
+  if(name==='payments') renderEnrChange();
   window.scrollTo(0,0);
+}
+
+// ── Assignments ──────────────────────────────────────────────────────────────
+// One row per founder per assignment, so the status, the submission and the
+// thread are this founder's own. The brief comes through the embedded join.
+let fAsgRows = null, fAsgOpen = null;
+
+const FASG_LBL={ assigned:'To do', submitted:'Submitted', returned:'Needs another go', accepted:'Accepted' };
+function fasgPill(s){
+  const bg={ assigned:'rgba(200,83,31,.14)', submitted:'rgba(201,146,58,.18)', returned:'rgba(200,83,31,.18)', accepted:'rgba(10,143,100,.14)' }[s]||'var(--border-hi)';
+  const fg={ assigned:'var(--terra)', submitted:'#8a6a1f', returned:'var(--terra)', accepted:'#0A8F64' }[s]||'var(--muted)';
+  return '<span class="pill" style="background:'+bg+';color:'+fg+'">'+esc(FASG_LBL[s]||s)+'</span>';
+}
+function fasgDue(d){
+  if(!d) return 'No due date';
+  const when=new Date(d).toLocaleDateString('en-GB',{timeZone:'Africa/Kampala',weekday:'short',day:'numeric',month:'short'});
+  const days=Math.ceil((new Date(d)-new Date())/86400000);
+  if(days<0)  return '<span style="color:var(--terra);font-weight:600">Was due '+esc(when)+'</span>';
+  if(days===0)return '<span style="color:var(--terra);font-weight:600">Due today</span>';
+  if(days<=2) return '<span style="color:var(--terra)">Due '+esc(when)+' · '+days+' day'+(days===1?'':'s')+' left</span>';
+  return 'Due '+esc(when);
+}
+
+async function loadFAssignments(){
+  if(!profile) return [];
+  try{
+    fAsgRows = await _pgQuery('assignment_recipients',
+      'founder_id=eq.'+profile.id
+      +'&select=id,status,response,submitted_at,reviewed_at,'
+      +'assignment_files(id,filename,mime,size_bytes,storage_path,side),'
+      +'assignments(id,title,brief,due_at,discipline_key,coach_id,module_key,'
+      +'assignment_files(id,filename,mime,size_bytes,storage_path,side))'
+      +'&order=created_at.desc');
+  }catch(e){ fAsgRows=[]; console.error('loadFAssignments',e); }
+  const open=(fAsgRows||[]).filter(r=>r.status==='assigned'||r.status==='returned').length;
+  const b=document.getElementById('fasg-badge');
+  if(b){ b.textContent=open; b.style.display=open?'':'none'; }
+  return fAsgRows;
+}
+
+async function renderFAssignments(){
+  const el=document.getElementById('fasg-body'); if(!el) return;
+  if(fAsgRows===null){ el.innerHTML='<div style="font-size:12.5px;line-height:1.55;color:var(--muted)">Loading…</div>'; await loadFAssignments(); }
+  if(!fAsgRows||!fAsgRows.length){
+    el.innerHTML='<div class="card" style="text-align:center;padding:40px">'
+      +'<div style="font-family:var(--display);font-size:40px;color:var(--border-hi)">&#9671;</div>'
+      +'<div style="font-weight:600;margin-top:6px">Nothing set yet.</div>'
+      +'<div style="font-size:12.5px;line-height:1.55;color:var(--muted);margin-top:6px">When a coach sets you work it lands here, and you’ll get an email.</div></div>';
+    return;
+  }
+  // Outstanding first: a founder opening this tab wants the thing they owe.
+  const rank={ returned:0, assigned:1, submitted:2, accepted:3 };
+  const rows=fAsgRows.slice().sort((a,b)=>(rank[a.status]-rank[b.status])
+    || (new Date(a.assignments&&a.assignments.due_at||0)-new Date(b.assignments&&b.assignments.due_at||0)));
+  el.innerHTML=rows.map(r=>{
+    const a=r.assignments||{};
+    const openNow = fAsgOpen===r.id;
+    return '<div class="card" style="margin-bottom:14px">'
+      +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:14px">'
+      +'<div><div style="font-weight:600;font-size:15px">'+esc(a.title||'Assignment')+'</div>'
+      +'<div style="font-size:12.5px;line-height:1.55;color:var(--muted);margin-top:3px">'+fasgDue(a.due_at)+'</div></div>'
+      +'<div style="display:flex;gap:8px;align-items:center">'+fasgPill(r.status)
+      +'<button class="btn btn-ghost" onclick="toggleFAsg(\''+r.id+'\')">'+(openNow?'Close':'Open')+'</button></div></div>'
+      +(openNow?'<div id="fasg-detail-'+r.id+'" style="margin-top:16px">Loading…</div>':'')
+      +'</div>';
+  }).join('');
+  if(fAsgOpen) renderFAsgDetail(fAsgOpen);
+}
+
+function toggleFAsg(id){ fAsgOpen = (fAsgOpen===id? null : id); renderFAssignments(); }
+
+async function renderFAsgDetail(id){
+  const r=(fAsgRows||[]).find(x=>x.id===id); if(!r) return;
+  const host=document.getElementById('fasg-detail-'+id); if(!host) return;
+  const a=r.assignments||{};
+  let msgs=[];
+  try{ msgs=await _pgQuery('assignment_messages','recipient_id=eq.'+id+'&select=id,author_role,body,created_at&order=created_at'); }catch(e){ msgs=[]; }
+  const frozen = r.status==='accepted';
+  host.innerHTML=
+    (a.brief?'<div style="padding:12px 14px;background:var(--surface);white-space:pre-wrap;font-size:13.5px;line-height:1.65">'+esc(a.brief)+'</div>':'')
+    +fasgModuleBlock(a.module_key)
+    +((a.assignment_files||[]).length
+      ? '<div style="margin-top:16px;font-family:var(--sans);font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)">From your coach</div>'
+        +(a.assignment_files||[]).map(fasgFileRow).join('')
+      : '')
+    +'<div style="margin-top:16px;font-family:var(--sans);font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)">Your response</div>'
+    +(frozen
+      ? '<div style="margin-top:8px;padding:12px 14px;border-left:2px solid #0A8F64;white-space:pre-wrap;font-size:13.5px;line-height:1.65">'+esc(r.response||'')+'</div>'
+        +'<div style="font-size:12.5px;line-height:1.55;color:var(--muted);margin-top:6px">Accepted by your coach — this one’s closed.</div>'
+      : '<textarea id="fasg-resp-'+id+'" rows="6" style="width:100%;margin-top:8px" placeholder="Write your response here.">'+esc(r.response||'')+'</textarea>'
+        +'<div style="margin-top:10px"><label style="font-size:12px;color:var(--muted)">Attach a file (optional) — a filled-in model, a document, a screenshot</label><br>'
+        +'<input type="file" id="fasg-file-'+id+'" multiple accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.csv,.txt,.png,.jpg,.jpeg" style="margin-top:6px"></div>'
+        +'<div style="margin-top:10px"><button class="btn" onclick="submitFAsg(\''+id+'\',this)">'
+        +(r.status==='submitted'?'Update my submission':'Submit to my coach')+'</button></div>')
+    +((r.assignment_files||[]).length
+      ? '<div style="margin-top:14px;font-family:var(--sans);font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)">Files you sent</div>'
+        +(r.assignment_files||[]).map(fasgFileRow).join('')
+      : '')
+    +'<div style="margin-top:22px;font-family:var(--sans);font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)">Conversation</div>'
+    +(msgs.length
+      ? msgs.map(m=>'<div style="padding:9px 0;border-top:1px solid var(--border)">'
+          +'<div style="font-family:var(--sans);font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:'+(m.author_role==='coach'?'var(--terra)':'var(--muted)')+'">'
+          +(m.author_role==='coach'?'Your coach':'You')+' &middot; '
+          +esc(new Date(m.created_at).toLocaleString('en-GB',{timeZone:'Africa/Kampala',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',hour12:false}))+'</div>'
+          +'<div style="font-size:13.5px;line-height:1.65;white-space:pre-wrap;margin-top:4px">'+esc(m.body)+'</div></div>').join('')
+      : '<div style="font-size:12.5px;line-height:1.55;color:var(--muted);padding:9px 0">No messages yet. Stuck on something? Ask here.</div>')
+    +'<textarea id="fasg-msg-'+id+'" rows="3" style="width:100%;margin-top:10px" placeholder="Ask your coach a question about this…"></textarea>'
+    +'<div style="margin-top:10px"><button class="btn btn-ghost" onclick="postFAsgMsg(\''+id+'\',this)">Send to my coach</button></div>';
+}
+
+async function submitFAsg(id,btn){
+  const t=document.getElementById('fasg-resp-'+id); const body=(t.value||'').trim();
+  const files=(document.getElementById('fasg-file-'+id)||{}).files||[];
+  // A filled-in spreadsheet IS the answer, so a file alone counts as a
+  // submission. Demanding prose on top would just produce "see attached".
+  if(!body && !files.length){ showToast('Write something or attach a file','error'); return; }
+  btn.disabled=true;
+  try{
+    for(const file of files){
+      try{ await fasgUpload(file,id); }
+      catch(e){ showToast('“'+file.name+'” didn’t upload — '+e.message,'error'); }
+    }
+    await _pgWrite('PATCH','assignment_recipients','id=eq.'+id,
+      { status:'submitted', response:body||null, submitted_at:new Date().toISOString() });
+    try{ await fasgNotify('notify-reply',{recipient_id:id}); }catch(e){}
+    await loadFAssignments(); await renderFAssignments();
+    showToast('Sent to your coach','success');
+  }catch(e){ showToast('Could not submit — '+e.message,'error'); }
+  finally{ btn.disabled=false; }
+}
+
+async function postFAsgMsg(id,btn){
+  const t=document.getElementById('fasg-msg-'+id); const body=(t.value||'').trim();
+  if(!body){ showToast('Nothing to send','error'); return; }
+  btn.disabled=true;
+  try{
+    await _pgWrite('POST','assignment_messages','',
+      { recipient_id:id, author_id:currentUserId(), author_role:'founder', body });
+    try{ await fasgNotify('notify-reply',{recipient_id:id}); }catch(e){}
+    await renderFAsgDetail(id);
+    showToast('Sent — your coach has been emailed','success');
+  }catch(e){ showToast('Could not send — '+e.message,'error'); }
+  finally{ btn.disabled=false; }
+}
+
+// ── Assignment attachments ───────────────────────────────────────────────────
+// Private bucket. A founder writes only into r/<their recipient id>/ and reads
+// the coach's template from a/<assignment id>/; the storage policies enforce
+// both from the path itself. Downloads use a 5-minute signed URL.
+const FASG_BUCKET='assignment-files';
+function fasgSafeName(n){
+  return String(n||'file').replace(/[^\w.\- ]+/g,'_').replace(/\s+/g,'_').slice(-120) || 'file';
+}
+async function fasgUpload(file,recipientId){
+  if(file.size > 25*1024*1024) throw new Error('larger than 25MB');
+  const path='r/'+recipientId+'/'+(crypto.randomUUID?crypto.randomUUID():Date.now())+'-'+fasgSafeName(file.name);
+  const token=await _getValidToken();
+  const r=await fetch(SB_API+'/storage/v1/object/'+FASG_BUCKET+'/'+path,{
+    method:'POST', headers:{'apikey':SUPABASE_ANON,'Authorization':'Bearer '+token,
+      'Content-Type':file.type||'application/octet-stream','x-upsert':'false'}, body:file});
+  if(!r.ok) throw new Error('upload failed ('+r.status+')');
+  await _pgWrite('POST','assignment_files','',{
+    recipient_id:recipientId, storage_path:path, filename:file.name.slice(0,260),
+    mime:file.type||null, size_bytes:file.size, uploaded_by:currentUserId(), side:'founder'});
+}
+async function fasgOpenFile(path,el){
+  if(el) el.disabled=true;
+  try{
+    const token=await _getValidToken();
+    const r=await fetch(SB_API+'/storage/v1/object/sign/'+FASG_BUCKET+'/'+path,{
+      method:'POST', headers:{'apikey':SUPABASE_ANON,'Authorization':'Bearer '+token,'Content-Type':'application/json'},
+      body:JSON.stringify({expiresIn:300})});
+    if(!r.ok) throw new Error('could not sign ('+r.status+')');
+    const j=await r.json();
+    window.open(SB_API+'/storage/v1'+(j.signedURL||j.signedUrl),'_blank','noopener');
+  }catch(e){ showToast('Could not open the file — '+e.message,'error'); }
+  finally{ if(el) el.disabled=false; }
+}
+function fasgSize(b){
+  if(!b&&b!==0) return '';
+  return b<1024?b+' B':b<1048576?(b/1024).toFixed(0)+' KB':(b/1048576).toFixed(1)+' MB';
+}
+function fasgFileRow(f){
+  return '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:6px 0">'
+    +'<span style="font-size:13px">'+esc(f.filename)+' <span style="color:var(--muted);font-size:11px">'+fasgSize(f.size_bytes)+'</span></span>'
+    +'<button class="btn btn-ghost" onclick="fasgOpenFile(\''+esc(f.storage_path)+'\',this)">Download</button></div>';
+}
+// openModule() paints into the Workbench panel, so calling it from the
+// Assignments tab would appear to do nothing. Switch tabs first; renderWorkbench
+// resets to the gallery synchronously, so open on the next tick.
+function fasgOpenModule(key){
+  switchTab('workbench');
+  setTimeout(function(){ try{ openModule(key); }catch(e){ console.error('openModule',e); } }, 0);
+}
+function fasgModuleBlock(key){
+  if(!key) return '';
+  const m=(window.FS_WB_BY_KEY&&window.FS_WB_BY_KEY(key))||null;
+  if(!m) return '';
+  return '<div style="margin-top:16px;padding:12px 14px;border-left:2px solid var(--terra)">'
+    +'<div style="font-family:var(--sans);font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)">Work through this first</div>'
+    +'<div style="font-weight:600;margin-top:4px">'+esc(m.title)+'</div>'
+    +'<div style="font-size:12.5px;line-height:1.55;color:var(--muted);margin-top:2px">'+esc(m.desc)+'</div>'
+    +'<div style="margin-top:10px"><button class="btn btn-ghost" onclick="fasgOpenModule(\''+esc(m.key)+'\')">Open the module →</button></div></div>';
+}
+
+async function fasgNotify(path,body){
+  const token=await _getValidToken();
+  const r=await fetch('/api/assignments/'+path,{method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+    body:JSON.stringify(body||{})});
+  if(!r.ok) throw new Error('notify '+r.status);
+  return r.json();
 }
 
 // ── Course materials ─────────────────────────────────────────────────────────
@@ -2109,18 +2464,15 @@ function renderIntakeNudge(){
 }
 
 // ── Workbench: self-guided interactive modules ("the pamphlet") ──
-const WB_MODULES=[
-  {disc:'The fundamentals', key:'fluency', title:'Founder Fluency', desc:'How fluent are you in the language founders and investors speak? 15 quick questions, scored by discipline — see where your gaps are.', url:'/modules/fluency/index.html'},
-  {disc:'Marketing & Branding', key:'channel-mix', title:'Channel Mix', desc:'Split a marketing budget across channels and see which ones actually buy you growth — and your blended CAC.', url:'/modules/marketing/channel-mix.html'},
-  {disc:'Financial Modelling', key:'unit-economics', title:'Unit Economics', desc:'Do you make money on each customer? See LTV, LTV:CAC and how long until a customer pays back.', url:'/modules/financial/unit-economics.html'},
-  {disc:'Investment Readiness', key:'cap-table', title:'Cap Table & Dilution', desc:'Add an option pool and funding rounds, and watch how much of the company the founders keep.', url:'/modules/investment/cap-table.html'},
-  {disc:'Strategy & Team Building', key:'tam-sam-som', title:'Market Sizer', desc:'Size your market — TAM, SAM, SOM — top-down and bottom-up, with the assumptions an investor will challenge.', url:'/modules/strategy/tam-sam-som.html'},
-  {disc:'Product Development & Pricing', key:'pricing-playground', title:'Pricing Playground', desc:'See what cost-plus, value-based and competitor-anchored pricing each say — then check the margin and break-even.', url:'/modules/product/pricing-playground.html'}
-];
+// Catalogue lives in /workbench-modules.js so the coach assignment composer
+// reads the same list. There is no inline fallback — if that file fails to
+// load the gallery says so rather than rendering a convincing empty page.
+const WB_MODULES = window.FS_WB_MODULES || [];
 let wbRendered=false;
 async function renderWorkbench(){
   closeModule(true);  // always land on the gallery when (re)entering the tab
   const el=document.getElementById('workbench-list'); if(!el) return;
+  if(!WB_MODULES.length){ el.innerHTML='<div class="card">Could not load the module catalogue. Reload the page — if it keeps happening, tell us via Report a problem.</div>'; return; }
   let saved={};
   if(company){ try{ const runs=await _pgQuery('module_runs','company_id=eq.'+company.id+'&select=module_key,updated_at'); (runs||[]).forEach(r=>saved[r.module_key]=r.updated_at); }catch(e){} }
   el.innerHTML = WB_MODULES.map(m=>{
