@@ -770,7 +770,17 @@ function renderEngagement(){
     +'<div><div style="font-family:var(--display);font-size:22px;font-weight:600">'+esc(corpClientName(e.client_id))+'</div>'
     +'<div class="sub">'+esc(e.title||'—')+' · '+esc(CORP_TYPE_LABEL[e.type]||e.type)+(e.code?(' · '+esc(e.code)):'')+'</div></div>'
     +'<div style="text-align:right"><div class="sub" style="margin-bottom:4px">Stage</div>'+stageCtl+'</div></div>'
-    +'<div style="margin-top:10px">'+(nda?pill('NDA signed — vault open','#3D4A2E'):pill('NDA not signed — vault locked','#C0392B'))+'</div>'
+    // A badge that contradicts the stage above it, with no way forward, is what
+    // sent Teddy looking for a bug that was not there. Say what is missing and
+    // offer the action.
+    +'<div style="margin-top:10px">'+(nda
+        ? pill('NDA signed — vault open','#3D4A2E')
+        : pill('NDA not signed — vault locked','#C0392B')
+          + (canCorp() && e.stage==='nda_signed'
+              ? '<div class="sub" style="margin-top:6px;line-height:1.55">The stage says signed, but no signed NDA is on file. '
+                + '<a href="#" onclick="stagePrompt(\'nda_signed\',STAGE_NEEDS.nda_signed,(corpDetail&&corpDetail.contracts||[]).find(function(x){return x.type===\'mutual_nda\';}));return false" '
+                + 'style="color:var(--ochre-deep);font-weight:600">Record it now</a> to open the vault.</div>'
+              : ''))+'</div>'
     +'</div>';
   // DD checklist grouped
   const cats={}; d.docs.forEach(x=>{ (cats[x.category_code]=cats[x.category_code]||[]).push(x); });
@@ -884,12 +894,121 @@ function renderEngagement(){
 }
 
 async function seedDocs(){ try{ const n=await _rpc('seed_engagement_documents',{p_eng:corpCur}); showToast((n||0)+' items seeded','success'); openEngagement(corpCur); }catch(e){ showToast('Seed failed — '+e.message,'error'); } }
+// Stages that are CLAIMS, and the artefact that makes them true. The stage is a
+// label someone picks; the vault opens on evidence. Setting "NDA signed" without
+// a signed NDA on file produced a card that said both at once and explained
+// neither — so the stage change now walks you straight to the missing artefact.
+const STAGE_NEEDS = {
+  nda_signed: { type:'mutual_nda',       label:'NDA',               next:'Intake — send the client their intake form.' },
+  proposal:   { type:'engagement_letter',label:'engagement letter',  next:'Delivery — seat the coaches and open DD collection.' },
+};
+
 async function corpSetStage(v){
   try{ await _w('PATCH','corporate_engagements','id=eq.'+corpCur,{stage:v});
     const e=corpEngs.find(x=>x.id===corpCur); if(e) e.stage=v;
     try{ await _rpc('log_engagement_event',{p_eng:corpCur,p_action:'stage_change',p_target:v}); }catch(_){}
-    showToast('Stage → '+(CORP_STAGE_LABEL[v]||v),'success'); openEngagement(corpCur);
+    showToast('Stage → '+(CORP_STAGE_LABEL[v]||v),'success');
+    const need = STAGE_NEEDS[v];
+    if(need){
+      const c = (corpDetail&&corpDetail.contracts||[]).find(x=>x.type===need.type);
+      if(!c || c.status!=='signed'){ openEngagement(corpCur); return stagePrompt(v, need, c); }
+    }
+    openEngagement(corpCur);
   }catch(e){ showToast('Update failed — '+e.message,'error'); }
+}
+
+// Record the artefact behind the stage: signed date, who signed, how, and the
+// executed copy. The file is encouraged but not compulsory — a paper NDA signed
+// in a room is still signed, and refusing to record it would push people back to
+// flipping the label and ignoring the warning.
+async function stagePrompt(stage, need, contract){
+  const today = new Date().toISOString().slice(0,10);
+  const wrap = document.createElement('div');
+  wrap.id = 'stage-prompt';
+  wrap.style.cssText = 'position:fixed;inset:0;background:rgba(12,10,8,.72);z-index:9000;display:flex;align-items:center;justify-content:center;padding:20px';
+  wrap.innerHTML =
+    '<div style="background:var(--card);border:1px solid var(--border-hi);max-width:520px;width:100%;padding:24px;border-radius:0 0 24px 0">'
+    + '<div style="font-family:var(--sans);font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--ochre-deep)">Stage set to '+esc(CORP_STAGE_LABEL[stage]||stage)+'</div>'
+    + '<div style="font-family:var(--display);font-size:22px;margin-top:6px">Record the signed '+esc(need.label)+'</div>'
+    + '<div class="sub" style="margin-top:8px;line-height:1.6">The vault stays locked until a signed '+esc(need.label)
+    +   ' is on file. That is deliberate — a client\'s documents should not open because of a dropdown.</div>'
+    + '<div style="margin-top:18px"><label class="sub">Date signed</label><br>'
+    +   '<input type="date" id="sp-date" value="'+today+'" style="margin-top:4px"></div>'
+    + '<div style="margin-top:12px"><label class="sub">Who signed for the client</label><br>'
+    +   '<input type="text" id="sp-signer" placeholder="Full name" style="width:100%;margin-top:4px"></div>'
+    + '<div style="margin-top:12px"><label class="sub">How</label><br>'
+    +   '<select id="sp-method" style="margin-top:4px"><option value="docusign">DocuSign</option>'
+    +   '<option value="email">Signed &amp; emailed back</option><option value="paper">Paper, in person</option></select></div>'
+    + '<div style="margin-top:16px;padding:12px 14px;background:var(--bg);border-left:2px solid var(--ochre)">'
+    +   '<label class="sub">Executed copy</label><br>'
+    +   '<input type="file" id="sp-file" accept=".pdf,.doc,.docx" style="margin-top:6px">'
+    +   '<div class="sub" style="margin-top:6px;font-size:11px">'
+    +     (contract && contract.storage_path ? 'A signed copy is already on file — leave this empty to keep it.'
+                                            : 'Strongly recommended. You can add it later if you don\'t have it to hand.')
+    +   '</div></div>'
+    + '<div style="margin-top:20px;display:flex;gap:10px;flex-wrap:wrap">'
+    +   '<button class="btn" onclick="stagePromptSave(\''+esc(stage)+'\')">Record it</button>'
+    +   '<button class="btn-ghost" onclick="stagePromptClose()">Not yet</button></div>'
+    + '<div class="sub" style="margin-top:12px;font-size:11px">Choosing “Not yet” leaves the stage as it is and the vault locked.</div>'
+    + '</div>';
+  document.body.appendChild(wrap);
+  wrap.dataset.contract = (contract && contract.id) || '';
+  wrap.dataset.type     = need.type;
+  wrap.dataset.next     = need.next;
+}
+function stagePromptClose(){ const el=document.getElementById('stage-prompt'); if(el) el.remove(); }
+
+async function stagePromptSave(stage){
+  const el = document.getElementById('stage-prompt'); if(!el) return;
+  const date   = (document.getElementById('sp-date')||{}).value || '';
+  const signer = ((document.getElementById('sp-signer')||{}).value || '').trim();
+  const method = (document.getElementById('sp-method')||{}).value || 'paper';
+  const file   = ((document.getElementById('sp-file')||{}).files||[])[0] || null;
+  if(!date){ showToast('When was it signed?','error'); return; }
+  if(!signer){ showToast('Who signed it?','error'); return; }
+
+  const btn = el.querySelector('.btn'); if(btn) btn.disabled = true;
+  try{
+    // The contract row may not exist yet — a stage can be set before anyone
+    // created the paperwork record.
+    let cid = el.dataset.contract;
+    if(!cid){
+      const made = await _w('POST','engagement_contracts','',
+        { engagement_id: corpCur, type: el.dataset.type, status: 'draft' });
+      cid = (made && made[0] && made[0].id) || (made && made.id);
+      if(!cid) throw new Error('could not create the contract record');
+    }
+
+    // Upload first: if it fails we have not yet claimed the thing is signed.
+    let path = null;
+    if(file){
+      if(file.size > 25*1024*1024) throw new Error('file is larger than 25MB');
+      const ct = file.type || 'application/pdf';
+      const t  = await _token();
+      const r1 = await fetch('/api/corporate/upload-url', { method:'POST',
+        headers:{ Authorization:'Bearer '+t, 'Content-Type':'application/json' },
+        body: JSON.stringify({ engagement_id: corpCur, kind:'nda', contentType: ct, size: file.size }) });
+      if(!r1.ok) throw new Error((await r1.json().catch(()=>({}))).error || ('upload URL HTTP '+r1.status));
+      const s = await r1.json();
+      const put = String(s.signedUrl||'').replace(/^https:\/\/[a-z0-9-]+\.supabase\.co/i, location.origin+'/sb');
+      const pr = await fetch(put, { method:'PUT', headers:{ 'content-type': ct }, body: file });
+      if(!pr.ok) throw new Error('upload HTTP '+pr.status);
+      path = s.path;
+    }
+
+    const body = { status:'signed', signed_at: new Date(date+'T12:00:00+03:00').toISOString(),
+                   signer_name: signer, signed_method: method, effective_date: date };
+    if(path) body.storage_path = path;
+    await _w('PATCH','engagement_contracts','id=eq.'+cid, body);
+    try{ await _rpc('log_engagement_event',{ p_eng: corpCur, p_action:'nda_signed', p_target: signer }); }catch(_){}
+
+    stagePromptClose();
+    await openEngagement(corpCur);
+    showToast('Recorded — vault open. Next: '+el.dataset.next, 'success');
+  }catch(e){
+    if(btn) btn.disabled = false;
+    showToast('Could not record it — '+e.message, 'error');
+  }
 }
 async function ddReview(id,status,el){
   if(el&&REV_FILL[status]) el.style.background=REV_FILL[status];   // instant colour feedback
