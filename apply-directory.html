@@ -238,6 +238,11 @@ section, footer, nav { position: relative; z-index: 2; }
   background-repeat: no-repeat; background-position: right 4px center; padding-right: 24px;
 }
 .form-group select option { background: var(--ink); color: var(--paper); }
+.svc-hint{font-size:11.5px;line-height:1.5;color:var(--muted);margin:6px 0 0;}
+.svc-preview{display:flex;flex-wrap:wrap;gap:5px;margin-top:8px;}
+.svc-chip{font-family:var(--heading,var(--body));font-size:10px;font-weight:600;letter-spacing:.04em;
+  padding:3px 8px;border:1px solid rgba(26,26,26,.2);color:var(--ink);border-radius:2px;}
+.svc-chip.over{border-color:#c0392b;color:#c0392b;text-decoration:line-through;}
 .form-group textarea { resize: vertical; min-height: 100px; }
 
 .error-text {
@@ -594,9 +599,23 @@ footer .bottom {
           </select>
         </div>
 
+        <!-- Keywords, not prose. The listing card shows these as chips, so what a
+             provider types here is exactly what a founder scanning the directory
+             reads. An unbounded blurb produced 726 characters of why-startups-fail
+             that told a reader nothing about what the firm actually does. -->
+        <div class="form-group">
+          <label for="services">What You Do &mdash; 3 to 5 keywords</label>
+          <input type="text" id="services" name="services" maxlength="180"
+                 placeholder="Company registration, trademarks, contracts">
+          <div id="svc-preview" class="svc-preview"></div>
+          <p class="svc-hint">Separate with commas. These appear on your listing, so use the words a founder
+             would search for &mdash; the services you offer, not why you&rsquo;re good at them.</p>
+        </div>
+
         <div class="form-group">
           <label for="pitch">Why Should We List You?</label>
           <textarea id="pitch" name="pitch" placeholder="Tell us about your experience serving startups and small businesses in Uganda..."></textarea>
+          <p class="svc-hint">For us, not your listing &mdash; this helps us decide, it isn&rsquo;t published.</p>
         </div>
 
         <div class="form-group" style="background:rgba(200,83,31,0.05);border-left:3px solid var(--terra);padding:12px 15px;">
@@ -697,6 +716,7 @@ form.addEventListener('submit', async function(e) {
     website: document.getElementById('website').value.trim() || null,
     preferred_tier: tierValue,
     message: document.getElementById('pitch').value.trim() || null,
+    services: svcList(),
     status: 'pending'
   };
 
@@ -722,6 +742,41 @@ form.addEventListener('submit', async function(e) {
     submitBtn.textContent = 'SUBMIT APPLICATION';
   }
 });
+
+// Show the provider exactly what their listing will look like as they type.
+// The cap is five; anything beyond is struck through rather than silently
+// dropped, so nobody submits a sixth keyword and wonders where it went.
+function svcList(){
+  var raw = (document.getElementById('services') || {}).value || '';
+  var seen = {}, out = [];
+  raw.split(',').forEach(function(t){
+    t = t.trim().replace(/\s+/g, ' ');
+    if (!t) return;
+    if (t.length > 32) t = t.slice(0, 32);
+    var k = t.toLowerCase();
+    if (seen[k]) return;
+    seen[k] = 1; out.push(t);
+  });
+  return out.slice(0, 5);
+}
+(function(){
+  var inp = document.getElementById('services'), box = document.getElementById('svc-preview');
+  if (!inp || !box) return;
+  function draw(){
+    var all = [], seen = {};
+    ((inp.value || '').split(',')).forEach(function(t){
+      t = t.trim().replace(/\s+/g,' ');
+      if (!t) return;
+      var k = t.toLowerCase(); if (seen[k]) return; seen[k] = 1; all.push(t);
+    });
+    box.innerHTML = all.map(function(t, i){
+      return '<span class="svc-chip' + (i > 4 ? ' over' : '') + '">' +
+        t.replace(/[&<>"]/g, function(c){
+          return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]; }) + '</span>';
+    }).join('');
+  }
+  inp.addEventListener('input', draw); draw();
+})();
 </script>
 <script src="/site-chrome.js?v=11" defer></script>
 </body>

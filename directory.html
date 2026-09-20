@@ -305,6 +305,12 @@ section, footer, nav { position: relative; z-index: 2; }
 .dx-row .rlogo .mono{font-family:var(--sans);font-weight:700;font-size:15px;color:#fff;}
 .dx-row .mid{flex:1;min-width:0;}
 .dx-row .nm{font-family:var(--display);font-size:18px;font-weight:600;line-height:1.1;color:var(--ink);display:flex;align-items:center;gap:9px;flex-wrap:wrap;}
+.dx-svcs{display:flex;flex-wrap:wrap;gap:5px;margin-top:5px;}
+.dx-svc{font-family:var(--sans);font-size:10px;font-weight:600;letter-spacing:.04em;
+  padding:3px 8px;border:1px solid var(--line-l);color:var(--muted);background:var(--paper);
+  border-radius:2px;white-space:nowrap;}
+.dx-legacy{font-size:12.5px;color:var(--muted);line-height:1.45;margin-top:3px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
 .dx-row .desc{font-size:12.5px;color:var(--muted);line-height:1.45;margin-top:3px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .dx-row .meta{font-size:11px;color:var(--stone);margin-top:4px;letter-spacing:.02em;}
 .dx-row .acts{display:flex;gap:7px;flex:none;}
@@ -606,7 +612,7 @@ function formatWhatsApp(phone) {
 
 /* ===== Directory v2 — featured display cards + filter sidebar + list ===== */
 var ALLOWED_CATS = ['legal','accounting','design','unbs','banking','insurance','ip','digital'];
-var SELECT = 'id,company_name,category,description,contact_name,email,phone,website,logo_url,photo_url,tier,featured,banner_tagline,status';
+var SELECT = 'id,company_name,category,services,description,contact_name,email,phone,website,logo_url,photo_url,tier,featured,banner_tagline,status';
 var CAT_COLOR = { legal:'#C8531F', design:'#C8531F', accounting:'#C9923A', banking:'#C9923A', unbs:'#3D4A2E', insurance:'#777770', ip:'#9A3E16', digital:'#1A1A1A' };
 var ALL = [];               // all active providers, loaded once
 var searchQ = '', sortMode = 'verified', verifiedOnly = false;
@@ -643,7 +649,7 @@ function heroBox(p){
 function matches(p){
   if (activeFilter !== 'all' && catOf(p) !== activeFilter) return false;
   if (searchQ){
-    var hay = [p.company_name, CATEGORY_LABELS[catOf(p)], p.description, domainOf(p.website)].join(' ').toLowerCase();
+    var hay = [p.company_name, CATEGORY_LABELS[catOf(p)], (p.services||[]).join(' '), p.description, domainOf(p.website)].join(' ').toLowerCase();
     if (hay.indexOf(searchQ) < 0) return false;
   }
   return true;
@@ -685,8 +691,23 @@ function featuredCard(p){
       '<div><div class="dx-fname">' + esc(p.company_name || '—') + '</div>' +
       '<span class="dx-cat" style="color:' + catColor(cat) + '">' + catLabel(cat) + '</span></div></div>' +
       '<div>' + VPILL + '</div>' +
-      (p.description ? '<div class="dx-fdesc">' + esc(p.description) + '</div>' : '<div class="dx-fdesc"></div>') +
+      '<div class="dx-fdesc">' + servicePills(p) + '</div>' +
       featuredCta(p) + '</div></div>';
+}
+
+// Keywords render as chips at a fixed height, so every card is the same shape
+// however much a provider types. Listings from before the keyword field fall
+// back to their old blurb, hard-clamped to two lines — one provider submitted
+// 726 characters of prose and the card had no defence against it.
+function servicePills(p){
+  var s = (p.services || []).filter(Boolean);
+  if (s.length) {
+    return '<div class="dx-svcs">' + s.map(function(k){
+      return '<span class="dx-svc">' + esc(k) + '</span>';
+    }).join('') + '</div>';
+  }
+  if (p.description) return '<div class="dx-legacy">' + esc(p.description) + '</div>';
+  return '';
 }
 
 function providerRow(p){
@@ -695,7 +716,7 @@ function providerRow(p){
   var dom = domainOf(p.website); if (dom) meta += ' · ' + esc(dom);
   return '<div class="dx-row">' + logoBox(p, 'rlogo') +
     '<div class="mid"><div class="nm">' + esc(p.company_name || '—') + (isVerified(p) ? ' ' + VTICK : '') + '</div>' +
-      (p.description ? '<div class="desc">' + esc(p.description) + '</div>' : '') +
+      servicePills(p) +
       '<div class="meta">' + meta + '</div></div>' +
     '<div class="acts">' + rowActions(p) + '</div></div>';
 }
