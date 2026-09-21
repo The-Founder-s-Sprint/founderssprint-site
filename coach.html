@@ -10,6 +10,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 <script src="/vendor/supabase-js.min.js?v=2110"></script>
 <script>window.supabase||document.write('<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"><\/script>')</script>
+<script src="/workbench-modules.js?v=1"></script>
 <script src="ui-dialogs.js?v=4"></script>
 <script src="dash-chrome.js?v=1" defer></script>
 <style>
@@ -160,6 +161,7 @@ html[data-theme="dark"]{
   <div class="tabs-wrap" id="tabs">
     <button class="tab active" data-tab="founders" onclick="switchTab('founders')">My Founders</button>
     <button class="tab" data-tab="applications" id="tab-applications" style="display:none" onclick="switchTab('applications')">Applications <span id="app-badge" style="display:none;background:var(--terra);color:#fff;border-radius:9px;font-size:9px;padding:1px 6px;margin-left:3px">0</span></button>
+    <button class="tab" data-tab="assignments" onclick="switchTab('assignments')">Assignments <span id="asg-badge" style="display:none;background:var(--terra);color:#fff;border-radius:9px;font-size:9px;padding:1px 6px;margin-left:3px">0</span></button>
     <button class="tab" data-tab="sessions" onclick="switchTab('sessions')">Sessions</button>
     <button class="tab" data-tab="availability" onclick="switchTab('availability')">1:1 Availability</button>
     <button class="tab" data-tab="profile" onclick="switchTab('profile')">Profile</button>
@@ -179,6 +181,18 @@ html[data-theme="dark"]{
         <div class="card" id="roster"></div>
       </div>
       <div id="view-founder" style="display:none"></div>
+    </div>
+    <!-- ASSIGNMENTS -->
+    <div class="tab-panel" id="panel-assignments">
+      <div id="view-assign-list">
+        <div class="page-eyebrow">Coaching</div>
+        <div class="page-title">Assignments</div>
+        <div class="page-sub">Set work for one founder or the whole cohort, and keep the conversation about it here instead of over WhatsApp. Founders are emailed when you assign and when you reply, so nothing depends on them happening to log in.</div>
+        <div style="margin:0 0 16px"><button class="btn" onclick="newAssignment()">+ New assignment</button></div>
+        <div id="assign-new" style="display:none"></div>
+        <div id="assign-list"></div>
+      </div>
+      <div id="view-assign-one" style="display:none"></div>
     </div>
     <!-- APPLICATIONS (discipline leads only) -->
     <div class="tab-panel" id="panel-applications">
@@ -342,6 +356,7 @@ async function boot(user){
     await loadRoster(); await loadAvailability();
     try{ myMaterials=await _q('course_materials','coach_id=eq.'+user.id+'&select=id,title,discipline,module_type,format,week_number,source_url,file_path,status&order=sort_order'); }catch(e){ myMaterials=[]; }
     renderSessions(); renderProfile(); renderEarnings(); renderCapital(); renderMaterials();
+    loadAssignments();
     loadTestimonials();
     renderCorpAwareness();   // PII-free corporate pipeline awareness (+ workspace link if seated)
     if(isLead){ document.getElementById('tab-applications').style.display=''; if(window.FSDash) FSDash.setVisible('applications', true); loadLeadApps(); }
@@ -633,6 +648,331 @@ async function tellFounders(sessionId){
   }catch(e){ showToast('Could not post — '+e.message,'error'); }
 }
 
+// ── ASSIGNMENTS ──────────────────────────────────────────────────────────────
+// The brief is one row; every founder gets their own recipient row, because the
+// status, the submission and the conversation are per-founder even when the
+// whole cohort was set the same piece of work.
+let assignRows=null, assignOpenId=null, assignThread=null;
+
+// Same-origin /api/* → Cloudflare proxy → the Express API. Direct calls to
+// api.founderssprint.co fail on Ugandan networks (the CSP/CORS path), which is
+// why every other surface goes through the proxy too.
+async function asgNotify(path,body){
+  const t=await _token();
+  const r=await fetch('/api/assignments/'+path,{method:'POST',
+    headers:{'Content-Type':'application/json',Authorization:'Bearer '+t},
+    body:JSON.stringify(body||{})});
+  if(!r.ok) throw new Error('notify '+r.status+': '+await r.text());
+  return r.json();
+}
+const notifyAssignment = id => asgNotify('notify-assigned',{assignment_id:id});
+const notifyReply      = id => asgNotify('notify-reply',{recipient_id:id});
+
+// ── Attachments ──────────────────────────────────────────────────────────────
+// Path encodes the scope, and the storage policies read it back:
+//   a/<assignment_id>/…  the coach's template, every recipient may download
+//   r/<recipient_id>/…   one founder's work, only they and the coach
+// Bucket is private; downloads always go through a short-lived signed URL.
+const ASG_BUCKET='assignment-files';
+function safeFilename(n){
+  return String(n||'file').replace(/[^\w.\- ]+/g,'_').replace(/\s+/g,'_').slice(-120) || 'file';
+}
+async function uploadAssignmentFile(file,{assignmentId,recipientId,side}){
+  if(file.size > 25*1024*1024) throw new Error('larger than 25MB');
+  const folder = assignmentId ? ('a/'+assignmentId) : ('r/'+recipientId);
+  // Random prefix: two founders uploading "model.xlsx" must not collide, and a
+  // guessable path in a private bucket is still a path worth not handing out.
+  const path = folder+'/'+(crypto.randomUUID?crypto.randomUUID():Date.now())+'-'+safeFilename(file.name);
+  const t=await _token();
+  const r=await fetch(SB_API+'/storage/v1/object/'+ASG_BUCKET+'/'+path,{
+    method:'POST', headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t,
+      'Content-Type':file.type||'application/octet-stream','x-upsert':'false'}, body:file});
+  if(!r.ok) throw new Error('upload failed '+r.status+': '+(await r.text()).slice(0,160));
+  await _w('POST','assignment_files','',{
+    assignment_id:assignmentId||null, recipient_id:recipientId||null,
+    storage_path:path, filename:file.name.slice(0,260), mime:file.type||null,
+    size_bytes:file.size, uploaded_by:authUser.id, side});
+}
+async function asgFileUrl(path){
+  const t=await _token();
+  const r=await fetch(SB_API+'/storage/v1/object/sign/'+ASG_BUCKET+'/'+path,{
+    method:'POST', headers:{apikey:SUPABASE_ANON,Authorization:'Bearer '+t,'Content-Type':'application/json'},
+    body:JSON.stringify({expiresIn:300})});
+  if(!r.ok) throw new Error('could not sign '+r.status);
+  const j=await r.json();
+  return SB_API+'/storage/v1'+(j.signedURL||j.signedUrl);
+}
+async function openAsgFile(path,el){
+  if(el) el.disabled=true;
+  try{ window.open(await asgFileUrl(path),'_blank','noopener'); }
+  catch(e){ showToast('Could not open the file — '+e.message,'error'); }
+  finally{ if(el) el.disabled=false; }
+}
+function fileSize(b){
+  if(!b&&b!==0) return '';
+  return b<1024?b+' B':b<1048576?(b/1024).toFixed(0)+' KB':(b/1048576).toFixed(1)+' MB';
+}
+// A module attached to a brief is "work through this first", so it renders as
+// the thing it is — a named tool with a link — not a bare key.
+function asgModuleBlock(key){
+  if(!key) return '';
+  const m=(window.FS_WB_BY_KEY&&window.FS_WB_BY_KEY(key))||null;
+  if(!m) return '<div class="card" style="font-size:12px;color:var(--muted)">Linked module “'+esc(key)+'” is no longer in the catalogue.</div>';
+  return '<div class="card" style="display:flex;justify-content:space-between;align-items:center;gap:14px">'
+    +'<div><div style="font-family:var(--sans);font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)">Work through first</div>'
+    +'<div class="list-main" style="margin-top:3px">'+esc(m.title)+'</div>'
+    +'<div class="list-sub">'+esc(m.desc)+'</div></div>'
+    +'<a class="btn-ghost" href="'+esc(m.url)+'" target="_blank" rel="noopener" style="text-decoration:none;white-space:nowrap">Open ↗</a></div>';
+}
+function asgFileRow(f){
+  return '<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;padding:6px 0">'
+    +'<span style="font-size:13px">'+esc(f.filename)+' <span style="color:var(--muted);font-size:11px">'+fileSize(f.size_bytes)+'</span></span>'
+    +'<button class="btn-ghost" onclick="openAsgFile(\''+esc(f.storage_path)+'\',this)">Download</button></div>';
+}
+
+const ASG_LBL={ assigned:'Awaiting', submitted:'Submitted', returned:'Returned', accepted:'Accepted' };
+function asgPill(s){
+  const bg={ assigned:'var(--border-hi)', submitted:'rgba(201,146,58,.18)', returned:'rgba(200,83,31,.16)', accepted:'rgba(10,143,100,.14)' }[s]||'var(--border-hi)';
+  const fg={ assigned:'var(--muted)', submitted:'#8a6a1f', returned:'var(--terra)', accepted:'#0A8F64' }[s]||'var(--muted)';
+  return '<span class="pill" style="background:'+bg+';color:'+fg+'">'+esc(ASG_LBL[s]||s)+'</span>';
+}
+function asgDue(d){
+  if(!d) return 'No due date';
+  const when=new Date(d).toLocaleString('en-GB',{timeZone:'Africa/Kampala',weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',hour12:false});
+  const over=new Date(d) < new Date();
+  return (over?'<span style="color:var(--terra)">Due '+esc(when)+' EAT · overdue</span>':'Due '+esc(when)+' EAT');
+}
+function founderName(fp){
+  if(!fp) return 'Founder';
+  const n=((fp.first_name||'')+' '+(fp.last_name||'')).trim();
+  return fp.company_name ? (fp.company_name+(n?' · '+n:'')) : (n||'Founder');
+}
+
+async function loadAssignments(){
+  try{
+    assignRows = await _q('assignments',
+      'coach_id=eq.'+authUser.id
+      +'&select=id,title,brief,due_at,status,cohort_id,discipline_key,module_key,created_at,'
+      +'assignment_files(id,filename,mime,size_bytes,storage_path,side),'
+      +'assignment_recipients(id,founder_id,status,response,submitted_at,reviewed_at,'
+      +'assignment_files(id,filename,mime,size_bytes,storage_path,side),'
+      +'founder_profiles(first_name,last_name,company_name))'
+      +'&order=created_at.desc&limit=100');
+  }catch(e){ assignRows=[]; console.error('loadAssignments',e); }
+  renderAssignList();
+  // Badge counts work waiting on the coach, not work outstanding — a coach cares
+  // about what has landed in their court.
+  const waiting=(assignRows||[]).reduce((n,a)=>n+(a.assignment_recipients||[]).filter(r=>r.status==='submitted').length,0);
+  const b=document.getElementById('asg-badge');
+  if(b){ b.textContent=waiting; b.style.display=waiting?'':'none'; }
+  if(window.FSDash&&FSDash.setBadge) try{ FSDash.setBadge('assignments', waiting||0); }catch(e){}
+}
+
+function renderAssignList(){
+  const el=document.getElementById('assign-list'); if(!el) return;
+  if(!assignRows||!assignRows.length){
+    el.innerHTML='<div class="empty"><div class="empty-mark">&#9671;</div><div style="font-weight:600;color:var(--ink-mid)">No assignments yet.</div>'
+      +'<div style="font-size:12px;margin-top:6px">Set the first piece of work and it appears on your founders’ dashboards straight away.</div></div>';
+    return;
+  }
+  el.innerHTML='<div class="card">'+assignRows.map(a=>{
+    const rs=a.assignment_recipients||[];
+    const n=s=>rs.filter(r=>r.status===s).length;
+    const counts=['submitted','returned','accepted','assigned'].filter(s=>n(s))
+      .map(s=>n(s)+' '+ASG_LBL[s].toLowerCase()).join(' · ');
+    return '<div class="list-row click" style="cursor:pointer" onclick="openAssignment(\''+a.id+'\')">'
+      +'<div><div class="list-main">'+esc(a.title)+'</div>'
+      +'<div class="list-sub">'+asgDue(a.due_at)+' · '+rs.length+' founder'+(rs.length===1?'':'s')
+      +(counts?' · '+esc(counts):'')+'</div></div>'
+      +(n('submitted')?'<span class="pill" style="background:rgba(201,146,58,.18);color:#8a6a1f">'+n('submitted')+' to review</span>':'<span class="pill pill-grey">Open</span>')
+      +'</div>';
+  }).join('')+'</div>';
+}
+
+function newAssignment(){
+  const box=document.getElementById('assign-new');
+  if(box.style.display!=='none'){ box.style.display='none'; box.innerHTML=''; return; }
+  // Only founders actually sitting in a live cohort. founder_profiles returns
+  // every row to a super-admin, so without this filter Teddy saw unnamed and
+  // unregistered profiles that no coach should be setting work for — and the
+  // admin bypass in the insert policy would have let him.
+  const eligible=(founders||[]).filter(f=>{
+    const mt=(typeof founderMeta!=='undefined'&&founderMeta)?founderMeta[f.id]:null;
+    return mt && mt.attendee==='current';
+  });
+  const opts=eligible.map(f=>'<label style="display:block;padding:5px 0;font-size:13px;cursor:pointer">'
+    +'<input type="checkbox" class="asg-who" value="'+esc(f.id)+'" style="margin-right:8px">'+esc(founderName(f))+'</label>').join('');
+  // Point them at a Workbench module for further study. Read from the shared
+  // catalogue so this never drifts from the founder's Workbench gallery.
+  const mods=(window.FS_WB_MODULES||[]);
+  const modOpts='<option value="">None</option>'+mods.map(m=>
+    '<option value="'+esc(m.key)+'">'+esc(m.title)+' — '+esc(m.disc)+'</option>').join('');
+  box.style.display='';
+  box.innerHTML='<div class="card">'
+    +'<div class="section-title" style="margin-top:0">New assignment</div>'
+    +'<div class="pf-f" style="margin-bottom:10px"><label style="font-size:11px;color:var(--muted)">Title</label>'
+    +'<input type="text" id="asg-title" maxlength="200" placeholder="Week 2 &mdash; draft your positioning statement"></div>'
+    +'<div class="pf-f" style="margin-bottom:10px"><label style="font-size:11px;color:var(--muted)">What they should do</label>'
+    +'<textarea id="asg-brief" rows="4" placeholder="Be specific about the output and how long it should take."></textarea></div>'
+    +'<div class="pf-f" style="margin-bottom:10px"><label style="font-size:11px;color:var(--muted)">Due (optional)</label>'
+    +'<input type="text" id="asg-due" placeholder="YYYY-MM-DD" style="max-width:200px"></div>'
+    +'<div class="pf-f" style="margin-bottom:10px"><label style="font-size:11px;color:var(--muted)">Work through a module first (optional)</label>'
+    +'<select id="asg-module" style="max-width:420px">'+modOpts+'</select></div>'
+    +'<div class="pf-f" style="margin-bottom:10px"><label style="font-size:11px;color:var(--muted)">Attach a template or worksheet (optional)</label>'
+    +'<input type="file" id="asg-file" multiple '
+    +'accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.csv,.txt,.png,.jpg,.jpeg" style="max-width:420px">'
+    +'<div style="font-size:11px;color:var(--muted);margin-top:4px">Up to 25MB each. Everyone on this assignment can download them.</div></div>'
+    +'<div style="margin:14px 0 6px;font-family:var(--sans);font-size:9px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)">Who gets it</div>'
+    +'<label style="display:block;padding:5px 0;font-size:13px;cursor:pointer;font-weight:600">'
+    +'<input type="checkbox" id="asg-all" style="margin-right:8px" onchange="document.querySelectorAll(\'.asg-who\').forEach(c=>{c.checked=this.checked;})">Everyone I coach</label>'
+    +'<div style="max-height:210px;overflow:auto;border-top:1px solid var(--border);margin-top:6px;padding-top:6px">'+(opts||'<div class="empty" style="padding:14px">No founders yet.</div>')+'</div>'
+    +'<div style="margin-top:16px;display:flex;gap:10px;align-items:center">'
+    +'<button class="btn" onclick="saveAssignment(this)">Assign &amp; notify</button>'
+    +'<button class="btn-ghost" onclick="newAssignment()">Cancel</button></div></div>';
+}
+
+async function saveAssignment(btn){
+  const title=(document.getElementById('asg-title').value||'').trim();
+  const brief=(document.getElementById('asg-brief').value||'').trim();
+  const dueRaw=(document.getElementById('asg-due').value||'').trim();
+  const who=[...document.querySelectorAll('.asg-who')].filter(c=>c.checked).map(c=>c.value);
+  if(title.length<3){ showToast('Give it a title','error'); return; }
+  if(!who.length){ showToast('Pick at least one founder','error'); return; }
+  let due=null;
+  if(dueRaw){
+    // Due dates are a deadline, not a moment: end of that day in Kampala.
+    const d=new Date(dueRaw+'T23:59:00+03:00');
+    if(isNaN(d)){ showToast('Due date must be YYYY-MM-DD','error'); return; }
+    due=d.toISOString();
+  }
+  btn.disabled=true;
+  try{
+    const cohortId=(sessions||[]).filter(s=>s.session_type==='group'&&s.cohort_id)
+      .sort((a,b)=>new Date(b.scheduled_at)-new Date(a.scheduled_at))[0];
+    const a=await _w('POST','assignments','',{
+      coach_id:authUser.id, title, brief:brief||null, due_at:due,
+      cohort_id:cohortId?cohortId.cohort_id:null,
+      discipline_key:[...myDiscKeys][0]||null,
+      module_key:(document.getElementById('asg-module')||{}).value||null
+    });
+    const aid=(a&&a[0]&&a[0].id)||(a&&a.id);
+    if(!aid) throw new Error('assignment not created');
+    await _w('POST','assignment_recipients','', who.map(f=>({assignment_id:aid, founder_id:f})));
+    // Uploads after the row exists — the storage path is keyed on the id, and a
+    // failed upload must not cost the assignment. Report, don't abort.
+    const files=(document.getElementById('asg-file')||{}).files||[];
+    for(const file of files){
+      try{ await uploadAssignmentFile(file,{assignmentId:aid,side:'coach'}); }
+      catch(e){ showToast('Assigned, but “'+file.name+'” didn’t upload','error'); }
+    }
+    // Email is what keeps this off WhatsApp. A failure here must not look like a
+    // failure to assign — the work IS assigned; only the nudge didn't go.
+    try{ await notifyAssignment(aid); }
+    catch(e){ showToast('Assigned, but the email didn’t send','error'); }
+    newAssignment();
+    await loadAssignments();
+    showToast('Assigned to '+who.length+' founder'+(who.length===1?'':'s'),'success');
+  }catch(e){ showToast('Could not assign — '+e.message,'error'); }
+  finally{ btn.disabled=false; }
+}
+
+async function openAssignment(id){
+  assignOpenId=id;
+  const a=(assignRows||[]).find(x=>x.id===id); if(!a) return;
+  document.getElementById('view-assign-list').style.display='none';
+  const v=document.getElementById('view-assign-one'); v.style.display='';
+  const rs=(a.assignment_recipients||[]).slice()
+    .sort((x,y)=>({submitted:0,returned:1,assigned:2,accepted:3}[x.status]-{submitted:0,returned:1,assigned:2,accepted:3}[y.status]));
+  v.innerHTML='<a href="#" onclick="closeAssignment();return false" style="font-size:11px;color:var(--terra);text-decoration:none;font-weight:600">&larr; All assignments</a>'
+    +'<div class="page-title" style="margin-top:10px">'+esc(a.title)+'</div>'
+    +'<div class="page-sub">'+asgDue(a.due_at)+'</div>'
+    +(a.brief?'<div class="card" style="white-space:pre-wrap;font-size:13.5px;line-height:1.6">'+esc(a.brief)+'</div>':'')
+    +asgModuleBlock(a.module_key)
+    +((a.assignment_files||[]).length
+      ? '<div class="section-title">Attached</div><div class="card">'
+        +(a.assignment_files||[]).map(asgFileRow).join('')+'</div>'
+      : '')
+    +'<div class="section-title">Founders</div><div class="card">'
+    +rs.map(r=>'<div class="list-row"><div><div class="list-main">'+esc(founderName(r.founder_profiles))+'</div>'
+      +'<div class="list-sub">'+(r.submitted_at?'Submitted '+esc(new Date(r.submitted_at).toLocaleDateString('en-GB',{day:'numeric',month:'short'})):'Nothing submitted yet')+'</div></div>'
+      +'<div style="display:flex;gap:8px;align-items:center">'+asgPill(r.status)
+      +'<button class="btn-ghost" onclick="openThread(\''+r.id+'\')">Open</button></div></div>').join('')
+    +'</div><div id="asg-thread"></div>';
+  window.scrollTo(0,0);
+}
+function closeAssignment(){
+  document.getElementById('view-assign-one').style.display='none';
+  document.getElementById('view-assign-list').style.display='';
+  assignOpenId=null;
+}
+
+async function openThread(recipientId){
+  const a=(assignRows||[]).find(x=>x.id===assignOpenId);
+  const r=a&&(a.assignment_recipients||[]).find(x=>x.id===recipientId); if(!r) return;
+  let msgs=[];
+  try{ msgs=await _q('assignment_messages','recipient_id=eq.'+recipientId+'&select=id,author_role,body,created_at&order=created_at'); }
+  catch(e){ msgs=[]; }
+  assignThread=recipientId;
+  const el=document.getElementById('asg-thread');
+  el.innerHTML='<div class="section-title">'+esc(founderName(r.founder_profiles))+'</div><div class="card">'
+    +(r.response
+      ? '<div style="padding:12px 14px;background:var(--bg);border-left:2px solid var(--ochre);white-space:pre-wrap;font-size:13.5px;line-height:1.6;margin-bottom:14px">'
+        +'<div style="font-family:var(--sans);font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:6px">Their submission</div>'
+        +esc(r.response)+'</div>'
+      : ((r.assignment_files||[]).length
+          // A filled-in model with no covering note is a real submission. Saying
+          // "nothing submitted yet" above their files would be a plain lie.
+          ? '<div style="font-size:12px;color:var(--muted);margin-bottom:14px">Answered with files — no note written.</div>'
+          : '<div style="font-size:12px;color:var(--muted);margin-bottom:14px">Nothing submitted yet.</div>'))
+    +((r.assignment_files||[]).length
+      ? '<div style="font-family:var(--sans);font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:4px">Files they sent</div>'
+        +(r.assignment_files||[]).map(asgFileRow).join('')
+        +'<div style="height:12px"></div>'
+      : '')
+    +(msgs.length
+      ? msgs.map(m=>'<div style="padding:9px 0;border-top:1px solid var(--border)">'
+          +'<div style="font-family:var(--sans);font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:'+(m.author_role==='coach'?'var(--terra)':'var(--muted)')+'">'
+          +(m.author_role==='coach'?'You':esc(founderName(r.founder_profiles)))+' &middot; '
+          +esc(new Date(m.created_at).toLocaleString('en-GB',{timeZone:'Africa/Kampala',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',hour12:false}))+'</div>'
+          +'<div style="font-size:13.5px;line-height:1.6;white-space:pre-wrap;margin-top:4px">'+esc(m.body)+'</div></div>').join('')
+      : '<div style="font-size:12px;color:var(--muted);padding:9px 0;border-top:1px solid var(--border)">No messages yet.</div>')
+    +'<div class="pf-f" style="margin-top:14px"><textarea id="asg-reply" rows="3" placeholder="Reply to '+esc(founderName(r.founder_profiles))+'…"></textarea></div>'
+    +'<div style="margin-top:10px;display:flex;gap:10px;flex-wrap:wrap">'
+    +'<button class="btn" onclick="postReply(\''+recipientId+'\',this)">Send reply</button>'
+    +(r.status==='accepted'?'':'<button class="btn-ghost" onclick="setRecipient(\''+recipientId+'\',\'returned\',this)">Ask for another go</button>'
+      +'<button class="btn-ghost" onclick="setRecipient(\''+recipientId+'\',\'accepted\',this)">Accept</button>')
+    +'</div></div>';
+  el.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+async function postReply(recipientId,btn){
+  const t=document.getElementById('asg-reply'); const body=(t.value||'').trim();
+  if(!body){ showToast('Nothing to send','error'); return; }
+  btn.disabled=true;
+  try{
+    await _w('POST','assignment_messages','',{recipient_id:recipientId,author_id:authUser.id,author_role:'coach',body});
+    try{ await notifyReply(recipientId); }catch(e){ showToast('Sent, but the email didn’t go','error'); }
+    await openThread(recipientId);
+    showToast('Reply sent','success');
+  }catch(e){ showToast('Could not send — '+e.message,'error'); }
+  finally{ btn.disabled=false; }
+}
+
+async function setRecipient(recipientId,status,btn){
+  if(status==='accepted' && !(await fsConfirm('Accepting closes this off for the founder — they can no longer edit their submission. Accept it?',
+      {title:'Accept submission',okText:'Accept'}))) return;
+  btn.disabled=true;
+  try{
+    await _w('PATCH','assignment_recipients','id=eq.'+recipientId,{status,reviewed_at:new Date().toISOString()});
+    try{ await notifyReply(recipientId); }catch(e){}
+    await loadAssignments();
+    if(assignOpenId) await openAssignment(assignOpenId);
+    await openThread(recipientId);
+    showToast(status==='accepted'?'Accepted':'Sent back for another go','success');
+  }catch(e){ showToast('Could not update — '+e.message,'error'); }
+  finally{ btn.disabled=false; }
+}
+
 // ── Attendance ───────────────────────────────────────────────────────────────
 // Sessions that have already run, with who joined. Marked here because the coach
 // was in the call and knows; the Meet reconciliation cron writes the same record
@@ -687,7 +1027,32 @@ async function markAttended(sessionId, email, attended){
     if(r && r.ok === false){ showToast(r.reason || 'Could not record', 'error'); return; }
     showToast(attended ? 'Marked as joined' : 'Cleared', 'success');
     await renderAttendance();
+    // Confirming someone was there is the moment we know the session ran, so
+    // that is when the recap goes out — deck, assignments and the discipline's
+    // Workbench module, assembled server-side. Idempotent per session, so
+    // marking a second founder does not mail the cohort twice. Only on a
+    // positive mark: clearing an attendance is a correction, not a delivery.
+    if(attended) sendRecap(sessionId);
   }catch(e){ showToast('Could not record — '+e.message, 'error'); }
+}
+
+async function sendRecap(sessionId){
+  try{
+    const t = await _token();
+    const r = await fetch('/api/session-recap', { method:'POST',
+      headers:{ 'Content-Type':'application/json', Authorization:'Bearer '+t },
+      body: JSON.stringify({ session_id: sessionId }) });
+    const j = await r.json().catch(()=>({}));
+    if(!r.ok) throw new Error(j.error || ('HTTP '+r.status));
+    if(j.skipped) return;                       // already sent — stay quiet
+    if(j.sent)  showToast('Recap sent to '+j.sent+' founder'+(j.sent===1?'':'s'),'success');
+    if(j.problems && j.problems.length) console.warn('[recap]', j.problems);
+  }catch(e){
+    // Attendance is recorded either way. Say so rather than letting a mail
+    // failure look like the attendance failed.
+    showToast('Attendance saved, but the recap email didn’t send','error');
+    console.error('[recap]', e);
+  }
 }
 
 function renderSessions(){
@@ -697,11 +1062,15 @@ function renderSessions(){
   const co=document.getElementById('cohort-sessions');
   const mine=[...myDiscKeys].filter(k=>DISC_DAY[k]);
   if(!mine.length){ co.innerHTML='<div class="empty">No discipline assigned yet.</div>'; }
-  else { const gm=coach.group_meet_link;
-    const gbtn = gm
-      ? '<a class="pill" style="background:rgba(10,143,100,.14);color:#0A8F64;text-decoration:none" href="'+esc(gm)+'" target="_blank">Start session ↗</a> <a href="#" onclick="setGroupMeet();return false" style="font-size:10px;color:var(--muted);text-decoration:none">edit link</a>'
-      : '<a href="#" onclick="setGroupMeet();return false" style="font-size:11px;color:var(--terra);text-decoration:none;font-weight:600">+ Add Meet link</a>';
+  else {
     co.innerHTML=mine.map(k=>{ const d=DISC_DAY[k]; const t=TAXONOMY.find(x=>x.key===k); const label=t?t.label:k;
+    // The link a coach starts with MUST be the one their founders hold. Founders
+    // read sessions.meet_link, which is the link on the calendar event they were
+    // invited to — so the coach reads the same row rather than a pasted copy that
+    // can silently disagree. (It did: a coach-pasted link matched none of their
+    // five generated sessions, which would have split the room.)
+    const nxt = nextGroupSession(k, label);
+    const gbtn = groupJoinBtn(nxt);
     const decks=myMaterials.filter(m=>(m.discipline||'')===label);
     const deckBlock = decks.length
       ? '<div style="margin-top:12px;padding-top:12px;border-top:1px solid var(--border-hi)">'
@@ -712,7 +1081,8 @@ function renderSessions(){
     return '<div class="list-row" style="flex-direction:column;align-items:stretch;gap:0">'
       +'<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px;width:100%">'
         +'<div><div class="list-main">'+esc(label)+' — '+DAYS[d.day]+'s</div>'
-        +'<div class="list-sub">Every '+DAYS[d.day]+', 10:00–12:00 EAT · group cohort session · lead: '+esc(d.coach)+'</div></div>'
+        +'<div class="list-sub">Every '+DAYS[d.day]+' · group cohort session · lead: '+esc(d.coach)+'</div>'
+        +'<div class="list-sub" style="margin-top:3px">'+nextGroupLabel(nxt)+'</div></div>'
         +'<div style="display:flex;gap:10px;align-items:center">'+gbtn+'<span class="pill pill-grey">Weekly</span></div>'
       +'</div>'
       +deckBlock
@@ -730,12 +1100,51 @@ function renderSessions(){
   }).join('');
 }
 
-async function setGroupMeet(){
-  const v=await fsPrompt('Paste the Google Meet link for your weekly group cohort session:', { title:'Group session link', okText:'Save link', defaultValue: coach.group_meet_link||'https://meet.google.com/' });
-  if(v===null) return;
-  const link=v.trim()==='https://meet.google.com/'?'':v.trim();
-  try{ await _w('PATCH','coaches','id=eq.'+coach.id,{group_meet_link:link||null}); coach.group_meet_link=link||null; renderSessions(); showToast('Group session link saved','success'); }
-  catch(e){ showToast('Could not save — '+e.message,'error'); }
+// ── Group session link: derived, never pasted ────────────────────────────────
+// One link per dated session, read from the same sessions row the founder reads.
+// There is deliberately no way to type one in here: a second link can only ever
+// disagree with the calendar invite the founders already hold.
+
+// Only an absolute https link is rendered as an anchor. A bare "meet.google.com/x"
+// would resolve relative to founderssprint.co and land the coach on our 404 page
+// seconds before a class — which is exactly what happened.
+function safeMeet(u){
+  const s=String(u||'').trim();
+  return /^https:\/\/(meet\.google\.com|[a-z0-9.-]+\.zoom\.us)\//i.test(s) ? s : '';
+}
+
+// The next session that has not finished yet. A session stays joinable until its
+// end time, so the link doesn't vanish from the coach's screen mid-class.
+function nextGroupSession(key, label){
+  const now=Date.now();
+  const groups=(sessions||[]).filter(s=>s.session_type==='group' && s.status!=='cancelled' && s.scheduled_at);
+  // Title carries the discipline label. If the coach covers a single discipline
+  // there is nothing to disambiguate, so don't let a title-format change hide
+  // their only link.
+  const single=[...myDiscKeys].filter(k=>DISC_DAY[k]).length===1;
+  const mine=groups.filter(s=>single || String(s.title||'').indexOf(label)!==-1);
+  return mine
+    .filter(s=>now < new Date(s.scheduled_at).getTime() + (s.duration_minutes||120)*60000)
+    .sort((a,b)=>new Date(a.scheduled_at)-new Date(b.scheduled_at))[0] || null;
+}
+
+function groupJoinBtn(s){
+  if(!s) return '<span class="pill pill-grey">No upcoming session</span>';
+  const link=safeMeet(s.meet_link);
+  if(!link) return '<span class="pill pill-grey" title="Generated with the session — ask an admin if it is still missing">Awaiting Meet link</span>';
+  const live=Date.now() >= new Date(s.scheduled_at).getTime();
+  return '<a class="pill" style="background:rgba(10,143,100,.14);color:#0A8F64;text-decoration:none" href="'
+    + esc(link)+'" target="_blank" rel="noopener">'+(live?'Join now ↗':'Start session ↗')+'</a>';
+}
+
+function nextGroupLabel(s){
+  if(!s) return 'No session scheduled ahead.';
+  const when=new Date(s.scheduled_at).toLocaleString('en-GB',
+    {timeZone:'Africa/Kampala',weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit',hour12:false});
+  const wk=(String(s.title||'').match(/Week\s*\d+/i)||[''])[0];
+  const live=Date.now() >= new Date(s.scheduled_at).getTime();
+  return 'Next: '+(wk?esc(wk)+' · ':'')+esc(when)+' EAT'+(live?' · running now':'')
+    +' — same link your founders have.';
 }
 
 // ── PROFILE ──
@@ -1098,17 +1507,30 @@ function switchTab(name){
 }
 
 // ── Sidebar chrome (shared dash-chrome.js) — grouped IA, replaces the top tabs ──
-function initCoachNav(email){
-  if(!window.FSDash) return;
+function initCoachNav(email,_tries){
+  if(!window.FSDash){
+    // dash-chrome.js is deferred, but boot() fires off the warm-localStorage
+    // session check, which frequently resolves first. Giving up here is what
+    // silently left coaches on the fallback top tabs — so wait for the script
+    // instead, and say so if it genuinely never arrives.
+    const n=(_tries||0)+1;
+    if(n>60){ console.warn('[coach] dash-chrome.js never loaded — staying on the top tab bar'); return; }
+    setTimeout(()=>initCoachNav(email,n),50);
+    return;
+  }
   FSDash.init({
     role:'Coach',
     active:'founders',
     user:email,
-    hide:['.tabs'],            // the old horizontal tab bar
+    // Target the id, not '.tabs' — this page's bar is class="tabs-wrap", so the
+    // class selector matched nothing and the sidebar rendered ON TOP of the old
+    // tab row. (admin-portals.html really is class="tabs", hence the divergence.)
+    hide:['#tabs'],            // the old horizontal tab bar
     hideOnMobile:['.topbar'],  // drawer carries brand + account on small screens
     groups:[
       { label:'Coaching', items:[
         { key:'founders',     label:'My Founders' },
+        { key:'assignments',  label:'Assignments' },
         { key:'sessions',     label:'Sessions' },
         { key:'availability', label:'1:1 Availability' },
         { key:'materials',    label:'Materials' }
