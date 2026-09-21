@@ -1528,15 +1528,30 @@ async function toggleShare(){
   }
 }
 
+// A session is "upcoming" until it ENDS, not until it starts. Splitting on the
+// start time meant the Join link vanished the moment a class began — a founder
+// arriving on time found it filed under Past with no way in. Two hours of the
+// session were invisible to the person meant to be attending it.
+function sessionEnd(s){
+  const t = new Date(s.scheduled_at).getTime();
+  return t + ((Number(s.duration_minutes) || 120) * 60000);
+}
 function upcomingSessions(){
   const now = Date.now();
-  return mySessions.filter(s => s.scheduled_at && new Date(s.scheduled_at).getTime() >= now && s.status!=='cancelled')
+  return mySessions.filter(s => s.scheduled_at && s.status!=='cancelled'
+                             && s.status!=='completed' && sessionEnd(s) > now)
                    .sort((a,b)=> new Date(a.scheduled_at) - new Date(b.scheduled_at));
 }
 function pastSessions(){
   const now = Date.now();
-  return mySessions.filter(s => !s.scheduled_at || new Date(s.scheduled_at).getTime() < now || s.status==='completed')
+  return mySessions.filter(s => !s.scheduled_at || s.status==='completed' || sessionEnd(s) <= now)
                    .sort((a,b)=> new Date(b.scheduled_at||0) - new Date(a.scheduled_at||0));
+}
+// True while a session is actually running — used to say so on the card rather
+// than leaving a founder guessing whether they are early, late or in the wrong place.
+function sessionLive(s){
+  const t = new Date(s.scheduled_at).getTime();
+  return Date.now() >= t && Date.now() < sessionEnd(s);
 }
 
 const SESSION_DESC = {
@@ -1575,6 +1590,7 @@ function renderSessions(){
   else { upEl.innerHTML = up.map(s =>
       '<div class="list-row"><div><div class="list-main">'+esc(s.title||'Coaching session')+'</div>'
       + '<div class="list-sub">'+fmtDateTime(s.scheduled_at)+(s.duration_minutes?(' · '+s.duration_minutes+' min'):'')
+      + (sessionLive(s) ? ' · <span style="color:var(--terra);font-weight:600">happening now</span>' : '')
       + (s.description?(' · '+esc(s.description)):'')+'</div></div>'
       + (s.meet_link ? '<a class="btn btn-ghost" href="'+esc(s.meet_link)+'" target="_blank" style="text-decoration:none">Join</a>' : '<span class="pill pill-terra">Scheduled</span>')
       + '</div>').join(''); }
@@ -2704,7 +2720,16 @@ function ugx(n){ n=Number(n)||0; return 'UGX ' + n.toLocaleString('en-US'); }
 function trackLabel(t){ return ({ single:'Single Session', pick3:'Pick 3 Bundle', cohort:'Full Cohort', group:'Group Track', vip:'VIP Track', vip1on1:'VIP Leadership' })[t] || (t? t.charAt(0).toUpperCase()+t.slice(1) : 'Enrollment'); }
 function fmtDate(d){ if(!d) return '—'; return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short'}); }
 function fmtDateLong(d){ if(!d) return '—'; return new Date(d).toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'}); }
-function fmtDateTime(d){ if(!d) return 'Date TBC'; return new Date(d).toLocaleString('en-GB',{weekday:'short',day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}); }
+// Sessions are taught in Kampala, so they are quoted in Kampala time — always,
+// and always labelled. Without the timeZone option this rendered in the VIEWER's
+// zone: a founder in Lagos saw 07:00 for a 09:00 EAT class and had no way to
+// tell which it was. The label matters as much as the conversion.
+function fmtDateTime(d){
+  if(!d) return 'Date TBC';
+  return new Date(d).toLocaleString('en-GB',{ timeZone:'Africa/Kampala',
+    weekday:'short', day:'numeric', month:'short',
+    hour:'2-digit', minute:'2-digit', hour12:false }) + ' EAT';
+}
 function showToast(msg, type){ const t=document.getElementById('toast'); t.textContent=msg; t.className=type||'info'; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),3200); }
 </script>
 <script>
