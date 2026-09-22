@@ -5,6 +5,16 @@
    themes itself from the host page's brand CSS variables, so it looks right
    on the light coach/founder portals and the dark Command Centre alike.
 
+   ⚠️ CACHE BUSTER — BUMP THE ?v= IN ALL THREE CONSUMERS WHEN YOU EDIT THIS FILE.
+   coach.html, dashboard.html and admin-portals.html load it as
+   `dash-chrome.js?v=YYYY-MM-DD`. Static JS is served with a long max-age, so a
+   fixed token means browsers keep the old copy for weeks. That is how the
+   `hide:['#tabs']` fix shipped, sat on the server, and still left coaches
+   looking at BOTH the sidebar and the old top tab bar: the pinned `?v=1`
+   pointed at a build of this file that predated the hide config, the sidebar
+   rendered, the hide CSS never did. Use the edit date — a version you have to
+   think about is a version you remember to change.
+
    The module replaces the CHROME only — the host page keeps its own panels
    and its existing switchTab(); we just call it. Presentation only: role
    gating decides what is SHOWN, RLS decides what is reachable.
