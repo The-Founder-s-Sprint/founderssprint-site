@@ -969,7 +969,10 @@ async function loadAll(user){
   const results = await Promise.allSettled([
     _pgQuery('founder_deliverables', 'founder_id=eq.'+profile.id+'&order=created_at.desc'),
     _pgQuery('registrations', 'or=(user_id.eq.'+user.id+',founder_id.eq.'+profile.id+')&order=created_at.desc'),
-    _pgQuery('session_attendees', 'user_id=eq.'+user.id+'&select=attended,sessions(id,title,description,scheduled_at,status,meet_link,duration_minutes)'),
+    // A founder who deferred should stop seeing the old cohort's timetable the
+    // moment the deferral lands, not keep a dashboard full of classes they are
+    // no longer in.
+    _pgQuery('session_attendees', 'user_id=eq.'+user.id+'&withdrawn_at=is.null&select=attended,sessions(id,title,description,scheduled_at,status,meet_link,duration_minutes)'),
     _pgQuery('founder_course_progress', 'founder_id=eq.'+profile.id+'&select=course_label,status'),
     _pgQuery('coaches', 'select=id,first_name,last_name,user_id,sector_l1,avatar_url&status=eq.active&order=id'),
     _pgQuery('coach_topics', 'select=coach_id,discipline_key'),

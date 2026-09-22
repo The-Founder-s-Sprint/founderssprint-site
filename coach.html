@@ -992,7 +992,10 @@ async function renderAttendance(){
 
   try{
     const ids = past.map(s=>s.id).join(',');
-    attRows = await _q('session_attendees','session_id=in.('+ids+')&select=session_id,email,name,attended,minutes_attended,attendance_source&order=name');
+    // withdrawn_at filters out founders who deferred or cancelled. Their past
+    // rows are kept as proof of delivery, but a coach marking attendance should
+    // not be offered someone who is no longer in the cohort.
+    attRows = await _q('session_attendees','session_id=in.('+ids+')&withdrawn_at=is.null&select=session_id,email,name,attended,minutes_attended,attendance_source&order=name');
   }catch(e){ el.innerHTML = '<div class="empty">Could not load attendance — '+esc(e.message)+'</div>'; return; }
 
   el.innerHTML = past.map(s => {
