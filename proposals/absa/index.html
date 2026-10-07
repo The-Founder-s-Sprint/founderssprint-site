@@ -969,5 +969,83 @@ requestAnimationFrame(tick);
 })();
 </script>
 
+<script>
+/* View count for this page: the same cookieless first-party beacon as the rest of founderssprint.co
+   (site-chrome.js trackPageview), feeding Site Traffic on the admin dashboard. No cookies, no raw user-agent,
+   no IP stored; country comes from Cloudflare's edge in the /db proxy. */
+(function () {
+  'use strict';
+  var ANON = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Iml2ZWRlaXZ5b3R3ZXZqeHZjdW9lIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUxOTk1OTIsImV4cCI6MjA5MDc3NTU5Mn0.qMqjTMDRcvuuSy0yXLPH-yZpWFZdUv63enAsEWxzsss';
+  function uaClass() {
+    try {
+      var ua = navigator.userAgent || '';
+      var uad = navigator.userAgentData || null;
+      var mt = navigator.maxTouchPoints || 0;
+
+      // OS
+      var os = 'other';
+      if (/\b(iPhone|iPod)\b/.test(ua)) os = 'iOS';
+      else if (/\biPad\b/.test(ua)) os = 'iPadOS';
+      else if (/\bAndroid\b/.test(ua)) os = 'Android';
+      else if (/\bWindows\b/.test(ua)) os = 'Windows';
+      else if (/\bMac OS X\b|\bMacintosh\b/.test(ua)) os = (mt > 1 ? 'iPadOS' : 'macOS'); // iPadOS Safari masquerades as Macintosh
+      else if (/\bLinux\b/.test(ua)) os = 'Linux';
+
+      // Device class
+      var device = 'desktop';
+      var uaMobile = uad && typeof uad.mobile === 'boolean' ? uad.mobile : null;
+      if (os === 'iPadOS' || (os === 'Android' && !/\bMobile\b/.test(ua))) device = 'tablet';
+      else if (os === 'iOS' || os === 'Android' || uaMobile === true || /\bMobi\b|Windows Phone/i.test(ua)) device = 'mobile';
+      else if (uaMobile === false) device = 'desktop';
+
+      // Browser family — order matters (Edge/Opera UAs also contain Chrome/Safari)
+      var browser = 'other';
+      if (/\bEdg(?:e|A|iOS)?\//.test(ua)) browser = 'Edge';
+      else if (/\bOPR\/|\bOpera\b/.test(ua)) browser = 'Opera';
+      else if (/\bSamsungBrowser\//.test(ua)) browser = 'Samsung';
+      else if (/\bCriOS\/|\bChrome\//.test(ua)) browser = 'Chrome';
+      else if (/\bFxiOS\/|\bFirefox\//.test(ua)) browser = 'Firefox';
+      else if (/\bSafari\//.test(ua)) browser = 'Safari';
+
+      return { device: device, os: os, browser: browser };
+    } catch (e) { return { device: null, os: null, browser: null }; }
+  }
+  function trackPageview() {
+    try {
+      var p = (location.pathname || '/').replace(/index\.html$/, '');  // one path whether or not the link includes index.html
+      var vid = null;
+      try {
+        vid = localStorage.getItem('fs_vid');
+        if (!vid) { vid = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : (Date.now().toString(36) + Math.random().toString(36).slice(2)); localStorage.setItem('fs_vid', vid); }
+      } catch (e) {}
+      var refHost = '';
+      try { if (document.referrer) { var ru = new URL(document.referrer); if (ru.host && ru.host !== location.host) refHost = ru.host; } } catch (e) {}
+      var eid = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : (Date.now().toString(36) + Math.random().toString(36).slice(2));
+      var t0 = Date.now();
+      var dc = uaClass();  // coarse device/os/browser buckets only — never the raw UA string
+      var body = JSON.stringify({ path: p.slice(0, 512), ref: refHost ? refHost.slice(0, 255) : null, visitor: vid, env: 'prod', event_id: eid, device: dc.device, os: dc.os, browser: dc.browser });
+      var opts = { method: 'POST', keepalive: true, headers: { 'Content-Type': 'application/json', apikey: ANON, Authorization: 'Bearer ' + ANON, Prefer: 'return=minimal' }, body: body };
+      fetch('/db/rest/v1/page_views', opts).catch(function () {});
+
+      // Time-on-page: report how long the visitor stayed, once, when they leave or
+      // background the tab. Set-once + clamped server-side by pv_dwell(). Best-effort.
+      var reported = false;
+      function reportDwell() {
+        if (reported) return; reported = true;
+        var ms = Date.now() - t0;
+        if (ms < 1000) return;  // ignore instant bounces / immediate nav
+        var payload = JSON.stringify({ p_event_id: eid, p_ms: ms });
+        try {
+          if (navigator.sendBeacon) { navigator.sendBeacon('/db/rest/v1/rpc/pv_dwell', new Blob([payload], { type: 'application/json' })); }
+          else { fetch('/db/rest/v1/rpc/pv_dwell', { method: 'POST', keepalive: true, headers: { 'Content-Type': 'application/json', apikey: ANON, Authorization: 'Bearer ' + ANON }, body: payload }); }
+        } catch (e) {}
+      }
+      document.addEventListener('visibilitychange', function () { if (document.visibilityState === 'hidden') reportDwell(); });
+      window.addEventListener('pagehide', reportDwell);
+    } catch (e) {}
+  }
+  trackPageview();
+})();
+</script>
 </body>
 </html>
