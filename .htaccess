@@ -17,8 +17,8 @@ RewriteCond %{HTTPS} off
 RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
 # ─── Staging vs production ──────────────────────────────────────────
-# Production lives at the web root (clean /… URLs). /beta/ is the staging
-# copy we keep developing in — reachable, but kept OUT of search results so
+# Production lives at the web root (clean /… URLs). What remains reachable
+# under /beta/ after the consolidation below is kept OUT of search results so
 # it never competes with prod as duplicate content. (mod_setenvif + mod_headers.)
 <IfModule mod_setenvif.c>
   SetEnvIf Request_URI "^/beta/" FS_STAGING
@@ -26,6 +26,49 @@ RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 <IfModule mod_headers.c>
   Header set X-Robots-Tag "noindex, nofollow" env=FS_STAGING
 </IfModule>
+
+# ─── /beta/ consolidation — one copy of every page (7 Oct 2026) ─────
+# /beta/ began as the staging copy we developed in. It became a SECOND FULL
+# COPY of the site that had to be hand-synced, and the sync silently stopped
+# happening: directory.html and apply-directory.html sat a whole shipped
+# feature behind root (the service-keyword chips), and every book.js edit had
+# to be made twice and diff-checked to prove the two hadn't diverged.
+#
+# 301 rather than delete, so that every link ever shared — a TikTok comment, a
+# WhatsApp thread, an old email — keeps resolving, and so search folds any
+# indexed /beta/ URL into its root twin instead of dropping it.
+#
+# Apache appends the original query string automatically (the substitution
+# contains no "?"), so /beta/book/?tier=single&spec=x survives intact.
+#
+# THE EXCLUSIONS ARE THE LOAD-BEARING PART — each one would break something:
+#   assets|images|Photos|endorsements — the ~66 MB of shared media. These live
+#     ONLY under /beta/ and the fallback rule below exists to serve them from
+#     there. Redirecting them would 404 every image and video on the site.
+#   explore — the constellation discovery explorer, owned by a SEPARATE session
+#     per the CLAUDE.md development boundary. Not ours to redirect or retire.
+#   login — the auth portals. A magic-link or recovery URL carries its token in
+#     the URL fragment; browsers do preserve a fragment across a 301, but
+#     "almost certainly fine" is not a standard worth applying to the only door
+#     into the platform. Left alone deliberately.
+# THE_REQUEST, not REQUEST_URI — and this is the whole safety of the rule.
+# The shared-media fallback below does an INTERNAL rewrite of /x → /beta/x, and
+# Apache re-runs the ruleset after a rewrite. Guarded on REQUEST_URI this rule
+# would fire on that internal path and 301 it straight back to /x, which the
+# fallback would rewrite again: an infinite redirect, and a 500 once Apache hits
+# its limit. The three stray .bak files in /beta (present there, absent at root)
+# would have triggered exactly that. THE_REQUEST holds the raw first line of the
+# HTTP request and is never touched by internal rewrites, so this fires ONLY
+# when a browser genuinely asked for /beta/… and never on a re-entry.
+#
+# The exclusions sit in the pattern as a negative lookahead rather than in a
+# RewriteCond for the same reason: the lookahead tests the path being matched in
+# THIS iteration, with no ambiguity about which value a condition would see.
+RewriteCond %{THE_REQUEST} \s/beta[/?\s]
+RewriteRule ^beta/?$ / [R=301,L]
+
+RewriteCond %{THE_REQUEST} \s/beta/
+RewriteRule ^beta/(?!assets/|images/|Photos/|endorsements/|explore/|login/)(.*)$ /$1 [R=301,L]
 
 # ─── Specialty share links: /s/<slug> ───────────────────────────────
 # Short, typeable URLs for the per-specialty landing pages, so a link dropped

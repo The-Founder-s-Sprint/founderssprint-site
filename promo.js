@@ -8,7 +8,7 @@
    Include (mirrors site-chrome.js): before </body>
      <script src="/promo.js?v=1" defer></script>
    Banner mount (optional, for precise placement):
-     <div id="fs-promo" data-promo-cta="/beta/book/?tier=single"></div>
+     <div id="fs-promo" data-promo-cta="/book/?tier=single"></div>
    If no #fs-promo mount exists on the page, NO banner renders
    (price rewriting still happens) — so a page can opt into prices
    only, or banner + prices, with zero layout surprises.
