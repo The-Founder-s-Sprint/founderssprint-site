@@ -1,0 +1,973 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="A proposal from The Founder&#x27;s Sprint to Absa Bank Uganda: 100 founding teams, four cohorts in 2027, and three years of monthly advisory for every team.">
+<meta name="theme-color" content="#121212">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="canonical" href="https://founderssprint.co/proposals/absa/">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="The Founder's Sprint">
+<meta property="og:title" content="The Absa Founder Acceleration Programme">
+<meta property="og:description" content="A proposal from The Founder&#x27;s Sprint to Absa Bank Uganda: 100 founding teams, four cohorts in 2027, and three years of monthly advisory for every team.">
+<meta property="og:url" content="https://founderssprint.co/proposals/absa/">
+<meta property="og:image" content="https://founderssprint.co/proposals/absa/img/share.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="675">
+<meta property="og:image:alt" content="Title slide: The Absa Founder Acceleration Programme">
+<meta name="twitter:card" content="summary_large_image">
+<title>The Absa Founder Acceleration Programme · The Founder's Sprint</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+/* One fixed 1920x1080 stage, scaled to the window; coaching-deck chrome (restart, prev/next, overview, presenter) around it. Single dark brand look. */
+:root{
+  --ink:#1A1A1A; --ink-deep:#121212; --paper:#EFE7D8; --paper-mid:#C0B8A8; --paper-dim:#A09888; --ink-mute:#5A564F;
+  --terra:#C8531F; --ochre:#C9923A; --sage:#8AAB5C; --accent:#C9923A; --accent-deep:#9A6E1E;
+  --sans:'Josefin Sans',"Avenir Next",Futura,"Century Gothic",sans-serif;
+  --display:Georgia,"Times New Roman",serif;
+  color-scheme:dark;
+}
+html,body{height:100%;margin:0;}
+body{background:var(--ink-deep);color:var(--paper);font-family:var(--display);overflow:hidden;}
+#stage{position:fixed;left:50%;top:50%;width:1920px;height:1080px;transform-origin:center center;overflow:hidden;background:var(--ink);}
+.slide{position:absolute;left:0;top:0;width:1920px;height:1080px;box-sizing:border-box;overflow:hidden;visibility:hidden;font-size:32px;line-height:normal;}
+.slide *,.slide *::before,.slide *::after{box-sizing:border-box;margin:0;padding:0;}
+.slide [style*="padding"]{}
+.slide h1,.slide h2,.slide h3{font-weight:600;}
+.slide h1{font-size:96px;line-height:1.1;} .slide h2{font-size:64px;line-height:1.15;} .slide h3{font-size:44px;line-height:1.2;}
+.slide p{line-height:1.4;}
+.slide ul{list-style:disc;padding-inline-start:1.2em;} .slide ol{list-style:decimal;padding-inline-start:1.2em;}
+.slide img{max-width:none;display:block;}
+.slide.active{visibility:visible;}
+.slide.leaving{visibility:visible;}
+/* transitions */
+.slide.fx{transition:opacity .55s ease, transform .7s cubic-bezier(.65,0,.35,1);}
+/* builds */
+.slide [data-fx]{opacity:0;}
+.slide.leaving [data-fx]{opacity:1;animation:none;}
+.slide.active.run [data-fx]{animation:var(--anim) .7s cubic-bezier(.22,1,.36,1) both;animation-delay:calc(var(--base,.3s) + var(--n,0) * .14s);}
+[data-fx="fade"]{--anim:bFade} [data-fx="rise"]{--anim:bRise} [data-fx="left"]{--anim:bLeft} [data-fx="right"]{--anim:bRight}
+[data-fx="drop"]{--anim:bDrop} [data-fx="scale"]{--anim:bScale} [data-fx="pop"]{--anim:bPop}
+@keyframes bFade{from{opacity:0}to{opacity:1}}
+@keyframes bRise{from{opacity:0;translate:0 44px}to{opacity:1;translate:0 0}}
+@keyframes bDrop{from{opacity:0;translate:0 -44px}to{opacity:1;translate:0 0}}
+@keyframes bLeft{from{opacity:0;translate:-80px 0}to{opacity:1;translate:0 0}}
+@keyframes bRight{from{opacity:0;translate:80px 0}to{opacity:1;translate:0 0}}
+@keyframes bScale{from{opacity:0;scale:.92}to{opacity:1;scale:1}}
+@keyframes bPop{0%{opacity:0;scale:.85}70%{opacity:1;scale:1.03}100%{opacity:1;scale:1}}
+.slide [data-magic]{transform-origin:0 0;}
+/* pace dial: the 72 marks fill in like a day passing */
+.slide [data-count]{font-variant-numeric:tabular-nums;}
+.slide .dial polygon{opacity:0;}
+.slide.active.run .dial polygon{animation:tickIn .3s ease both;animation-delay:calc(var(--base,.3s) + .3s + var(--i,0) * .022s);}
+.slide.leaving .dial polygon{opacity:1;animation:none;}
+@keyframes tickIn{from{opacity:0;scale:.6}to{opacity:1;scale:1}}
+.slide .dial polygon{transform-box:fill-box;transform-origin:center;}
+/* chrome, after the coaching decks */
+.progress{position:fixed;bottom:0;left:0;height:4px;background:var(--accent);width:0;z-index:41;transition:width .3s ease;}
+.chrome{position:fixed;bottom:calc(clamp(14px,2vw,26px) + env(safe-area-inset-bottom,0px));right:clamp(16px,2.5vw,34px);display:flex;align-items:center;gap:14px;z-index:42;}
+.counter{font-family:var(--sans);font-size:clamp(11px,1.1vw,13px);font-weight:600;letter-spacing:.16em;color:var(--paper-mid);pointer-events:none;font-variant-numeric:tabular-nums;}
+body.on-paper .counter{color:var(--ink-mute);}
+.nav{display:flex;gap:8px;}
+.nav button{width:clamp(38px,3.6vw,46px);height:clamp(38px,3.6vw,46px);border:1px solid rgba(239,231,216,.3);background:rgba(26,26,26,.55);color:var(--paper);font-size:18px;cursor:pointer;backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);transition:all .2s;display:flex;align-items:center;justify-content:center;font-family:var(--sans);}
+body.on-paper .nav button{border-color:rgba(26,26,26,.25);background:rgba(239,231,216,.7);color:var(--ink);}
+.nav button:hover{border-color:var(--accent);color:var(--accent);}
+body.on-paper .nav button:hover{color:var(--accent-deep);}
+.nav button:focus-visible{outline:2px solid var(--accent);outline-offset:2px;}
+.kbd-hint{position:fixed;bottom:clamp(16px,2vw,28px);left:50%;transform:translateX(-50%);z-index:42;font-family:var(--sans);font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--paper-dim);pointer-events:none;transition:opacity 1s;white-space:nowrap;}
+body.on-paper .kbd-hint{color:var(--ink-mute);}
+.kbd-hint.gone{opacity:0;}
+.overview{position:fixed;inset:0;background:rgba(14,14,12,.97);z-index:60;padding:clamp(20px,3vw,48px);overflow-y:auto;}
+.ov-title{font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:.2em;text-transform:uppercase;color:var(--ochre);margin-bottom:18px;}
+.ov-part{font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--paper-dim);margin:22px 0 10px;grid-column:1/-1;}
+.ov-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px;}
+.ov-item{background:rgba(239,231,216,.06);border:1px solid rgba(239,231,216,.14);padding:14px;cursor:pointer;transition:all .2s;text-align:left;color:inherit;font:inherit;}
+.ov-item:hover,.ov-item:focus-visible{border-color:var(--accent);background:rgba(201,146,58,.2);outline:none;}
+.ov-item.cur{border-color:var(--accent);}
+.ov-item .oi-n{font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.16em;color:var(--ochre);}
+.ov-item .oi-t{font-family:var(--display);font-size:17px;color:var(--paper);margin-top:6px;line-height:1.25;text-wrap:balance;}
+.notes-panel{position:fixed;left:50%;bottom:clamp(70px,8vh,96px);transform:translateX(-50%);width:min(760px,calc(100vw - 32px));max-height:42vh;overflow:auto;z-index:55;background:rgba(17,17,15,.96);border:1px solid rgba(239,231,216,.18);padding:20px 24px;}
+.notes-panel .np-top{display:flex;justify-content:space-between;gap:12px;font-family:var(--sans);font-size:11px;font-weight:700;letter-spacing:.18em;text-transform:uppercase;color:var(--ochre);}
+.notes-panel .np-top button{background:none;border:0;color:var(--paper-dim);font:inherit;cursor:pointer;letter-spacing:.18em;}
+.notes-panel .np-t{font-family:var(--display);font-size:22px;margin:8px 0 10px;color:var(--paper);}
+.notes-panel .np-n{font-family:var(--display);font-size:17px;line-height:1.55;color:#E6DECF;}
+.chrome{transition:opacity .4s ease;}
+body.idle .chrome{opacity:0;pointer-events:none;}
+body.idle{cursor:none;}
+@media (max-width:700px){.kbd-hint{display:none;}}
+@media (prefers-reduced-motion:reduce){.slide .dial polygon{opacity:1;animation:none!important}.slide.fx{transition:none}.slide [data-fx]{opacity:1}.slide.leaving [data-fx]{opacity:1;animation:none;}
+.slide.active.run [data-fx]{animation:none}}
+
+/* print / save as PDF: every slide on its own 1920x1080 page, builds in their final state */
+@media print{
+  @page{size:1920px 1080px;margin:0;}
+  html,body{height:auto;overflow:visible;background:#fff;}
+  #stage{position:static;transform:none!important;left:auto;top:auto;width:1920px;height:auto;overflow:visible;background:none;}
+  .slide{position:relative;visibility:visible!important;opacity:1!important;transform:none!important;break-after:page;page-break-after:always;}
+  .slide:last-child{break-after:auto;page-break-after:auto;}
+  .slide [data-fx],.slide .dial polygon{opacity:1!important;animation:none!important;translate:none!important;scale:none!important;}
+  .progress,.chrome,.kbd-hint,.overview,.notes-panel{display:none!important;}
+  *{-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+}
+
+/* phones: a portrait hint above the stage, and touch wording for the hint */
+.rotate-hint{display:none;}
+@media (orientation:portrait) and (max-width:700px){
+  .rotate-hint{display:block;position:fixed;left:16px;right:16px;top:calc(50% - 28.125vw - 72px);text-align:center;font-family:var(--sans);font-size:12px;font-weight:600;letter-spacing:.14em;line-height:1.7;white-space:nowrap;text-transform:uppercase;color:var(--paper-dim);pointer-events:none;}
+}
+@media print{.rotate-hint{display:none!important;}}
+</style>
+</head>
+<body>
+
+<div id="stage" role="region" aria-roledescription="slide deck" aria-label="Absa × TFS Acceleration Programme">
+<section class="slide" data-id="cover" data-surface="dark" data-tr="magic" style="background:#1A1A1A; color:#EFE7D8; font-family:Georgia, serif; padding:128px; display:flex; flex-direction:column; justify-content:space-between">
+  <img src="img/cover.jpg" alt="A Ugandan founder working through plans at his desk" style="position:absolute; left:1184px; top:0px; width:736px; height:1080px; object-fit:cover">
+  <svg data-magic="mark" aria-label="The Founder's Sprint mark: five petals, one per coaching discipline" width="100" height="100" viewBox="0 0 100 100" style="position:absolute; left:128px; top:128px; width:160px; height:160px"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.85"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.8" transform="rotate(72 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.78" transform="rotate(144 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.82" transform="rotate(216 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288 50 50)"></polygon><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"></circle><circle cx="50" cy="50" r="2" fill="#1A1A1A"></circle></svg>
+  <div style="position:absolute; left:128px; top:365px; width:940px; height:477px; display:flex; flex-direction:column; gap:36px">
+    <p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:26px; font-weight:600; letter-spacing:5px; text-transform:uppercase; color:#C9923A">A proposal for Absa Bank Uganda</p>
+    <h1 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:88px; font-weight:700; line-height:1.05; letter-spacing:1px; color:#EFE7D8">The Absa Founder Acceleration Programme</h1>
+    <p style="font-size:36px; font-style:italic; color:#C0B8A8; line-height:1.4">100 founding teams. Four cohorts in 2027. Three years of support after each one.</p>
+  </div>
+  <div style="position:absolute; left:128px; top:919px; width:940px; height:33px; display:flex; justify-content:space-between; align-items:end">
+    <p style="font-size:26px; color:#C0B8A8">The Founder's Sprint · October 2026</p>
+    <p style="font-size:26px; font-style:italic; color:#C8531F">Build with direction.</p>
+  </div>
+</section>
+<section class="slide" data-id="need" data-surface="paper" data-tr="fade" style="background:#efe7d8">
+  <svg xmlns="http://www.w3.org/2000/svg" aria-label="The Founder's Sprint mark" viewBox="0 0 100 100" data-magic="mark" style="position:absolute; top:48px; left:48px; width:56px; height:56px"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.85"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.8" transform="rotate(72 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.78" transform="rotate(144 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.82" transform="rotate(216 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288 50 50)"></polygon><circle cx="50" cy="50" r="4.5" fill="#1A1A1A"></circle><circle cx="50" cy="50" r="2" fill="#EFE7D8"></circle></svg>
+  <div style="position:absolute; top:128px; left:128px; width:1664px; height:188px; display:flex; flex-direction:column; gap:20px">
+    <p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:26px; font-weight:600; letter-spacing:5px; text-transform:uppercase; color:#a8431a">Uganda by the numbers</p>
+    <h2 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; letter-spacing:1px; color:#1a1a1a">Uganda needs 367,000 more bankable&nbsp;<br>businesses by 2040</h2>
+  </div>
+  <div data-fx="rise" style="--n:0;position:absolute; top:393px; left:128px; width:784px; height:282px; display:flex; flex-direction:column; gap:12px; padding:48px; background:#f7f2e8; border-radius:0 0 24px 0">
+    <p style="font-family:Georgia, serif; font-size:132px; line-height:1; color:#1a1a1a">70,010</p>
+    <p style="font-family:Georgia, serif; font-size:30px; line-height:1.4; color:#444444">registered entities access bank credit today</p>
+  </div>
+  <svg data-fx="fade" class="conn" viewBox="0 0 1920 1080" style="--n:1; position:absolute; left:0; top:0; width:1920px; height:1080px; pointer-events:none" aria-hidden="true"><defs><marker id="ah1" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10z" fill="#a8431a"/></marker></defs><line x1="912.0" y1="534.0" x2="1006.0" y2="534.0" stroke="#a8431a" stroke-width="2.5" marker-end="url(#ah1)"/></svg>
+  <div data-fx="rise" style="--n:2;position:absolute; top:372px; left:1008px; width:784px; height:324px; display:flex; flex-direction:column; gap:12px; padding:48px; background:#1a1a1a; border-radius:0 0 24px 0">
+    <p style="font-family:Georgia, serif; font-size:132px; line-height:1; color:#c9923a">437,000</p>
+    <p style="font-family:Georgia, serif; font-size:30px; line-height:1.4; color:#c0b8a8">entities needed to absorb the credit the Tenfold Growth Strategy calls for</p>
+  </div>
+  <p style="position:absolute; bottom:64px; left:128px; width:1664px; font-family:Georgia, serif; font-size:24px; color:#5e5e58">Source: Wilbrod Owor, Executive Director, Uganda Bankers' Association; Bank of Uganda / Tenfold Growth Strategy. Gap = 437,000 − 70,010.</p>
+</section>
+<section class="slide" data-id="pace" data-surface="dark" data-tr="fade" style="background:#C8531F; color:#1A1A1A; font-family:Georgia, serif">
+  <svg xmlns="http://www.w3.org/2000/svg" aria-label="The Founder's Sprint mark" viewBox="0 0 100 100" style="position:absolute; top:48px; left:48px; width:56px; height:56px"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.85"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.8" transform="rotate(72 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.78" transform="rotate(144 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.82" transform="rotate(216 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288 50 50)"></polygon><circle cx="50" cy="50" r="4.5" fill="#1A1A1A"></circle><circle cx="50" cy="50" r="2" fill="#EFE7D8"></circle></svg>
+  <p style="position:absolute; left:128px; top:128px; width:760px; font-family:'Josefin Sans', Arial, sans-serif; font-size:26px; font-weight:700; letter-spacing:5px; text-transform:uppercase; color:#1A1A1A">The implied pace of growth</p>
+  <svg class="dial" aria-label="A 24-hour dial of 72 marks, one new bankable business every 20 minutes" width="640" height="640" viewBox="0 0 640 640" data-fx="fade" style="--n:0;position:absolute; left:168px; top:236px; width:640px; height:640px"><circle cx="320" cy="320" r="222" fill="none" stroke="#1A1A1A" stroke-opacity="0.35" stroke-width="2"/><polygon style="--i:0" points="320.0,84.0 327.5,52.0 320.0,20.0 312.5,52.0" fill="#1A1A1A" opacity="1"/><polygon style="--i:1" points="340.6,84.9 350.8,53.7 346.1,21.1 335.9,52.4" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:2" points="361.0,87.6 373.9,57.4 372.1,24.6 359.2,54.8" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:3" points="381.1,92.0 396.6,63.1 397.6,30.2 382.1,59.2" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:4" points="400.7,98.2 418.7,70.7 422.6,38.1 404.6,65.6" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:5" points="419.7,106.1 440.1,80.3 446.8,48.1 426.5,73.9" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:6" points="438.0,115.6 460.5,91.7 470.0,60.2 447.5,84.2" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:7" points="455.4,126.7 479.9,104.8 492.1,74.3 467.6,96.2" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:8" points="471.7,139.2 498.0,119.5 512.8,90.2 486.5,109.9" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:9" points="486.9,153.1 514.8,135.8 532.1,107.9 504.2,125.2" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:10" points="500.8,168.3 530.1,153.5 549.8,127.2 520.5,142.0" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:11" points="513.3,184.6 543.8,172.4 565.7,147.9 535.2,160.1" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:12" points="524.4,202.0 555.8,192.5 579.8,170.0 548.3,179.5" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:13" points="533.9,220.3 566.1,213.5 591.9,193.2 559.7,199.9" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:14" points="541.8,239.3 574.4,235.4 601.9,217.4 569.3,221.3" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:15" points="548.0,258.9 580.8,257.9 609.8,242.4 576.9,243.4" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:16" points="552.4,279.0 585.2,280.8 615.4,267.9 582.6,266.1" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:17" points="555.1,299.4 587.6,304.1 618.9,293.9 586.3,289.2" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:18" points="556.0,320.0 588.0,327.5 620.0,320.0 588.0,312.5" fill="#1A1A1A" opacity="1"/><polygon style="--i:19" points="555.1,340.6 586.3,350.8 618.9,346.1 587.6,335.9" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:20" points="552.4,361.0 582.6,373.9 615.4,372.1 585.2,359.2" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:21" points="548.0,381.1 576.9,396.6 609.8,397.6 580.8,382.1" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:22" points="541.8,400.7 569.3,418.7 601.9,422.6 574.4,404.6" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:23" points="533.9,419.7 559.7,440.1 591.9,446.8 566.1,426.5" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:24" points="524.4,438.0 548.3,460.5 579.8,470.0 555.8,447.5" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:25" points="513.3,455.4 535.2,479.9 565.7,492.1 543.8,467.6" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:26" points="500.8,471.7 520.5,498.0 549.8,512.8 530.1,486.5" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:27" points="486.9,486.9 504.2,514.8 532.1,532.1 514.8,504.2" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:28" points="471.7,500.8 486.5,530.1 512.8,549.8 498.0,520.5" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:29" points="455.4,513.3 467.6,543.8 492.1,565.7 479.9,535.2" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:30" points="438.0,524.4 447.5,555.8 470.0,579.8 460.5,548.3" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:31" points="419.7,533.9 426.5,566.1 446.8,591.9 440.1,559.7" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:32" points="400.7,541.8 404.6,574.4 422.6,601.9 418.7,569.3" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:33" points="381.1,548.0 382.1,580.8 397.6,609.8 396.6,576.9" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:34" points="361.0,552.4 359.2,585.2 372.1,615.4 373.9,582.6" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:35" points="340.6,555.1 335.9,587.6 346.1,618.9 350.8,586.3" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:36" points="320.0,556.0 312.5,588.0 320.0,620.0 327.5,588.0" fill="#1A1A1A" opacity="1"/><polygon style="--i:37" points="299.4,555.1 289.2,586.3 293.9,618.9 304.1,587.6" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:38" points="279.0,552.4 266.1,582.6 267.9,615.4 280.8,585.2" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:39" points="258.9,548.0 243.4,576.9 242.4,609.8 257.9,580.8" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:40" points="239.3,541.8 221.3,569.3 217.4,601.9 235.4,574.4" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:41" points="220.3,533.9 199.9,559.7 193.2,591.9 213.5,566.1" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:42" points="202.0,524.4 179.5,548.3 170.0,579.8 192.5,555.8" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:43" points="184.6,513.3 160.1,535.2 147.9,565.7 172.4,543.8" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:44" points="168.3,500.8 142.0,520.5 127.2,549.8 153.5,530.1" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:45" points="153.1,486.9 125.2,504.2 107.9,532.1 135.8,514.8" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:46" points="139.2,471.7 109.9,486.5 90.2,512.8 119.5,498.0" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:47" points="126.7,455.4 96.2,467.6 74.3,492.1 104.8,479.9" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:48" points="115.6,438.0 84.2,447.5 60.2,470.0 91.7,460.5" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:49" points="106.1,419.7 73.9,426.5 48.1,446.8 80.3,440.1" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:50" points="98.2,400.7 65.6,404.6 38.1,422.6 70.7,418.7" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:51" points="92.0,381.1 59.2,382.1 30.2,397.6 63.1,396.6" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:52" points="87.6,361.0 54.8,359.2 24.6,372.1 57.4,373.9" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:53" points="84.9,340.6 52.4,335.9 21.1,346.1 53.7,350.8" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:54" points="84.0,320.0 52.0,312.5 20.0,320.0 52.0,327.5" fill="#1A1A1A" opacity="1"/><polygon style="--i:55" points="84.9,299.4 53.7,289.2 21.1,293.9 52.4,304.1" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:56" points="87.6,279.0 57.4,266.1 24.6,267.9 54.8,280.8" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:57" points="92.0,258.9 63.1,243.4 30.2,242.4 59.2,257.9" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:58" points="98.2,239.3 70.7,221.3 38.1,217.4 65.6,235.4" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:59" points="106.1,220.3 80.3,199.9 48.1,193.2 73.9,213.5" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:60" points="115.6,202.0 91.7,179.5 60.2,170.0 84.2,192.5" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:61" points="126.7,184.6 104.8,160.1 74.3,147.9 96.2,172.4" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:62" points="139.2,168.3 119.5,142.0 90.2,127.2 109.9,153.5" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:63" points="153.1,153.1 135.8,125.2 107.9,107.9 125.2,135.8" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:64" points="168.3,139.2 153.5,109.9 127.2,90.2 142.0,119.5" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:65" points="184.6,126.7 172.4,96.2 147.9,74.3 160.1,104.8" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:66" points="202.0,115.6 192.5,84.2 170.0,60.2 179.5,91.7" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:67" points="220.3,106.1 213.5,73.9 193.2,48.1 199.9,80.3" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:68" points="239.3,98.2 235.4,65.6 217.4,38.1 221.3,70.7" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:69" points="258.9,92.0 257.9,59.2 242.4,30.2 243.4,63.1" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:70" points="279.0,87.6 280.8,54.8 267.9,24.6 266.1,57.4" fill="#EFE7D8" opacity="0.92"/><polygon style="--i:71" points="299.4,84.9 304.1,52.4 293.9,21.1 289.2,53.7" fill="#EFE7D8" opacity="0.92"/></svg>
+  <p data-fx="fade" style="--n:0;position:absolute; left:438px; top:374px; width:100px; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; letter-spacing:2px; text-align:center; color:#1A1A1A">00:00</p><p data-fx="fade" style="--n:0;position:absolute; left:604px; top:540px; width:100px; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; letter-spacing:2px; text-align:center; color:#1A1A1A">06:00</p><p data-fx="fade" style="--n:0;position:absolute; left:438px; top:706px; width:100px; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; letter-spacing:2px; text-align:center; color:#1A1A1A">12:00</p><p data-fx="fade" style="--n:0;position:absolute; left:272px; top:540px; width:100px; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; letter-spacing:2px; text-align:center; color:#1A1A1A">18:00</p>
+  <p data-fx="scale" style="--n:1;position:absolute; left:288px; top:404px; width:400px; font-family:Georgia, serif; font-size:200px; line-height:1; text-align:center; color:#EFE7D8" data-count="72" data-ease="linear">72</p>
+  <p data-fx="fade" style="--n:2;position:absolute; left:308px; top:614px; width:360px; font-family:'Josefin Sans', Arial, sans-serif; font-size:26px; font-weight:700; line-height:1.3; text-align:center; color:#1A1A1A">bankable businesses<br>every day</p>
+  <h2 style="position:absolute; left:960px; top:196px; width:832px; font-family:'Josefin Sans', Arial, sans-serif; font-size:56px; font-weight:700; line-height:1.1; letter-spacing:1px; color:#1A1A1A">One new bankable business every 20 minutes</h2>
+  <p data-fx="rise" style="--n:3;position:absolute; left:960px; top:376px; width:470px; font-family:Georgia, serif; font-size:132px; line-height:1; white-space:nowrap; color:#1A1A1A" data-count="26000">26,000</p>
+  <p data-fx="fade" style="--n:4;position:absolute; left:1430px; top:430px; width:362px; font-family:'Josefin Sans', Arial, sans-serif; font-size:28px; font-weight:700; line-height:1.3; white-space:nowrap; color:#1A1A1A">a year, every year to 2040:<br>367,000 in all</p>
+  <div data-fx="fade" style="--n:5;position:absolute; left:960px; top:552px; width:832px; height:2px; background:rgba(26,26,26,0.35)"></div>
+  <p data-fx="fade" style="--n:5;position:absolute; left:960px; top:580px; width:832px; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; letter-spacing:4px; text-transform:uppercase; color:#1A1A1A">The credit it takes</p>
+  <div data-fx="left" style="--n:6;position:absolute; left:960px; top:628px; width:832px; height:48px; display:flex; align-items:center; gap:20px">
+    <div style="flex:none; width:51px; height:48px; background:#EFE7D8"></div>
+    <p style="font-family:Georgia, serif; font-size:26px; line-height:1.2; color:#1A1A1A"><b>Shs30 trillion</b> · the entire private-sector loan book today</p>
+  </div>
+  <div data-fx="left" style="--n:7;position:absolute; left:960px; top:692px; width:832px; height:48px; display:flex; align-items:center; gap:20px">
+    <div style="flex:none; width:56px; height:48px; background:#1A1A1A"></div>
+    <p style="font-family:Georgia, serif; font-size:26px; line-height:1.2; color:#1A1A1A"><b>About Shs33 trillion</b> · new lending needed every year</p>
+  </div>
+  <div data-fx="left" style="--n:8;position:absolute; left:960px; top:756px; width:832px; height:48px; display:flex; align-items:center; padding:0 20px; background:rgba(26,26,26,0.14); border:2px solid #1A1A1A">
+    <p style="font-family:Georgia, serif; font-size:26px; line-height:1.2; color:#1A1A1A"><b>Shs490 trillion</b> · the private-sector credit target for 2040</p>
+  </div>
+  <p data-fx="fade" style="--n:9;position:absolute; left:960px; top:836px; width:832px; font-family:Georgia, serif; font-size:28px; font-style:italic; line-height:1.35; color:#1A1A1A">Each year needs more new credit than the whole loan book holds today.</p>
+  <p style="position:absolute; left:128px; bottom:64px; width:1664px; font-family:Georgia, serif; font-size:24px; color:#1A1A1A">Source: Bank of Uganda / Tenfold Growth Strategy; UBA. Derived: 367,000 ÷ 14 years ÷ 365 days; (490 − 30) ÷ 14. Bars drawn to scale.</p>
+</section>
+<section class="slide" data-id="survival" data-surface="paper" data-tr="fade" style="background:#EFE7D8; color:#1A1A1A; font-family:Georgia, serif; padding:128px 128px 160px; display:grid; grid-template-columns:1fr 760px; gap:80px; align-items:center">
+  <svg aria-label="The Founder's Sprint mark" width="100" height="100" viewBox="0 0 100 100" style="position:absolute; left:48px; top:48px; width:56px; height:56px"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.85"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.8" transform="rotate(72 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.78" transform="rotate(144 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.82" transform="rotate(216 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288 50 50)"></polygon><circle cx="50" cy="50" r="4.5" fill="#1A1A1A"></circle><circle cx="50" cy="50" r="2" fill="#EFE7D8"></circle></svg>
+  <div style="position:absolute; left:128px; top:286px; width:824px; height:476px; display:flex; flex-direction:column; gap:36px">
+    <p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:26px; font-weight:600; letter-spacing:5px; text-transform:uppercase; color:#A8431A">The survival problem</p>
+    <h2 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:72px; font-weight:700; line-height:1.1; letter-spacing:1px">Nearly half of Ugandan businesses are gone by year five</h2>
+    <p style="font-size:32px; line-height:1.45; color:#444444">One in three never reaches its first birthday. Every loan made in those first five years is a loan made into the period when businesses are most likely to close.</p>
+  </div>
+  <div style="--n:0; position:absolute; left:1032px; top:370px; width:760px; height:130px; display:flex; flex-direction:column; gap:14px" data-fx="left">
+      <p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:26px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:#5E5E58">After year one</p>
+      <div style="display:flex; gap:6px">
+        <div style="flex:none; width:251px; display:flex; align-items:center; padding:28px 20px; background:#C8531F"><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:26px; font-weight:700; color:#1A1A1A">1 in 3 closed</p></div>
+        <div style="flex:none; width:503px; display:flex; align-items:center; padding:28px 20px; background:#E0D7C6; border-radius:0 0 24px 0"><p style="font-size:26px; color:#444444">still trading</p></div>
+      </div>
+    </div><div style="--n:1; position:absolute; left:1032px; top:548px; width:760px; height:130px; display:flex; flex-direction:column; gap:14px" data-fx="left">
+      <p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:26px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:#5E5E58">After year five</p>
+      <div style="display:flex; gap:6px">
+        <div style="flex:none; width:362px; display:flex; align-items:center; padding:28px 20px; background:#C8531F"><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:26px; font-weight:700; color:#1A1A1A">Nearly half closed</p></div>
+        <div style="flex:none; width:392px; display:flex; align-items:center; padding:28px 20px; background:#E0D7C6; border-radius:0 0 24px 0"><p style="font-size:26px; color:#444444">still trading</p></div>
+      </div>
+    </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1664px; font-size:24px; color:#5E5E58">Source: UBOS figures reported by Enterprise Uganda. Bar lengths show the reported shares: one third, and just under half.</p>
+</section>
+<section class="slide" data-id="shape" data-surface="paper" data-tr="fade" style="background:#EFE7D8; color:#1A1A1A; font-family:Georgia, serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:56px">
+  <svg aria-label="The Founder's Sprint mark" width="100" height="100" viewBox="0 0 100 100" style="position:absolute; left:48px; top:48px; width:56px; height:56px"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.85"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.8" transform="rotate(72 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.78" transform="rotate(144 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.82" transform="rotate(216 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288 50 50)"></polygon><circle cx="50" cy="50" r="4.5" fill="#1A1A1A"></circle><circle cx="50" cy="50" r="2" fill="#EFE7D8"></circle></svg>
+  <div style="position:absolute; left:128px; top:128px; width:1664px; height:118px; display:flex; flex-direction:column; gap:20px">
+    <p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:26px; font-weight:600; letter-spacing:5px; text-transform:uppercase; color:#A8431A">The shape of the business base</p>
+    <h2 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; letter-spacing:1px">Small, founder-dependent and under-financed</h2>
+  </div>
+  <div style="--n:0; position:absolute; left:128px; top:301px; width:398px; height:344px; display:flex; flex-direction:column; gap:16px; background:#F7F2E8; padding:40px 32px; border-top:6px solid #C8531F; border-radius:0 0 24px 0" data-fx="rise">
+      <p style="font-family:Georgia, serif; font-size:96px; line-height:1; white-space:nowrap; color:#A8431A">82%</p>
+      <p style="font-size:26px; line-height:1.4; color:#444444">of enterprises employ fewer than five people</p>
+    </div><div style="--n:1; position:absolute; left:550px; top:301px; width:398px; height:344px; display:flex; flex-direction:column; gap:16px; background:#F7F2E8; padding:40px 32px; border-top:6px solid #C9923A; border-radius:0 0 24px 0" data-fx="rise">
+      <p style="font-family:Georgia, serif; font-size:96px; line-height:1; white-space:nowrap; color:#8A5E14">49%</p>
+      <p style="font-size:26px; line-height:1.4; color:#444444">are one-person businesses</p>
+    </div><div style="--n:2; position:absolute; left:972px; top:301px; width:398px; height:344px; display:flex; flex-direction:column; gap:16px; background:#F7F2E8; padding:40px 32px; border-top:6px solid #8AAB5C; border-radius:0 0 24px 0" data-fx="rise">
+      <p style="font-family:Georgia, serif; font-size:96px; line-height:1; white-space:nowrap; color:#4F6B2E">9%</p>
+      <p style="font-size:26px; line-height:1.4; color:#444444">of commercial credit goes to women, who own about 40% of businesses</p>
+    </div><div style="--n:3; position:absolute; left:1394px; top:301px; width:398px; height:344px; display:flex; flex-direction:column; gap:16px; background:#1A1A1A; color:#EFE7D8; padding:40px 32px; border-top:6px solid #C9923A; border-radius:0 0 24px 0" data-fx="rise">
+      <p style="font-family:Georgia, serif; font-size:96px; line-height:1; white-space:nowrap; color:#C9923A">&lt;1<span style="font-size:60px; letter-spacing:0"> in 10</span></p>
+      <p style="font-size:26px; line-height:1.4; color:#C0B8A8">family businesses outlive their founder</p>
+    </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1664px; font-size:24px; color:#5E5E58">Sources: UBOS Census of Business Establishments 2019/20 · World Bank/IFC, restated in World Bank GROW project (2022) · EPRC (December 2025).</p>
+</section>
+<section class="slide" data-id="window" data-surface="dark" data-tr="push" style="display:flex; flex-direction:column; gap:56px; padding:128px 128px 160px; background:#1a1a1a">
+  <svg xmlns="http://www.w3.org/2000/svg" aria-label="The Founder's Sprint mark" viewBox="0 0 100 100" style="position:absolute; top:48px; left:48px; width:56px; height:56px"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.85"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.8" transform="rotate(72 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.78" transform="rotate(144 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.82" transform="rotate(216 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288 50 50)"></polygon><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"></circle><circle cx="50" cy="50" r="2" fill="#1A1A1A"></circle></svg>
+  <div style="position:absolute; left:128px; top:128px; width:1664px; height:188px; display:flex; flex-direction:column; gap:20px">
+    <p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:26px; font-weight:600; letter-spacing:5px; text-transform:uppercase; color:#c9923a">Why this matters to Absa</p>
+    <h2 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; letter-spacing:1px; color:#efe7d8">We stay with every founder through the years&nbsp;<br>that decide survival</h2>
+  </div>
+  <div style="--n:0; position:absolute; left:128px; top:372px; width:1664px; height:24px; display:grid; grid-template-columns:0.25fr 1fr 1fr 1fr" data-fx="fade">
+      <p style="padding:0 0 0 16px; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; color:#a09888; border-left:1px solid #444444">Q1</p>
+      <p style="padding:0 0 0 16px; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; color:#a09888; border-left:1px solid #444444">YEAR 1</p>
+      <p style="padding:0 0 0 16px; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; color:#a09888; border-left:1px solid #444444">YEAR 2</p>
+      <p style="padding:0 0 0 16px; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; color:#a09888; border-left:1px solid #444444">YEAR 3</p>
+    </div><div style="--n:1; position:absolute; left:128px; top:412px; width:1664px; height:88px; display:flex; flex-direction:row" data-fx="left">
+      <div style="width:128px; display:flex; flex-direction:row; align-items:center; flex:0 0 auto; padding:0 16px; background:#c8531f">
+        <p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; color:#1a1a1a">Sprint</p>
+      </div>
+      <div style="width:1536px; display:flex; flex-direction:row; align-items:center; flex:0 0 auto; padding:0 24px; background:#8aab5c">
+        <p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:26px; font-weight:700; color:#1a1a1a">36 months of advisory · one hour a month · milestones reported every month</p>
+      </div>
+    </div>
+  <div style="--n:2; position:absolute; left:128px; top:556px; width:539px; height:119px; display:flex; flex-direction:column; gap:10px; padding:4px 0 4px 28px; border-left:6px solid #c8531f" data-fx="rise">
+      <h3 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:28px; font-weight:700; color:#efe7d8">Before any application</h3>
+      <p style="font-family:Georgia, serif; font-size:26px; line-height:1.4; color:#c0b8a8">A complete file Absa can assess: model, data room, governance plan</p>
+    </div><div style="--n:3; position:absolute; left:691px; top:556px; width:539px; height:119px; display:flex; flex-direction:column; gap:10px; padding:4px 0 4px 28px; border-left:6px solid #8aab5c" data-fx="rise">
+      <h3 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:28px; font-weight:700; color:#efe7d8">Where Absa lends</h3>
+      <p style="font-family:Georgia, serif; font-size:26px; line-height:1.4; color:#c0b8a8">A coach every month, so repayment problems surface early</p>
+    </div><div style="--n:4; position:absolute; left:1253px; top:556px; width:539px; height:119px; display:flex; flex-direction:column; gap:10px; padding:4px 0 4px 28px; border-left:6px solid #c9923a" data-fx="rise">
+      <h3 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:28px; font-weight:700; color:#efe7d8">Across the portfolio</h3>
+      <p style="font-family:Georgia, serif; font-size:26px; line-height:1.4; color:#c0b8a8">Monthly data Absa can see, with founder consent</p>
+    </div>
+  <p style="position:absolute; bottom:64px; left:128px; width:1400px; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; letter-spacing:3px; color:#a09888">ABSA × THE FOUNDER'S SPRINT</p>
+</section>
+<section class="slide" data-id="div-programme" data-surface="dark" data-tr="magic" style="background:#1A1A1A; color:#EFE7D8; font-family:Georgia, serif; padding:128px">
+  <img src="img/family.jpg" alt="A founding team of four women working together at a laptop" style="position:absolute; left:0px; top:0px; width:1920px; height:1080px; object-fit:cover">
+  <div style="position:absolute; left:0px; top:0px; width:1920px; height:1080px; background:linear-gradient(0deg, rgba(26,26,26,0.96) 0%, rgba(26,26,26,0.86) 34%, rgba(26,26,26,0.25) 66%, rgba(26,26,26,0.05) 100%)"></div>
+  <svg data-magic="mark" aria-label="The Founder's Sprint mark" width="100" height="100" viewBox="0 0 100 100" style="position:absolute; left:128px; top:500px; width:104px; height:104px"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.85"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.8" transform="rotate(72 50 50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.78" transform="rotate(144 50 50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.82" transform="rotate(216 50 50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288 50 50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+  <p data-fx="fade" style="--n:0;position:absolute; left:128px; top:648px; width:1400px; font-family:'Josefin Sans', Arial, sans-serif; font-size:26px; font-weight:600; letter-spacing:5px; text-transform:uppercase; color:#C9923A">Part two</p>
+  <h2 data-fx="rise" style="--n:1;position:absolute; left:128px; top:696px; width:1600px; font-family:'Josefin Sans', Arial, sans-serif; font-size:88px; font-weight:700; line-height:1.1; letter-spacing:1px; color:#EFE7D8">The programme</h2>
+  <p data-fx="rise" style="--n:2;position:absolute; left:128px; top:816px; width:1300px; font-size:34px; font-style:italic; line-height:1.4; color:#C0B8A8">How 100 teams are recruited, taught and graduated in 2027.</p>
+  <p style="position:absolute; left:128px; bottom:64px; width:1400px; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; letter-spacing:3px; color:#A09888">ABSA × THE FOUNDER&#39;S SPRINT</p>
+</section>
+<section class="slide" data-id="glance" data-surface="paper" data-tr="fade" style="background:#EFE7D8; color:#1A1A1A; font-family:Georgia, serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:56px">
+  <svg data-magic="mark" aria-label="The Founder's Sprint mark" width="100" height="100" viewBox="0 0 100 100" style="position:absolute; left:48px; top:48px; width:56px; height:56px"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.85"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.8" transform="rotate(72 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.78" transform="rotate(144 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.82" transform="rotate(216 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288 50 50)"></polygon><circle cx="50" cy="50" r="4.5" fill="#1A1A1A"></circle><circle cx="50" cy="50" r="2" fill="#EFE7D8"></circle></svg>
+  <div style="position:absolute; left:128px; top:128px; width:1664px; height:118px; display:flex; flex-direction:column; gap:20px">
+    <p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:26px; font-weight:600; letter-spacing:5px; text-transform:uppercase; color:#A8431A">The programme at a glance</p>
+    <h2 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; letter-spacing:1px">One year of cohorts, three years of support</h2>
+  </div>
+  <div style="--n:0; position:absolute; left:128px; top:301px; width:539px; height:263px; display:flex; flex-direction:column; gap:8px; background:#1A1A1A; color:#EFE7D8; padding:40px; border-radius:0 0 24px 0" data-fx="rise">
+      <p style="font-family:Georgia, serif; font-size:96px; line-height:1; color:#C9923A">100</p>
+      <p style="font-size:28px; line-height:1.4; color:#C0B8A8">founding teams, up to three founders each</p>
+    </div><div style="--n:1; position:absolute; left:691px; top:301px; width:539px; height:263px; display:flex; flex-direction:column; gap:8px; background:#F7F2E8; padding:40px; border-radius:0 0 24px 0" data-fx="rise">
+      <p style="font-family:Georgia, serif; font-size:96px; line-height:1; color:#A8431A">4 × 25</p>
+      <p style="font-size:28px; line-height:1.4; color:#444444">one cohort each quarter of 2027, taught in two groups</p>
+    </div><div style="--n:2; position:absolute; left:1253px; top:301px; width:539px; height:263px; display:flex; flex-direction:column; gap:8px; background:#F7F2E8; padding:40px; border-radius:0 0 24px 0" data-fx="rise">
+      <p style="font-family:Georgia, serif; font-size:96px; line-height:1; color:#A8431A">5</p>
+      <p style="font-size:28px; line-height:1.4; color:#444444">disciplines, five coaches, five signed-off deliverables per team</p>
+    </div><div style="--n:3; position:absolute; left:128px; top:588px; width:539px; height:263px; display:flex; flex-direction:column; gap:8px; background:#F7F2E8; padding:40px; border-radius:0 0 24px 0" data-fx="rise">
+      <p style="font-family:Georgia, serif; font-size:96px; line-height:1; color:#4F6B2E">36</p>
+      <p style="font-size:28px; line-height:1.4; color:#444444">months of advisory per team, one hour a month</p>
+    </div><div style="--n:4; position:absolute; left:691px; top:588px; width:539px; height:263px; display:flex; flex-direction:column; gap:8px; background:#F7F2E8; padding:40px; border-radius:0 0 24px 0" data-fx="rise">
+      <p style="font-family:Georgia, serif; font-size:96px; line-height:1; color:#4F6B2E">3,600</p>
+      <p style="font-size:28px; line-height:1.4; color:#444444">hours of one-to-one advisory across the programme</p>
+    </div><div style="--n:5; position:absolute; left:1253px; top:588px; width:539px; height:263px; display:flex; flex-direction:column; gap:8px; background:#F7F2E8; padding:40px; border-radius:0 0 24px 0" data-fx="rise">
+      <p style="font-family:Georgia, serif; font-size:96px; line-height:1; color:#4F6B2E">Monthly</p>
+      <p style="font-size:28px; line-height:1.4; color:#444444">business data on every team, reported to Absa</p>
+    </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1400px; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; letter-spacing:3px; color:#5E5E58">ABSA × THE FOUNDER'S SPRINT</p>
+</section>
+<section class="slide" data-id="timeline" data-surface="paper" data-tr="fade" style="display:flex; flex-direction:column; gap:40px; padding:128px 128px 160px; background:#efe7d8">
+  <svg xmlns="http://www.w3.org/2000/svg" aria-label="The Founder's Sprint mark" viewBox="0 0 100 100" style="position:absolute; top:48px; left:48px; width:56px; height:56px"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.85"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.8" transform="rotate(72 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.78" transform="rotate(144 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.82" transform="rotate(216 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288 50 50)"></polygon><circle cx="50" cy="50" r="4.5" fill="#1A1A1A"></circle><circle cx="50" cy="50" r="2" fill="#EFE7D8"></circle></svg>
+  <div style="position:absolute; left:128px; top:128px; width:1664px; height:188px; display:flex; flex-direction:column; gap:20px">
+    <p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:26px; font-weight:600; letter-spacing:5px; text-transform:uppercase; color:#a8431a">The calendar</p>
+    <h2 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; letter-spacing:1px; color:#1a1a1a">Recruit in November, onboard in December,&nbsp;<br>teach from January</h2>
+  </div>
+  <div style="--n:0; position:absolute; left:128px; top:356px; width:1664px; height:24px; display:grid; gap:4px; grid-template-columns:200px 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr" data-fx="fade"><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; color:#1a1a1a"></p><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#5e5e58">N</p><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#5e5e58">D</p><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#5e5e58">J</p><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#5e5e58">F</p><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#5e5e58">M</p><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#5e5e58">A</p><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#5e5e58">M</p><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#5e5e58">J</p><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#5e5e58">J</p><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#5e5e58">A</p><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#5e5e58">S</p><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#5e5e58">O</p><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#5e5e58">N</p><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#5e5e58">D</p></div><div style="--n:1; position:absolute; left:128px; top:384px; width:1664px; height:52px; display:grid; gap:4px; grid-template-columns:200px 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr" data-fx="left"><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; color:#1a1a1a">Cohort 1</p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#1a1a1a; background:#c0b8a8">R</p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#1a1a1a; background:#c9923a">O</p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#1a1a1a; background:#c8531f">T</p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#1a1a1a; background:#c8531f">T</p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#1a1a1a; background:#c8531f">T</p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#1a1a1a; background:#8aab5c">A</p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#1a1a1a; background:#8aab5c">A</p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#1a1a1a; background:#8aab5c">A</p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#1a1a1a; background:#8aab5c">A</p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#1a1a1a; background:#8aab5c">A</p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#1a1a1a; background:#8aab5c">A</p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#1a1a1a; background:#8aab5c">A</p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#1a1a1a; background:#8aab5c">A</p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#1a1a1a; background:#8aab5c">A</p></div><div style="--n:2; position:absolute; left:128px; top:440px; width:1664px; height:52px; display:grid; gap:4px; grid-template-columns:200px 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr" data-fx="left"><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; color:#1a1a1a">Cohort 2</p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; color:#1a1a1a; background:#f7f2e8"></p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; color:#1a1a1a; background:#f7f2e8"></p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; color:#1a1a1a; background:#f7f2e8"></p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#1a1a1a; background:#c0b8a8">R</p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#1a1a1a; background:#c9923a">O</p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#1a1a1a; background:#c8531f">T</p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#1a1a1a; background:#c8531f">T</p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#1a1a1a; background:#c8531f">T</p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#1a1a1a; background:#8aab5c">A</p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#1a1a1a; background:#8aab5c">A</p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#1a1a1a; background:#8aab5c">A</p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#1a1a1a; background:#8aab5c">A</p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#1a1a1a; background:#8aab5c">A</p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#1a1a1a; background:#8aab5c">A</p></div><div style="--n:3; position:absolute; left:128px; top:496px; width:1664px; height:52px; display:grid; gap:4px; grid-template-columns:200px 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr" data-fx="left"><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; color:#1a1a1a">Cohort 3</p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; color:#1a1a1a; background:#f7f2e8"></p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; color:#1a1a1a; background:#f7f2e8"></p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; color:#1a1a1a; background:#f7f2e8"></p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; color:#1a1a1a; background:#f7f2e8"></p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; color:#1a1a1a; background:#f7f2e8"></p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; color:#1a1a1a; background:#f7f2e8"></p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#1a1a1a; background:#c0b8a8">R</p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#1a1a1a; background:#c9923a">O</p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#1a1a1a; background:#c8531f">T</p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#1a1a1a; background:#c8531f">T</p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#1a1a1a; background:#c8531f">T</p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#1a1a1a; background:#8aab5c">A</p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#1a1a1a; background:#8aab5c">A</p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#1a1a1a; background:#8aab5c">A</p></div><div style="--n:4; position:absolute; left:128px; top:552px; width:1664px; height:52px; display:grid; gap:4px; grid-template-columns:200px 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr" data-fx="left"><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; color:#1a1a1a">Cohort 4</p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; color:#1a1a1a; background:#f7f2e8"></p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; color:#1a1a1a; background:#f7f2e8"></p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; color:#1a1a1a; background:#f7f2e8"></p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; color:#1a1a1a; background:#f7f2e8"></p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; color:#1a1a1a; background:#f7f2e8"></p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; color:#1a1a1a; background:#f7f2e8"></p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; color:#1a1a1a; background:#f7f2e8"></p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; color:#1a1a1a; background:#f7f2e8"></p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; color:#1a1a1a; background:#f7f2e8"></p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#1a1a1a; background:#c0b8a8">R</p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#1a1a1a; background:#c9923a">O</p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#1a1a1a; background:#c8531f">T</p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#1a1a1a; background:#c8531f">T</p><p style="padding:14px 0; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; text-align:center; color:#1a1a1a; background:#c8531f">T</p></div>
+  <div style="--n:5; position:absolute; left:128px; top:644px; width:1664px; height:60px; display:flex; flex-direction:row; gap:40px" data-fx="fade">
+    <p style="font-family:Georgia, serif; font-size:24px; color:#444444"><b>R</b> Recruit</p>
+    <p style="font-family:Georgia, serif; font-size:24px; color:#444444"><b>O</b> Onboard</p>
+    <p style="font-family:Georgia, serif; font-size:24px; color:#444444"><b>T</b> Teach</p>
+    <p style="font-family:Georgia, serif; font-size:24px; color:#444444"><b>A</b> Advisory</p>
+    <p style="font-family:Georgia, serif; font-size:24px; color:#444444">Nov 2026 to Dec 2027. Advisory runs 36 months per cohort: to March 2030 for Cohort 1, December 2030 for Cohort 4.</p>
+  </div>
+</section>
+<section class="slide" data-id="quarter" data-surface="paper" data-tr="fade" style="background:#EFE7D8; color:#1A1A1A; font-family:Georgia, serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:56px">
+  <svg aria-label="The Founder's Sprint mark" width="100" height="100" viewBox="0 0 100 100" style="position:absolute; left:48px; top:48px; width:56px; height:56px"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.85"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.8" transform="rotate(72 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.78" transform="rotate(144 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.82" transform="rotate(216 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288 50 50)"></polygon><circle cx="50" cy="50" r="4.5" fill="#1A1A1A"></circle><circle cx="50" cy="50" r="2" fill="#EFE7D8"></circle></svg>
+  <div style="position:absolute; left:128px; top:128px; width:1664px; height:118px; display:flex; flex-direction:column; gap:20px">
+    <p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:26px; font-weight:600; letter-spacing:5px; text-transform:uppercase; color:#A8431A">Inside one cohort quarter</p>
+    <h2 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; letter-spacing:1px">Twelve weeks from intake to a credit-ready file</h2>
+  </div>
+  <div style="--n:0; position:absolute; left:128px; top:301px; width:280px; height:298px; display:flex; flex-direction:column; gap:14px; background:#F7F2E8; padding:36px 28px; border-top:8px solid #C9923A; border-radius:0 0 24px 0" data-fx="rise">
+      <p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; letter-spacing:3px; color:#8A5E14">WEEKS 1–2</p>
+      <h3 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:30px; font-weight:700">Diagnose</h3>
+      <p style="font-size:24px; line-height:1.4; color:#444444">Readiness Check, intake, baseline numbers recorded as month zero</p>
+    </div><svg data-fx="fade" class="conn" viewBox="0 0 1920 1080" style="--n:1; position:absolute; left:0; top:0; width:1920px; height:1080px; pointer-events:none" aria-hidden="true"><defs><marker id="ah2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10z" fill="#A8431A"/></marker></defs><line x1="408.0" y1="450.0" x2="438.0" y2="450.0" stroke="#A8431A" stroke-width="2.5" marker-end="url(#ah2)"/></svg><div style="--n:2; position:absolute; left:440px; top:301px; width:616px; height:298px; display:flex; flex-direction:column; gap:14px; background:#1A1A1A; color:#EFE7D8; padding:36px 28px; border-top:8px solid #C8531F; border-radius:0 0 24px 0" data-fx="rise">
+      <p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; letter-spacing:3px; color:#C9923A">WEEKS 3–7</p>
+      <h3 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:30px; font-weight:700">The Sprint</h3>
+      <p style="font-size:24px; line-height:1.4; color:#C0B8A8">Five disciplines on five weekdays, two groups of 12–13 teams, about 50 hours of coaching per team</p>
+    </div><svg data-fx="fade" class="conn" viewBox="0 0 1920 1080" style="--n:3; position:absolute; left:0; top:0; width:1920px; height:1080px; pointer-events:none" aria-hidden="true"><defs><marker id="ah3" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10z" fill="#A8431A"/></marker></defs><line x1="1056.0" y1="450.0" x2="1086.0" y2="450.0" stroke="#A8431A" stroke-width="2.5" marker-end="url(#ah3)"/></svg><div style="--n:4; position:absolute; left:1088px; top:301px; width:392px; height:298px; display:flex; flex-direction:column; gap:14px; background:#F7F2E8; padding:36px 28px; border-top:8px solid #3D4A2E; border-radius:0 0 24px 0" data-fx="rise">
+      <p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; letter-spacing:3px; color:#3D4A2E">WEEKS 8–10</p>
+      <h3 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:30px; font-weight:700">Clinics</h3>
+      <p style="font-size:24px; line-height:1.4; color:#444444">Deliverables finished and signed off; a credit clinic with Absa RMs</p>
+    </div><svg data-fx="fade" class="conn" viewBox="0 0 1920 1080" style="--n:5; position:absolute; left:0; top:0; width:1920px; height:1080px; pointer-events:none" aria-hidden="true"><defs><marker id="ah4" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10z" fill="#A8431A"/></marker></defs><line x1="1480.0" y1="450.0" x2="1510.0" y2="450.0" stroke="#A8431A" stroke-width="2.5" marker-end="url(#ah4)"/></svg><div style="--n:6; position:absolute; left:1512px; top:301px; width:280px; height:298px; display:flex; flex-direction:column; gap:14px; background:#F7F2E8; padding:36px 28px; border-top:8px solid #8AAB5C; border-radius:0 0 24px 0" data-fx="rise">
+      <p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; letter-spacing:3px; color:#4F6B2E">WEEKS 11–12</p>
+      <h3 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:30px; font-weight:700">Readiness Day</h3>
+      <p style="font-size:24px; line-height:1.4; color:#444444">Founders present to Absa; graduation into advisory</p>
+    </div>
+  <p style="--n:7; position:absolute; left:128px; top:655px; width:1600px; font-size:28px; font-style:italic; color:#444444" data-fx="fade">Each team leaves with five signed-off deliverables: go-to-market strategy, a 36-month financial model, a pitch deck and fundraising plan, a competitive analysis and team plan, and a product roadmap with pricing.</p>
+  <p style="position:absolute; left:128px; bottom:64px; width:1400px; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; letter-spacing:3px; color:#5E5E58">ABSA × THE FOUNDER'S SPRINT</p>
+</section>
+<section class="slide" data-id="recruit" data-surface="paper" data-tr="push" style="background:#EFE7D8; color:#1A1A1A; font-family:Georgia, serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:48px">
+  <svg aria-label="The Founder's Sprint mark" width="100" height="100" viewBox="0 0 100 100" style="position:absolute; left:48px; top:48px; width:56px; height:56px"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.85"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.8" transform="rotate(72 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.78" transform="rotate(144 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.82" transform="rotate(216 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288 50 50)"></polygon><circle cx="50" cy="50" r="4.5" fill="#1A1A1A"></circle><circle cx="50" cy="50" r="2" fill="#EFE7D8"></circle></svg>
+  <div style="position:absolute; left:128px; top:128px; width:1664px; height:118px; display:flex; flex-direction:column; gap:20px">
+    <p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:26px; font-weight:600; letter-spacing:5px; text-transform:uppercase; color:#A8431A">Recruitment and selection</p>
+    <h2 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; letter-spacing:1px">Selected jointly, for businesses Absa wants to bank</h2>
+  </div>
+  <div style="--n:0; position:absolute; left:128px; top:293px; width:539px; height:435px; display:flex; flex-direction:column; gap:16px; background:#F7F2E8; padding:40px 36px; border-top:6px solid #C8531F; border-radius:0 0 24px 0" data-fx="rise">
+      <h3 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:30px; font-weight:700">Three ways in</h3>
+      <ul style="font-size:26px; line-height:1.45; color:#444444">
+        <li>Declined or deferred by Absa for fixable reasons, referred by RMs</li>
+        <li>Absa SME customers preparing to grow or borrow</li>
+        <li>Near-bankable businesses from the Business Club and an open call</li>
+      </ul>
+    </div><div style="--n:1; position:absolute; left:691px; top:293px; width:539px; height:435px; display:flex; flex-direction:column; gap:16px; background:#F7F2E8; padding:40px 36px; border-top:6px solid #C9923A; border-radius:0 0 24px 0" data-fx="rise">
+      <h3 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:30px; font-weight:700">Who qualifies</h3>
+      <ul style="font-size:26px; line-height:1.45; color:#444444">
+        <li>Trading 12 months or more, with revenue</li>
+        <li>A founding team of up to three</li>
+        <li>Registered, or registering during the programme</li>
+        <li>A growth plan that will need finance</li>
+        <li>Consent to share monthly data with Absa</li>
+      </ul>
+    </div><div style="--n:2; position:absolute; left:1253px; top:293px; width:539px; height:435px; display:flex; flex-direction:column; gap:16px; background:#1A1A1A; color:#EFE7D8; padding:40px 36px; border-top:6px solid #8AAB5C; border-radius:0 0 24px 0" data-fx="rise">
+      <h3 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:30px; font-weight:700">How they are chosen</h3>
+      <ul style="font-size:26px; line-height:1.5; color:#C0B8A8">
+        <li>Readiness Check and application</li>
+        <li>Interview with two coaches</li>
+        <li>A joint Absa and TFS selection panel</li>
+      </ul>
+    </div>
+  <p style="--n:3; position:absolute; left:128px; top:776px; width:1600px; font-size:28px; line-height:1.45; color:#444444" data-fx="fade"><b style="color:#1A1A1A">A place carries no promise of credit.</b> Lending decisions stay with Absa. Proposed for discussion: the mix across the three tracks, a target that at least 40% of teams are women-led, and places outside Kampala.</p>
+  <p style="position:absolute; left:128px; bottom:64px; width:1400px; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; letter-spacing:3px; color:#5E5E58">ABSA × THE FOUNDER'S SPRINT</p>
+</section>
+<section class="slide" data-id="div-curriculum" data-surface="dark" data-tr="magic" style="background:#1A1A1A; color:#EFE7D8; font-family:Georgia, serif; padding:128px">
+  <img src="img/laptop.jpg" alt="A founder at his laptop, planning" style="position:absolute; left:0px; top:0px; width:1920px; height:1080px; object-fit:cover">
+  <div style="position:absolute; left:0px; top:0px; width:1920px; height:1080px; background:linear-gradient(0deg, rgba(26,26,26,0.96) 0%, rgba(26,26,26,0.86) 34%, rgba(26,26,26,0.25) 66%, rgba(26,26,26,0.05) 100%)"></div>
+  <svg data-magic="mark" aria-label="The Founder's Sprint mark" width="100" height="100" viewBox="0 0 100 100" style="position:absolute; left:128px; top:500px; width:104px; height:104px"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.85"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.8" transform="rotate(72 50 50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.78" transform="rotate(144 50 50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.82" transform="rotate(216 50 50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288 50 50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+  <p data-fx="fade" style="--n:0;position:absolute; left:128px; top:648px; width:1400px; font-family:'Josefin Sans', Arial, sans-serif; font-size:26px; font-weight:600; letter-spacing:5px; text-transform:uppercase; color:#C9923A">Part three</p>
+  <h2 data-fx="rise" style="--n:1;position:absolute; left:128px; top:696px; width:1600px; font-family:'Josefin Sans', Arial, sans-serif; font-size:88px; font-weight:700; line-height:1.1; letter-spacing:1px; color:#EFE7D8">The curriculum</h2>
+  <p data-fx="rise" style="--n:2;position:absolute; left:128px; top:816px; width:1300px; font-size:34px; font-style:italic; line-height:1.4; color:#C0B8A8">Five disciplines, fifteen modules, forty-nine specialties.</p>
+  <p style="position:absolute; left:128px; bottom:64px; width:1400px; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; letter-spacing:3px; color:#A09888">ABSA × THE FOUNDER&#39;S SPRINT</p>
+</section>
+<section class="slide" data-id="disciplines" data-surface="dark" data-tr="fade" style="background:#1a1a1a">
+  <div class="cst" style="position:absolute; left:0px; top:0px; width:1920px; height:1080px; overflow:hidden"><style>
+.cm-root{position:absolute;inset:0;overflow:hidden;font-family:'Josefin Sans',"Avenir Next",Futura,"Century Gothic",sans-serif}
+.cm-hero{background:#1A1A1A;color:#EFE7D8}.cm-bg{background:#EFE7D8;color:#1A1A1A}
+.cm-stage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0}
+.cm-svg{position:absolute;left:0;top:0}
+.cm-scrim{position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,#1A1A1A 0%,rgba(26,26,26,.94) 33%,rgba(26,26,26,0) 52%)}
+.cm-panel{position:absolute;left:128px;top:356px;width:600px;pointer-events:none;transition:opacity .4s}
+.cm-e{font-size:24px;font-weight:700;letter-spacing:4px;text-transform:uppercase}
+.cm-n{font-size:44px;font-weight:700;line-height:1.12;margin:12px 0 8px}
+.cm-c{font-size:26px;color:#C0B8A8;margin-bottom:24px}
+.cm-m{margin-bottom:16px}.cm-h{font-size:26px;font-weight:700}
+.cm-l{font-family:Georgia,serif;font-size:24px;line-height:1.35;color:#A09888}
+.cm-k{position:absolute;right:128px;top:926px;pointer-events:none;font-size:24px;color:#A09888;letter-spacing:1px;text-align:right}
+</style><div class="cm-root cm-hero"><div class="cm-stage"><svg class="cm-svg" width="1920" height="1080" viewBox="0 0 1920 1080" aria-hidden="true"></svg><div class="cm-scrim"></div><div class="cm-panel"><div class="cm-e"></div><div class="cm-n"></div><div class="cm-c"></div><div class="cm-mods"></div></div><div class="cm-k">5 disciplines · 15 modules · 49 specialties · select a day to jump to it</div></div></div><script>(function(){
+const R=document.currentScript.previousElementSibling,HERO=R.classList.contains("cm-hero"),ST=R.querySelector(".cm-stage"),S=R.querySelector(".cm-svg");
+const D=[
+["Marketing & Branding","TMS Ruge","Mondays","MON","#c8531f",[["Brand Strategy","Brand Positioning|Messaging Architecture|Visual Identity"],["Go-to-Market","Market Entry|Channel Mix|Launch Sequencing"],["Growth & Discovery","Content Strategy|SEO & Discoverability|Customer Research"]]],
+["Financial Modelling","Barry Wojega","Tuesdays","TUE","#c9923a",[["Unit Economics","CAC & LTV|Payback Period|Contribution Margin"],["Financial Planning","Revenue Forecasting|Burn Rate & Runway|Cash Flow Management|Tax & Compliance"],["Capital Architecture","Valuation Methods|Cap Table Design|Term Sheet Analysis"]]],
+["Strategy & Team Building","Moses Engwau Okudu","Wednesdays","WED","#5f7a45",[["Competitive Strategy","Market Analysis|Positioning & Moats|Scenario Planning"],["Team Architecture","Hiring Strategy|Culture Design|Org Structure|Payroll & HR Compliance"],["Operational Systems","Process Design|OKRs & KPIs|Decision Frameworks|Legal & Registration"]]],
+["Investment Readiness","Joseph Kalema","Thursdays","THU","#8aab5c",[["Pitch Craft","Pitch Deck Structure|Investor Narrative|Executive Summary"],["Investor Relations","Investor Targeting|Due Diligence Prep|Data Room"],["Funding Strategy","Pre-seed Rounds|Seed Rounds|Grants & DFIs"]]],
+["Product Development & Pricing","Patrick Ngolobe","Fridays","FRI","#a59b8c",[["Product-Market Fit","Problem Validation|Solution Testing|PMF Signals"],["Product Development","MVP Design|Roadmapping|Iteration Cycles|Payments & Mobile Money"],["Pricing Strategy","Value-Based Pricing|Competitive Pricing|Price Testing"]]]];
+const NS="http://www.w3.org/2000/svg",G=HERO?"#55524c":"#1A1A1A",GL="#8a857d";
+const C=HERO?{x:1330,y:600,r1:150,r2:255,r3:362,q:.82,fs:19,sp:3}:{x:1640,y:700,r1:170,r2:290,r3:410,q:.82,fs:21,sp:2};
+function E(t,a,p){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);(p||S).appendChild(e);return e}
+function set(e,a){for(const k in a)e.setAttribute(k,a[k])}
+function hx(c){return[1,3,5].map(i=>parseInt(c.slice(i,i+2),16))}
+function mix(a,b,t){const A=hx(a),B=hx(b);return"rgb("+A.map((v,i)=>Math.round(v+(B[i]-v)*t)).join(",")+")"}
+function pt(t,r){const a=t*Math.PI/180;return[C.x+Math.cos(a)*r,C.y+Math.sin(a)*r*C.q]}
+const uid="g"+Math.random().toString(36).slice(2,7),fl=E("filter",{id:uid,x:"-1",y:"-1",width:"3",height:"3"},E("defs",{}));E("feGaussianBlur",{stdDeviation:"7"},fl);
+[C.r1,C.r2,C.r3].forEach(r=>E("ellipse",{cx:C.x,cy:C.y,rx:r,ry:r*C.q,fill:"none",stroke:HERO?"#EFE7D8":"#1A1A1A","stroke-opacity":HERO?.08:.25,"stroke-dasharray":"2 7"}));
+const PC=["#c8531f","#c9923a","#8aab5c","#5f7a45","#a59b8c"],P=[];
+if(HERO)for(let i=0;i<60;i++){const a=Math.random()*6.283,d=60+Math.random()*560;P.push({e:E("circle",{cx:C.x+Math.cos(a)*d,cy:C.y+Math.sin(a)*d*C.q,r:(.8+Math.random()*1.6).toFixed(1),fill:PC[i%5]}),ph:Math.random()*6.283,sp:.5+Math.random()})}
+const LG=E("g",{}),NG=E("g",{}),TG=E("g",{});
+let k=0,yaw=-90,rot=0;
+const N=D.map((d,i)=>{const o={i,c:d[4],f:HERO?(i==k?1:0):1,l2:[]};
+o.cl=E("line",{"stroke-width":1.6},LG);o.gl=E("circle",{r:52,filter:"url(#"+uid+")"},NG);
+o.rg=E("circle",{r:38,fill:HERO?"#1A1A1A":"#EFE7D8","stroke-width":2.2},NG);
+o.tx=E("text",{"text-anchor":"middle","dominant-baseline":"central","font-size":24,"font-weight":700,"letter-spacing":1,"pointer-events":"none"},NG);o.tx.textContent=d[3];
+d[5].forEach((m,j)=>{const L=m[1].split("|"),s={j,ln:E("line",{"stroke-width":1.2},LG),rg:E("circle",{r:11,fill:HERO?"#1A1A1A":"#EFE7D8","stroke-width":1.6},NG),dt:E("circle",{r:4},NG),l3:[]};
+L.forEach((x,q)=>{const t=E("text",{"font-size":C.fs,"dominant-baseline":"central","font-family":"Georgia,serif"},TG);t.textContent=x;s.l3.push({q,n:L.length,t,ln:E("line",{"stroke-width":.9},LG),gl:E("circle",{r:10,filter:"url(#"+uid+")"},NG),dt:E("circle",{r:5},NG)})});o.l2.push(s)});
+if(HERO){o.rg.style.cursor="pointer";o.rg.addEventListener("click",()=>go(i))}
+return o});
+const M=E("g",{},NG),MS=HERO?.9:1.2;[["#C8531F",.85],["#C9923A",.8],["#8AAB5C",.78],["#3D4A2E",.82],["#777770",.75]].forEach((p,i)=>E("polygon",{points:"50,8 57,50 50,92 43,50",fill:p[0],opacity:p[1],transform:"rotate("+i*72+" 50 50)"},M));
+E("circle",{cx:50,cy:50,r:4.5,fill:HERO?"#EFE7D8":"#1A1A1A"},M);E("circle",{cx:50,cy:50,r:2,fill:HERO?"#1A1A1A":"#EFE7D8"},M);
+function draw(){N.forEach(o=>{const f=o.f,col=HERO?mix(G,o.c,f):o.c,t=o.i*72+yaw,[x,y]=pt(t,C.r1),lo=HERO?.18+.6*f:.55;
+set(o.cl,{x1:C.x,y1:C.y,x2:x,y2:y,stroke:col,"stroke-opacity":lo});set(o.gl,{cx:x,cy:y,fill:o.c,"fill-opacity":HERO?.32*f:0});
+set(o.rg,{cx:x,cy:y,stroke:col,"stroke-opacity":HERO?.45+.55*f:1});set(o.tx,{x:x,y:y+1,fill:HERO?mix(GL,o.c,f):o.c,"fill-opacity":HERO?.5+.5*f:1});
+o.l2.forEach(s=>{const t2=t+(s.j-1)*16,[a,b]=pt(t2,C.r2);
+set(s.ln,{x1:x,y1:y,x2:a,y2:b,stroke:col,"stroke-opacity":lo*.85});set(s.rg,{cx:a,cy:b,stroke:col,"stroke-opacity":HERO?.4+.6*f:1});set(s.dt,{cx:a,cy:b,fill:col});
+s.l3.forEach(q=>{const sp=q.n>3?4.4:6,t3=t2+(q.q-(q.n-1)/2)*sp,[u,v]=pt(t3,C.r3),[lx,ly]=pt(t3,C.r3+16),rad=t3*Math.PI/180,ang=Math.atan2(Math.sin(rad)*C.q,Math.cos(rad))*180/Math.PI,left=Math.cos(rad)<0;
+set(q.ln,{x1:a,y1:b,x2:u,y2:v,stroke:col,"stroke-opacity":lo*.7});set(q.gl,{cx:u,cy:v,fill:o.c,"fill-opacity":HERO?.5*f:0});set(q.dt,{cx:u,cy:v,fill:col,"fill-opacity":HERO?.35+.65*f:1});
+set(q.t,{x:lx,y:ly,"text-anchor":left?"end":"start",transform:"rotate("+(left?ang+180:ang).toFixed(2)+" "+lx.toFixed(1)+" "+ly.toFixed(1)+")",fill:HERO?mix(GL,"#EFE7D8",f):"#1A1A1A","fill-opacity":HERO?.22+.7*f:.9})})})})}
+function el(t,c,x,p){const e=document.createElement(t);if(c)e.className=c;e.textContent=x;p.appendChild(e);return e}
+const PE=R.querySelector(".cm-panel");
+function panel(i){if(!PE)return;const d=D[i],n=d[5].reduce((s,m)=>s+m[1].split("|").length,0),mm=PE.querySelector(".cm-mods");
+const e=PE.querySelector(".cm-e");e.textContent=d[2]+" · "+n+" specialties";e.style.color=d[4];
+PE.querySelector(".cm-n").textContent=d[0];PE.querySelector(".cm-c").textContent="Led by "+d[1];
+mm.textContent="";d[5].forEach(m=>{const b=el("div","cm-m","",mm);el("div","cm-h",m[0],b).style.color=d[4];el("div","cm-l",m[1].split("|").join(" · "),b)})}
+let cs=performance.now();
+function go(n){if(n===k)return;k=n;cs=performance.now();if(PE){PE.style.opacity=0;setTimeout(()=>{panel(k);PE.style.opacity=1},400)}}
+function fit(){const w=R.clientWidth||1920;ST.style.transform="scale("+(w/1920)+")"}
+fit();if(window.ResizeObserver)new ResizeObserver(fit).observe(R);else addEventListener("resize",fit);
+panel(k);draw();
+const SL=R.closest(".slide");let last=performance.now();
+function tick(now){const dt=Math.min(.05,(now-last)/1000);last=now;
+if(SL&&!SL.classList.contains("active")&&!SL.classList.contains("leaving")){requestAnimationFrame(tick);return}
+if(HERO&&now-cs>5200)go((k+1)%5);
+yaw+=dt*C.sp;rot+=dt*6;
+if(HERO)N.forEach(o=>o.f+=((o.i==k?1:0)-o.f)*Math.min(1,dt*2.5));
+set(M,{transform:"translate("+(C.x-50*MS)+","+(C.y-50*MS)+") scale("+MS+") rotate("+rot.toFixed(2)+" 50 50)"});
+P.forEach(p=>p.e.setAttribute("opacity",(.1+.25*(.5+.5*Math.sin(now/1000*p.sp+p.ph))).toFixed(2)));
+draw();requestAnimationFrame(tick)}
+requestAnimationFrame(tick);
+})();</script></div>
+  <svg xmlns="http://www.w3.org/2000/svg" aria-label="The Founder's Sprint mark" viewBox="0 0 100 100" data-magic="mark" style="position:absolute; top:48px; left:48px; width:56px; height:56px"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.85"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.8" transform="rotate(72 50 50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.78" transform="rotate(144 50 50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.82" transform="rotate(216 50 50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288 50 50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+  <div style="position:absolute; top:128px; left:128px; width:900px; display:flex; flex-direction:column; gap:20px">
+    <p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:26px; font-weight:600; letter-spacing:5px; text-transform:uppercase; color:#c9923a">Curriculum design</p>
+    <h2 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; letter-spacing:1px; color:#efe7d8">Five disciplines, one founding coach for each</h2>
+  </div>
+  <p style="position:absolute; bottom:64px; left:128px; width:1400px; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; letter-spacing:3px; color:#a09888">ABSA × THE FOUNDER'S SPRINT</p>
+</section>
+<section class="slide" data-id="taxonomy" data-surface="paper" data-tr="push" style="background:#EFE7D8; color:#1A1A1A; font-family:Georgia, serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:48px">
+  <div class="cst" style="position:absolute; left:0px; top:0px; width:1920px; height:1080px; overflow:hidden"><style>
+.cm-root{position:absolute;inset:0;overflow:hidden;font-family:'Josefin Sans',"Avenir Next",Futura,"Century Gothic",sans-serif}
+.cm-hero{background:#1A1A1A;color:#EFE7D8}.cm-bg{background:#EFE7D8;color:#1A1A1A}
+.cm-stage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0}
+.cm-svg{position:absolute;left:0;top:0}
+.cm-scrim{position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,#1A1A1A 0%,rgba(26,26,26,.94) 33%,rgba(26,26,26,0) 52%)}
+.cm-panel{position:absolute;left:128px;top:356px;width:600px;pointer-events:none;transition:opacity .4s}
+.cm-e{font-size:24px;font-weight:700;letter-spacing:4px;text-transform:uppercase}
+.cm-n{font-size:44px;font-weight:700;line-height:1.12;margin:12px 0 8px}
+.cm-c{font-size:26px;color:#C0B8A8;margin-bottom:24px}
+.cm-m{margin-bottom:16px}.cm-h{font-size:26px;font-weight:700}
+.cm-l{font-family:Georgia,serif;font-size:24px;line-height:1.35;color:#A09888}
+.cm-k{position:absolute;right:128px;top:926px;pointer-events:none;font-size:24px;color:#A09888;letter-spacing:1px;text-align:right}
+</style><div class="cm-root cm-bg"><div class="cm-stage" style="opacity:.17"><svg class="cm-svg" width="1920" height="1080" viewBox="0 0 1920 1080" aria-hidden="true"></svg></div></div><script>(function(){
+const R=document.currentScript.previousElementSibling,HERO=R.classList.contains("cm-hero"),ST=R.querySelector(".cm-stage"),S=R.querySelector(".cm-svg");
+const D=[
+["Marketing & Branding","TMS Ruge","Mondays","MON","#c8531f",[["Brand Strategy","Brand Positioning|Messaging Architecture|Visual Identity"],["Go-to-Market","Market Entry|Channel Mix|Launch Sequencing"],["Growth & Discovery","Content Strategy|SEO & Discoverability|Customer Research"]]],
+["Financial Modelling","Barry Wojega","Tuesdays","TUE","#c9923a",[["Unit Economics","CAC & LTV|Payback Period|Contribution Margin"],["Financial Planning","Revenue Forecasting|Burn Rate & Runway|Cash Flow Management|Tax & Compliance"],["Capital Architecture","Valuation Methods|Cap Table Design|Term Sheet Analysis"]]],
+["Strategy & Team Building","Moses Engwau Okudu","Wednesdays","WED","#5f7a45",[["Competitive Strategy","Market Analysis|Positioning & Moats|Scenario Planning"],["Team Architecture","Hiring Strategy|Culture Design|Org Structure|Payroll & HR Compliance"],["Operational Systems","Process Design|OKRs & KPIs|Decision Frameworks|Legal & Registration"]]],
+["Investment Readiness","Joseph Kalema","Thursdays","THU","#8aab5c",[["Pitch Craft","Pitch Deck Structure|Investor Narrative|Executive Summary"],["Investor Relations","Investor Targeting|Due Diligence Prep|Data Room"],["Funding Strategy","Pre-seed Rounds|Seed Rounds|Grants & DFIs"]]],
+["Product Development & Pricing","Patrick Ngolobe","Fridays","FRI","#a59b8c",[["Product-Market Fit","Problem Validation|Solution Testing|PMF Signals"],["Product Development","MVP Design|Roadmapping|Iteration Cycles|Payments & Mobile Money"],["Pricing Strategy","Value-Based Pricing|Competitive Pricing|Price Testing"]]]];
+const NS="http://www.w3.org/2000/svg",G=HERO?"#55524c":"#1A1A1A",GL="#8a857d";
+const C=HERO?{x:1330,y:600,r1:150,r2:255,r3:362,q:.82,fs:19,sp:3}:{x:1640,y:700,r1:170,r2:290,r3:410,q:.82,fs:21,sp:2};
+function E(t,a,p){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);(p||S).appendChild(e);return e}
+function set(e,a){for(const k in a)e.setAttribute(k,a[k])}
+function hx(c){return[1,3,5].map(i=>parseInt(c.slice(i,i+2),16))}
+function mix(a,b,t){const A=hx(a),B=hx(b);return"rgb("+A.map((v,i)=>Math.round(v+(B[i]-v)*t)).join(",")+")"}
+function pt(t,r){const a=t*Math.PI/180;return[C.x+Math.cos(a)*r,C.y+Math.sin(a)*r*C.q]}
+const uid="g"+Math.random().toString(36).slice(2,7),fl=E("filter",{id:uid,x:"-1",y:"-1",width:"3",height:"3"},E("defs",{}));E("feGaussianBlur",{stdDeviation:"7"},fl);
+[C.r1,C.r2,C.r3].forEach(r=>E("ellipse",{cx:C.x,cy:C.y,rx:r,ry:r*C.q,fill:"none",stroke:HERO?"#EFE7D8":"#1A1A1A","stroke-opacity":HERO?.08:.25,"stroke-dasharray":"2 7"}));
+const PC=["#c8531f","#c9923a","#8aab5c","#5f7a45","#a59b8c"],P=[];
+if(HERO)for(let i=0;i<60;i++){const a=Math.random()*6.283,d=60+Math.random()*560;P.push({e:E("circle",{cx:C.x+Math.cos(a)*d,cy:C.y+Math.sin(a)*d*C.q,r:(.8+Math.random()*1.6).toFixed(1),fill:PC[i%5]}),ph:Math.random()*6.283,sp:.5+Math.random()})}
+const LG=E("g",{}),NG=E("g",{}),TG=E("g",{});
+let k=0,yaw=-90,rot=0;
+const N=D.map((d,i)=>{const o={i,c:d[4],f:HERO?(i==k?1:0):1,l2:[]};
+o.cl=E("line",{"stroke-width":1.6},LG);o.gl=E("circle",{r:52,filter:"url(#"+uid+")"},NG);
+o.rg=E("circle",{r:38,fill:HERO?"#1A1A1A":"#EFE7D8","stroke-width":2.2},NG);
+o.tx=E("text",{"text-anchor":"middle","dominant-baseline":"central","font-size":24,"font-weight":700,"letter-spacing":1,"pointer-events":"none"},NG);o.tx.textContent=d[3];
+d[5].forEach((m,j)=>{const L=m[1].split("|"),s={j,ln:E("line",{"stroke-width":1.2},LG),rg:E("circle",{r:11,fill:HERO?"#1A1A1A":"#EFE7D8","stroke-width":1.6},NG),dt:E("circle",{r:4},NG),l3:[]};
+L.forEach((x,q)=>{const t=E("text",{"font-size":C.fs,"dominant-baseline":"central","font-family":"Georgia,serif"},TG);t.textContent=x;s.l3.push({q,n:L.length,t,ln:E("line",{"stroke-width":.9},LG),gl:E("circle",{r:10,filter:"url(#"+uid+")"},NG),dt:E("circle",{r:5},NG)})});o.l2.push(s)});
+if(HERO){o.rg.style.cursor="pointer";o.rg.addEventListener("click",()=>go(i))}
+return o});
+const M=E("g",{},NG),MS=HERO?.9:1.2;[["#C8531F",.85],["#C9923A",.8],["#8AAB5C",.78],["#3D4A2E",.82],["#777770",.75]].forEach((p,i)=>E("polygon",{points:"50,8 57,50 50,92 43,50",fill:p[0],opacity:p[1],transform:"rotate("+i*72+" 50 50)"},M));
+E("circle",{cx:50,cy:50,r:4.5,fill:HERO?"#EFE7D8":"#1A1A1A"},M);E("circle",{cx:50,cy:50,r:2,fill:HERO?"#1A1A1A":"#EFE7D8"},M);
+function draw(){N.forEach(o=>{const f=o.f,col=HERO?mix(G,o.c,f):o.c,t=o.i*72+yaw,[x,y]=pt(t,C.r1),lo=HERO?.18+.6*f:.55;
+set(o.cl,{x1:C.x,y1:C.y,x2:x,y2:y,stroke:col,"stroke-opacity":lo});set(o.gl,{cx:x,cy:y,fill:o.c,"fill-opacity":HERO?.32*f:0});
+set(o.rg,{cx:x,cy:y,stroke:col,"stroke-opacity":HERO?.45+.55*f:1});set(o.tx,{x:x,y:y+1,fill:HERO?mix(GL,o.c,f):o.c,"fill-opacity":HERO?.5+.5*f:1});
+o.l2.forEach(s=>{const t2=t+(s.j-1)*16,[a,b]=pt(t2,C.r2);
+set(s.ln,{x1:x,y1:y,x2:a,y2:b,stroke:col,"stroke-opacity":lo*.85});set(s.rg,{cx:a,cy:b,stroke:col,"stroke-opacity":HERO?.4+.6*f:1});set(s.dt,{cx:a,cy:b,fill:col});
+s.l3.forEach(q=>{const sp=q.n>3?4.4:6,t3=t2+(q.q-(q.n-1)/2)*sp,[u,v]=pt(t3,C.r3),[lx,ly]=pt(t3,C.r3+16),rad=t3*Math.PI/180,ang=Math.atan2(Math.sin(rad)*C.q,Math.cos(rad))*180/Math.PI,left=Math.cos(rad)<0;
+set(q.ln,{x1:a,y1:b,x2:u,y2:v,stroke:col,"stroke-opacity":lo*.7});set(q.gl,{cx:u,cy:v,fill:o.c,"fill-opacity":HERO?.5*f:0});set(q.dt,{cx:u,cy:v,fill:col,"fill-opacity":HERO?.35+.65*f:1});
+set(q.t,{x:lx,y:ly,"text-anchor":left?"end":"start",transform:"rotate("+(left?ang+180:ang).toFixed(2)+" "+lx.toFixed(1)+" "+ly.toFixed(1)+")",fill:HERO?mix(GL,"#EFE7D8",f):"#1A1A1A","fill-opacity":HERO?.22+.7*f:.9})})})})}
+function el(t,c,x,p){const e=document.createElement(t);if(c)e.className=c;e.textContent=x;p.appendChild(e);return e}
+const PE=R.querySelector(".cm-panel");
+function panel(i){if(!PE)return;const d=D[i],n=d[5].reduce((s,m)=>s+m[1].split("|").length,0),mm=PE.querySelector(".cm-mods");
+const e=PE.querySelector(".cm-e");e.textContent=d[2]+" · "+n+" specialties";e.style.color=d[4];
+PE.querySelector(".cm-n").textContent=d[0];PE.querySelector(".cm-c").textContent="Led by "+d[1];
+mm.textContent="";d[5].forEach(m=>{const b=el("div","cm-m","",mm);el("div","cm-h",m[0],b).style.color=d[4];el("div","cm-l",m[1].split("|").join(" · "),b)})}
+let cs=performance.now();
+function go(n){if(n===k)return;k=n;cs=performance.now();if(PE){PE.style.opacity=0;setTimeout(()=>{panel(k);PE.style.opacity=1},400)}}
+function fit(){const w=R.clientWidth||1920;ST.style.transform="scale("+(w/1920)+")"}
+fit();if(window.ResizeObserver)new ResizeObserver(fit).observe(R);else addEventListener("resize",fit);
+panel(k);draw();
+const SL=R.closest(".slide");let last=performance.now();
+function tick(now){const dt=Math.min(.05,(now-last)/1000);last=now;
+if(SL&&!SL.classList.contains("active")&&!SL.classList.contains("leaving")){requestAnimationFrame(tick);return}
+if(HERO&&now-cs>5200)go((k+1)%5);
+yaw+=dt*C.sp;rot+=dt*6;
+if(HERO)N.forEach(o=>o.f+=((o.i==k?1:0)-o.f)*Math.min(1,dt*2.5));
+set(M,{transform:"translate("+(C.x-50*MS)+","+(C.y-50*MS)+") scale("+MS+") rotate("+rot.toFixed(2)+" 50 50)"});
+P.forEach(p=>p.e.setAttribute("opacity",(.1+.25*(.5+.5*Math.sin(now/1000*p.sp+p.ph))).toFixed(2)));
+draw();requestAnimationFrame(tick)}
+requestAnimationFrame(tick);
+})();</script></div>
+  <svg aria-label="The Founder's Sprint mark" width="100" height="100" viewBox="0 0 100 100" style="position:absolute; left:48px; top:48px; width:56px; height:56px"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.85"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.8" transform="rotate(72 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.78" transform="rotate(144 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.82" transform="rotate(216 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288 50 50)"></polygon><circle cx="50" cy="50" r="4.5" fill="#1A1A1A"></circle><circle cx="50" cy="50" r="2" fill="#EFE7D8"></circle></svg>
+  <div style="position:absolute; left:128px; top:128px; width:1664px; height:118px; display:flex; flex-direction:column; gap:20px">
+    <p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:26px; font-weight:600; letter-spacing:5px; text-transform:uppercase; color:#A8431A">How the curriculum is organised</p>
+    <h2 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; letter-spacing:1px">Every coaching hour maps to one of 49 specialties</h2>
+  </div>
+  <div style="--n:0; position:absolute; left:128px; top:293px; width:539px; height:340px; display:flex; flex-direction:column; gap:12px; background:#F7F2E8; padding:40px 36px; border-top:6px solid #A8431A; border-radius:0 0 24px 0" data-fx="rise">
+      <p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:#A8431A">L1 · Discipline</p>
+      <p style="font-family:Georgia, serif; font-size:96px; line-height:1; color:#A8431A">5</p>
+      <p style="font-size:26px; line-height:1.4; color:#444444">What a cohort delivers in full. Each has one founding coach and one teaching day.</p>
+    </div><div style="--n:1; position:absolute; left:691px; top:293px; width:539px; height:340px; display:flex; flex-direction:column; gap:12px; background:#F7F2E8; padding:40px 36px; border-top:6px solid #8A5E14; border-radius:0 0 24px 0" data-fx="rise">
+      <p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:#8A5E14">L2 · Module</p>
+      <p style="font-family:Georgia, serif; font-size:96px; line-height:1; color:#8A5E14">15</p>
+      <p style="font-size:26px; line-height:1.4; color:#444444">A course within a discipline, such as Pitch Craft or Unit Economics. Three in each.</p>
+    </div><div style="--n:2; position:absolute; left:1253px; top:293px; width:539px; height:340px; display:flex; flex-direction:column; gap:12px; background:#1A1A1A; padding:40px 36px; border-top:6px solid #C9923A; border-radius:0 0 24px 0" data-fx="rise">
+      <p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:#C9923A">L3 · Specialty</p>
+      <p style="font-family:Georgia, serif; font-size:96px; line-height:1; color:#C9923A">49</p>
+      <p style="font-size:26px; line-height:1.4; color:#C0B8A8">The unit of coaching: one focused two-hour session on a single problem.</p>
+    </div>
+  <div style="--n:3; position:absolute; left:128px; top:676px; width:1664px; display:flex; align-items:center; gap:20px" data-fx="rise"><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; letter-spacing:3px; text-transform:uppercase; white-space:nowrap; color:#5E5E58">For example</p><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:26px; font-weight:700; line-height:1.2; white-space:nowrap; padding:14px 26px; background:#C9923A; color:#1A1A1A; border-radius:0 0 16px 0">Financial Modelling</p><svg viewBox="0 0 56.0 20" aria-hidden="true" style="flex:none; width:56.0px; height:20px"><defs><marker id="ah5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10z" fill="#8A5E14"/></marker></defs><line x1="0" y1="10" x2="54.0" y2="10" stroke="#8A5E14" stroke-width="2.5" marker-end="url(#ah5)"/></svg><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:26px; font-weight:700; line-height:1.2; white-space:nowrap; padding:14px 26px; background:#F7F2E8; color:#1A1A1A; border-radius:0 0 16px 0; border:2px solid #C9923A">Financial Planning</p><svg viewBox="0 0 56.0 20" aria-hidden="true" style="flex:none; width:56.0px; height:20px"><defs><marker id="ah6" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10z" fill="#8A5E14"/></marker></defs><line x1="0" y1="10" x2="54.0" y2="10" stroke="#8A5E14" stroke-width="2.5" marker-end="url(#ah6)"/></svg><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:26px; font-weight:700; line-height:1.2; white-space:nowrap; padding:14px 26px; background:#1A1A1A; color:#EFE7D8; border-radius:0 0 16px 0">Cash Flow Management</p></div>
+  <p style="--n:4; position:absolute; left:128px; top:788px; width:1500px; font-size:28px; line-height:1.45; color:#444444" data-fx="fade">Cohort teams cover all 49 during the Sprint. After graduation, each month's advisory hour goes to the specialty behind that month's problem.</p>
+  <p style="position:absolute; left:128px; bottom:64px; width:1400px; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; letter-spacing:3px; color:#5E5E58">ABSA × THE FOUNDER'S SPRINT</p>
+</section>
+<section class="slide" data-id="div-after" data-surface="dark" data-tr="magic" style="background:#1A1A1A; color:#EFE7D8; font-family:Georgia, serif; padding:128px">
+  <img src="img/market.jpg" alt="A trader standing in her produce market" style="position:absolute; left:0px; top:0px; width:1920px; height:1080px; object-fit:cover">
+  <div style="position:absolute; left:0px; top:0px; width:1920px; height:1080px; background:linear-gradient(0deg, rgba(26,26,26,0.96) 0%, rgba(26,26,26,0.86) 34%, rgba(26,26,26,0.25) 66%, rgba(26,26,26,0.05) 100%)"></div>
+  <svg data-magic="mark" aria-label="The Founder's Sprint mark" width="100" height="100" viewBox="0 0 100 100" style="position:absolute; left:128px; top:500px; width:104px; height:104px"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.85"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.8" transform="rotate(72 50 50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.78" transform="rotate(144 50 50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.82" transform="rotate(216 50 50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288 50 50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+  <p data-fx="fade" style="--n:0;position:absolute; left:128px; top:648px; width:1400px; font-family:'Josefin Sans', Arial, sans-serif; font-size:26px; font-weight:600; letter-spacing:5px; text-transform:uppercase; color:#C9923A">Part four</p>
+  <h2 data-fx="rise" style="--n:1;position:absolute; left:128px; top:696px; width:1600px; font-family:'Josefin Sans', Arial, sans-serif; font-size:88px; font-weight:700; line-height:1.1; letter-spacing:1px; color:#EFE7D8">After the Sprint</h2>
+  <p data-fx="rise" style="--n:2;position:absolute; left:128px; top:816px; width:1300px; font-size:34px; font-style:italic; line-height:1.4; color:#C0B8A8">Capital, three years of advisory, and the milestones Absa sees.</p>
+  <p style="position:absolute; left:128px; bottom:64px; width:1400px; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; letter-spacing:3px; color:#A09888">ABSA × THE FOUNDER&#39;S SPRINT</p>
+</section>
+<section class="slide" data-id="pathway" data-surface="paper" data-tr="fade" style="display:flex; flex-direction:column; gap:40px; padding:128px 128px 160px; background:#efe7d8; color:#1a1a1a; font-family:Georgia, serif">
+  <svg data-magic="mark" aria-label="The Founder's Sprint mark" width="100" height="100" viewBox="0 0 100 100" style="position:absolute; left:48px; top:48px; width:56px; height:56px"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.85"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.8" transform="rotate(72 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.78" transform="rotate(144 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.82" transform="rotate(216 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288 50 50)"></polygon><circle cx="50" cy="50" r="4.5" fill="#1A1A1A"></circle><circle cx="50" cy="50" r="2" fill="#EFE7D8"></circle></svg>
+  <div style="position:absolute; left:128px; top:128px; width:1664px; height:118px; display:flex; flex-direction:column; gap:20px">
+    <p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:26px; font-weight:600; letter-spacing:5px; text-transform:uppercase; color:#a8431a">What we accelerate them toward</p>
+    <h2 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; letter-spacing:1px">Every team graduates into a capital decision</h2>
+  </div>
+  <div style="--n:0; position:absolute; left:128px; top:285px; width:398px; display:flex; flex-direction:column; gap:6px; padding:0 0 0 24px; border-left:6px solid #c8531f" data-fx="rise"><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; color:#777770">WEEK 12</p><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:28px; font-weight:700; color:#1a1a1a">Readiness Day</p><p style="font-size:24px; line-height:1.35; color:#444444">Complete file presented to Absa</p></div><div style="--n:1; position:absolute; left:550px; top:285px; width:398px; display:flex; flex-direction:column; gap:6px; padding:0 0 0 24px; border-left:6px solid #c8531f" data-fx="rise"><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; color:#777770">WEEKS 12–16</p><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:28px; font-weight:700; color:#1a1a1a">Absa credit review</p><p style="font-size:24px; line-height:1.35; color:#444444">Absa's normal process, with a coach recommendation</p></div><div style="--n:2; position:absolute; left:972px; top:285px; width:398px; display:flex; flex-direction:column; gap:6px; padding:0 0 0 24px; border-left:6px solid #c8531f" data-fx="rise"><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; color:#777770">MONTHS 4–12</p><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:28px; font-weight:700; color:#1a1a1a">First facility</p><p style="font-size:24px; line-height:1.35; color:#444444">Operating capital, put to work with a coach every month</p></div><div style="--n:3; position:absolute; left:1394px; top:285px; width:398px; display:flex; flex-direction:column; gap:6px; padding:0 0 0 24px; border-left:6px solid #8aab5c" data-fx="rise"><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; color:#777770">YEARS 2–3</p><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:28px; font-weight:700; color:#1a1a1a">Step up</p><p style="font-size:24px; line-height:1.35; color:#444444">Repayments and monthly data support the next tier</p></div>
+  <div style="--n:4; position:absolute; left:128px; top:454px; width:539px; height:325px; display:flex; flex-direction:column; gap:12px; background:#f7f2e8; padding:32px 36px; border-top:6px solid #c9923a; border-radius:0 0 24px 0" data-fx="rise">
+      <p style="font-size:56px; line-height:1; color:#1a1a1a">UGX 5M</p>
+      <h3 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:28px; font-weight:700; color:#1a1a1a">Operating capital</h3>
+      <p style="font-size:24px; line-height:1.4; color:#444444">Stock, working capital, a first hire</p>
+      <p style="font-size:24px; line-height:1.4; color:#1a1a1a"><b>Evidence:</b> Sprint complete, data room signed off, Absa account open</p>
+    </div><div style="--n:5; position:absolute; left:691px; top:454px; width:539px; height:325px; display:flex; flex-direction:column; gap:12px; background:#f7f2e8; padding:32px 36px; border-top:6px solid #c8531f; border-radius:0 0 24px 0" data-fx="rise">
+      <p style="font-size:56px; line-height:1; color:#1a1a1a">UGX 10M</p>
+      <h3 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:28px; font-weight:700; color:#1a1a1a">Growth</h3>
+      <p style="font-size:24px; line-height:1.4; color:#444444">A second outlet, equipment, larger orders</p>
+      <p style="font-size:24px; line-height:1.4; color:#1a1a1a"><b>Evidence:</b> The 5M evidence, plus six months of bank statements above an agreed revenue level</p>
+    </div><div style="--n:6; position:absolute; left:1253px; top:454px; width:539px; height:325px; display:flex; flex-direction:column; gap:12px; background:#f7f2e8; padding:32px 36px; border-top:6px solid #3d4a2e; border-radius:0 0 24px 0" data-fx="rise">
+      <p style="font-size:56px; line-height:1; color:#1a1a1a">UGX 25M</p>
+      <h3 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:28px; font-weight:700; color:#1a1a1a">Expansion</h3>
+      <p style="font-size:24px; line-height:1.4; color:#444444">New markets, production capacity</p>
+      <p style="font-size:24px; line-height:1.4; color:#1a1a1a"><b>Evidence:</b> The 10M evidence, plus reviewed accounts and security under Absa policy</p>
+    </div>
+  <p style="--n:7; position:absolute; left:128px; top:819px; width:1640px; font-size:26px; line-height:1.45; color:#444444" data-fx="fade"><b style="color:#1a1a1a">Illustrative tiers, for discussion.</b> Amounts, terms and every approval are Absa's. Teams not yet ready leave with a plan for their gaps and a re-assessment at six months.</p>
+  <p style="position:absolute; bottom:64px; left:128px; width:1400px; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; letter-spacing:3px; color:#5e5e58">ABSA × THE FOUNDER'S SPRINT</p>
+</section>
+<section class="slide" data-id="advisory" data-surface="paper" data-tr="fade" style="background:#EFE7D8; color:#1A1A1A; font-family:Georgia, serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:48px">
+  <svg aria-label="The Founder's Sprint mark" width="100" height="100" viewBox="0 0 100 100" style="position:absolute; left:48px; top:48px; width:56px; height:56px"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.85"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.8" transform="rotate(72 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.78" transform="rotate(144 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.82" transform="rotate(216 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288 50 50)"></polygon><circle cx="50" cy="50" r="4.5" fill="#1A1A1A"></circle><circle cx="50" cy="50" r="2" fill="#EFE7D8"></circle></svg>
+  <div style="position:absolute; left:128px; top:128px; width:1664px; height:118px; display:flex; flex-direction:column; gap:20px">
+    <p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:26px; font-weight:600; letter-spacing:5px; text-transform:uppercase; color:#A8431A">Three years of advisory</p>
+    <h2 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; letter-spacing:1px">One hour a month, every month, for 36 months</h2>
+  </div>
+  <div style="--n:0; position:absolute; left:128px; top:293px; width:820px; height:186px; display:flex; gap:24px; background:#F7F2E8; padding:36px; border-radius:0 0 24px 0" data-fx="rise">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none; width:48px; height:48px; color:#A8431A"><circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6.5 6.5-6.5s6.5 2.9 6.5 6.5"/><circle cx="17" cy="8.5" r="2.8"/><path d="M16.5 13.6c2.9.2 5 2.9 5 6.4"/></svg>
+      <div style="display:flex; flex-direction:column; gap:10px; flex:1">
+        <h3 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:30px; font-weight:700">A lead coach for each team</h3>
+        <p style="font-size:26px; line-height:1.4; color:#444444">Matched to the team's biggest gap at graduation. Any month's hour can go to a specialist coach instead.</p>
+      </div>
+    </div><div style="--n:1; position:absolute; left:972px; top:293px; width:820px; height:186px; display:flex; gap:24px; background:#F7F2E8; padding:36px; border-radius:0 0 24px 0" data-fx="rise">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none; width:48px; height:48px; color:#A8431A"><path d="M2 12h4l3-8 6 16 3-8h4"/></svg>
+      <div style="display:flex; flex-direction:column; gap:10px; flex:1">
+        <h3 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:30px; font-weight:700">Every session starts with the numbers</h3>
+        <p style="font-size:26px; line-height:1.4; color:#444444">The month's check-in is reviewed first, then one problem is worked through and the plan updated.</p>
+      </div>
+    </div><div style="--n:2; position:absolute; left:128px; top:503px; width:820px; height:186px; display:flex; gap:24px; background:#F7F2E8; padding:36px; border-radius:0 0 24px 0" data-fx="rise">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none; width:48px; height:48px; color:#A8431A"><path d="M12 6c-2-1.5-5-2-9-2v14c4 0 7 .5 9 2 2-1.5 5-2 9-2V4c-4 0-7 .5-9 2z"/><path d="M12 6v14"/></svg>
+      <div style="display:flex; flex-direction:column; gap:10px; flex:1">
+        <h3 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:30px; font-weight:700">An annual data room refresh</h3>
+        <p style="font-size:26px; line-height:1.4; color:#444444">Model, plan and documents brought up to date once a year, ready for the next loan or raise.</p>
+      </div>
+    </div><div style="--n:3; position:absolute; left:972px; top:503px; width:820px; height:186px; display:flex; gap:24px; background:#1A1A1A; color:#EFE7D8; padding:36px; border-radius:0 0 24px 0" data-fx="rise">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex:none; width:48px; height:48px; color:#C9923A"><path d="M12 3 2 20h20L12 3z"/><path d="M12 10v4.5"/><circle cx="12" cy="17.3" r=".6" fill="currentColor"/></svg>
+      <div style="display:flex; flex-direction:column; gap:10px; flex:1">
+        <h3 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:30px; font-weight:700">Early warning</h3>
+        <p style="font-size:26px; line-height:1.4; color:#C0B8A8">Two missed check-ins or a cash warning brings a coach call within a week, and, with consent, a note to the RM.</p>
+      </div>
+    </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1400px; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; letter-spacing:3px; color:#5E5E58">ABSA × THE FOUNDER'S SPRINT</p>
+</section>
+<section class="slide" data-id="metrics" data-surface="paper" data-tr="fade" style="background:#EFE7D8; color:#1A1A1A; font-family:Georgia, serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:48px">
+  <svg aria-label="The Founder's Sprint mark" width="100" height="100" viewBox="0 0 100 100" style="position:absolute; left:48px; top:48px; width:56px; height:56px"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.85"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.8" transform="rotate(72 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.78" transform="rotate(144 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.82" transform="rotate(216 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288 50 50)"></polygon><circle cx="50" cy="50" r="4.5" fill="#1A1A1A"></circle><circle cx="50" cy="50" r="2" fill="#EFE7D8"></circle></svg>
+  <div style="position:absolute; left:128px; top:128px; width:1664px; height:118px; display:flex; flex-direction:column; gap:20px">
+    <p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:26px; font-weight:600; letter-spacing:5px; text-transform:uppercase; color:#A8431A">Milestone tracking</p>
+    <h2 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; letter-spacing:1px">What we track for every team, from month zero</h2>
+  </div>
+  <div style="--n:0; position:absolute; left:128px; top:293px; width:539px; height:491px; display:flex; flex-direction:column; gap:16px; background:#1A1A1A; color:#EFE7D8; padding:40px 36px; border-top:6px solid #C9923A; border-radius:0 0 24px 0" data-fx="rise">
+      <h3 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:30px; font-weight:700">Every month</h3>
+      <p style="font-size:24px; color:#C9923A">A five-minute check-in</p>
+      <ul style="font-size:26px; line-height:1.5; color:#C0B8A8">
+        <li>Revenue</li>
+        <li>Cash at bank</li>
+        <li>Paying customers</li>
+        <li>People employed, incl. women and youth</li>
+        <li>Loans outstanding and repayment status</li>
+        <li>New finance raised</li>
+      </ul>
+    </div><div style="--n:1; position:absolute; left:691px; top:293px; width:539px; height:491px; display:flex; flex-direction:column; gap:16px; background:#F7F2E8; padding:40px 36px; border-top:6px solid #C8531F; border-radius:0 0 24px 0" data-fx="rise">
+      <h3 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:30px; font-weight:700">Every quarter</h3>
+      <p style="font-size:24px; color:#A8431A">Milestones reached</p>
+      <ul style="font-size:26px; line-height:1.5; color:#444444">
+        <li>Registered, with a TIN</li>
+        <li>Books kept monthly</li>
+        <li>Absa account opened</li>
+        <li>Credit applied for, and outcome</li>
+        <li>Data room complete and current</li>
+      </ul>
+    </div><div style="--n:2; position:absolute; left:1253px; top:293px; width:539px; height:491px; display:flex; flex-direction:column; gap:16px; background:#F7F2E8; padding:40px 36px; border-top:6px solid #8AAB5C; border-radius:0 0 24px 0" data-fx="rise">
+      <h3 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:30px; font-weight:700">Every year</h3>
+      <p style="font-size:24px; color:#4F6B2E">Outcomes</p>
+      <ul style="font-size:26px; line-height:1.5; color:#444444">
+        <li>Still trading</li>
+        <li>Revenue growth on the year</li>
+        <li>Jobs created</li>
+        <li>Reviewed or audited accounts</li>
+        <li>Coach readiness score</li>
+      </ul>
+    </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1400px; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; letter-spacing:3px; color:#5E5E58">ABSA × THE FOUNDER'S SPRINT</p>
+</section>
+<section class="slide" data-id="reporting" data-surface="paper" data-tr="push" style="background:#EFE7D8; color:#1A1A1A; font-family:Georgia, serif; padding:128px 128px 160px; display:grid; grid-template-columns:1fr 1fr; gap:64px; align-items:start">
+  <svg aria-label="The Founder's Sprint mark" width="100" height="100" viewBox="0 0 100 100" style="position:absolute; left:48px; top:48px; width:56px; height:56px"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.85"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.8" transform="rotate(72 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.78" transform="rotate(144 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.82" transform="rotate(216 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288 50 50)"></polygon><circle cx="50" cy="50" r="4.5" fill="#1A1A1A"></circle><circle cx="50" cy="50" r="2" fill="#EFE7D8"></circle></svg>
+  <div style="position:absolute; left:128px; top:128px; width:800px; height:644px; display:flex; flex-direction:column; gap:40px">
+    <div style="display:flex; flex-direction:column; gap:20px">
+      <p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:26px; font-weight:600; letter-spacing:5px; text-transform:uppercase; color:#A8431A">What Absa receives</p>
+      <h2 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:56px; font-weight:700; line-height:1.1; letter-spacing:1px">A clear view of the portfolio, every month</h2>
+    </div>
+    <div style="display:flex; flex-direction:column; gap:0">
+      <div style="display:flex; flex-direction:column; gap:6px; padding:20px 0; border-bottom:1px solid #C0B8A8">
+        <h3 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:28px; font-weight:700">Monthly dashboard</h3>
+        <p style="font-size:26px; line-height:1.4; color:#444444">All 100 teams in aggregate: revenue, cash, jobs, credit</p>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:6px; padding:20px 0; border-bottom:1px solid #C0B8A8">
+        <h3 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:28px; font-weight:700">Quarterly portfolio report</h3>
+        <p style="font-size:26px; line-height:1.4; color:#444444">Milestones reached and the early-warning list</p>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:6px; padding:20px 0">
+        <h3 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:28px; font-weight:700">Annual impact report</h3>
+        <p style="font-size:26px; line-height:1.4; color:#444444">Survival, growth and jobs against the national baseline</p>
+      </div>
+    </div>
+    <p style="font-size:24px; font-style:italic; color:#444444">Named, team-level data is shared only with that founder's written consent.</p>
+  </div>
+  <div style="--n:0; position:absolute; left:992px; top:128px; width:800px; height:373px; display:flex; flex-direction:column; gap:20px; background:#1A1A1A; color:#EFE7D8; padding:48px; border-radius:0 0 24px 0" data-fx="rise">
+    <h3 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:30px; font-weight:700">Proposed measures, targets to agree</h3>
+    <table style="font-family:Georgia, serif; font-size:24px; color:#EFE7D8">
+      <tbody><tr><th style="width:62%; text-align:left">Measure</th><th style="width:38%; text-align:left">Proposed target</th></tr>
+      <tr><td>Teams completing the Sprint</td><td>[90%]</td></tr>
+      <tr><td>Data rooms signed off</td><td>[90%]</td></tr>
+      <tr><td>Monthly check-ins returned</td><td>[80%]</td></tr>
+      <tr><td>Absa credit applications</td><td>[to agree]</td></tr>
+      <tr><td>Still trading at 36 months</td><td>Above national baseline</td></tr>
+      <tr><td>Revenue and jobs growth</td><td>[to agree]</td></tr>
+    </tbody></table>
+  </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1400px; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; letter-spacing:3px; color:#5E5E58">ABSA × THE FOUNDER'S SPRINT</p>
+</section>
+<section class="slide" data-id="div-delivery" data-surface="dark" data-tr="magic" style="background:#1A1A1A; color:#EFE7D8; font-family:Georgia, serif; padding:128px">
+  <img src="img/owner.jpg" alt="A founder smiling at her desk" style="position:absolute; left:0px; top:0px; width:1920px; height:1080px; object-fit:cover">
+  <div style="position:absolute; left:0px; top:0px; width:1920px; height:1080px; background:linear-gradient(0deg, rgba(26,26,26,0.96) 0%, rgba(26,26,26,0.86) 34%, rgba(26,26,26,0.25) 66%, rgba(26,26,26,0.05) 100%)"></div>
+  <svg data-magic="mark" aria-label="The Founder's Sprint mark" width="100" height="100" viewBox="0 0 100 100" style="position:absolute; left:128px; top:500px; width:104px; height:104px"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.85"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.8" transform="rotate(72 50 50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.78" transform="rotate(144 50 50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.82" transform="rotate(216 50 50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288 50 50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+  <p data-fx="fade" style="--n:0;position:absolute; left:128px; top:648px; width:1400px; font-family:'Josefin Sans', Arial, sans-serif; font-size:26px; font-weight:600; letter-spacing:5px; text-transform:uppercase; color:#C9923A">Part five</p>
+  <h2 data-fx="rise" style="--n:1;position:absolute; left:128px; top:696px; width:1600px; font-family:'Josefin Sans', Arial, sans-serif; font-size:88px; font-weight:700; line-height:1.1; letter-spacing:1px; color:#EFE7D8">Delivery and investment</h2>
+  <p data-fx="rise" style="--n:2;position:absolute; left:128px; top:816px; width:1300px; font-size:34px; font-style:italic; line-height:1.4; color:#C0B8A8">Who delivers, what it costs, and how we start.</p>
+  <p style="position:absolute; left:128px; bottom:64px; width:1400px; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; letter-spacing:3px; color:#A09888">ABSA × THE FOUNDER&#39;S SPRINT</p>
+</section>
+<section class="slide" data-id="team" data-surface="paper" data-tr="fade" style="background:#EFE7D8; color:#1A1A1A; font-family:Georgia, serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:44px">
+  <svg data-magic="mark" aria-label="The Founder's Sprint mark" width="100" height="100" viewBox="0 0 100 100" style="position:absolute; left:48px; top:48px; width:56px; height:56px"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.85"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.8" transform="rotate(72 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.78" transform="rotate(144 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.82" transform="rotate(216 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288 50 50)"></polygon><circle cx="50" cy="50" r="4.5" fill="#1A1A1A"></circle><circle cx="50" cy="50" r="2" fill="#EFE7D8"></circle></svg>
+  <div style="position:absolute; left:128px; top:128px; width:1664px; height:109px; display:flex; flex-direction:column; gap:20px">
+    <p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:26px; font-weight:600; letter-spacing:5px; text-transform:uppercase; color:#A8431A">Who delivers</p>
+    <h2 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:56px; font-weight:700; line-height:1.1; letter-spacing:1px">A team that has worked together since 2020</h2>
+  </div>
+  <div style="--n:0; position:absolute; left:128px; top:281px; width:808px; height:161px; display:flex; flex-direction:column; gap:8px; border-left:6px solid #C8531F; padding:4px 0 4px 32px" data-fx="rise">
+      <p style="font-family:Georgia, serif; font-size:72px; line-height:1; color:#A8431A">250+</p>
+      <p style="font-size:26px; line-height:1.4; color:#444444">Ugandan businesses supported by our founding team, collectively</p>
+    </div><div style="--n:1; position:absolute; left:984px; top:281px; width:808px; height:161px; display:flex; flex-direction:column; gap:8px; border-left:6px solid #8AAB5C; padding:4px 0 4px 32px" data-fx="rise">
+      <p style="font-family:Georgia, serif; font-size:72px; line-height:1; color:#4F6B2E">48</p>
+      <p style="font-size:26px; line-height:1.4; color:#444444">startups taken through a six-month cohort programme we have run before</p>
+    </div>
+  <div style="--n:2; position:absolute; left:128px; top:485px; width:314px; height:253px; display:flex; flex-direction:column; gap:8px" data-fx="rise">
+      <img src="img/coach-teddy.jpg" alt="TMS Ruge" data-crop="1 78% 30%" style="width:314px; height:180px; object-fit:cover; border-bottom:6px solid #C8531F; border-radius:0 0 24px 0; object-position:78% 30%">
+      <p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:26px; font-weight:700">TMS Ruge</p>
+      <p style="font-size:24px; color:#444444">Marketing &amp; Branding</p>
+    </div><div style="--n:3; position:absolute; left:466px; top:485px; width:314px; height:253px; display:flex; flex-direction:column; gap:8px" data-fx="rise">
+      <img src="img/c-barry.jpg" alt="Barry Wojega" style="width:314px; height:180px; object-fit:cover; border-bottom:6px solid #C9923A; border-radius:0 0 24px 0">
+      <p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:26px; font-weight:700">Barry Wojega</p>
+      <p style="font-size:24px; color:#444444">Financial Modelling</p>
+    </div><div style="--n:4; position:absolute; left:804px; top:485px; width:314px; height:253px; display:flex; flex-direction:column; gap:8px" data-fx="rise">
+      <img src="img/coach-joseph.jpg" alt="Joseph Kalema" style="width:314px; height:180px; object-fit:cover; border-bottom:6px solid #8AAB5C; border-radius:0 0 24px 0">
+      <p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:26px; font-weight:700">Joseph Kalema</p>
+      <p style="font-size:24px; color:#444444">Investment Readiness</p>
+    </div><div style="--n:5; position:absolute; left:1142px; top:485px; width:314px; height:253px; display:flex; flex-direction:column; gap:8px" data-fx="rise">
+      <img src="img/c-moses.jpg" alt="Moses Engwau Okudu" style="width:314px; height:180px; object-fit:cover; border-bottom:6px solid #3D4A2E; border-radius:0 0 24px 0">
+      <p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:26px; font-weight:700">Moses Engwau Okudu</p>
+      <p style="font-size:24px; color:#444444">Strategy &amp; Team</p>
+    </div><div style="--n:6; position:absolute; left:1480px; top:485px; width:314px; height:253px; display:flex; flex-direction:column; gap:8px" data-fx="rise">
+      <img src="img/c-ngolobe.jpg" alt="Patrick Ngolobe" style="width:314px; height:180px; object-fit:cover; border-bottom:6px solid #777770; border-radius:0 0 24px 0">
+      <p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:26px; font-weight:700">Patrick Ngolobe</p>
+      <p style="font-size:24px; color:#444444">Product &amp; Pricing</p>
+    </div>
+  <p style="position:absolute; left:128px; bottom:64px; width:1400px; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; letter-spacing:3px; color:#5E5E58">ABSA × THE FOUNDER'S SPRINT</p>
+</section>
+<section class="slide" data-id="investment" data-surface="paper" data-tr="fade" style="display:flex; flex-direction:column; gap:40px; padding:128px 128px 160px; background:#efe7d8; font-family:Georgia, serif">
+  <svg aria-label="The Founder's Sprint mark" width="100" height="100" viewBox="0 0 100 100" style="position:absolute; left:48px; top:48px; width:56px; height:56px"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.85"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.8" transform="rotate(72 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.78" transform="rotate(144 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.82" transform="rotate(216 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288 50 50)"></polygon><circle cx="50" cy="50" r="4.5" fill="#1A1A1A"></circle><circle cx="50" cy="50" r="2" fill="#EFE7D8"></circle></svg>
+  <div style="position:absolute; left:128px; top:128px; width:1664px; height:118px; display:flex; flex-direction:column; gap:20px">
+    <p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:26px; font-weight:600; letter-spacing:5px; text-transform:uppercase; color:#a8431a">The investment</p>
+    <h2 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; letter-spacing:1px; color:#1a1a1a">Two ways to share UGX 7.0 million per team</h2>
+  </div>
+  <div style="--n:0; position:absolute; left:128px; top:285px; width:480px; height:545px; display:flex; flex-direction:column; gap:14px; background:#1a1a1a; padding:36px; border-radius:0 0 24px 0" data-fx="rise">
+      <p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:#c9923a">Per team, either way</p>
+      <div style="display:flex; justify-content:space-between; "><p style="font-size:26px; color:#c0b8a8">Sprint</p><p style="font-size:26px; color:#efe7d8">2,500,000</p></div>
+      <div style="display:flex; justify-content:space-between; "><p style="font-size:26px; color:#c0b8a8">36 months advisory</p><p style="font-size:26px; color:#efe7d8">3,600,000</p></div>
+      <div style="display:flex; justify-content:space-between; "><p style="font-size:26px; color:#c0b8a8">Admin (15%)</p><p style="font-size:26px; color:#efe7d8">915,000</p></div>
+      <div style="display:flex; justify-content:space-between; border-top:1px solid #444444; padding:14px 0 0; "><p style="font-size:26px; font-weight:700; color:#efe7d8">Total</p><p style="font-size:26px; font-weight:700; color:#c9923a">7,015,000</p></div>
+      <p style="font-size:24px; line-height:1.4; color:#a09888">Advisory at UGX 100,000 an hour, a volume rate. Admin covers recruitment, programme management, platform and reporting to Absa.</p>
+    </div><div style="--n:1; position:absolute; left:632px; top:285px; width:568px; height:545px; display:flex; flex-direction:column; gap:18px; background:#f7f2e8; padding:36px; border-top:6px solid #c8531f; border-radius:0 0 24px 0" data-fx="rise">
+      <p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:#a8431a">Option A</p>
+      <h3 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:32px; font-weight:700; line-height:1.2; color:#1a1a1a">Absa funds the Sprint; founders fund advisory</h3>
+      <div style="display:flex; flex-direction:column; gap:8px"><div style="display:flex; justify-content:space-between; gap:16px"><p style="font-size:26px; color:#444444">Absa, per team</p><p style="font-size:26px; font-weight:700; color:#1a1a1a; text-align:right">3,415,000</p></div><div style="display:flex; justify-content:space-between; gap:16px"><p style="font-size:26px; color:#444444">Absa, 100 teams</p><p style="font-size:26px; font-weight:700; color:#1a1a1a; text-align:right">341,500,000</p></div></div>
+      <p style="font-size:26px; line-height:1.4; color:#444444">Founders pay UGX 100,000 a month for 36 months, a condition of their place in the programme.</p>
+      <div style="display:flex; flex-direction:column; gap:8px; border-top:1px solid #d8cfbd; padding:16px 0 0"><p style="font-size:24px; color:#444444">Absa invoiced, UGX million</p><div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:8px"><div style="display:flex; flex-direction:column; gap:2px"><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; color:#777770">2027</p><p style="font-size:24px; color:#1a1a1a">301</p></div><div style="display:flex; flex-direction:column; gap:2px"><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; color:#777770">2028</p><p style="font-size:24px; color:#1a1a1a">18</p></div><div style="display:flex; flex-direction:column; gap:2px"><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; color:#777770">2029</p><p style="font-size:24px; color:#1a1a1a">18</p></div><div style="display:flex; flex-direction:column; gap:2px"><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; color:#777770">2030</p><p style="font-size:24px; color:#1a1a1a">4.5</p></div></div></div>
+    </div><div style="--n:2; position:absolute; left:1224px; top:285px; width:568px; height:545px; display:flex; flex-direction:column; gap:18px; background:#f7f2e8; padding:36px; border-top:6px solid #8aab5c; border-radius:0 0 24px 0" data-fx="rise">
+      <p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:#4f6b2e">Option B</p>
+      <h3 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:32px; font-weight:700; line-height:1.2; color:#1a1a1a">Absa funds the Sprint and the first year of advisory</h3>
+      <div style="display:flex; flex-direction:column; gap:8px"><div style="display:flex; justify-content:space-between; gap:16px"><p style="font-size:26px; color:#444444">Absa, per team</p><p style="font-size:26px; font-weight:700; color:#1a1a1a; text-align:right">4,615,000</p></div><div style="display:flex; justify-content:space-between; gap:16px"><p style="font-size:26px; color:#444444">Absa, 100 teams</p><p style="font-size:26px; font-weight:700; color:#1a1a1a; text-align:right">461,500,000</p></div></div>
+      <p style="font-size:26px; line-height:1.4; color:#444444">Founders pay UGX 100,000 a month from month 13, a condition of any Absa facility.</p>
+      <div style="display:flex; flex-direction:column; gap:8px; border-top:1px solid #d8cfbd; padding:16px 0 0"><p style="font-size:24px; color:#444444">Absa invoiced, UGX million</p><div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:8px"><div style="display:flex; flex-direction:column; gap:2px"><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; color:#777770">2027</p><p style="font-size:24px; color:#1a1a1a">391</p></div><div style="display:flex; flex-direction:column; gap:2px"><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; color:#777770">2028</p><p style="font-size:24px; color:#1a1a1a">48</p></div><div style="display:flex; flex-direction:column; gap:2px"><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; color:#777770">2029</p><p style="font-size:24px; color:#1a1a1a">18</p></div><div style="display:flex; flex-direction:column; gap:2px"><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; color:#777770">2030</p><p style="font-size:24px; color:#1a1a1a">4.5</p></div></div></div>
+    </div>
+  <p style="--n:3; position:absolute; left:128px; top:870px; width:1640px; font-size:26px; line-height:1.45; color:#444444" data-fx="fade">In both options Absa carries the admin, since it pays for reporting to Absa, and founder fees are collected by monthly debit from the team's Absa account.</p>
+  <p style="position:absolute; bottom:64px; left:128px; width:1400px; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; letter-spacing:3px; color:#5e5e58">ABSA × THE FOUNDER'S SPRINT</p>
+</section>
+<section class="slide" data-id="next" data-surface="dark" data-tr="fade" style="background:#1A1A1A; color:#EFE7D8; font-family:Georgia, serif; padding:128px; display:flex; flex-direction:column; justify-content:space-between">
+  <img src="img/group.jpg" alt="A founder showing his team around the market" style="position:absolute; left:0px; top:0px; width:1920px; height:1080px; object-fit:cover">
+  <div style="position:absolute; left:0px; top:0px; width:1920px; height:1080px; background:linear-gradient(90deg, rgba(26,26,26,0.95) 0%, rgba(26,26,26,0.88) 60%, rgba(26,26,26,0.4) 100%)"></div>
+  <div style="position:absolute; left:128px; top:128px; width:1664px; height:206px; display:flex; flex-direction:column; gap:20px">
+    <p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:26px; font-weight:600; letter-spacing:5px; text-transform:uppercase; color:#C9923A">Next steps</p>
+    <h2 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:72px; font-weight:700; line-height:1.1; letter-spacing:1px; width:1200px">Agree in October. Recruit in November.</h2>
+  </div>
+  <div style="--n:0; position:absolute; left:128px; top:474px; width:1100px; height:77px; display:flex; gap:32px; padding:18px 0; border-bottom:1px solid #444444" data-fx="rise"><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:28px; font-weight:700; color:#C9923A; width:220px">October</p><p style="font-size:28px; line-height:1.4">Agreement in principle and a signed letter of intent</p></div><div style="--n:1; position:absolute; left:128px; top:551px; width:1100px; height:77px; display:flex; gap:32px; padding:18px 0; border-bottom:1px solid #444444" data-fx="rise"><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:28px; font-weight:700; color:#C9923A; width:220px">November</p><p style="font-size:28px; line-height:1.4">RM briefing, Business Club launch, applications open</p></div><div style="--n:2; position:absolute; left:128px; top:627px; width:1100px; height:77px; display:flex; gap:32px; padding:18px 0; border-bottom:1px solid #444444" data-fx="rise"><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:28px; font-weight:700; color:#C9923A; width:220px">December</p><p style="font-size:28px; line-height:1.4">Joint selection panel; Cohort 1 onboarding</p></div><div style="--n:3; position:absolute; left:128px; top:703px; width:1100px; height:76px; display:flex; gap:32px; padding:18px 0" data-fx="rise"><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:28px; font-weight:700; color:#C9923A; width:220px">January 2027</p><p style="font-size:28px; line-height:1.4">Cohort 1 begins</p></div>
+  <div style="--n:4; position:absolute; left:128px; top:919px; width:1664px; height:33px; display:flex; justify-content:space-between; align-items:end" data-fx="rise">
+    <p style="font-size:26px; color:#C0B8A8">TMS Ruge · teddy@founderssprint.co · founderssprint.co</p>
+    <p style="font-size:26px; font-style:italic; color:#C8531F">Build with direction.</p>
+  </div>
+</section>
+</div>
+<div class="progress" id="progress"></div>
+<div class="rotate-hint" aria-hidden="true">Turn sideways for a larger view<br>Swipe to move through the slides</div>
+<div class="kbd-hint" id="kbdHint">← → navigate · Home first slide · O overview · F fullscreen</div>
+<div class="chrome">
+  <div class="counter" id="counter" aria-live="polite">01 / 01</div>
+  <div class="nav">
+    <button id="ovBtn" type="button" aria-label="Slide overview" title="Slide overview (O)"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg></button>
+    <button id="resetBtn" type="button" aria-label="Back to the title slide" title="Back to the title slide (Home)">⟲</button>
+    <button id="prevBtn" type="button" aria-label="Previous slide" title="Previous (←)">‹</button>
+    <button id="nextBtn" type="button" aria-label="Next slide" title="Next (→)">›</button>
+  </div>
+</div>
+<div class="overview" id="overview" hidden><div class="ov-title">Slide overview · click to jump · Esc to close</div><div class="ov-grid" id="ovGrid"></div></div>
+<div class="notes-panel" id="notesPanel" hidden><span id="npNum"></span><button type="button" id="npClose"></button><div id="npTitle"></div><div id="npNotes"></div></div>
+
+<script>
+(function(){
+  "use strict";
+  const NOTES=["", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", "", ""], TITLES=["The Absa Founder Acceleration Programme", "Uganda needs 367,000 more bankable businesses by 2040", "One new bankable business every 20 minutes", "Nearly half of Ugandan businesses are gone by year five", "Small, founder-dependent and under-financed", "We stay with every founder through the years that decide survival", "Part two · The programme", "One year of cohorts, three years of support", "Recruit in November, onboard in December, teach from January", "Twelve weeks from intake to a credit-ready file", "Selected jointly, for businesses Absa wants to bank", "Part three · The curriculum", "Five disciplines, one founding coach for each", "Every coaching hour maps to one of 49 specialties", "Part four · After the Sprint", "Every team graduates into a capital decision", "One hour a month, every month, for 36 months", "What we track for every team, from month zero", "A clear view of the portfolio, every month", "Part five · Delivery and investment", "A team that has worked together since 2020", "Two ways to share UGX 7.0 million per team", "Agree in October. Recruit in November."];
+  const stage=document.getElementById('stage');
+  const slides=Array.from(stage.querySelectorAll('.slide'));
+  const counter=document.getElementById('counter'), progress=document.getElementById('progress');
+  const reduce=window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  let i=-1, busy=null;
+
+  function fit(){const s=Math.min(window.innerWidth/1920,window.innerHeight/1080);stage.style.transform='translate(-50%,-50%) scale('+s+')';}
+  window.addEventListener('resize',fit);fit();
+
+  const px=(el,p)=>parseFloat((el.getAttribute('style').match(new RegExp('(?:^|;)\\s*'+p+'\\s*:\\s*(-?[\\d.]+)px'))||[])[1]||0);
+  function box(el){return {l:px(el,'left'),t:px(el,'top'),w:px(el,'width'),h:px(el,'height')};}
+
+  const counters=new Map();
+  function countUp(s,base){
+    s.querySelectorAll('[data-count]').forEach(el=>{
+      const end=+el.dataset.count, fmt=n=>Math.round(n).toLocaleString('en-US');
+      clearTimeout(counters.get(el));
+      if(reduce){el.textContent=fmt(end);return;}
+      el.textContent=fmt(0);
+      counters.set(el,setTimeout(()=>{const t0=performance.now(),dur=1600;
+        const step=now=>{const p=Math.min(1,(now-t0)/dur),e=el.dataset.ease==='linear'?p:1-Math.pow(1-p,3);el.textContent=fmt(end*e);if(p<1&&s.classList.contains('active'))requestAnimationFrame(step);else el.textContent=fmt(end);};
+        requestAnimationFrame(step);},(base+.3)*1000));
+    });
+  }
+  function runBuilds(s,base){s.classList.remove('run');s.style.setProperty('--base',base+'s');void s.offsetWidth;s.classList.add('run');countUp(s,base);}
+  function finish(){if(!busy)return;clearTimeout(busy.t);const {from}=busy;from.classList.remove('leaving','fx');from.style.opacity='';from.style.transform='';busy=null;}
+
+  function show(n,opts){
+    opts=opts||{};
+    n=Math.max(0,Math.min(slides.length-1,n));
+    if(n===i)return;
+    finish();
+    const from=i>=0?slides[i]:null, to=slides[n], back=from&&n<i;
+    let kind='none';
+    if(from&&!reduce){kind=opts.jump?'fade':(back?(to.dataset.tr||'fade'):(from.dataset.tr||'fade'));if(Math.abs(n-i)>1&&kind!=='fade')kind='fade';}
+    i=n;
+    slides.forEach(s=>{if(s!==from&&s!==to){s.classList.remove('active','run','leaving','fx');s.style.opacity='';s.style.transform='';}});
+    to.classList.remove('fx');to.style.opacity='';to.style.transform='';
+    if(!from||kind==='none'){if(from){from.classList.remove('active','run');}to.classList.add('active');runBuilds(to,.15);}
+    else{
+      from.classList.remove('active');from.classList.add('leaving');
+      if(kind==='push'){
+        const d=back?-1:1;
+        to.style.transform='translateX('+(1920*d)+'px)';to.classList.add('active');
+        void to.offsetWidth;
+        to.classList.add('fx');from.classList.add('fx');
+        to.style.transform='translateX(0)';from.style.transform='translateX('+(-1920*d)+'px)';
+        runBuilds(to,.6);
+      }else{
+        to.style.opacity='0';to.classList.add('active');
+        void to.offsetWidth;to.classList.add('fx');from.classList.add('fx');
+        to.style.opacity='1';from.style.opacity='0';
+        if(kind==='magic'){
+          const a=from.querySelector('[data-magic]'), b=to.querySelector('[data-magic]');
+          if(a&&b){const A=box(a),B=box(b);if(B.w>0){
+            a.style.visibility='hidden';
+            b.style.transition='none';b.style.transform='translate('+(A.l-B.l)+'px,'+(A.t-B.t)+'px) scale('+(A.w/B.w)+')';
+            to.style.transition='opacity .35s ease';
+            void b.offsetWidth;
+            b.style.transition='transform .85s cubic-bezier(.65,0,.35,1)';b.style.transform='';
+            setTimeout(()=>{a.style.visibility='';b.style.transition='';to.style.transition='';},900);
+          }}
+          runBuilds(to,.55);
+        }else runBuilds(to,.3);
+      }
+      busy={from,t:setTimeout(finish,800)};
+    }
+    counter.textContent=String(i+1).padStart(2,'0')+' / '+String(slides.length).padStart(2,'0');
+    progress.style.width=(i/(slides.length-1)*100)+'%';
+    document.body.classList.toggle('on-paper',to.dataset.surface==='paper');
+    if(history.replaceState){try{history.replaceState(null,'','#'+to.dataset.id);}catch(e){}}
+    syncNotes();presSync();markOverview();
+  }
+  const next=()=>show(i+1), prev=()=>show(i-1), home=()=>show(0,{jump:true});
+  document.getElementById('nextBtn').addEventListener('click',next);
+  document.getElementById('prevBtn').addEventListener('click',prev);
+  document.getElementById('resetBtn').addEventListener('click',home);
+
+  // overview, grouped by part
+  const overview=document.getElementById('overview'), ovGrid=document.getElementById('ovGrid');
+  slides.forEach((s,idx)=>{
+    if(s.dataset.id.startsWith('div-')||idx===0){const p=document.createElement('div');p.className='ov-part';p.textContent=idx===0?'Part one · The case':TITLES[idx];ovGrid.appendChild(p);}
+    const d=document.createElement('button');d.type='button';d.className='ov-item';
+    d.innerHTML='<div class="oi-n">'+String(idx+1).padStart(2,'0')+'</div><div class="oi-t"></div>';
+    d.querySelector('.oi-t').textContent=TITLES[idx]||('Slide '+(idx+1));
+    d.addEventListener('click',()=>{closeOverview();show(idx,{jump:true});});ovGrid.appendChild(d);
+  });
+  function markOverview(){ovGrid.querySelectorAll('.ov-item').forEach((b,idx)=>b.classList.toggle('cur',idx===i));}
+  function openOverview(){overview.hidden=false;const c=ovGrid.querySelector('.ov-item.cur');if(c)c.focus();}
+  function closeOverview(){overview.hidden=true;}
+  const toggleOverview=()=>overview.hidden?openOverview():closeOverview();
+  document.getElementById('ovBtn').addEventListener('click',toggleOverview);
+
+  // keyboard + touch, as in the coaching decks
+  function onKey(k,e){
+    if(k==='ArrowRight'||k==='PageDown'||k===' '){e&&e.preventDefault();next();}
+    else if(k==='ArrowLeft'||k==='PageUp'){e&&e.preventDefault();prev();}
+    else if(k==='Home'){e&&e.preventDefault();home();}
+    else if(k==='End'){e&&e.preventDefault();show(slides.length-1,{jump:true});}
+    else if(k==='o'||k==='O'){toggleOverview();}
+    else if(k==='Escape'){closeOverview();notesPanel.hidden=true;}
+    else if(k==='f'||k==='F'){if(!document.fullscreenElement){document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen().catch(()=>{});}else{document.exitFullscreen&&document.exitFullscreen();}}
+  }
+  document.addEventListener('keydown',e=>{if(e.metaKey||e.ctrlKey||e.altKey)return;if(e.target.closest&&e.target.closest('.ov-item')&&(e.key===' '||e.key==='Enter'))return;onKey(e.key,e);});
+  let tx=0,ty=0;
+  document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;ty=e.touches[0].clientY;},{passive:true});
+  document.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-tx,dy=e.changedTouches[0].clientY-ty;if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)){dx<0?next():prev();}},{passive:true});
+
+  // speaker notes: presenter window when the browser allows it, otherwise an in-page panel
+  const notesPanel=document.getElementById('notesPanel');
+  document.getElementById('npClose').addEventListener('click',()=>{notesPanel.hidden=true;});
+  function syncNotes(){
+    document.getElementById('npNum').textContent='Speaker notes · '+(i+1)+' / '+slides.length;
+    document.getElementById('npTitle').textContent=TITLES[i]||'';
+    document.getElementById('npNotes').textContent=NOTES[i]||'No speaker notes for this slide.';
+  }
+  let presenterWin=null;
+  function presSync(){if(presenterWin&&!presenterWin.closed){try{presenterWin.postMessage({type:'goto',i:i,total:slides.length,title:TITLES[i]||'',notes:NOTES[i]||'',next:TITLES[i+1]||''},'*');}catch(e){}}}
+  const PRESENTER_DOC='<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Presenter · Absa × TFS</title>'
+    +'<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;600;700&display=swap" rel="stylesheet">'
+    +'<style>:root{--paper:#EFE7D8;--ochre:#C9923A;--mut:#A09888;--sans:\'Josefin Sans\',sans-serif;--disp:Georgia,serif;color-scheme:dark}'
+    +'*{box-sizing:border-box;margin:0;padding:0;}body{background:#121212;color:var(--paper);font-family:var(--disp);min-height:100vh;display:flex;flex-direction:column;padding:22px 26px;}'
+    +'.top{display:flex;justify-content:space-between;align-items:center;font-family:var(--sans);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mut);border-bottom:1px solid rgba(239,231,216,.14);padding-bottom:12px;gap:12px;}'
+    +'.top .brand{color:var(--ochre);font-weight:700;}.pnum{font-weight:700;color:var(--paper);margin-left:auto;}.clock{font-size:24px;color:var(--ochre);font-variant-numeric:tabular-nums;}'
+    +'.eyebrow{font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--ochre);margin-top:16px;}'
+    +'.cur{font-size:28px;line-height:1.15;margin:4px 0 0;}.notes{flex:1;overflow:auto;margin-top:16px;font-size:19px;line-height:1.6;color:#EDE6D6;}'
+    +'.next{font-family:var(--sans);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);padding-top:14px;border-top:1px solid rgba(239,231,216,.14);}.next b{color:var(--paper);font-weight:600;}'
+    +'.ctrl{display:flex;gap:10px;margin-top:14px;}.ctrl button{flex:1;background:rgba(239,231,216,.08);border:1px solid rgba(239,231,216,.25);color:var(--paper);font-family:var(--sans);font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:13px;cursor:pointer;}'
+    +'.ctrl button:hover{border-color:var(--ochre);color:var(--ochre);}</style></head><body>'
+    +'<div class="top"><span class="brand">The Founder\'s Sprint · Presenter</span><span class="pnum" id="pnum">—</span><span class="clock" id="clock">00:00</span></div>'
+    +'<div class="eyebrow">Now presenting</div><div class="cur" id="cur">—</div><div class="notes" id="notes"></div><div class="next" id="next"></div>'
+    +'<div class="ctrl"><button id="hh">⟲ Start</button><button id="pp">‹ Prev</button><button id="nn">Next ›</button></div>'
+    +'<scr'+'ipt>var t0=Date.now();function pad(n){return String(n).padStart(2,"0");}'
+    +'setInterval(function(){var s=Math.floor((Date.now()-t0)/1000);document.getElementById("clock").textContent=pad(Math.floor(s/60))+":"+pad(s%60);},500);'
+    +'function nav(d){if(window.opener&&!window.opener.closed){window.opener.postMessage({type:"fs-nav",dir:d},"*");}}'
+    +'document.getElementById("pp").onclick=function(){nav(-1);};document.getElementById("nn").onclick=function(){nav(1);};document.getElementById("hh").onclick=function(){nav(0);};'
+    +'window.addEventListener("keydown",function(e){if(e.key==="ArrowRight"||e.key===" "||e.key==="PageDown"){e.preventDefault();nav(1);}else if(e.key==="ArrowLeft"||e.key==="PageUp"){e.preventDefault();nav(-1);}else if(e.key==="Home"){e.preventDefault();nav(0);}});'
+    +'window.addEventListener("message",function(e){var m=e.data||{};if(m.type==="goto"){document.getElementById("pnum").textContent=(m.i+1)+" / "+m.total;document.getElementById("cur").textContent=m.title;document.getElementById("notes").textContent=m.notes||"No speaker notes for this slide.";var n=document.getElementById("next");n.textContent="";if(m.next){n.append("Next → ");var b=document.createElement("b");b.textContent=m.next;n.append(b);}else{n.textContent="End of deck";}}});'
+    +'if(window.opener&&!window.opener.closed){window.opener.postMessage({type:"fs-ready"},"*");}'
+    +'<\/scr'+'ipt></body></html>';
+  function openPresenter(){
+    if(presenterWin&&!presenterWin.closed){presenterWin.focus();presSync();return;}
+    let w=null;try{w=window.open('','fsPresenterAbsa','width=760,height=860');}catch(e){w=null;}
+    if(!w){notesPanel.hidden=!notesPanel.hidden;syncNotes();return;}
+    presenterWin=w;w.document.open();w.document.write(PRESENTER_DOC);w.document.close();setTimeout(presSync,350);
+  }
+  const presBtn=document.getElementById('presBtn');if(presBtn)presBtn.addEventListener('click',openPresenter);
+  window.addEventListener('message',e=>{const m=e.data||{};
+    if(m.type==='fs-nav'){m.dir>0?next():m.dir<0?prev():home();}
+    else if(m.type==='fs-ready'){presSync();}
+    else if(m.type==='fs-key'){onKey(m.key,null);}
+  });
+
+  if(window.matchMedia('(hover:none) and (pointer:coarse)').matches)document.getElementById('kbdHint').textContent='Swipe, or tap \u2039 \u203a, to move through the slides';
+  setTimeout(()=>document.getElementById('kbdHint').classList.add('gone'),7000);
+  window.addEventListener('beforeprint',()=>{counters.forEach(t=>clearTimeout(t));document.querySelectorAll('[data-count]').forEach(el=>{el.textContent=(+el.dataset.count).toLocaleString('en-US');});});
+  // controls fade out while presenting and come back on any mouse move or touch
+  const chromeEl=document.querySelector('.chrome');let idleT=null;
+  function wake(){document.body.classList.remove('idle');clearTimeout(idleT);idleT=setTimeout(()=>{if(!chromeEl.matches(':hover')&&overview.hidden)document.body.classList.add('idle');},3200);}
+  ['mousemove','mousedown','touchstart'].forEach(ev=>document.addEventListener(ev,wake,{passive:true}));wake();
+  const start=slides.findIndex(s=>'#'+s.dataset.id===location.hash);
+  show(start>0?start:0);
+})();
+</script>
+
+</body>
+</html>
