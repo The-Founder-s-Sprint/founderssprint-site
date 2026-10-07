@@ -370,6 +370,42 @@
     const loginPrice = $('#badge-tier-price-login');
     if (loginName) loginName.textContent = t.name;
     if (loginPrice) loginPrice.textContent = offerShort(state.tier);
+    nameTheSelection();
+  }
+
+  // A deep-link from a /s/<slug> share page (or a TikTok comment) arrives with
+  // tier + specialty already chosen, so configComplete() is true and a
+  // logged-OUT visitor is routed straight to this Account step. Until this was
+  // added the first thing a cold stranger saw was a signup form captioned
+  // "Create your account to continue" with a badge reading "1-on-1 Session ·
+  // UGX 500K" — no mention of the specialty they clicked or the coach who
+  // teaches it. That is the likeliest reason a share link fails to convert:
+  // the page asks for an email before it has said what it is selling.
+  //
+  // Writing into the existing #step2-sub rather than adding markup keeps this
+  // to one function, which matters because book.js is duplicated at /book/ and
+  // /beta/book/ and the two have to stay in step.
+  function nameTheSelection() {
+    const sub = $('#step2-sub');
+    if (!sub || LOGGED_IN) return;                 // logged-in gets "Welcome back" later
+    if (!TAX || !state.specialties.length) return; // no specialty deep-link, leave default
+    const picked = state.specialties.map(function (s) { return TAX.get(s); }).filter(Boolean);
+    if (!picked.length) return;
+
+    const names = picked.map(function (p) { return p.name; });
+    const coaches = picked.map(function (p) { return p.coach; })
+      .filter(function (c, i, a) { return c && a.indexOf(c) === i; });
+
+    let what;
+    if (names.length === 1) what = names[0];
+    else if (names.length === 2) what = names.join(' and ');
+    else what = names.slice(0, -1).join(', ') + ' and ' + names[names.length - 1];
+
+    const who = coaches.length === 1 ? ' with ' + coaches[0] : '';
+    const dur = names.length === 1 ? 'a two-hour 1:1 session' : names.length + ' two-hour 1:1 sessions';
+
+    sub.textContent = 'You are booking ' + what + ' — ' + dur + who + '. '
+      + 'Create an account to hold the slot; nothing is charged yet.';
   }
 
   // Auth toggle tabs

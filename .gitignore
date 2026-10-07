@@ -3,3 +3,10 @@
 .env
 # Large source videos (compressed versions are tracked)
 pexels-*.mp4
+
+# Specialty videos are staged locally and served from R2 — never committed.
+# 49 clips at ~4 MB each would permanently bloat the repo (git keeps every
+# revision of a binary forever). See media/specialty/README.md.
+media/specialty/*.mp4
+media/specialty/*.jpg
+media/specialty/*.mov

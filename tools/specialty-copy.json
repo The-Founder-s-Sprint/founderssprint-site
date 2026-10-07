@@ -1,0 +1,106 @@
+{
+  "_README": [
+    "Conversion copy for the /s/<slug> specialty landing pages.",
+    "",
+    "taxonomy.js stays the single source of truth for names, slugs, parents, coaches",
+    "and colours. This file adds ONLY the page copy that a one-line DESC cannot carry.",
+    "A slug absent from this file still generates a page — it falls back to the",
+    "taxonomy one-liner and omits the outcomes block, so nothing breaks while copy",
+    "is being written. Run the generator again after adding a slug.",
+    "",
+    "Voice (DESIGN.md §13): declarative opening, no preamble. Never 'As a founder',",
+    "'In today's world', 'It's important to note', 'Dive into'. Outcomes are concrete",
+    "artefacts or decisions a founder walks out holding — not feelings or benefits.",
+    "",
+    "headline  — short, sentence case, no full stop. Shown as the page H1.",
+    "lede      — one or two sentences. Overrides the taxonomy one-liner if present.",
+    "outcomes  — 3 to 4 items. Each starts with a noun or a verb, never 'You will'.",
+    "forYou    — 2 to 3 short lines. Who should book this, stated plainly.",
+    "ogBlurb   — <=150 chars. What WhatsApp and TikTok show under the link."
+  ],
+
+  "brand-positioning": {
+    "headline": "Claim a position your competitors can't take back",
+    "lede": "Most founders describe what they do. Positioning is deciding what you refuse to do, and who you are deliberately not for. Two hours to find the ground you can actually hold.",
+    "outcomes": [
+      "A written positioning statement you can hand to a designer, a copywriter or an investor without explaining it first",
+      "The two or three competitors you are genuinely measured against — and the axis you beat them on",
+      "A list of the customers you are saying no to, and why that makes the yes stronger",
+      "The language your best customers already use, lifted from their words rather than invented in a workshop"
+    ],
+    "forYou": [
+      "You can describe your product but not why someone should pick it over the obvious alternative.",
+      "Your pitch changes depending on who is in the room.",
+      "You are about to spend money on a brand, a website or ads and want the message settled first."
+    ],
+    "ogBlurb": "Two hours with Teddy Ruge to find the position you can actually hold — and the customers worth saying no to."
+  },
+
+  "burn-rate-and-runway": {
+    "headline": "Know the month you run out — before it surprises you",
+    "lede": "Runway is not a number you check once. It is a monthly habit that changes which decisions are even available to you. Two hours to build the model and learn to read it.",
+    "outcomes": [
+      "Your real monthly burn, separated into what is committed and what you could stop next week",
+      "A runway figure with the date attached, not a vague 'about a year'",
+      "The three levers that move your runway most, ranked by how much time each one buys",
+      "A one-page cash view you can update in ten minutes at the end of every month"
+    ],
+    "forYou": [
+      "You know roughly what is in the account but not how long it lasts.",
+      "You are deciding whether to hire, and need to know what it costs in months.",
+      "An investor has asked for your burn and you are not confident in the answer."
+    ],
+    "ogBlurb": "Two hours with Barry Wojega to build a runway model with a date on it — and learn which levers buy you time."
+  },
+
+  "pitch-deck-structure": {
+    "headline": "Build the deck in the order investors actually read",
+    "lede": "A deck fails on sequence far more often than on design. Two hours on the order that earns the next slide, and the one that loses the room by slide four.",
+    "outcomes": [
+      "A slide-by-slide running order for your own deck, not a generic template",
+      "The single sentence that opens it — rewritten until it survives being read cold",
+      "The three slides investors actually stop on, built properly, with your numbers in them",
+      "An honest list of what your deck is currently asking a reader to take on faith"
+    ],
+    "forYou": [
+      "You have a deck that gets polite responses and no second meetings.",
+      "You are raising in the next six months and starting from a blank page.",
+      "You have been told your deck is 'too early' and want to know what that actually meant."
+    ],
+    "ogBlurb": "Two hours with Joseph Kalema on the running order that earns the next slide — and the one that loses the room."
+  },
+
+  "hiring-strategy": {
+    "headline": "Decide who to hire next, and what it costs in runway",
+    "lede": "The wrong first hire is the most expensive mistake a small team makes, and it is usually made from relief rather than a plan. Two hours on sequence, cost and the role you should not fill yet.",
+    "outcomes": [
+      "Your next three hires in order, with the trigger that makes each one due",
+      "The fully-loaded cost of each role in months of runway, not just salary",
+      "A scorecard for the next role — what good looks like, written before you meet anyone",
+      "The work you are about to hire for that should be bought, automated or dropped instead"
+    ],
+    "forYou": [
+      "You are stretched thin and about to hire the person who shouts loudest in your head.",
+      "You have budget for one role and three candidates for different jobs.",
+      "Your team has grown and nobody is sure who decides what."
+    ],
+    "ogBlurb": "Two hours with Moses Okudu on who to hire next, what it costs in runway, and the role you should not fill yet."
+  },
+
+  "value-based-pricing": {
+    "headline": "Price what it's worth, not what it cost you",
+    "lede": "Cost-plus pricing hands your margin to whoever is cheapest. Two hours on what your customer actually gains, what that is worth to them, and how to charge for it without losing the deal.",
+    "outcomes": [
+      "The measurable value your product creates for one real customer, in their currency",
+      "A price you can defend out loud, with the reasoning you would use when challenged",
+      "Two or three packages that let a customer choose up instead of negotiating down",
+      "The script for the moment someone says it is too expensive"
+    ],
+    "forYou": [
+      "You priced by adding a margin to your costs and have not revisited it.",
+      "You discount to close and your margin has quietly disappeared.",
+      "You suspect you are the cheapest option and it is not winning you the work."
+    ],
+    "ogBlurb": "Two hours with Patrick Ngolobe on pricing to the value your customer gains — and defending the number out loud."
+  }
+}
