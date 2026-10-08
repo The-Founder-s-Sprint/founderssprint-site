@@ -376,19 +376,19 @@ body.idle{cursor:none;}
 <section class="slide" data-id="disciplines" data-surface="dark" data-tr="fade" style="background:#1a1a1a">
   <div class="cst" style="position:absolute; left:0px; top:0px; width:1920px; height:1080px; overflow:hidden"><style>
 .cm-root{position:absolute;inset:0;overflow:hidden;font-family:'Josefin Sans',"Avenir Next",Futura,"Century Gothic",sans-serif}
-.cm-hero{background:#1A1A1A;color:#EFE7D8}.cm-bg{background:#EFE7D8;color:#1A1A1A}
+.cm-hero{background:#1A1A1A;color:#EFE7D8}.cm-bg{background:#EFE7D8;color:#1A1A1A}.cm-bg.cm-dark{background:#1A1A1A;color:#EFE7D8}
 .cm-stage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0}
 .cm-svg{position:absolute;left:0;top:0}
-.cm-scrim{position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,#1A1A1A 0%,rgba(26,26,26,.94) 33%,rgba(26,26,26,0) 52%)}
-.cm-panel{position:absolute;left:128px;top:356px;width:600px;pointer-events:none;transition:opacity .4s}
+.cm-scrim{position:absolute;inset:0;pointer-events:none;background:linear-gradient(270deg,#1A1A1A 0%,rgba(26,26,26,.94) 40%,rgba(26,26,26,0) 44%)}
+.cm-panel{position:absolute;left:1120px;top:425px;width:672px;pointer-events:none;transition:opacity .4s}
 .cm-e{font-size:24px;font-weight:700;letter-spacing:4px;text-transform:uppercase}
 .cm-n{font-size:44px;font-weight:700;line-height:1.12;margin:12px 0 8px}
-.cm-c{font-size:26px;color:#C0B8A8;margin-bottom:24px}
-.cm-m{margin-bottom:16px}.cm-h{font-size:26px;font-weight:700}
+.cm-c{font-size:26px;color:#C0B8A8;margin-bottom:20px}
+.cm-m{margin-bottom:14px}.cm-h{font-size:26px;font-weight:700}
 .cm-l{font-family:Georgia,serif;font-size:24px;line-height:1.35;color:#A09888}
-.cm-k{position:absolute;right:128px;top:926px;pointer-events:none;font-size:24px;color:#A09888;letter-spacing:1px;text-align:right}
-</style><div class="cm-root cm-hero"><div class="cm-stage"><svg class="cm-svg" width="1920" height="1080" viewBox="0 0 1920 1080" aria-hidden="true"></svg><div class="cm-scrim"></div><div class="cm-panel"><div class="cm-e"></div><div class="cm-n"></div><div class="cm-c"></div><div class="cm-mods"></div></div><div class="cm-k">5 disciplines · 15 modules · 49 specialties · select a day to jump to it</div></div></div><script>(function(){
-const R=document.currentScript.previousElementSibling,HERO=R.classList.contains("cm-hero"),ST=R.querySelector(".cm-stage"),S=R.querySelector(".cm-svg");
+.cm-k{position:absolute;left:1120px;bottom:110px;width:672px;pointer-events:none;font-size:24px;line-height:1.4;color:#A09888;letter-spacing:1px}
+</style><div class="cm-root cm-hero"><div class="cm-stage"><svg class="cm-svg" width="1920" height="1080" viewBox="0 0 1920 1080" aria-hidden="true"></svg><div class="cm-scrim"></div><div class="cm-panel"><div class="cm-e"></div><div class="cm-n"></div><div class="cm-c"></div><div class="cm-mods"></div></div><div class="cm-k">5 disciplines · 15 modules · 49 specialties<br>Select a day to jump to it</div></div></div><script>(function(){
+const R=document.currentScript.previousElementSibling,HERO=R.classList.contains("cm-hero"),DK=HERO||R.classList.contains("cm-dark"),ST=R.querySelector(".cm-stage"),S=R.querySelector(".cm-svg");
 const D=[
 ["Marketing & Branding","TMS Ruge","Mondays","MON","#c8531f",[["Brand Strategy","Brand Positioning|Messaging Architecture|Visual Identity"],["Go-to-Market","Market Entry|Channel Mix|Launch Sequencing"],["Growth & Discovery","Content Strategy|SEO & Discoverability|Customer Research"]]],
 ["Financial Modelling","Barry Wojega","Tuesdays","TUE","#c9923a",[["Unit Economics","CAC & LTV|Payback Period|Contribution Margin"],["Financial Planning","Revenue Forecasting|Burn Rate & Runway|Cash Flow Management|Tax & Compliance"],["Capital Architecture","Valuation Methods|Cap Table Design|Term Sheet Analysis"]]],
@@ -396,36 +396,36 @@ const D=[
 ["Investment Readiness","Joseph Kalema","Thursdays","THU","#8aab5c",[["Pitch Craft","Pitch Deck Structure|Investor Narrative|Executive Summary"],["Investor Relations","Investor Targeting|Due Diligence Prep|Data Room"],["Funding Strategy","Pre-seed Rounds|Seed Rounds|Grants & DFIs"]]],
 ["Product Development & Pricing","Patrick Ngolobe","Fridays","FRI","#a59b8c",[["Product-Market Fit","Problem Validation|Solution Testing|PMF Signals"],["Product Development","MVP Design|Roadmapping|Iteration Cycles|Payments & Mobile Money"],["Pricing Strategy","Value-Based Pricing|Competitive Pricing|Price Testing"]]]];
 const NS="http://www.w3.org/2000/svg",G=HERO?"#55524c":"#1A1A1A",GL="#8a857d";
-const C=HERO?{x:1330,y:600,r1:150,r2:255,r3:362,q:.82,fs:19,sp:3}:{x:1640,y:700,r1:170,r2:290,r3:410,q:.82,fs:21,sp:2};
+const C=HERO?{x:300,y:560,r1:210,r2:360,r3:500,q:.82,fs:22,sp:0}:{x:1640,y:700,r1:170,r2:290,r3:410,q:.82,fs:21,sp:2};
 function E(t,a,p){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);(p||S).appendChild(e);return e}
 function set(e,a){for(const k in a)e.setAttribute(k,a[k])}
 function hx(c){return[1,3,5].map(i=>parseInt(c.slice(i,i+2),16))}
 function mix(a,b,t){const A=hx(a),B=hx(b);return"rgb("+A.map((v,i)=>Math.round(v+(B[i]-v)*t)).join(",")+")"}
 function pt(t,r){const a=t*Math.PI/180;return[C.x+Math.cos(a)*r,C.y+Math.sin(a)*r*C.q]}
 const uid="g"+Math.random().toString(36).slice(2,7),fl=E("filter",{id:uid,x:"-1",y:"-1",width:"3",height:"3"},E("defs",{}));E("feGaussianBlur",{stdDeviation:"7"},fl);
-[C.r1,C.r2,C.r3].forEach(r=>E("ellipse",{cx:C.x,cy:C.y,rx:r,ry:r*C.q,fill:"none",stroke:HERO?"#EFE7D8":"#1A1A1A","stroke-opacity":HERO?.08:.25,"stroke-dasharray":"2 7"}));
+[C.r1,C.r2,C.r3].forEach(r=>E("ellipse",{cx:C.x,cy:C.y,rx:r,ry:r*C.q,fill:"none",stroke:DK?"#EFE7D8":"#1A1A1A","stroke-opacity":HERO?.08:(DK?.3:.25),"stroke-dasharray":"2 7"}));
 const PC=["#c8531f","#c9923a","#8aab5c","#5f7a45","#a59b8c"],P=[];
-if(HERO)for(let i=0;i<60;i++){const a=Math.random()*6.283,d=60+Math.random()*560;P.push({e:E("circle",{cx:C.x+Math.cos(a)*d,cy:C.y+Math.sin(a)*d*C.q,r:(.8+Math.random()*1.6).toFixed(1),fill:PC[i%5]}),ph:Math.random()*6.283,sp:.5+Math.random()})}
+if(HERO)for(let i=0;i<60;i++){const a=Math.random()*6.283,d=80+Math.random()*720;P.push({e:E("circle",{cx:C.x+Math.cos(a)*d,cy:C.y+Math.sin(a)*d*C.q,r:(.8+Math.random()*1.6).toFixed(1),fill:PC[i%5]}),ph:Math.random()*6.283,sp:.5+Math.random()})}
 const LG=E("g",{}),NG=E("g",{}),TG=E("g",{});
-let k=0,yaw=-90,rot=0;
+let k=0,yaw=HERO?0:-90,rot=0,yb=yaw,y0=yaw,y1=yaw,yt0=-1e9;const RT=1700,HOLD=6000;
 const N=D.map((d,i)=>{const o={i,c:d[4],f:HERO?(i==k?1:0):1,l2:[]};
-o.cl=E("line",{"stroke-width":1.6},LG);o.gl=E("circle",{r:52,filter:"url(#"+uid+")"},NG);
-o.rg=E("circle",{r:38,fill:HERO?"#1A1A1A":"#EFE7D8","stroke-width":2.2},NG);
-o.tx=E("text",{"text-anchor":"middle","dominant-baseline":"central","font-size":24,"font-weight":700,"letter-spacing":1,"pointer-events":"none"},NG);o.tx.textContent=d[3];
-d[5].forEach((m,j)=>{const L=m[1].split("|"),s={j,ln:E("line",{"stroke-width":1.2},LG),rg:E("circle",{r:11,fill:HERO?"#1A1A1A":"#EFE7D8","stroke-width":1.6},NG),dt:E("circle",{r:4},NG),l3:[]};
+o.cl=E("line",{"stroke-width":1.6},LG);o.gl=E("circle",{r:HERO?58:52,filter:"url(#"+uid+")"},NG);
+o.rg=E("circle",{r:HERO?44:38,fill:DK?"#1A1A1A":"#EFE7D8","stroke-width":2.2},NG);
+o.tx=E("text",{"text-anchor":"middle","dominant-baseline":"central","font-size":HERO?26:24,"font-weight":700,"letter-spacing":1,"pointer-events":"none"},NG);o.tx.textContent=d[3];
+d[5].forEach((m,j)=>{const L=m[1].split("|"),s={j,ln:E("line",{"stroke-width":1.2},LG),rg:E("circle",{r:11,fill:DK?"#1A1A1A":"#EFE7D8","stroke-width":1.6},NG),dt:E("circle",{r:4},NG),l3:[]};
 L.forEach((x,q)=>{const t=E("text",{"font-size":C.fs,"dominant-baseline":"central","font-family":"Georgia,serif"},TG);t.textContent=x;s.l3.push({q,n:L.length,t,ln:E("line",{"stroke-width":.9},LG),gl:E("circle",{r:10,filter:"url(#"+uid+")"},NG),dt:E("circle",{r:5},NG)})});o.l2.push(s)});
 if(HERO){o.rg.style.cursor="pointer";o.rg.addEventListener("click",()=>go(i))}
 return o});
-const M=E("g",{},NG),MS=HERO?.9:1.2;[["#C8531F",.85],["#C9923A",.8],["#8AAB5C",.78],["#3D4A2E",.82],["#777770",.75]].forEach((p,i)=>E("polygon",{points:"50,8 57,50 50,92 43,50",fill:p[0],opacity:p[1],transform:"rotate("+i*72+" 50 50)"},M));
-E("circle",{cx:50,cy:50,r:4.5,fill:HERO?"#EFE7D8":"#1A1A1A"},M);E("circle",{cx:50,cy:50,r:2,fill:HERO?"#1A1A1A":"#EFE7D8"},M);
+const M=E("g",{},NG),MS=HERO?1.1:1.2;[["#C8531F",.85],["#C9923A",.8],["#8AAB5C",.78],["#3D4A2E",.82],["#777770",.75]].forEach((p,i)=>E("polygon",{points:"50,8 57,50 50,92 43,50",fill:p[0],opacity:p[1],transform:"rotate("+i*72+" 50 50)"},M));
+E("circle",{cx:50,cy:50,r:4.5,fill:DK?"#EFE7D8":"#1A1A1A"},M);E("circle",{cx:50,cy:50,r:2,fill:DK?"#1A1A1A":"#EFE7D8"},M);
 function draw(){N.forEach(o=>{const f=o.f,col=HERO?mix(G,o.c,f):o.c,t=o.i*72+yaw,[x,y]=pt(t,C.r1),lo=HERO?.18+.6*f:.55;
 set(o.cl,{x1:C.x,y1:C.y,x2:x,y2:y,stroke:col,"stroke-opacity":lo});set(o.gl,{cx:x,cy:y,fill:o.c,"fill-opacity":HERO?.32*f:0});
 set(o.rg,{cx:x,cy:y,stroke:col,"stroke-opacity":HERO?.45+.55*f:1});set(o.tx,{x:x,y:y+1,fill:HERO?mix(GL,o.c,f):o.c,"fill-opacity":HERO?.5+.5*f:1});
-o.l2.forEach(s=>{const t2=t+(s.j-1)*16,[a,b]=pt(t2,C.r2);
+o.l2.forEach(s=>{const t2=t+(s.j-1)*(HERO?23:16),[a,b]=pt(t2,C.r2);
 set(s.ln,{x1:x,y1:y,x2:a,y2:b,stroke:col,"stroke-opacity":lo*.85});set(s.rg,{cx:a,cy:b,stroke:col,"stroke-opacity":HERO?.4+.6*f:1});set(s.dt,{cx:a,cy:b,fill:col});
-s.l3.forEach(q=>{const sp=q.n>3?4.4:6,t3=t2+(q.q-(q.n-1)/2)*sp,[u,v]=pt(t3,C.r3),[lx,ly]=pt(t3,C.r3+16),rad=t3*Math.PI/180,ang=Math.atan2(Math.sin(rad)*C.q,Math.cos(rad))*180/Math.PI,left=Math.cos(rad)<0;
+s.l3.forEach(q=>{const sp=q.n>3?(HERO?5.6:4.4):(HERO?7.2:6),t3=t2+(q.q-(q.n-1)/2)*sp,[u,v]=pt(t3,C.r3),[lx,ly]=pt(t3,C.r3+16),rad=t3*Math.PI/180,ang=Math.atan2(Math.sin(rad)*C.q,Math.cos(rad))*180/Math.PI,left=Math.cos(rad)<0;
 set(q.ln,{x1:a,y1:b,x2:u,y2:v,stroke:col,"stroke-opacity":lo*.7});set(q.gl,{cx:u,cy:v,fill:o.c,"fill-opacity":HERO?.5*f:0});set(q.dt,{cx:u,cy:v,fill:col,"fill-opacity":HERO?.35+.65*f:1});
-set(q.t,{x:lx,y:ly,"text-anchor":left?"end":"start",transform:"rotate("+(left?ang+180:ang).toFixed(2)+" "+lx.toFixed(1)+" "+ly.toFixed(1)+")",fill:HERO?mix(GL,"#EFE7D8",f):"#1A1A1A","fill-opacity":HERO?.22+.7*f:.9})})})})}
+set(q.t,{x:lx,y:ly,"text-anchor":left?"end":"start",transform:"rotate("+(left?ang+180:ang).toFixed(2)+" "+lx.toFixed(1)+" "+ly.toFixed(1)+")",fill:HERO?mix(GL,"#EFE7D8",f):(DK?"#EFE7D8":"#1A1A1A"),"fill-opacity":HERO?.22+.7*f:.9})})})})}
 function el(t,c,x,p){const e=document.createElement(t);if(c)e.className=c;e.textContent=x;p.appendChild(e);return e}
 const PE=R.querySelector(".cm-panel");
 function panel(i){if(!PE)return;const d=D[i],n=d[5].reduce((s,m)=>s+m[1].split("|").length,0),mm=PE.querySelector(".cm-mods");
@@ -433,15 +433,16 @@ const e=PE.querySelector(".cm-e");e.textContent=d[2]+" · "+n+" specialties";e.s
 PE.querySelector(".cm-n").textContent=d[0];PE.querySelector(".cm-c").textContent="Led by "+d[1];
 mm.textContent="";d[5].forEach(m=>{const b=el("div","cm-m","",mm);el("div","cm-h",m[0],b).style.color=d[4];el("div","cm-l",m[1].split("|").join(" · "),b)})}
 let cs=performance.now();
-function go(n){if(n===k)return;k=n;cs=performance.now();if(PE){PE.style.opacity=0;setTimeout(()=>{panel(k);PE.style.opacity=1},400)}}
+function go(n,auto){if(n===k)return;k=n;cs=performance.now();
+if(HERO){y0=yb;y1=auto?y1-72:-n*72+360*Math.round((y1+n*72)/360);yt0=cs}if(PE){PE.style.opacity=0;setTimeout(()=>{panel(k);PE.style.opacity=1},400)}}
 function fit(){const w=R.clientWidth||1920;ST.style.transform="scale("+(w/1920)+")"}
 fit();if(window.ResizeObserver)new ResizeObserver(fit).observe(R);else addEventListener("resize",fit);
 panel(k);draw();
 const SL=R.closest(".slide");let last=performance.now();
 function tick(now){const dt=Math.min(.05,(now-last)/1000);last=now;
-if(SL&&!SL.classList.contains("active")&&!SL.classList.contains("leaving")){requestAnimationFrame(tick);return}
-if(HERO&&now-cs>5200)go((k+1)%5);
-yaw+=dt*C.sp;rot+=dt*6;
+if(SL&&!SL.classList.contains("active")&&!SL.classList.contains("leaving")){cs=now;requestAnimationFrame(tick);return}
+if(HERO&&now-cs>HOLD)go((k+1)%5,1);
+if(HERO){const p=Math.min(1,(now-yt0)/RT),e=p<.5?4*p*p*p:1-Math.pow(2-2*p,3)/2;yb=y0+(y1-y0)*e;yaw=yb+2*Math.sin(now/2600)}else yaw+=dt*C.sp;rot+=dt*6;
 if(HERO)N.forEach(o=>o.f+=((o.i==k?1:0)-o.f)*Math.min(1,dt*2.5));
 set(M,{transform:"translate("+(C.x-50*MS)+","+(C.y-50*MS)+") scale("+MS+") rotate("+rot.toFixed(2)+" 50 50)"});
 P.forEach(p=>p.e.setAttribute("opacity",(.1+.25*(.5+.5*Math.sin(now/1000*p.sp+p.ph))).toFixed(2)));
@@ -449,28 +450,28 @@ draw();requestAnimationFrame(tick)}
 requestAnimationFrame(tick);
 })();</script></div>
   <svg xmlns="http://www.w3.org/2000/svg" aria-label="The Founder's Sprint mark" viewBox="0 0 100 100" data-magic="mark" style="position:absolute; top:48px; left:48px; width:56px; height:56px"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.85"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.8" transform="rotate(72 50 50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.78" transform="rotate(144 50 50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.82" transform="rotate(216 50 50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288 50 50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
-  <div style="position:absolute; top:128px; left:128px; width:900px; display:flex; flex-direction:column; gap:20px">
+  <div style="position:absolute; top:128px; left:1120px; width:672px; display:flex; flex-direction:column; gap:20px">
     <p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:26px; font-weight:600; letter-spacing:5px; text-transform:uppercase; color:#c9923a">Curriculum design</p>
-    <h2 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; letter-spacing:1px; color:#efe7d8">Five disciplines, one founding coach for each</h2>
+    <h2 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; letter-spacing:1px; color:#efe7d8">Five disciplines,<br>one founding coach<br>for each</h2>
   </div>
-  <p style="position:absolute; bottom:64px; left:128px; width:1400px; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; letter-spacing:3px; color:#a09888">ABSA × THE FOUNDER'S SPRINT</p>
+  <p style="position:absolute; bottom:64px; left:1120px; width:672px; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; letter-spacing:3px; color:#a09888">ABSA × THE FOUNDER'S SPRINT</p>
 </section>
-<section class="slide" data-id="taxonomy" data-surface="paper" data-tr="push" style="background:#EFE7D8; color:#1A1A1A; font-family:Georgia, serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:48px">
+<section class="slide" data-id="taxonomy" data-surface="dark" data-tr="push" style="background:#1A1A1A; color:#EFE7D8; font-family:Georgia, serif; padding:128px 128px 160px; display:flex; flex-direction:column; gap:48px">
   <div class="cst" style="position:absolute; left:0px; top:0px; width:1920px; height:1080px; overflow:hidden"><style>
 .cm-root{position:absolute;inset:0;overflow:hidden;font-family:'Josefin Sans',"Avenir Next",Futura,"Century Gothic",sans-serif}
-.cm-hero{background:#1A1A1A;color:#EFE7D8}.cm-bg{background:#EFE7D8;color:#1A1A1A}
+.cm-hero{background:#1A1A1A;color:#EFE7D8}.cm-bg{background:#EFE7D8;color:#1A1A1A}.cm-bg.cm-dark{background:#1A1A1A;color:#EFE7D8}
 .cm-stage{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0}
 .cm-svg{position:absolute;left:0;top:0}
-.cm-scrim{position:absolute;inset:0;pointer-events:none;background:linear-gradient(90deg,#1A1A1A 0%,rgba(26,26,26,.94) 33%,rgba(26,26,26,0) 52%)}
-.cm-panel{position:absolute;left:128px;top:356px;width:600px;pointer-events:none;transition:opacity .4s}
+.cm-scrim{position:absolute;inset:0;pointer-events:none;background:linear-gradient(270deg,#1A1A1A 0%,rgba(26,26,26,.94) 40%,rgba(26,26,26,0) 44%)}
+.cm-panel{position:absolute;left:1120px;top:425px;width:672px;pointer-events:none;transition:opacity .4s}
 .cm-e{font-size:24px;font-weight:700;letter-spacing:4px;text-transform:uppercase}
 .cm-n{font-size:44px;font-weight:700;line-height:1.12;margin:12px 0 8px}
-.cm-c{font-size:26px;color:#C0B8A8;margin-bottom:24px}
-.cm-m{margin-bottom:16px}.cm-h{font-size:26px;font-weight:700}
+.cm-c{font-size:26px;color:#C0B8A8;margin-bottom:20px}
+.cm-m{margin-bottom:14px}.cm-h{font-size:26px;font-weight:700}
 .cm-l{font-family:Georgia,serif;font-size:24px;line-height:1.35;color:#A09888}
-.cm-k{position:absolute;right:128px;top:926px;pointer-events:none;font-size:24px;color:#A09888;letter-spacing:1px;text-align:right}
-</style><div class="cm-root cm-bg"><div class="cm-stage" style="opacity:.17"><svg class="cm-svg" width="1920" height="1080" viewBox="0 0 1920 1080" aria-hidden="true"></svg></div></div><script>(function(){
-const R=document.currentScript.previousElementSibling,HERO=R.classList.contains("cm-hero"),ST=R.querySelector(".cm-stage"),S=R.querySelector(".cm-svg");
+.cm-k{position:absolute;left:1120px;bottom:110px;width:672px;pointer-events:none;font-size:24px;line-height:1.4;color:#A09888;letter-spacing:1px}
+</style><div class="cm-root cm-bg cm-dark"><div class="cm-stage" style="opacity:.2"><svg class="cm-svg" width="1920" height="1080" viewBox="0 0 1920 1080" aria-hidden="true"></svg></div></div><script>(function(){
+const R=document.currentScript.previousElementSibling,HERO=R.classList.contains("cm-hero"),DK=HERO||R.classList.contains("cm-dark"),ST=R.querySelector(".cm-stage"),S=R.querySelector(".cm-svg");
 const D=[
 ["Marketing & Branding","TMS Ruge","Mondays","MON","#c8531f",[["Brand Strategy","Brand Positioning|Messaging Architecture|Visual Identity"],["Go-to-Market","Market Entry|Channel Mix|Launch Sequencing"],["Growth & Discovery","Content Strategy|SEO & Discoverability|Customer Research"]]],
 ["Financial Modelling","Barry Wojega","Tuesdays","TUE","#c9923a",[["Unit Economics","CAC & LTV|Payback Period|Contribution Margin"],["Financial Planning","Revenue Forecasting|Burn Rate & Runway|Cash Flow Management|Tax & Compliance"],["Capital Architecture","Valuation Methods|Cap Table Design|Term Sheet Analysis"]]],
@@ -478,36 +479,36 @@ const D=[
 ["Investment Readiness","Joseph Kalema","Thursdays","THU","#8aab5c",[["Pitch Craft","Pitch Deck Structure|Investor Narrative|Executive Summary"],["Investor Relations","Investor Targeting|Due Diligence Prep|Data Room"],["Funding Strategy","Pre-seed Rounds|Seed Rounds|Grants & DFIs"]]],
 ["Product Development & Pricing","Patrick Ngolobe","Fridays","FRI","#a59b8c",[["Product-Market Fit","Problem Validation|Solution Testing|PMF Signals"],["Product Development","MVP Design|Roadmapping|Iteration Cycles|Payments & Mobile Money"],["Pricing Strategy","Value-Based Pricing|Competitive Pricing|Price Testing"]]]];
 const NS="http://www.w3.org/2000/svg",G=HERO?"#55524c":"#1A1A1A",GL="#8a857d";
-const C=HERO?{x:1330,y:600,r1:150,r2:255,r3:362,q:.82,fs:19,sp:3}:{x:1640,y:700,r1:170,r2:290,r3:410,q:.82,fs:21,sp:2};
+const C=HERO?{x:300,y:560,r1:210,r2:360,r3:500,q:.82,fs:22,sp:0}:{x:1640,y:700,r1:170,r2:290,r3:410,q:.82,fs:21,sp:2};
 function E(t,a,p){const e=document.createElementNS(NS,t);for(const k in a)e.setAttribute(k,a[k]);(p||S).appendChild(e);return e}
 function set(e,a){for(const k in a)e.setAttribute(k,a[k])}
 function hx(c){return[1,3,5].map(i=>parseInt(c.slice(i,i+2),16))}
 function mix(a,b,t){const A=hx(a),B=hx(b);return"rgb("+A.map((v,i)=>Math.round(v+(B[i]-v)*t)).join(",")+")"}
 function pt(t,r){const a=t*Math.PI/180;return[C.x+Math.cos(a)*r,C.y+Math.sin(a)*r*C.q]}
 const uid="g"+Math.random().toString(36).slice(2,7),fl=E("filter",{id:uid,x:"-1",y:"-1",width:"3",height:"3"},E("defs",{}));E("feGaussianBlur",{stdDeviation:"7"},fl);
-[C.r1,C.r2,C.r3].forEach(r=>E("ellipse",{cx:C.x,cy:C.y,rx:r,ry:r*C.q,fill:"none",stroke:HERO?"#EFE7D8":"#1A1A1A","stroke-opacity":HERO?.08:.25,"stroke-dasharray":"2 7"}));
+[C.r1,C.r2,C.r3].forEach(r=>E("ellipse",{cx:C.x,cy:C.y,rx:r,ry:r*C.q,fill:"none",stroke:DK?"#EFE7D8":"#1A1A1A","stroke-opacity":HERO?.08:(DK?.3:.25),"stroke-dasharray":"2 7"}));
 const PC=["#c8531f","#c9923a","#8aab5c","#5f7a45","#a59b8c"],P=[];
-if(HERO)for(let i=0;i<60;i++){const a=Math.random()*6.283,d=60+Math.random()*560;P.push({e:E("circle",{cx:C.x+Math.cos(a)*d,cy:C.y+Math.sin(a)*d*C.q,r:(.8+Math.random()*1.6).toFixed(1),fill:PC[i%5]}),ph:Math.random()*6.283,sp:.5+Math.random()})}
+if(HERO)for(let i=0;i<60;i++){const a=Math.random()*6.283,d=80+Math.random()*720;P.push({e:E("circle",{cx:C.x+Math.cos(a)*d,cy:C.y+Math.sin(a)*d*C.q,r:(.8+Math.random()*1.6).toFixed(1),fill:PC[i%5]}),ph:Math.random()*6.283,sp:.5+Math.random()})}
 const LG=E("g",{}),NG=E("g",{}),TG=E("g",{});
-let k=0,yaw=-90,rot=0;
+let k=0,yaw=HERO?0:-90,rot=0,yb=yaw,y0=yaw,y1=yaw,yt0=-1e9;const RT=1700,HOLD=6000;
 const N=D.map((d,i)=>{const o={i,c:d[4],f:HERO?(i==k?1:0):1,l2:[]};
-o.cl=E("line",{"stroke-width":1.6},LG);o.gl=E("circle",{r:52,filter:"url(#"+uid+")"},NG);
-o.rg=E("circle",{r:38,fill:HERO?"#1A1A1A":"#EFE7D8","stroke-width":2.2},NG);
-o.tx=E("text",{"text-anchor":"middle","dominant-baseline":"central","font-size":24,"font-weight":700,"letter-spacing":1,"pointer-events":"none"},NG);o.tx.textContent=d[3];
-d[5].forEach((m,j)=>{const L=m[1].split("|"),s={j,ln:E("line",{"stroke-width":1.2},LG),rg:E("circle",{r:11,fill:HERO?"#1A1A1A":"#EFE7D8","stroke-width":1.6},NG),dt:E("circle",{r:4},NG),l3:[]};
+o.cl=E("line",{"stroke-width":1.6},LG);o.gl=E("circle",{r:HERO?58:52,filter:"url(#"+uid+")"},NG);
+o.rg=E("circle",{r:HERO?44:38,fill:DK?"#1A1A1A":"#EFE7D8","stroke-width":2.2},NG);
+o.tx=E("text",{"text-anchor":"middle","dominant-baseline":"central","font-size":HERO?26:24,"font-weight":700,"letter-spacing":1,"pointer-events":"none"},NG);o.tx.textContent=d[3];
+d[5].forEach((m,j)=>{const L=m[1].split("|"),s={j,ln:E("line",{"stroke-width":1.2},LG),rg:E("circle",{r:11,fill:DK?"#1A1A1A":"#EFE7D8","stroke-width":1.6},NG),dt:E("circle",{r:4},NG),l3:[]};
 L.forEach((x,q)=>{const t=E("text",{"font-size":C.fs,"dominant-baseline":"central","font-family":"Georgia,serif"},TG);t.textContent=x;s.l3.push({q,n:L.length,t,ln:E("line",{"stroke-width":.9},LG),gl:E("circle",{r:10,filter:"url(#"+uid+")"},NG),dt:E("circle",{r:5},NG)})});o.l2.push(s)});
 if(HERO){o.rg.style.cursor="pointer";o.rg.addEventListener("click",()=>go(i))}
 return o});
-const M=E("g",{},NG),MS=HERO?.9:1.2;[["#C8531F",.85],["#C9923A",.8],["#8AAB5C",.78],["#3D4A2E",.82],["#777770",.75]].forEach((p,i)=>E("polygon",{points:"50,8 57,50 50,92 43,50",fill:p[0],opacity:p[1],transform:"rotate("+i*72+" 50 50)"},M));
-E("circle",{cx:50,cy:50,r:4.5,fill:HERO?"#EFE7D8":"#1A1A1A"},M);E("circle",{cx:50,cy:50,r:2,fill:HERO?"#1A1A1A":"#EFE7D8"},M);
+const M=E("g",{},NG),MS=HERO?1.1:1.2;[["#C8531F",.85],["#C9923A",.8],["#8AAB5C",.78],["#3D4A2E",.82],["#777770",.75]].forEach((p,i)=>E("polygon",{points:"50,8 57,50 50,92 43,50",fill:p[0],opacity:p[1],transform:"rotate("+i*72+" 50 50)"},M));
+E("circle",{cx:50,cy:50,r:4.5,fill:DK?"#EFE7D8":"#1A1A1A"},M);E("circle",{cx:50,cy:50,r:2,fill:DK?"#1A1A1A":"#EFE7D8"},M);
 function draw(){N.forEach(o=>{const f=o.f,col=HERO?mix(G,o.c,f):o.c,t=o.i*72+yaw,[x,y]=pt(t,C.r1),lo=HERO?.18+.6*f:.55;
 set(o.cl,{x1:C.x,y1:C.y,x2:x,y2:y,stroke:col,"stroke-opacity":lo});set(o.gl,{cx:x,cy:y,fill:o.c,"fill-opacity":HERO?.32*f:0});
 set(o.rg,{cx:x,cy:y,stroke:col,"stroke-opacity":HERO?.45+.55*f:1});set(o.tx,{x:x,y:y+1,fill:HERO?mix(GL,o.c,f):o.c,"fill-opacity":HERO?.5+.5*f:1});
-o.l2.forEach(s=>{const t2=t+(s.j-1)*16,[a,b]=pt(t2,C.r2);
+o.l2.forEach(s=>{const t2=t+(s.j-1)*(HERO?23:16),[a,b]=pt(t2,C.r2);
 set(s.ln,{x1:x,y1:y,x2:a,y2:b,stroke:col,"stroke-opacity":lo*.85});set(s.rg,{cx:a,cy:b,stroke:col,"stroke-opacity":HERO?.4+.6*f:1});set(s.dt,{cx:a,cy:b,fill:col});
-s.l3.forEach(q=>{const sp=q.n>3?4.4:6,t3=t2+(q.q-(q.n-1)/2)*sp,[u,v]=pt(t3,C.r3),[lx,ly]=pt(t3,C.r3+16),rad=t3*Math.PI/180,ang=Math.atan2(Math.sin(rad)*C.q,Math.cos(rad))*180/Math.PI,left=Math.cos(rad)<0;
+s.l3.forEach(q=>{const sp=q.n>3?(HERO?5.6:4.4):(HERO?7.2:6),t3=t2+(q.q-(q.n-1)/2)*sp,[u,v]=pt(t3,C.r3),[lx,ly]=pt(t3,C.r3+16),rad=t3*Math.PI/180,ang=Math.atan2(Math.sin(rad)*C.q,Math.cos(rad))*180/Math.PI,left=Math.cos(rad)<0;
 set(q.ln,{x1:a,y1:b,x2:u,y2:v,stroke:col,"stroke-opacity":lo*.7});set(q.gl,{cx:u,cy:v,fill:o.c,"fill-opacity":HERO?.5*f:0});set(q.dt,{cx:u,cy:v,fill:col,"fill-opacity":HERO?.35+.65*f:1});
-set(q.t,{x:lx,y:ly,"text-anchor":left?"end":"start",transform:"rotate("+(left?ang+180:ang).toFixed(2)+" "+lx.toFixed(1)+" "+ly.toFixed(1)+")",fill:HERO?mix(GL,"#EFE7D8",f):"#1A1A1A","fill-opacity":HERO?.22+.7*f:.9})})})})}
+set(q.t,{x:lx,y:ly,"text-anchor":left?"end":"start",transform:"rotate("+(left?ang+180:ang).toFixed(2)+" "+lx.toFixed(1)+" "+ly.toFixed(1)+")",fill:HERO?mix(GL,"#EFE7D8",f):(DK?"#EFE7D8":"#1A1A1A"),"fill-opacity":HERO?.22+.7*f:.9})})})})}
 function el(t,c,x,p){const e=document.createElement(t);if(c)e.className=c;e.textContent=x;p.appendChild(e);return e}
 const PE=R.querySelector(".cm-panel");
 function panel(i){if(!PE)return;const d=D[i],n=d[5].reduce((s,m)=>s+m[1].split("|").length,0),mm=PE.querySelector(".cm-mods");
@@ -515,42 +516,43 @@ const e=PE.querySelector(".cm-e");e.textContent=d[2]+" · "+n+" specialties";e.s
 PE.querySelector(".cm-n").textContent=d[0];PE.querySelector(".cm-c").textContent="Led by "+d[1];
 mm.textContent="";d[5].forEach(m=>{const b=el("div","cm-m","",mm);el("div","cm-h",m[0],b).style.color=d[4];el("div","cm-l",m[1].split("|").join(" · "),b)})}
 let cs=performance.now();
-function go(n){if(n===k)return;k=n;cs=performance.now();if(PE){PE.style.opacity=0;setTimeout(()=>{panel(k);PE.style.opacity=1},400)}}
+function go(n,auto){if(n===k)return;k=n;cs=performance.now();
+if(HERO){y0=yb;y1=auto?y1-72:-n*72+360*Math.round((y1+n*72)/360);yt0=cs}if(PE){PE.style.opacity=0;setTimeout(()=>{panel(k);PE.style.opacity=1},400)}}
 function fit(){const w=R.clientWidth||1920;ST.style.transform="scale("+(w/1920)+")"}
 fit();if(window.ResizeObserver)new ResizeObserver(fit).observe(R);else addEventListener("resize",fit);
 panel(k);draw();
 const SL=R.closest(".slide");let last=performance.now();
 function tick(now){const dt=Math.min(.05,(now-last)/1000);last=now;
-if(SL&&!SL.classList.contains("active")&&!SL.classList.contains("leaving")){requestAnimationFrame(tick);return}
-if(HERO&&now-cs>5200)go((k+1)%5);
-yaw+=dt*C.sp;rot+=dt*6;
+if(SL&&!SL.classList.contains("active")&&!SL.classList.contains("leaving")){cs=now;requestAnimationFrame(tick);return}
+if(HERO&&now-cs>HOLD)go((k+1)%5,1);
+if(HERO){const p=Math.min(1,(now-yt0)/RT),e=p<.5?4*p*p*p:1-Math.pow(2-2*p,3)/2;yb=y0+(y1-y0)*e;yaw=yb+2*Math.sin(now/2600)}else yaw+=dt*C.sp;rot+=dt*6;
 if(HERO)N.forEach(o=>o.f+=((o.i==k?1:0)-o.f)*Math.min(1,dt*2.5));
 set(M,{transform:"translate("+(C.x-50*MS)+","+(C.y-50*MS)+") scale("+MS+") rotate("+rot.toFixed(2)+" 50 50)"});
 P.forEach(p=>p.e.setAttribute("opacity",(.1+.25*(.5+.5*Math.sin(now/1000*p.sp+p.ph))).toFixed(2)));
 draw();requestAnimationFrame(tick)}
 requestAnimationFrame(tick);
 })();</script></div>
-  <svg aria-label="The Founder's Sprint mark" width="100" height="100" viewBox="0 0 100 100" style="position:absolute; left:48px; top:48px; width:56px; height:56px"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.85"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.8" transform="rotate(72 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.78" transform="rotate(144 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.82" transform="rotate(216 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288 50 50)"></polygon><circle cx="50" cy="50" r="4.5" fill="#1A1A1A"></circle><circle cx="50" cy="50" r="2" fill="#EFE7D8"></circle></svg>
+  <svg aria-label="The Founder's Sprint mark" width="100" height="100" viewBox="0 0 100 100" style="position:absolute; left:48px; top:48px; width:56px; height:56px"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.85"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.8" transform="rotate(72 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.78" transform="rotate(144 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.82" transform="rotate(216 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288 50 50)"></polygon><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"></circle><circle cx="50" cy="50" r="2" fill="#1A1A1A"></circle></svg>
   <div style="position:absolute; left:128px; top:128px; width:1664px; height:118px; display:flex; flex-direction:column; gap:20px">
-    <p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:26px; font-weight:600; letter-spacing:5px; text-transform:uppercase; color:#A8431A">How the curriculum is organised</p>
-    <h2 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; letter-spacing:1px">Every coaching hour maps to one of 49 specialties</h2>
+    <p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:26px; font-weight:600; letter-spacing:5px; text-transform:uppercase; color:#C9923A">How the curriculum is organised</p>
+    <h2 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; letter-spacing:1px; color:#EFE7D8">Every coaching hour maps to one of 49 specialties</h2>
   </div>
-  <div style="--n:0; position:absolute; left:128px; top:293px; width:539px; height:340px; display:flex; flex-direction:column; gap:12px; background:#F7F2E8; padding:40px 36px; border-top:6px solid #A8431A; border-radius:0 0 24px 0" data-fx="rise">
-      <p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:#A8431A">L1 · Discipline</p>
-      <p style="font-family:Georgia, serif; font-size:96px; line-height:1; color:#A8431A">5</p>
-      <p style="font-size:26px; line-height:1.4; color:#444444">What a cohort delivers in full. Each has one founding coach and one teaching day.</p>
-    </div><div style="--n:1; position:absolute; left:691px; top:293px; width:539px; height:340px; display:flex; flex-direction:column; gap:12px; background:#F7F2E8; padding:40px 36px; border-top:6px solid #8A5E14; border-radius:0 0 24px 0" data-fx="rise">
-      <p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:#8A5E14">L2 · Module</p>
-      <p style="font-family:Georgia, serif; font-size:96px; line-height:1; color:#8A5E14">15</p>
-      <p style="font-size:26px; line-height:1.4; color:#444444">A course within a discipline, such as Pitch Craft or Unit Economics. Three in each.</p>
-    </div><div style="--n:2; position:absolute; left:1253px; top:293px; width:539px; height:340px; display:flex; flex-direction:column; gap:12px; background:#1A1A1A; padding:40px 36px; border-top:6px solid #C9923A; border-radius:0 0 24px 0" data-fx="rise">
-      <p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:#C9923A">L3 · Specialty</p>
-      <p style="font-family:Georgia, serif; font-size:96px; line-height:1; color:#C9923A">49</p>
-      <p style="font-size:26px; line-height:1.4; color:#C0B8A8">The unit of coaching: one focused two-hour session on a single problem.</p>
+  <div style="--n:0; position:absolute; left:128px; top:293px; width:539px; height:340px; display:flex; flex-direction:column; gap:12px; background:#262421; padding:40px 36px; border-top:6px solid #C8531F; border-radius:0 0 24px 0" data-fx="rise">
+      <p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:#C8531F">L1 · Discipline</p>
+      <p style="font-family:Georgia, serif; font-size:96px; line-height:1; color:#C8531F">5</p>
+      <p style="font-size:26px; line-height:1.4; color:#C0B8A8">What a cohort delivers in full. Each has one founding coach and one teaching day.</p>
+    </div><div style="--n:1; position:absolute; left:691px; top:293px; width:539px; height:340px; display:flex; flex-direction:column; gap:12px; background:#262421; padding:40px 36px; border-top:6px solid #C9923A; border-radius:0 0 24px 0" data-fx="rise">
+      <p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:#C9923A">L2 · Module</p>
+      <p style="font-family:Georgia, serif; font-size:96px; line-height:1; color:#C9923A">15</p>
+      <p style="font-size:26px; line-height:1.4; color:#C0B8A8">A course within a discipline, such as Pitch Craft or Unit Economics. Three in each.</p>
+    </div><div style="--n:2; position:absolute; left:1253px; top:293px; width:539px; height:340px; display:flex; flex-direction:column; gap:12px; background:#EFE7D8; padding:40px 36px; border-top:6px solid #8AAB5C; border-radius:0 0 24px 0" data-fx="rise">
+      <p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:#4F6B2E">L3 · Specialty</p>
+      <p style="font-family:Georgia, serif; font-size:96px; line-height:1; color:#4F6B2E">49</p>
+      <p style="font-size:26px; line-height:1.4; color:#444444">The unit of coaching: one focused two-hour session on a single problem.</p>
     </div>
-  <div style="--n:3; position:absolute; left:128px; top:676px; width:1664px; display:flex; align-items:center; gap:20px" data-fx="rise"><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; letter-spacing:3px; text-transform:uppercase; white-space:nowrap; color:#5E5E58">For example</p><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:26px; font-weight:700; line-height:1.2; white-space:nowrap; padding:14px 26px; background:#C9923A; color:#1A1A1A; border-radius:0 0 16px 0">Financial Modelling</p><svg viewBox="0 0 56.0 20" aria-hidden="true" style="flex:none; width:56.0px; height:20px"><defs><marker id="ah5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10z" fill="#8A5E14"/></marker></defs><line x1="0" y1="10" x2="54.0" y2="10" stroke="#8A5E14" stroke-width="2.5" marker-end="url(#ah5)"/></svg><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:26px; font-weight:700; line-height:1.2; white-space:nowrap; padding:14px 26px; background:#F7F2E8; color:#1A1A1A; border-radius:0 0 16px 0; border:2px solid #C9923A">Financial Planning</p><svg viewBox="0 0 56.0 20" aria-hidden="true" style="flex:none; width:56.0px; height:20px"><defs><marker id="ah6" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10z" fill="#8A5E14"/></marker></defs><line x1="0" y1="10" x2="54.0" y2="10" stroke="#8A5E14" stroke-width="2.5" marker-end="url(#ah6)"/></svg><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:26px; font-weight:700; line-height:1.2; white-space:nowrap; padding:14px 26px; background:#1A1A1A; color:#EFE7D8; border-radius:0 0 16px 0">Cash Flow Management</p></div>
-  <p style="--n:4; position:absolute; left:128px; top:788px; width:1500px; font-size:28px; line-height:1.45; color:#444444" data-fx="fade">Cohort teams cover all 49 during the Sprint. After graduation, each month's advisory hour goes to the specialty behind that month's problem.</p>
-  <p style="position:absolute; left:128px; bottom:64px; width:1400px; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; letter-spacing:3px; color:#5E5E58">ABSA × THE FOUNDER'S SPRINT</p>
+  <div style="--n:3; position:absolute; left:128px; top:676px; width:1664px; display:flex; align-items:center; gap:20px" data-fx="rise"><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; font-weight:700; letter-spacing:3px; text-transform:uppercase; white-space:nowrap; color:#A09888">For example</p><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:26px; font-weight:700; line-height:1.2; white-space:nowrap; padding:14px 26px; background:#C9923A; color:#1A1A1A; border-radius:0 0 16px 0">Financial Modelling</p><svg viewBox="0 0 56.0 20" aria-hidden="true" style="flex:none; width:56.0px; height:20px"><defs><marker id="ah5" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10z" fill="#C9923A"/></marker></defs><line x1="0" y1="10" x2="54.0" y2="10" stroke="#C9923A" stroke-width="2.5" marker-end="url(#ah5)"/></svg><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:26px; font-weight:700; line-height:1.2; white-space:nowrap; padding:14px 26px; background:#262421; color:#EFE7D8; border-radius:0 0 16px 0; border:2px solid #C9923A">Financial Planning</p><svg viewBox="0 0 56.0 20" aria-hidden="true" style="flex:none; width:56.0px; height:20px"><defs><marker id="ah6" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0 0 10 5 0 10z" fill="#C9923A"/></marker></defs><line x1="0" y1="10" x2="54.0" y2="10" stroke="#C9923A" stroke-width="2.5" marker-end="url(#ah6)"/></svg><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:26px; font-weight:700; line-height:1.2; white-space:nowrap; padding:14px 26px; background:#EFE7D8; color:#1A1A1A; border-radius:0 0 16px 0">Cash Flow Management</p></div>
+  <p style="--n:4; position:absolute; left:128px; top:788px; width:1500px; font-size:28px; line-height:1.45; color:#C0B8A8" data-fx="fade">Cohort teams cover all 49 during the Sprint. After graduation, each month's advisory hour goes to the specialty behind that month's problem.</p>
+  <p style="position:absolute; left:128px; bottom:64px; width:1400px; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; letter-spacing:3px; color:#A09888">ABSA × THE FOUNDER'S SPRINT</p>
 </section>
 <section class="slide" data-id="div-after" data-surface="dark" data-tr="magic" style="background:#1A1A1A; color:#EFE7D8; font-family:Georgia, serif; padding:128px">
   <img src="img/market.jpg" alt="A trader standing in her produce market" style="position:absolute; left:0px; top:0px; width:1920px; height:1080px; object-fit:cover">
@@ -689,41 +691,27 @@ requestAnimationFrame(tick);
     </div>
   <p style="position:absolute; left:128px; bottom:64px; width:1400px; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; letter-spacing:3px; color:#5E5E58">ABSA × THE FOUNDER'S SPRINT</p>
 </section>
-<section class="slide" data-id="reporting" data-surface="paper" data-tr="push" style="background:#EFE7D8; color:#1A1A1A; font-family:Georgia, serif; padding:128px 128px 160px; display:grid; grid-template-columns:1fr 1fr; gap:64px; align-items:start">
+<section class="slide" data-id="reporting" data-surface="paper" data-tr="push" style="background:#EFE7D8; color:#1A1A1A; font-family:Georgia, serif; padding:128px 128px 160px">
   <svg aria-label="The Founder's Sprint mark" width="100" height="100" viewBox="0 0 100 100" style="position:absolute; left:48px; top:48px; width:56px; height:56px"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.85"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.8" transform="rotate(72 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.78" transform="rotate(144 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.82" transform="rotate(216 50 50)"></polygon><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.75" transform="rotate(288 50 50)"></polygon><circle cx="50" cy="50" r="4.5" fill="#1A1A1A"></circle><circle cx="50" cy="50" r="2" fill="#EFE7D8"></circle></svg>
-  <div style="position:absolute; left:128px; top:128px; width:800px; height:644px; display:flex; flex-direction:column; gap:40px">
-    <div style="display:flex; flex-direction:column; gap:20px">
-      <p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:26px; font-weight:600; letter-spacing:5px; text-transform:uppercase; color:#A8431A">What Absa receives</p>
-      <h2 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:56px; font-weight:700; line-height:1.1; letter-spacing:1px">A clear view of the portfolio, every month</h2>
-    </div>
-    <div style="display:flex; flex-direction:column; gap:0">
-      <div style="display:flex; flex-direction:column; gap:6px; padding:20px 0; border-bottom:1px solid #C0B8A8">
-        <h3 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:28px; font-weight:700">Monthly dashboard</h3>
-        <p style="font-size:26px; line-height:1.4; color:#444444">All 100 teams in aggregate: revenue, cash, jobs, credit</p>
-      </div>
-      <div style="display:flex; flex-direction:column; gap:6px; padding:20px 0; border-bottom:1px solid #C0B8A8">
-        <h3 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:28px; font-weight:700">Quarterly portfolio report</h3>
-        <p style="font-size:26px; line-height:1.4; color:#444444">Milestones reached and the early-warning list</p>
-      </div>
-      <div style="display:flex; flex-direction:column; gap:6px; padding:20px 0">
-        <h3 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:28px; font-weight:700">Annual impact report</h3>
-        <p style="font-size:26px; line-height:1.4; color:#444444">Survival, growth and jobs against the national baseline</p>
-      </div>
-    </div>
-    <p style="font-size:24px; font-style:italic; color:#444444">Named, team-level data is shared only with that founder's written consent.</p>
+  <div style="position:absolute; left:128px; top:128px; width:1664px; height:118px; display:flex; flex-direction:column; gap:20px">
+    <p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:26px; font-weight:600; letter-spacing:5px; text-transform:uppercase; color:#A8431A">What Absa receives</p>
+    <h2 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:64px; font-weight:700; line-height:1.1; letter-spacing:1px">A clear view of the portfolio, every month</h2>
   </div>
-  <div style="--n:0; position:absolute; left:992px; top:128px; width:800px; height:373px; display:flex; flex-direction:column; gap:20px; background:#1A1A1A; color:#EFE7D8; padding:48px; border-radius:0 0 24px 0" data-fx="rise">
-    <h3 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:30px; font-weight:700">Proposed measures, targets to agree</h3>
-    <table style="font-family:Georgia, serif; font-size:24px; color:#EFE7D8">
-      <tbody><tr><th style="width:62%; text-align:left">Measure</th><th style="width:38%; text-align:left">Proposed target</th></tr>
-      <tr><td>Teams completing the Sprint</td><td>[90%]</td></tr>
-      <tr><td>Data rooms signed off</td><td>[90%]</td></tr>
-      <tr><td>Monthly check-ins returned</td><td>[80%]</td></tr>
-      <tr><td>Absa credit applications</td><td>[to agree]</td></tr>
-      <tr><td>Still trading at 36 months</td><td>Above national baseline</td></tr>
-      <tr><td>Revenue and jobs growth</td><td>[to agree]</td></tr>
-    </tbody></table>
-  </div>
+  <div style="--n:0; position:absolute; left:135px; top:318px; width:2px; height:340px; background:#C0B8A8" data-fx="fade"></div>
+  <div style="--n:1; position:absolute; left:128px; top:310px; width:16px; height:16px; border-radius:50%; background:#C9923A; border:3px solid #EFE7D8" data-fx="pop"></div>
+  <div style="--n:1; position:absolute; left:172px; top:300px; width:516px; height:150px; display:flex; flex-direction:column; gap:6px" data-fx="rise"><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:20px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:#8A5E14">Every month</p><h3 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:30px; font-weight:700; line-height:1.2; color:#1A1A1A">Dashboard</h3><p style="font-size:24px; line-height:1.4; color:#444444">All 100 teams in aggregate: revenue, cash, jobs and credit</p></div>
+  <div style="--n:2; position:absolute; left:128px; top:480px; width:16px; height:16px; border-radius:50%; background:#C8531F; border:3px solid #EFE7D8" data-fx="pop"></div>
+  <div style="--n:2; position:absolute; left:172px; top:470px; width:516px; height:150px; display:flex; flex-direction:column; gap:6px" data-fx="rise"><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:20px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:#A8431A">Every quarter</p><h3 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:30px; font-weight:700; line-height:1.2; color:#1A1A1A">Portfolio report</h3><p style="font-size:24px; line-height:1.4; color:#444444">Milestones reached, and the early-warning list</p></div>
+  <div style="--n:3; position:absolute; left:128px; top:650px; width:16px; height:16px; border-radius:50%; background:#8AAB5C; border:3px solid #EFE7D8" data-fx="pop"></div>
+  <div style="--n:3; position:absolute; left:172px; top:640px; width:516px; height:150px; display:flex; flex-direction:column; gap:6px" data-fx="rise"><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:20px; font-weight:700; letter-spacing:3px; text-transform:uppercase; color:#4F6B2E">Every year</p><h3 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:30px; font-weight:700; line-height:1.2; color:#1A1A1A">Impact report</h3><p style="font-size:24px; line-height:1.4; color:#444444">Survival, growth and jobs against the national baseline</p></div>
+  <p style="--n:4; position:absolute; left:128px; top:836px; width:560px; font-size:24px; font-style:italic; line-height:1.4; color:#444444" data-fx="fade">Named, team-level data is shared only with that founder’s written consent.</p>
+  <div style="--n:5; position:absolute; left:736px; top:276px; width:1056px; height:674px; background:#1A1A1A; padding:44px 44px 36px; border-radius:0 0 24px 0; display:flex; flex-direction:column; gap:12px" data-fx="rise"><div style="display:flex; justify-content:space-between; align-items:center; gap:24px"><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:22px; font-weight:700; letter-spacing:4px; text-transform:uppercase; white-space:nowrap; color:#C9923A">Proposed scorecard</p><p style="flex:none; font-family:'Josefin Sans', Arial, sans-serif; font-size:20px; font-weight:600; letter-spacing:1px; white-space:nowrap; color:#A09888; padding:6px 14px; border:1px solid #5A564F; border-radius:0 0 10px 0">Targets to agree with Absa</p></div><h3 style="font-family:'Josefin Sans', Arial, sans-serif; font-size:34px; font-weight:700; line-height:1.2; color:#EFE7D8">Six measures, from graduation to year three</h3></div>
+  <div style="--n:6; position:absolute; left:780px; top:430px; width:308px; height:232px; display:flex; flex-direction:column; justify-content:space-between; background:#262421; padding:24px 22px; border-radius:0 0 16px 0" data-fx="fade"><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:18px; font-weight:700; letter-spacing:2px; text-transform:uppercase; white-space:nowrap; color:#A09888">Week 12</p><div style="display:flex; flex-direction:column; gap:10px"><p style="font-size:56px; line-height:1; white-space:nowrap; color:#C9923A">90%</p><div style="width:100%; height:6px; background:#3D3A36"><div style="width:90%; height:6px; background:#C9923A"></div></div></div><p style="font-size:24px; line-height:1.3; white-space:nowrap; color:#EFE7D8">Complete the Sprint</p></div>
+<div style="--n:7; position:absolute; left:1110px; top:430px; width:308px; height:232px; display:flex; flex-direction:column; justify-content:space-between; background:#262421; padding:24px 22px; border-radius:0 0 16px 0" data-fx="fade"><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:18px; font-weight:700; letter-spacing:2px; text-transform:uppercase; white-space:nowrap; color:#A09888">Week 12</p><div style="display:flex; flex-direction:column; gap:10px"><p style="font-size:56px; line-height:1; white-space:nowrap; color:#C9923A">90%</p><div style="width:100%; height:6px; background:#3D3A36"><div style="width:90%; height:6px; background:#C9923A"></div></div></div><p style="font-size:24px; line-height:1.3; white-space:nowrap; color:#EFE7D8">Data rooms signed off</p></div>
+<div style="--n:8; position:absolute; left:1440px; top:430px; width:308px; height:232px; display:flex; flex-direction:column; justify-content:space-between; background:#262421; padding:24px 22px; border-radius:0 0 16px 0" data-fx="fade"><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:18px; font-weight:700; letter-spacing:2px; text-transform:uppercase; white-space:nowrap; color:#A09888">Every month</p><div style="display:flex; flex-direction:column; gap:10px"><p style="font-size:56px; line-height:1; white-space:nowrap; color:#C9923A">80%</p><div style="width:100%; height:6px; background:#3D3A36"><div style="width:80%; height:6px; background:#C9923A"></div></div></div><p style="font-size:24px; line-height:1.3; white-space:nowrap; color:#EFE7D8">Check-ins returned</p></div>
+<div style="--n:9; position:absolute; left:780px; top:682px; width:308px; height:232px; display:flex; flex-direction:column; justify-content:space-between; background:#262421; padding:24px 22px; border-radius:0 0 16px 0" data-fx="fade"><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:18px; font-weight:700; letter-spacing:2px; text-transform:uppercase; white-space:nowrap; color:#A09888">Months 4–12</p><div style="display:flex; flex-direction:column; gap:10px"><p style="font-size:44px; font-style:italic; line-height:1.27; white-space:nowrap; color:#A09888">To agree</p><div style="width:100%; height:0; border-top:2px dashed #5A564F; margin:2px 0"></div></div><p style="font-size:24px; line-height:1.3; white-space:nowrap; color:#EFE7D8">Apply for Absa credit</p></div>
+<div style="--n:10; position:absolute; left:1110px; top:682px; width:308px; height:232px; display:flex; flex-direction:column; justify-content:space-between; background:#262421; padding:24px 22px; border-radius:0 0 16px 0" data-fx="fade"><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:18px; font-weight:700; letter-spacing:2px; text-transform:uppercase; white-space:nowrap; color:#A09888">Every year</p><div style="display:flex; flex-direction:column; gap:10px"><p style="font-size:44px; font-style:italic; line-height:1.27; white-space:nowrap; color:#A09888">To agree</p><div style="width:100%; height:0; border-top:2px dashed #5A564F; margin:2px 0"></div></div><p style="font-size:24px; line-height:1.3; white-space:nowrap; color:#EFE7D8">Revenue and job growth</p></div>
+<div style="--n:11; position:absolute; left:1440px; top:682px; width:308px; height:232px; display:flex; flex-direction:column; justify-content:space-between; background:#C9923A; padding:24px 22px; border-radius:0 0 16px 0" data-fx="fade"><p style="font-family:'Josefin Sans', Arial, sans-serif; font-size:18px; font-weight:700; letter-spacing:2px; text-transform:uppercase; white-space:nowrap; color:#1A1A1A">Month 36 · Headline</p><div style="display:flex; flex-direction:column; gap:10px"><p style="font-size:32px; line-height:1.15; color:#1A1A1A">Above the<br>national baseline</p></div><p style="font-size:24px; line-height:1.3; white-space:nowrap; color:#1A1A1A">Teams still trading</p></div>
   <p style="position:absolute; left:128px; bottom:64px; width:1400px; font-family:'Josefin Sans', Arial, sans-serif; font-size:24px; letter-spacing:3px; color:#5E5E58">ABSA × THE FOUNDER'S SPRINT</p>
 </section>
 <section class="slide" data-id="div-delivery" data-surface="dark" data-tr="magic" style="background:#1A1A1A; color:#EFE7D8; font-family:Georgia, serif; padding:128px">
