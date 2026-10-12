@@ -1,0 +1,635 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<title>Financial Modelling · Week 5 · Cap Table &amp; Term Sheet · The Founder's Sprint</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#1A1A1A; --ink-soft:#2A2826; --ink-mid:#444; --ink-mute:#5A564F;
+  --paper:#EFE7D8; --paper-mid:#C0B8A8; --paper-dim:#A09888; --paper-deep:#E6DCC7;
+  --terra:#C8531F; --ochre:#C9923A; --sage:#8AAB5C; --moss:#3D4A2E; --stone:#777770;
+  --rule:rgba(26,26,26,0.18);
+  --sans:'Josefin Sans',Inter,system-ui,sans-serif;
+  --display:'Cormorant Garamond',Georgia,serif;
+  --body:'Inter',system-ui,sans-serif;
+  --accent:#C9923A; --accent-deep:#9A6E1E;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;}
+body{background:var(--ink);color:var(--paper);font-family:var(--body);overflow:hidden;}
+.deck{position:fixed;inset:0;}
+.slide{position:absolute;inset:0;display:none;flex-direction:column;padding:clamp(28px,4.4vw,76px) clamp(26px,5vw,96px) clamp(56px,5vw,82px);opacity:0;}
+.slide.active{display:flex;opacity:1;}
+.slide.active .anim{animation:riseIn .52s cubic-bezier(.25,1,.5,1) both;}
+.slide.active .anim:nth-child(1){animation-delay:.06s}.slide.active .anim:nth-child(2){animation-delay:.12s}.slide.active .anim:nth-child(3){animation-delay:.17s}.slide.active .anim:nth-child(4){animation-delay:.22s}.slide.active .anim:nth-child(5){animation-delay:.27s}.slide.active .anim:nth-child(6){animation-delay:.32s}.slide.active .anim:nth-child(7){animation-delay:.37s}.slide.active .anim:nth-child(8){animation-delay:.42s}
+@keyframes riseIn{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:none;}}
+.s-paper{background:var(--paper);color:var(--ink);}.s-dark{background:var(--ink);color:var(--paper);}
+.s-paper .chip-bar,.s-dark .chip-bar{display:flex;justify-content:space-between;align-items:center;padding-right:clamp(48px,6vw,86px);font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.18em;text-transform:uppercase;}
+.s-paper .chip-bar{color:rgba(26,26,26,0.5);}.s-dark .chip-bar{color:rgba(239,231,216,0.5);}
+.accent-top{position:absolute;top:0;left:0;right:0;height:5px;background:var(--accent);}
+.mark-corner{position:absolute;top:clamp(20px,3vw,40px);right:clamp(20px,4vw,64px);width:clamp(34px,3.4vw,52px);height:auto;opacity:.95;z-index:3;}
+.eyebrow{font-family:var(--sans);font-size:clamp(10px,1.05vw,13px);font-weight:700;letter-spacing:0.22em;text-transform:uppercase;color:var(--accent-deep);}
+.s-dark .eyebrow{color:var(--ochre);}
+h1.title{font-family:var(--display);font-weight:300;letter-spacing:-0.012em;font-size:clamp(30px,4.6vw,62px);line-height:1.04;margin-top:.32em;}
+.lede{font-family:var(--display);font-style:italic;font-weight:400;font-size:clamp(17px,2.1vw,30px);line-height:1.32;color:var(--ink-mute);margin-top:.5em;max-width:24ch;}
+.s-dark .lede{color:var(--paper-mid);}
+.body-col{margin-top:clamp(14px,2vw,26px);max-width:62ch;}
+p.body{font-size:clamp(14px,1.45vw,20px);line-height:1.55;font-weight:400;color:var(--ink-mid);}
+.s-dark p.body{color:var(--paper-mid);}
+strong{color:var(--accent-deep);font-weight:600;}.s-dark strong{color:var(--ochre);font-weight:500;}
+.slide-body{flex:1;display:flex;flex-direction:column;justify-content:center;min-height:0;}
+.foot{position:absolute;bottom:clamp(62px,6.5vw,82px);left:clamp(26px,5vw,96px);right:clamp(26px,5vw,96px);display:flex;justify-content:space-between;align-items:center;font-family:var(--sans);font-size:clamp(8px,.85vw,11px);letter-spacing:0.22em;text-transform:uppercase;}
+.s-paper .foot{color:rgba(26,26,26,0.4);}.s-dark .foot{color:rgba(239,231,216,0.4);}
+.foot .tag{font-family:var(--display);font-style:italic;letter-spacing:0;text-transform:none;color:var(--accent-deep);opacity:.8;}
+#s-title{padding:0;background:var(--ink);}
+.title-bg{position:absolute;inset:0;overflow:hidden;}
+.title-photo{position:absolute;inset:0;background:#1A1A1A url('assets/title-fm-w5.jpg') center 22%/cover no-repeat;filter:grayscale(1) contrast(1.06) brightness(0.5);}
+.title-tint{position:absolute;inset:0;background:radial-gradient(95% 95% at 22% 16%, rgba(201,146,58,0.42) 0%, transparent 55%),linear-gradient(180deg, rgba(26,26,26,0.42) 0%, rgba(26,26,26,0.30) 40%, rgba(26,26,26,0.88) 100%);}
+.title-grain{position:absolute;inset:0;opacity:.06;mix-blend-mode:overlay;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
+.title-vignette{position:absolute;inset:0;background:radial-gradient(118% 118% at 50% 42%, transparent 50%, rgba(0,0,0,0.55) 100%);}
+.title-inner{position:relative;z-index:4;height:100%;display:flex;flex-direction:column;padding:clamp(30px,4vw,64px) clamp(30px,5.5vw,104px);}
+.title-top{display:flex;align-items:center;gap:14px;}
+.title-top .mark{width:clamp(34px,3.2vw,46px);height:auto;animation:spin 64s linear infinite;}
+.title-top .wm{font-family:var(--sans);font-size:clamp(10px,1.05vw,13px);font-weight:700;letter-spacing:0.24em;text-transform:uppercase;color:var(--paper);}
+.title-mid{margin-top:auto;margin-bottom:auto;}
+.title-series{display:flex;align-items:stretch;gap:clamp(13px,1.5vw,20px);margin-bottom:clamp(16px,2.2vw,28px);}
+.ts-week{display:flex;flex-direction:column;justify-content:center;padding:clamp(7px,.9vw,11px) clamp(12px,1.4vw,18px);border:1.5px solid rgba(239,231,216,0.28);border-left:3px solid var(--ochre);}
+.ts-wk{font-family:var(--display);font-weight:400;font-size:clamp(18px,2.2vw,29px);line-height:1;color:var(--paper);letter-spacing:-0.01em;}
+.ts-of{font-family:var(--sans);font-size:clamp(8px,.92vw,11px);font-weight:600;letter-spacing:0.22em;text-transform:uppercase;color:var(--ochre);margin-top:.45em;}
+.ts-info{display:flex;flex-direction:column;justify-content:center;min-width:0;}
+.ts-disc{font-family:var(--sans);font-size:clamp(11px,1.35vw,16px);font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--paper);line-height:1.15;}
+.ts-coach{font-family:var(--display);font-style:italic;font-size:clamp(13px,1.5vw,19px);color:var(--paper);opacity:.74;margin-top:.32em;line-height:1.1;}
+.ts-coach .ts-dot{margin:0 .5em;opacity:.5;font-style:normal;}
+.title-h{font-family:var(--display);font-weight:300;font-size:clamp(38px,6.6vw,98px);line-height:0.98;letter-spacing:-0.02em;color:var(--paper);}
+.title-h em{font-style:italic;color:var(--ochre);}
+.title-sub{font-family:var(--display);font-style:italic;font-size:clamp(16px,2.1vw,28px);color:var(--paper);opacity:.82;margin-top:.7em;max-width:32ch;text-wrap:balance;}
+.title-foot{margin-top:clamp(20px,3vw,38px);display:flex;flex-wrap:wrap;gap:8px 26px;align-items:baseline;font-family:var(--sans);font-size:clamp(9px,1vw,12px);letter-spacing:0.2em;text-transform:uppercase;color:var(--paper);opacity:.72;}
+.title-foot .dot{color:var(--ochre);}
+.title-cta{position:absolute;left:clamp(30px,5.5vw,104px);bottom:clamp(22px,3vw,42px);font-family:var(--sans);font-size:clamp(9px,1vw,11px);letter-spacing:0.18em;text-transform:uppercase;color:var(--paper);opacity:.5;z-index:5;}
+@keyframes spin{to{transform:rotate(360deg);}}
+.s-divider{background:var(--ink);color:var(--paper);overflow:hidden;justify-content:center;}
+.s-divider .div-photo{position:absolute;inset:0;background-position:center 30%;background-size:cover;filter:sepia(.85) saturate(1.05) hue-rotate(-8deg) contrast(1.05) brightness(.55);opacity:.6;}
+.s-divider .div-overlay{position:absolute;inset:0;background:linear-gradient(110deg,rgba(26,26,26,0.72) 0%,rgba(26,26,26,0.38) 45%,rgba(26,26,26,0.80) 100%);}
+.s-divider .div-mark{position:absolute;top:clamp(26px,4vw,58px);right:clamp(26px,4.5vw,72px);width:clamp(50px,7vw,105px);height:auto;animation:spin 18s linear infinite;opacity:.85;z-index:2;}
+.div-inner{position:relative;z-index:3;display:flex;flex-direction:column;align-items:flex-start;padding-right:clamp(56px,9vw,120px);}
+.div-num{font-family:var(--display);font-weight:300;font-size:clamp(40px,6vw,86px);line-height:1;color:rgba(239,231,216,0.22);letter-spacing:-0.02em;margin-bottom:.18em;}
+.div-eyebrow{font-family:var(--sans);font-size:clamp(10px,1.05vw,13px);font-weight:700;letter-spacing:0.34em;text-transform:uppercase;color:var(--paper);opacity:.4;margin-bottom:.35em;}
+.div-title{font-family:var(--display);font-style:italic;font-weight:300;font-size:clamp(30px,5.4vw,84px);line-height:1.04;color:var(--paper);letter-spacing:-0.01em;}
+.div-meta{margin-top:1em;font-family:var(--display);font-style:italic;font-size:clamp(14px,1.7vw,22px);line-height:1.4;color:var(--ochre);opacity:.95;max-width:34ch;text-wrap:pretty;}
+.grid{display:grid;gap:clamp(12px,1.6vw,22px);}
+.g2{grid-template-columns:repeat(2,1fr);}.g3{grid-template-columns:repeat(3,1fr);}.g4{grid-template-columns:repeat(4,1fr);}
+.card{border-radius:0 0 24px 0;background:var(--paper-deep);border-left:3px solid var(--accent);padding:clamp(14px,1.7vw,24px);}
+.s-dark .card{background:rgba(239,231,216,0.06);border-left-color:var(--ochre);}
+.card h4{font-family:var(--sans);font-size:clamp(11px,1.15vw,15px);font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink);margin-bottom:.45em;}
+.s-dark .card h4{color:var(--paper);}
+.card p{font-size:clamp(12px,1.25vw,16px);line-height:1.5;color:var(--ink-mute);}.s-dark .card p{color:var(--paper-mid);}
+.card .num{font-family:var(--display);font-weight:300;font-size:clamp(26px,3vw,46px);color:var(--accent-deep);line-height:1;}.s-dark .card .num{color:var(--ochre);}
+ul.list{list-style:none;margin-top:.4em;}
+ul.list li{position:relative;padding-left:1.4em;margin-bottom:.55em;font-size:clamp(12px,1.35vw,18px);line-height:1.48;color:var(--ink-mid);}
+.s-dark ul.list li{color:var(--paper-mid);}
+ul.list li::before{content:"";position:absolute;left:0;top:.5em;width:9px;height:9px;background:var(--accent);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);}
+.s-dark ul.list li::before{background:var(--ochre);}
+.pull{font-family:var(--display);font-style:italic;font-weight:300;font-size:clamp(24px,4vw,56px);line-height:1.16;color:var(--paper);letter-spacing:-0.01em;max-width:20ch;text-wrap:balance;}
+.pull .by{display:block;margin-top:.7em;font-family:var(--sans);font-style:normal;font-size:clamp(10px,1.1vw,14px);font-weight:600;letter-spacing:0.2em;text-transform:uppercase;color:var(--ochre);}
+.pick-wrap{display:grid;grid-template-columns:0.85fr 1.15fr;gap:clamp(16px,2.5vw,42px);align-items:start;margin-top:clamp(14px,2vw,28px);}
+.pick-chips{display:flex;flex-direction:column;gap:8px;}
+.pick-chip{font-family:var(--sans);font-size:clamp(10px,1.15vw,14px);font-weight:600;letter-spacing:0.04em;border:1.5px solid var(--rule);background:var(--paper-deep);color:var(--ink);padding:12px 16px;cursor:pointer;transition:all .2s ease;text-align:left;}
+.pick-chip:hover{border-color:var(--accent);}
+.pick-chip.on{background:var(--accent);color:var(--ink);border-color:var(--accent);}
+.pick-detail{border-radius:0 0 24px 0;background:var(--paper-deep);border-top:4px solid var(--accent);padding:clamp(16px,2vw,28px);min-height:clamp(190px,23vw,260px);}
+.pick-detail .pk{font-family:var(--sans);font-size:clamp(12px,1.3vw,17px);font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--accent-deep);margin-bottom:.2em;}
+.pick-detail .ptag{display:inline-block;font-family:var(--display);font-style:italic;font-size:clamp(15px,1.9vw,26px);color:var(--ink);margin-bottom:.4em;}
+.pick-detail .pv{font-size:clamp(13px,1.45vw,19px);line-height:1.55;color:var(--ink-mid);}
+.pick-detail .peg{margin-top:.85em;font-family:var(--display);font-style:italic;font-size:clamp(14px,1.6vw,21px);color:var(--accent-deep);}
+.jrail{position:relative;display:flex;gap:4px;margin-top:clamp(16px,2.4vw,30px);}
+.jrail::before{content:"";position:absolute;top:clamp(21px,2.3vw,28px);left:10%;right:10%;height:2px;background:var(--rule);z-index:0;}
+.jnode{position:relative;z-index:1;flex:1;min-width:0;display:flex;flex-direction:column;align-items:center;text-align:center;cursor:pointer;}
+.jdot{width:clamp(42px,4.4vw,55px);height:clamp(42px,4.4vw,55px);border-radius:50%;background:var(--paper);border:2px solid var(--paper-mid);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-weight:500;font-size:clamp(15px,1.7vw,22px);color:var(--ink-mute);transition:all .25s ease;}
+.jnode:hover .jdot{border-color:var(--accent);color:var(--accent-deep);}
+.jnode.on .jdot{background:var(--accent);border-color:var(--accent);color:var(--ink);transform:scale(1.14);box-shadow:0 8px 20px rgba(201,146,58,0.45);}
+.jname{font-family:var(--display);font-size:clamp(14px,1.6vw,22px);color:var(--ink-mid);margin-top:.5em;line-height:1.05;}
+.jnode.on .jname{color:var(--accent-deep);font-style:italic;}
+.jcap{font-family:var(--sans);font-size:clamp(8px,.9vw,11px);font-weight:600;letter-spacing:0.05em;color:var(--paper-dim);margin-top:.28em;}
+.jnode.on .jcap{color:var(--accent-deep);}
+.step-detail{border-radius:0 0 24px 0;margin-top:clamp(16px,2.2vw,28px);background:var(--paper-deep);padding:clamp(16px,2vw,28px);border-left:4px solid var(--accent);min-height:clamp(112px,14vw,158px);}
+.step-detail .sd-q{font-family:var(--display);font-style:italic;font-size:clamp(16px,2vw,26px);color:var(--ink);}
+.step-detail .sd-v{font-size:clamp(13px,1.4vw,18px);line-height:1.5;color:var(--ink-mid);margin-top:.55em;}
+.step-detail .sd-v b{color:var(--accent-deep);}
+.step-detail .sd-trap{margin-top:.6em;font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--terra);}
+.dr-wrap{display:grid;grid-template-columns:1.35fr 1fr;gap:clamp(18px,3vw,46px);align-items:start;margin-top:clamp(12px,1.8vw,24px);}
+.dr-list{display:flex;flex-direction:column;gap:clamp(7px,1vw,11px);}
+.dr-item{display:flex;align-items:flex-start;gap:13px;cursor:pointer;background:var(--paper-deep);padding:clamp(11px,1.3vw,16px) clamp(13px,1.5vw,18px);border-left:3px solid var(--rule);transition:all .18s ease;}
+.dr-item:hover{border-left-color:var(--accent);}
+.dr-item.on{border-left-color:var(--accent);background:rgba(201,146,58,0.13);}
+.dr-cb{flex:none;width:clamp(20px,2vw,25px);height:clamp(20px,2vw,25px);border:1.5px solid var(--accent);display:flex;align-items:center;justify-content:center;margin-top:1px;}
+.dr-item.on .dr-cb::after{content:"";width:48%;height:48%;background:var(--accent);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);}
+.dr-tx .dt{font-family:var(--sans);font-size:clamp(11px,1.2vw,15px);font-weight:700;letter-spacing:0.04em;color:var(--ink);text-transform:uppercase;}
+.dr-tx .dd{font-size:clamp(11px,1.2vw,15px);line-height:1.4;color:var(--ink-mute);margin-top:.18em;}
+.dr-out{border-radius:0 0 24px 0;background:var(--ink);color:var(--paper);padding:clamp(18px,2.2vw,30px);text-align:center;}
+.dr-out .do-k{font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--paper-mid);}
+.dr-out .do-n{font-family:var(--display);font-weight:300;font-size:clamp(40px,6vw,76px);line-height:1;color:var(--paper);margin:.05em 0;}
+.dr-out .do-n small{font-size:.42em;color:var(--paper-mid);}
+.dr-bar{height:8px;background:rgba(239,231,216,0.16);margin:.4em 0 0;}
+.dr-fill{height:100%;width:0;background:var(--ochre);transition:width .3s ease;}
+.dr-verdict{margin-top:1em;font-family:var(--sans);font-size:clamp(11px,1.3vw,16px);font-weight:700;letter-spacing:0.08em;text-transform:uppercase;padding:10px;}
+.dr-verdict.ready{background:rgba(138,171,92,0.22);color:var(--sage);}.dr-verdict.mid{background:rgba(201,146,58,0.2);color:var(--ochre);}.dr-verdict.low{background:rgba(200,83,31,0.2);color:#E27A4A;}
+.box{border-radius:0 0 24px 0;border:1.5px solid var(--accent);padding:clamp(16px,2.2vw,32px);background:rgba(201,146,58,0.09);}
+.s-dark .box{border-color:var(--ochre);background:rgba(201,146,58,0.08);}
+.box .bk{font-family:var(--sans);font-size:clamp(10px,1.1vw,14px);font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--accent-deep);margin-bottom:.6em;}.s-dark .box .bk{color:var(--ochre);}
+.matrix{width:100%;border-collapse:collapse;margin-top:clamp(12px,1.6vw,20px);font-size:clamp(11px,1.25vw,16px);}
+.matrix th,.matrix td{text-align:left;padding:clamp(8px,1.05vw,13px) clamp(8px,1.2vw,16px);border-bottom:1px solid var(--rule);vertical-align:top;}
+.matrix th{font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.12em;text-transform:uppercase;color:var(--accent-deep);}
+.matrix td{color:var(--ink-mid);}
+.matrix td:first-child{font-weight:600;color:var(--ink);font-family:var(--sans);font-size:clamp(11px,1.2vw,15px);text-transform:uppercase;letter-spacing:0.04em;}
+.matrix .trap{color:var(--terra);font-style:italic;font-family:var(--display);font-size:clamp(12px,1.35vw,17px);}
+.ex-head{display:flex;flex-wrap:wrap;align-items:flex-end;gap:14px 20px;}
+.ex-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(10px,1.3vw,18px);margin-top:clamp(14px,2vw,26px);}
+.ex-card{border-radius:0 0 24px 0;position:relative;background:var(--paper-deep);border-top:3px solid var(--accent);padding:clamp(15px,1.8vw,24px) clamp(14px,1.5vw,20px) clamp(16px,1.8vw,24px);overflow:hidden;display:flex;flex-direction:column;}
+.ex-card .exn{position:absolute;top:-0.12em;right:8px;font-family:var(--display);font-weight:300;font-size:clamp(60px,7vw,118px);line-height:1;color:rgba(201,146,58,0.16);pointer-events:none;}
+.ex-card .exk{position:relative;font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.16em;text-transform:uppercase;color:var(--accent-deep);}
+.ex-card .ext{position:relative;font-family:var(--display);font-weight:500;font-size:clamp(17px,1.9vw,26px);color:var(--ink);margin:.14em 0 .3em;line-height:1.08;}
+.ex-card .exp{position:relative;font-size:clamp(11px,1.2vw,15px);line-height:1.45;color:var(--ink-mute);}
+.ex-card .exeg{position:relative;margin-top:.6em;padding-left:10px;border-left:2px solid var(--ochre);font-family:var(--display);font-style:italic;font-size:clamp(12px,1.3vw,17px);line-height:1.32;color:var(--accent-deep);}
+.ex-card .exeg b{font-style:normal;font-family:var(--sans);font-weight:700;font-size:.7em;letter-spacing:0.14em;text-transform:uppercase;color:#9A6E1E;display:block;margin-bottom:.2em;}
+.ex-card .write{margin-top:auto;padding-top:1em;}.ex-card .write span{display:block;border-bottom:1.5px dashed var(--paper-dim);height:1.15em;}
+.due-tag{display:inline-flex;align-items:center;gap:8px;font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.18em;text-transform:uppercase;color:var(--ink);background:var(--ochre);padding:7px 15px;}
+.due-tag .d{width:9px;height:9px;background:var(--ink);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);}
+.hw-grid{display:grid;grid-template-columns:1.12fr .88fr;gap:clamp(20px,3.4vw,56px);align-items:start;margin-top:clamp(14px,2vw,26px);}
+.hw-klbl{font-family:var(--sans);font-size:clamp(10px,1.1vw,13px);font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--ochre);margin-bottom:.4em;}
+.hw-check{list-style:none;}
+.hw-check li{display:flex;gap:14px;align-items:flex-start;padding:clamp(10px,1.3vw,15px) 0;border-bottom:1px solid rgba(239,231,216,0.14);font-size:clamp(13px,1.4vw,18px);line-height:1.45;color:var(--paper-mid);}
+.hw-check li:last-child{border-bottom:none;}
+.hw-check .cbx{flex:none;width:clamp(21px,2vw,27px);height:clamp(21px,2vw,27px);border:1.5px solid var(--ochre);display:flex;align-items:center;justify-content:center;margin-top:1px;}
+.hw-check .cbx::after{content:"";width:46%;height:46%;background:var(--ochre);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);}
+.hw-check b{color:var(--paper);font-weight:600;}
+.hw-quote{border-radius:0 0 24px 0;background:rgba(201,146,58,0.12);border-left:3px solid var(--ochre);padding:clamp(18px,2.3vw,32px) clamp(18px,2.2vw,30px) clamp(20px,2.4vw,30px);}
+.hw-quote .qm{font-family:var(--display);font-size:clamp(52px,6vw,96px);line-height:.4;color:var(--ochre);display:block;height:.5em;}
+.hw-quote .qt{font-family:var(--display);font-style:italic;font-weight:300;font-size:clamp(19px,2.3vw,32px);line-height:1.26;color:var(--paper);text-wrap:balance;}
+.hw-quote .qb{font-family:var(--sans);font-size:clamp(9px,1vw,12px);font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--ochre);margin-top:1em;}
+.hw-bridge{margin-top:clamp(13px,1.7vw,20px);font-size:clamp(13px,1.4vw,18px);line-height:1.55;color:var(--paper-mid);text-wrap:pretty;}
+#s-close{align-items:center;justify-content:center;text-align:center;}
+#s-close .mark{width:clamp(90px,13vw,180px);height:auto;}
+#s-close .ct{font-family:var(--display);font-style:italic;font-weight:300;font-size:clamp(22px,3.2vw,44px);color:var(--paper);margin-top:.6em;}
+#s-close .cc{font-family:var(--sans);font-size:clamp(9px,1vw,12px);letter-spacing:0.24em;text-transform:uppercase;color:var(--paper-mid);margin-top:1.4em;}
+.progress{position:fixed;bottom:0;left:0;height:4px;background:var(--accent);width:0;z-index:41;transition:width .3s ease;}
+.nav{position:fixed;bottom:clamp(14px,2vw,26px);right:clamp(16px,2.5vw,34px);display:flex;gap:8px;z-index:42;}
+.nav button{width:clamp(38px,3.6vw,46px);height:clamp(38px,3.6vw,46px);border:1px solid rgba(239,231,216,0.3);background:rgba(26,26,26,0.55);color:var(--paper);font-size:18px;cursor:pointer;backdrop-filter:blur(4px);transition:all .2s;display:flex;align-items:center;justify-content:center;}
+body.on-paper .nav button{border-color:rgba(26,26,26,0.25);background:rgba(239,231,216,0.7);color:var(--ink);}
+.nav button:hover{border-color:var(--accent);color:var(--accent-deep);}
+.counter{position:fixed;bottom:clamp(16px,2vw,28px);left:clamp(18px,2.5vw,34px);z-index:42;font-family:var(--sans);font-size:clamp(10px,1.1vw,13px);font-weight:600;letter-spacing:0.16em;color:var(--paper-mid);pointer-events:none;}
+body.on-paper .counter{color:var(--ink-mute);}
+.kbd-hint{position:fixed;bottom:clamp(16px,2vw,28px);left:50%;transform:translateX(-50%);z-index:42;font-family:var(--sans);font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--paper-dim);opacity:.7;pointer-events:none;}
+.overview{position:fixed;inset:0;background:rgba(13,16,10,0.96);z-index:60;display:none;padding:clamp(20px,3vw,48px);overflow-y:auto;}
+.overview.show{display:block;}
+.ov-title{font-family:var(--sans);font-size:12px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;color:var(--ochre);margin-bottom:18px;}
+.ov-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;}
+.ov-item{background:rgba(239,231,216,0.06);border:1px solid rgba(239,231,216,0.14);padding:14px;cursor:pointer;transition:all .2s;}
+.ov-item:hover{border-color:var(--accent);background:rgba(201,146,58,0.2);}
+.ov-item .oi-n{font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:0.16em;color:var(--ochre);}
+.ov-item .oi-t{font-family:var(--display);font-size:18px;color:var(--paper);margin-top:4px;line-height:1.15;}
+.pick-hint,.step-hint,.dr-hint,.gen-hint{font-family:var(--sans);font-size:clamp(10px,1.1vw,12px);font-weight:600;letter-spacing:0.16em;text-transform:uppercase;line-height:1.5;margin-top:clamp(12px,1.6vw,20px);color:var(--paper-dim);text-wrap:pretty;}
+.s-paper .pick-hint,.s-paper .step-hint,.s-paper .dr-hint,.s-paper .gen-hint{color:var(--ink-mute);}
+.slide h1,.slide h4,.slide p,.slide li,.lede,.div-meta,.title-sub,.step-detail,.pick-detail .pv{text-wrap:pretty;}
+h1.title,.title-h,.div-title,.lede,.pull,.card h4,.ex-card .ext,.hw-quote .qt,.title-sub{text-wrap:balance;}
+@media (max-width:880px){.ex-grid{grid-template-columns:repeat(2,1fr);}}
+@media (max-width:768px){.grid.g3,.grid.g4{grid-template-columns:repeat(2,1fr);}.pick-wrap,.dr-wrap,.hw-grid{grid-template-columns:1fr;}.kbd-hint{display:none;}}
+@media (max-width:560px){.grid.g2,.grid.g3,.grid.g4{grid-template-columns:1fr;}}
+@media (max-width:520px){.ex-grid{grid-template-columns:1fr;}}
+@media (prefers-reduced-motion:reduce){.title-top .mark,.s-divider .div-mark{animation:none;}.slide.active .anim{animation:none;}}
+</style>
+</head>
+<body>
+<div class="deck" id="deck">
+
+<!-- 1 · TITLE -->
+<section class="slide" id="s-title" data-surface="dark" data-title="Title">
+  <div class="title-bg"><div class="title-photo"></div><div class="title-tint"></div><div class="title-grain"></div><div class="title-vignette"></div></div>
+  <div class="title-inner">
+    <div class="title-top"><svg class="mark" viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.82"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.78" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.96" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.8" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.78" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg><span class="wm">The Founder's Sprint</span></div>
+    <div class="title-mid">
+      <div class="title-series">
+        <div class="ts-week"><span class="ts-wk">Week 5</span><span class="ts-of">of 5 · Financial Modelling</span></div>
+        <div class="ts-info"><div class="ts-disc">Financial Modelling</div><div class="ts-coach">Coach Barry Wojega<span class="ts-dot">·</span>Keep the company</div></div>
+      </div>
+      <h1 class="title-h">Raising is easy.<br>Keeping it is the <em>craft</em>.</h1>
+      <div class="title-sub">Close the discipline where the money meets ownership — model dilution two rounds out, and read a term sheet the way the investor already does.</div>
+      <div class="title-foot">
+        <span><span class="dot">●</span> Cap Table Design</span>
+        <span><span class="dot">●</span> Term Sheet Analysis</span>
+        <span><span class="dot">●</span> The capstone</span>
+      </div>
+    </div>
+    <div class="title-cta">Press &rarr; or Space to begin &nbsp;·&nbsp; O overview &nbsp;·&nbsp; P presenter notes</div>
+  </div>
+</section>
+
+<!-- 2 · AGENDA -->
+<section class="slide s-paper" data-surface="paper" data-title="What we'll cover">
+  <div class="accent-top"></div><svg class="mark-corner" viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.82"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.78" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.96" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.8" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.78" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#1A1A1A"/><circle cx="50" cy="50" r="2" fill="#EFE7D8"/></svg>
+  <div class="chip-bar anim"><span>Financial Modelling · Week 5</span><span>Capital Architecture · the discipline's close</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Two specialties · the Capital Architecture module, and the close of the discipline</div>
+    <h1 class="title anim">Where the money meets ownership.</h1>
+    <div class="grid g4 anim" style="margin-top:clamp(18px,2.5vw,34px)">
+      <div class="card"><div class="num">01</div><h4>Cap Table Design</h4><p>Model ownership forward so today's round doesn't quietly cost you the company.</p></div>
+      <div class="card"><div class="num">02</div><h4>Term Sheet Analysis</h4><p>Read every clause as an investor does — control and downside live below the valuation line.</p></div>
+      <div class="card"><div class="num">03</div><h4>One thread</h4><p>The headline number gets attention; the structure around it decides who keeps control.</p></div>
+      <div class="card"><div class="num">→</div><h4>Leave with</h4><p>A forward-modelled cap table and a marked-up term sheet, ready for a lawyer.</p></div>
+    </div>
+    <div class="box anim" style="margin-top:clamp(16px,2.2vw,28px)"><div class="bk">Leave with</div><p class="body" style="color:var(--ink)">A <strong>cap table</strong> modelled through two rounds, and a <strong>term sheet</strong> with every major clause flagged <em>standard</em>, <em>negotiate</em>, or <em>walk-away</em>.</p></div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<section class="slide s-divider" data-surface="dark" data-title="01 · Cap Table Design" data-photo="assets/fm-w5-01.jpg">
+  <div class="div-photo"></div><div class="div-overlay"></div><svg class="div-mark" viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.82"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.78" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.96" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.8" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.78" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+  <div class="div-inner"><div class="div-num anim">01</div><div class="div-eyebrow anim">Capital Architecture · Cap Table Design</div>
+  <div class="div-title anim">Today's round, seen<br>two rounds from now.</div><div class="div-meta anim">A cap table looks like simple bookkeeping until it isn't — the pool top-up, the stacked notes, and pre- versus post-money all move real percentage points.</div></div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 4 · CAP TABLE TRACKS -->
+<section class="slide s-paper" data-surface="paper" data-title="What a cap table tracks">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Financial Modelling · Week 5</span><span>More than names and percentages — a forecasting tool</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Four things a cap table has to show — if you build it forward</div>
+    <h1 class="title anim" style="font-size:clamp(24px,3.4vw,44px)">What a cap table actually tracks.</h1>
+    <div class="grid g4 anim" style="margin-top:clamp(14px,2vw,26px)">
+      <div class="card"><h4>Fully-diluted ownership</h4><p>Every stake including the option pool and convertibles as if already converted — not just issued shares.</p></div>
+      <div class="card"><h4>The option pool</h4><p>Shares set aside for future hires. Where it's carved from decides who pays for it.</p></div>
+      <div class="card"><h4>Convertibles</h4><p>SAFEs and notes that become equity at the next priced round — model them as converted, not as debt.</p></div>
+      <div class="card"><h4>Forward-modelled</h4><p>Ownership through the next one or two rounds — not a snapshot of today.</p></div>
+    </div>
+    <div class="box anim" style="margin-top:clamp(14px,2vw,24px);border-color:var(--terra);background:rgba(200,83,31,0.05)"><div class="bk" style="color:var(--terra)">Not legal advice</div><p class="body" style="color:var(--ink)">This session builds the ownership structure into your model. A <strong>lawyer drafts and confirms the instruments before you sign</strong>.</p></div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 5 · CAP TABLE WORKED EXAMPLE -->
+<section class="slide s-paper" data-surface="paper" data-title="Worked example · dilution">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Financial Modelling · Week 5</span><span>Worked example · a new 10% pool and one converting note</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Two founders · a new 10% option pool · one converting friends-and-family note</div>
+    <h1 class="title anim" style="font-size:clamp(22px,3.1vw,40px)">One round, and founders drop from 90% to 62%.</h1>
+    <table class="matrix anim">
+      <thead><tr><th>Shareholder</th><th>Before round</th><th>After round</th></tr></thead>
+      <tbody>
+        <tr><td>Founders (combined)</td><td>90%</td><td>62%</td></tr>
+        <tr><td>Converting note (F&amp;F)</td><td>10% (as converted)</td><td>8%</td></tr>
+        <tr><td>New investor</td><td>&mdash;</td><td>20%</td></tr>
+        <tr><td>Option pool (new)</td><td>&mdash;</td><td>10%</td></tr>
+      </tbody>
+    </table>
+    <p class="pick-hint anim">The 28-point drop isn't just the investor's 20% — the <strong>pool top-up</strong> and the <strong>note converting</strong> each take a share too. Model all three together, or the dilution only shows up at signing.</p>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 6 · CAP TABLE BUILD (jrail) -->
+<section class="slide s-paper" data-surface="paper" data-title="Build it forward">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Financial Modelling · Week 5</span><span>The four things a forward cap table shows · tap one</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Interactive · build it forward, not as a snapshot</div>
+    <h1 class="title anim" style="font-size:clamp(26px,3.8vw,50px)">See the dilution before you sign it.</h1>
+    <div class="jrail anim" id="cRail">
+      <div class="jnode on" data-s="0"><div class="jdot">1</div><div class="jname">Fully-diluted %</div><div class="jcap">What's really owned</div></div>
+      <div class="jnode" data-s="1"><div class="jdot">2</div><div class="jname">Option pool</div><div class="jcap">Who pays for it</div></div>
+      <div class="jnode" data-s="2"><div class="jdot">3</div><div class="jname">Convertibles</div><div class="jcap">As converted</div></div>
+      <div class="jnode" data-s="3"><div class="jdot">4</div><div class="jname">Two rounds out</div><div class="jcap">The real question</div></div>
+    </div>
+    <div class="step-detail anim" id="cDetail"></div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 7 · POOL PRE VS POST -->
+<section class="slide s-paper" data-surface="paper" data-title="Pool: pre- vs post-money">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Financial Modelling · Week 5</span><span>The same 10% pool, carved from two different places</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Same pool, two very different owners of the cost</div>
+    <h1 class="title anim" style="font-size:clamp(24px,3.4vw,44px)">Who bears the cost of the option pool?</h1>
+    <div class="grid g2 anim" style="gap:clamp(20px,3.4vw,48px);margin-top:clamp(14px,2vw,26px)">
+      <div class="card"><h4>Pool in pre-money</h4><p>The more common investor ask. Carved out <em>before</em> the investment, so it dilutes existing shareholders — mostly the founders. The investor's percentage is protected, and it effectively lowers the real pre-money you're accepting.</p></div>
+      <div class="card"><h4>Pool in post-money</h4><p>Carved out <em>after</em> the round, so the dilution is shared across everyone — founders and the new investor alike. Rarer, and materially better for the founder.</p></div>
+    </div>
+    <p class="pick-hint anim">A pre-money pool increase is a <strong>founder-only dilution dressed up as routine housekeeping</strong>. Model it explicitly — and know it's negotiable — before you agree to the number.</p>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<section class="slide s-divider" data-surface="dark" data-title="02 · Term Sheet Analysis" data-photo="assets/fm-w5-02.jpg">
+  <div class="div-photo"></div><div class="div-overlay"></div><svg class="div-mark" viewBox="0 0 100 100"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.82"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.78" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.96" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.8" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.78" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+  <div class="div-inner"><div class="div-num anim">02</div><div class="div-eyebrow anim">Capital Architecture · Term Sheet Analysis</div>
+  <div class="div-title anim">Read it the way<br>the investor does.</div><div class="div-meta anim">Most founders read a term sheet for the valuation and skim the rest. Investors read every clause — because that's where control, downside protection and future leverage are decided.</div></div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 9 · TERM SHEET CLAUSES (pick) -->
+<section class="slide s-paper" data-surface="paper" data-title="The clauses that matter">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Financial Modelling · Week 5</span><span>Below the valuation line · tap one</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Interactive · valuation gets the attention; these decide control and downside</div>
+    <h1 class="title anim" style="font-size:clamp(26px,3.8vw,50px)">The clauses that actually matter.</h1>
+    <div class="pick-wrap" id="vWrap">
+      <div class="pick-chips" id="vChips">
+        <button class="pick-chip on" data-k="liquidation">Liquidation preference</button>
+        <button class="pick-chip" data-k="antidilution">Anti-dilution</button>
+        <button class="pick-chip" data-k="board">Board seats &amp; control</button>
+        <button class="pick-chip" data-k="vesting">Founder vesting &amp; pool</button>
+      </div>
+      <div class="pick-detail" id="vDetail"></div>
+    </div>
+    <p class="pick-hint anim">Valuation is one line. These four decide <strong>control and downside</strong> — negotiate them with as much attention as the headline number.</p>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 10 · TERM SHEET MATRIX -->
+<section class="slide s-paper" data-surface="paper" data-title="Standard vs watch-for">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Financial Modelling · Week 5</span><span>Market standard versus a term worth pausing on</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Know the standard before you negotiate the exception</div>
+    <h1 class="title anim" style="font-size:clamp(22px,3.1vw,40px)">Standard is a starting point, not a surrender.</h1>
+    <table class="matrix anim">
+      <thead><tr><th>Clause</th><th>Market standard</th><th>Watch for</th></tr></thead>
+      <tbody>
+        <tr><td>Liquidation pref.</td><td>1&times; non-participating</td><td class="trap">Participating, or &gt;1&times; multiple</td></tr>
+        <tr><td>Anti-dilution</td><td>Broad-based weighted average</td><td class="trap">Full ratchet</td></tr>
+        <tr><td>Board seats</td><td>Proportional to ownership</td><td class="trap">Broad vetoes / lost control</td></tr>
+        <tr><td>Founder vesting</td><td>4-year, standard</td><td class="trap">Aggressive leaver terms</td></tr>
+        <tr><td>Option pool</td><td>Right-sized, shared</td><td class="trap">Oversized, pre-money</td></tr>
+      </tbody>
+    </table>
+    <p class="pick-hint anim">A clause that's &ldquo;market standard&rdquo; in San Francisco may not be in Kampala — and the reverse. Treat <strong>standard as the opening position</strong>, then negotiate the two or three that actually move control.</p>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 11 · LIQ PREF WORKED EXAMPLE -->
+<section class="slide s-paper" data-surface="paper" data-title="Worked example · liquidation">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Financial Modelling · Week 5</span><span>Worked example · a 1&times; non-participating preference</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Investor put UGX 1B at a UGX 5B post-money (20%) · 1&times; non-participating</div>
+    <h1 class="title anim" style="font-size:clamp(22px,3.1vw,40px)">The same clause, two very different exits.</h1>
+    <table class="matrix anim">
+      <thead><tr><th>Exit value</th><th>Investor takes</th><th>Founders / common take</th></tr></thead>
+      <tbody>
+        <tr><td>UGX 800M <span style="font-weight:400;text-transform:none;letter-spacing:0">(below preference)</span></td><td>UGX 800M (all of it)</td><td>UGX 0</td></tr>
+        <tr><td>UGX 10B <span style="font-weight:400;text-transform:none;letter-spacing:0">(well above)</span></td><td>UGX 2B (converts to 20%)</td><td>UGX 8B</td></tr>
+      </tbody>
+    </table>
+    <p class="pick-hint anim">1&times; non-participating is the founder-friendly case — on a big exit the investor takes the <strong>greater of</strong> their money back OR their ownership, not both. <strong>Participating preferred</strong> would take the 1B first <em>and</em> 20% of the rest; on a small exit, the preference still comes out ahead of common.</p>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 12 · FOUNDER-SAFE (dr-meter) -->
+<section class="slide s-paper" data-surface="paper" data-title="Is it founder-safe?">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Financial Modelling · Week 5</span><span>Is this term sheet founder-safe? · tick what's true</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">Interactive · the terms that decide if you keep control</div>
+    <h1 class="title anim" style="font-size:clamp(24px,3.4vw,46px)">Five terms that keep you in control.</h1>
+    <div class="dr-wrap anim">
+      <div class="dr-list" id="tList"></div>
+      <div class="dr-out">
+        <div class="do-k">Founder-safe terms</div>
+        <div class="do-n"><span id="tNum">0</span><small> / 5</small></div>
+        <div class="dr-bar"><div class="dr-fill" id="tFill"></div></div>
+        <div class="dr-verdict low" id="tVerdict">Weighted to the investor — negotiate before signing</div>
+      </div>
+    </div>
+    <div class="dr-hint anim">Every term you can't tick is leverage you're handing over. Flag each one <strong>standard</strong>, <strong>negotiate</strong>, or <strong>walk-away</strong> — then take it to a lawyer.</div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 13 · DD BOTH DIRECTIONS -->
+<section class="slide s-paper" data-surface="paper" data-title="Diligence both ways">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Financial Modelling · Week 5</span><span>Founders get diligenced — founders should diligence back</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">A term sheet is the start of a long relationship, not just a transaction</div>
+    <h1 class="title anim" style="font-size:clamp(24px,3.4vw,44px)">Due diligence runs both directions.</h1>
+    <div class="grid g2 anim" style="gap:clamp(20px,3.4vw,48px);margin-top:clamp(14px,2vw,26px)">
+      <div class="card"><h4>On the investor</h4><p>Their track record, sector experience, and how actively they've been involved in past portfolio companies. Call founders they've backed — especially ones whose rounds didn't go to plan.</p></div>
+      <div class="card"><h4>On the terms</h4><p>Whether each clause matches what's standard for your stage and market. A strong headline valuation with a punitive liquidation preference or lost board control trades a number for lasting leverage.</p></div>
+    </div>
+    <div class="box anim" style="margin-top:clamp(14px,2vw,24px);border-color:var(--terra);background:rgba(200,83,31,0.05)"><div class="bk" style="color:var(--terra)">Not legal advice</div><p class="body" style="color:var(--ink)">This session gets you to a <strong>marked-up term sheet</strong> — each clause flagged standard, negotiate, or walk-away. A lawyer does the formal review before you sign.</p></div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 14 · RECAP -->
+<section class="slide s-dark" data-surface="dark" data-title="Recap">
+  <div class="chip-bar anim"><span>Financial Modelling · Week 5</span><span>What we locked down</span></div>
+  <div class="slide-body">
+    <div class="eyebrow anim">The through-line</div>
+    <h1 class="title anim" style="color:var(--paper)">The headline number gets attention; the structure keeps the company.</h1>
+    <div class="grid g3 anim" style="margin-top:clamp(16px,2.4vw,32px)">
+      <div class="card"><h4>Build it forward</h4><p>Model dilution two rounds out, not a snapshot of today.</p></div>
+      <div class="card"><h4>Fully-diluted only</h4><p>Pool and convertibles as converted — always.</p></div>
+      <div class="card"><h4>Pool: who pays</h4><p>A pre-money pool dilutes founders. Model it explicitly.</p></div>
+      <div class="card"><h4>Below the valuation</h4><p>Liquidation, anti-dilution, board, vesting decide control.</p></div>
+      <div class="card"><h4>Know the standard</h4><p>1&times; non-participating; broad-based weighted average.</p></div>
+      <div class="card" style="border-left-color:var(--sage)"><h4>The close</h4><p>This completes the full <em>Financial Modelling</em> discipline map.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 15 · EXERCISE -->
+<section class="slide s-paper" data-surface="paper" data-title="In-session exercise">
+  <div class="accent-top"></div>
+  <div class="chip-bar anim"><span>Financial Modelling · Week 5</span><span>Self-guided worksheet · in session</span></div>
+  <div class="slide-body">
+    <div class="ex-head anim">
+      <div>
+        <div class="eyebrow">Close the discipline · do it now</div>
+        <h1 class="title" style="margin-top:.15em">Your capital architecture, in 4 moves.</h1>
+      </div>
+      <span style="margin-left:auto;margin-bottom:.2em;display:inline-block;font-family:var(--sans);font-size:11px;font-weight:600;letter-spacing:0.12em;text-transform:uppercase;color:var(--paper);background:var(--ink);padding:5px 12px">⏱ 25 min solo · real numbers</span>
+    </div>
+    <div class="ex-grid anim">
+      <div class="ex-card"><span class="exn">1</span><div class="exk">Fully-diluted today</div><div class="ext">Who owns what</div><div class="exp">List every holder as a %, including the pool and any notes as converted.</div><div class="exeg"><b>Example</b>"Founders 80%, pool 10%, SAFE ~10%."</div><div class="write"><span></span></div></div>
+      <div class="ex-card"><span class="exn">2</span><div class="exk">Forward one round</div><div class="ext">After the raise</div><div class="exp">Model the next raise: investor %, pool top-up, notes converting.</div><div class="exeg"><b>Example</b>"80% &rarr; ~58% after a 20% round + 10% pool."</div><div class="write"><span></span></div></div>
+      <div class="ex-card"><span class="exn">3</span><div class="exk">Pool: pre or post</div><div class="ext">Who it dilutes</div><div class="exp">State where your pool is carved — and who bears the cost.</div><div class="exeg"><b>Example</b>"Pre-money = my dilution. Push for post."</div><div class="write"><span></span></div></div>
+      <div class="ex-card"><span class="exn">4</span><div class="exk">Flag three clauses</div><div class="ext">Standard / negotiate / walk</div><div class="exp">Pick liquidation, anti-dilution, or board — mark each one.</div><div class="exeg"><b>Example</b>"1&times; = standard; full ratchet = walk."</div><div class="write"><span></span></div></div>
+    </div>
+    <p class="pick-hint anim">Use real numbers from your own round. Bring a <strong>forward-modelled cap table</strong> and a <strong>marked-up term sheet</strong> to any investor conversation — and to a lawyer.</p>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 16 · LEAVE WITH -->
+<section class="slide s-dark" data-surface="dark" data-title="Leave with">
+  <div class="chip-bar anim"><span>Financial Modelling · Week 5</span><span>Your next step · after this session</span></div>
+  <div class="slide-body">
+    <div class="anim"><span class="due-tag"><span class="d"></span>Discipline complete · Financial Modelling</span></div>
+    <h1 class="title anim" style="color:var(--paper);margin-top:.5em">A cap table and a term sheet you can defend.</h1>
+    <div class="hw-grid anim">
+      <div>
+        <div class="hw-klbl">What you leave with</div>
+        <ul class="hw-check">
+          <li><span class="cbx"></span><div><b>A forward-modelled cap table</b> — dilution through the next two rounds, pool and convertibles flagged.</div></li>
+          <li><span class="cbx"></span><div><b>A marked-up term sheet</b> — each major clause flagged standard, negotiate, or walk-away.</div></li>
+          <li><span class="cbx"></span><div><b>A short list for your lawyer</b> — the two or three clauses actually worth negotiating.</div></li>
+        </ul>
+      </div>
+      <div>
+        <div class="hw-quote">
+          <span class="qm">&ldquo;</span>
+          <div class="qt">Raising money is the easy part. Structuring it so you keep your company is the craft.</div>
+          <div class="qb">Barry Wojega · Financial Modelling</div>
+        </div>
+        <p class="hw-bridge">This closes the Capital Architecture module &mdash; and the full <strong>Financial Modelling</strong> discipline. Take the marked-up term sheet to a lawyer for formal review before you sign anything.</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span>The Founder's Sprint</span><span class="tag">Build with direction.</span></div>
+</section>
+
+<!-- 17 · CLOSER -->
+<section class="slide s-dark" id="s-close" data-surface="dark" data-title="Close">
+  <svg class="mark" viewBox="0 0 100 100" aria-hidden="true"><polygon points="50,8 57,50 50,92 43,50" fill="#C8531F" opacity="0.82"/><polygon points="50,8 57,50 50,92 43,50" fill="#C9923A" opacity="0.78" transform="rotate(72,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#8AAB5C" opacity="0.96" transform="rotate(144,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#3D4A2E" opacity="0.8" transform="rotate(216,50,50)"/><polygon points="50,8 57,50 50,92 43,50" fill="#777770" opacity="0.78" transform="rotate(288,50,50)"/><circle cx="50" cy="50" r="4.5" fill="#EFE7D8"/><circle cx="50" cy="50" r="2" fill="#1A1A1A"/></svg>
+  <div class="ct anim">Build with direction.</div>
+  <div class="cc anim">The Founder's Sprint · Financial Modelling · Week 5 of 5 · Kampala</div>
+</section>
+
+</div>
+
+<div class="progress" id="progress"></div>
+<div class="counter" id="counter">01 / 17</div>
+<div class="kbd-hint">← → navigate · O overview · P presenter · F fullscreen</div>
+<div class="nav">
+  <button id="presBtn" aria-label="Presenter view" title="Presenter view — private speaker notes (P)"><svg viewBox="0 0 24 24" width="17" height="17" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="3" y="4" width="18" height="13" rx="1.5"/><line x1="8" y1="20" x2="16" y2="20"/></svg></button>
+  <button id="resetBtn" aria-label="Restart from first slide" title="Restart">⟲</button>
+  <button id="prevBtn" aria-label="Previous slide">‹</button>
+  <button id="nextBtn" aria-label="Next slide">›</button>
+</div>
+<div class="overview" id="overview"><div class="ov-title">Slide overview · click to jump · Esc to close</div><div class="ov-grid" id="ovGrid"></div></div>
+
+<script>
+(function(){
+  "use strict";
+  const slides=Array.from(document.querySelectorAll('.slide'));
+  let i=0;
+  const counter=document.getElementById('counter'), progress=document.getElementById('progress');
+  document.querySelectorAll('.s-divider').forEach(s=>{const p=s.getAttribute('data-photo');if(p){const el=s.querySelector('.div-photo');if(el)el.style.backgroundImage="url('"+p+"')";}});
+  function show(n){n=Math.max(0,Math.min(slides.length-1,n));slides[i].classList.remove('active');i=n;const cur=slides[i];cur.classList.add('active');cur.querySelectorAll('.anim').forEach(el=>{el.style.animation='none';void el.offsetWidth;el.style.animation='';});counter.textContent=String(i+1).padStart(2,'0')+' / '+String(slides.length).padStart(2,'0');progress.style.width=((i)/(slides.length-1)*100)+'%';document.body.classList.toggle('on-paper',cur.getAttribute('data-surface')==='paper');presSync();}
+  const next=()=>show(i+1), prev=()=>show(i-1);
+  document.getElementById('nextBtn').addEventListener('click',next);
+  document.getElementById('prevBtn').addEventListener('click',prev);
+  document.getElementById('resetBtn').addEventListener('click',()=>show(0));
+  const overview=document.getElementById('overview'), ovGrid=document.getElementById('ovGrid');
+  slides.forEach((s,idx)=>{const t=s.getAttribute('data-title')||('Slide '+(idx+1));const d=document.createElement('div');d.className='ov-item';d.innerHTML='<div class="oi-n">'+String(idx+1).padStart(2,'0')+'</div><div class="oi-t">'+t+'</div>';d.addEventListener('click',()=>{overview.classList.remove('show');show(idx);});ovGrid.appendChild(d);});
+  const toggleOverview=()=>overview.classList.toggle('show');
+  document.addEventListener('keydown',e=>{if(e.key==='ArrowRight'||e.key==='PageDown'||e.key===' '){e.preventDefault();next();}else if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();prev();}else if(e.key==='Home'){show(0);}else if(e.key==='End'){show(slides.length-1);}else if(e.key==='o'||e.key==='O'){toggleOverview();}else if(e.key==='Escape'){overview.classList.remove('show');}else if((e.key==='p'||e.key==='P')&&!e.metaKey&&!e.ctrlKey){openPresenter();}else if(e.key==='f'||e.key==='F'){if(!document.fullscreenElement){document.documentElement.requestFullscreen&&document.documentElement.requestFullscreen();}else{document.exitFullscreen&&document.exitFullscreen();}}});
+  let tx=0,ty=0;document.addEventListener('touchstart',e=>{tx=e.touches[0].clientX;ty=e.touches[0].clientY;},{passive:true});
+  document.addEventListener('touchend',e=>{const dx=e.changedTouches[0].clientX-tx,dy=e.changedTouches[0].clientY-ty;if(Math.abs(dx)>55&&Math.abs(dx)>Math.abs(dy)){dx<0?next():prev();}},{passive:true});
+
+  // ── interactive ──
+  // ── compliance readiness (fewer unmodelled = better; more ticks = better) ──
+  const tItems=[
+    {t:'1&times; non-participating liquidation',d:'The investor takes their money back OR their ownership on exit — never both.'},
+    {t:'Broad-based weighted-average anti-dilution',d:'A down round adjusts fairly, not a full-ratchet re-pricing of all their shares.'},
+    {t:'Board proportional to ownership',d:'No disproportionate control or operating vetoes for a minority stake.'},
+    {t:'Standard founder vesting',d:'A four-year vest with reasonable leaver terms — not aggressive clawbacks.'},
+    {t:'Right-sized option pool',d:'Sized to real hiring plans, and you know whose dilution it falls on.'}
+  ];
+  const tState=tItems.map(()=>false);
+  const tList=document.getElementById('tList');
+  function buildT(){tList.innerHTML=tItems.map(function(it,ci){return '<div class="dr-item'+(tState[ci]?' on':'')+'" data-i="'+ci+'"><span class="dr-cb"></span><span class="dr-tx"><span class="dt">'+it.t+'</span><span class="dd">'+it.d+'</span></span></div>';}).join('');}
+  function recomputeT(){const have=tState.filter(Boolean).length,pct=Math.round(have/tItems.length*100);document.getElementById('tNum').textContent=have;document.getElementById('tFill').style.width=pct+'%';const v=document.getElementById('tVerdict');if(have>=5){v.className='dr-verdict ready';v.textContent='Founder-safe — sign-ready after a lawyer review';}else if(have>=3){v.className='dr-verdict mid';v.textContent='Mostly standard — negotiate the gaps first';}else{v.className='dr-verdict low';v.textContent='Weighted to the investor — negotiate before signing';}}
+  if(tList){buildT();recomputeT();tList.addEventListener('click',function(e){const it=e.target.closest('.dr-item');if(!it)return;const ci=+it.getAttribute('data-i');tState[ci]=!tState[ci];buildT();recomputeT();});}
+
+  // ── contribution margin build ──
+  const cm=[
+    {q:'Fully-diluted ownership %',v:'Every shareholder\'s stake including the option pool and all convertibles as if already converted — not just issued shares. <b>Shareholder\'s shares / total fully-diluted shares.</b> The number founders most often overstate for themselves.',trap:'The only ownership figure that survives the next round'},
+    {q:'The option pool',v:'Shares reserved for future hires. A <b>pre-money</b> pool dilutes existing shareholders — mostly founders; a <b>post-money</b> pool dilutes everyone, the new investor included. Same 10%, two very different owners of the cost.',trap:'Trap: a pre-money pool top-up is founder-only dilution dressed as housekeeping'},
+    {q:'Convertibles, as converted',v:'SAFEs and notes from earlier raises become equity at the priced round — model them as shares, not as debt sitting quietly off to the side. Stacked notes at different caps can convert to far more than expected.',trap:'Trap: stacked SAFEs at different caps surprise the founder at conversion'},
+    {q:'Two rounds out',v:'The point of the exercise: what does founder ownership look like after this round AND the next one, with pools and conversions included? Build it forward, not as a snapshot of today.',trap:'If you can\'t see two rounds out, you can\'t see what you\'re giving up'}
+  ];
+  const cRail=document.getElementById('cRail'), cDetail=document.getElementById('cDetail');
+  function renderCm(n){const d=cm[n];cDetail.innerHTML='<div class="sd-q">'+d.q+'</div><div class="sd-v">'+d.v+'</div><div class="sd-trap">'+d.trap+'</div>';cRail.querySelectorAll('.jnode').forEach((s,idx)=>s.classList.toggle('on',idx===n));}
+  if(cRail){cRail.addEventListener('click',e=>{const s=e.target.closest('.jnode');if(s)renderCm(+s.getAttribute('data-s'));});renderCm(0);}
+
+  // ── valuation methods ──
+  const val={
+    liquidation:{k:'Liquidation preference',tag:'Who gets paid first',v:'Who gets paid, and how much, before common shareholders see anything in an exit. <b>1&times; non-participating</b> is market standard — the investor gets their money back or converts to their ownership, not both.',eg:'Standard: 1&times; non-participating · Watch for: participating, or &gt;1&times;'},
+    antidilution:{k:'Anti-dilution',tag:'Protection on a down round',v:'Protects the investor if a later round prices lower. <b>Broad-based weighted average</b> is the founder-friendly standard. <b>Full ratchet</b> re-prices all their shares to the new low — punitive, and it can gut founder ownership.',eg:'Standard: broad-based weighted average · Watch for: full ratchet'},
+    board:{k:'Board seats & control',tag:'Who actually decides',v:'Board composition and protective provisions decide who controls key decisions. Seats should be <b>proportional to ownership</b>; watch for investor veto rights that reach into ordinary operating decisions.',eg:'Standard: proportional to stake · Watch for: broad operating vetoes'},
+    vesting:{k:'Founder vesting & pool',tag:'Your own shares, over time',v:'Founder shares typically re-vest over four years so the team stays committed — reasonable. Watch for an <b>oversized pool demanded pre-money</b> (it dilutes you, not the investor) and aggressive leaver terms.',eg:'Standard: 4-yr vest, right-sized pool · Watch for: pre-money pool top-up'}
+  };
+  const vChips=document.getElementById('vChips'), vDetail=document.getElementById('vDetail');
+  function renderVal(key){const d=val[key];vDetail.innerHTML='<div class="pk">'+d.k+'</div><div class="ptag">'+d.tag+'</div><div class="pv">'+d.v+'</div><div class="peg">'+d.eg+'</div>';vChips.querySelectorAll('.pick-chip').forEach(c=>c.classList.toggle('on',c.getAttribute('data-k')===key));}
+  if(vChips){vChips.addEventListener('click',e=>{const b=e.target.closest('.pick-chip');if(b)renderVal(b.getAttribute('data-k'));});renderVal('liquidation');}
+
+  // ── Presenter View ──
+  var presenterWin = null;
+  const NOTES = [
+    ["Financial Modelling Week 5, with Barry Wojega — the capstone. Two specialties: Cap Table Design and Term Sheet Analysis.","Anchor: raising is the easy part; structuring it so you keep the company is the craft.","This closes the Capital Architecture module AND the full discipline."],
+    ["Preview the two; deliverable is a forward-modelled cap table and a marked-up term sheet.","Stress the thread: the headline number gets attention; the structure keeps control."],
+    ["Transition: today's round, seen two rounds from now."],
+    ["Walk the four things a cap table tracks: fully-diluted ownership, the option pool, convertibles, forward-modelled.","Fully-diluted = everything as-converted, not just issued shares.","STRESS the disclaimer: not legal advice; a lawyer drafts and confirms the instruments."],
+    ["Walk the worked example — founders 90% to 62% in one round.","The drop isn't just the 20% investor — the pool top-up and note converting each take a share.","Model all three together or the dilution surprises you at signing."],
+    ["Tap the four build steps: fully-diluted %, option pool, convertibles, two rounds out.","Pre-money vs post-money pool is the big one — same 10%, different owner of the cost.","Point: build it forward, not as a snapshot."],
+    ["Pre-money pool dilutes founders; post-money shares it with the investor.","A pre-money pool top-up is founder-only dilution dressed as housekeeping — and it's negotiable.","Have them say where their own pool is carved."],
+    ["Transition: read the term sheet the way the investor does."],
+    ["Tap the four clauses: liquidation, anti-dilution, board, vesting/pool.","Valuation is one line; these decide control and downside.","For each, know the standard and the thing to watch for."],
+    ["Walk the standard-vs-watch-for table clause by clause.","Standard is the opening position, not a surrender — and varies by market.","Pick the two or three that actually move control to negotiate."],
+    ["Walk the 1x non-participating example — two exits, 800M below and 10B above.","Below preference: investor takes all 800M, common gets 0. Above: investor converts to 20% = 2B, common 8B.","Participating would take the 1B AND 20% of the rest — that's the flag."],
+    ["Have a founder score whether a term sheet is founder-safe — tick what's true.","Every term they can't tick is leverage handed over.","5/5 = sign-ready after a lawyer; low = negotiate before signing."],
+    ["Diligence runs both ways — call founders the investor has backed, especially failed rounds.","On the terms: a strong valuation with a punitive preference trades a number for lasting leverage.","Not legal advice: get to a marked-up term sheet, then a lawyer."],
+    ["Recall: build it forward, fully-diluted only, pool-who-pays, the clauses below the valuation, know the standard.","Repeat the anchor: the structure keeps the company.","This closes the discipline — the full map is complete."],
+    ["25 minutes on the four moves — CIRCULATE, real numbers only.","Model forward one round; state where the pool is carved; flag three clauses.","Bring a cap table and a marked-up term sheet to investors and to a lawyer."],
+    ["Confirm the instruments and clauses with a lawyer before signing anything.","This is the close of Financial Modelling — acknowledge the full discipline is done.","Set their next step: take the marked-up term sheet to legal review."],
+    ["Tagline: Build with direction.","This closes the Financial Modelling discipline.","Thank them."]
+  ];
+  function notesHTML(idx){const a=NOTES[idx]||[];if(!a.length)return '<p class="empty">No speaker notes for this slide yet.</p>';return '<ul>'+a.map(function(b){return '<li>'+b+'</li>';}).join('')+'</ul>';}
+  function presSync(){ if(presenterWin&&!presenterWin.closed){ try{ presenterWin.postMessage({type:'goto',i:i,total:slides.length,title:(slides[i].getAttribute('data-title')||('Slide '+(i+1))),notes:notesHTML(i),next:(slides[i+1]?(slides[i+1].getAttribute('data-title')||''):'')},'*'); }catch(e){} } }
+  const PRESENTER_DOC='<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Presenter · The Founder\'s Sprint</title>'
+    +'<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">'
+    +'<style>:root{--paper:#EFE7D8;--ochre:#C9923A;--sage:#8AAB5C;--mut:#A09888;--sans:\'Josefin Sans\',sans-serif;--disp:\'Cormorant Garamond\',serif;--body:\'Inter\',sans-serif;}'
+    +'*{box-sizing:border-box;margin:0;padding:0;}body{background:#11140E;color:var(--paper);font-family:var(--body);min-height:100vh;display:flex;flex-direction:column;padding:22px 26px;}'
+    +'.top{display:flex;justify-content:space-between;align-items:center;font-family:var(--sans);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--mut);border-bottom:1px solid rgba(239,231,216,.14);padding-bottom:12px;gap:12px;}'
+    +'.top .brand{color:var(--ochre);font-weight:700;}.pnum{font-weight:700;color:var(--paper);margin-left:auto;}.clock{font-family:var(--disp);font-size:24px;color:var(--ochre);}'
+    +'.eyebrow{font-family:var(--sans);font-size:10px;font-weight:700;letter-spacing:.22em;text-transform:uppercase;color:var(--ochre);margin-top:16px;}'
+    +'.cur{font-family:var(--disp);font-size:30px;line-height:1.12;color:var(--paper);margin:4px 0 0;}'
+    +'.notes{flex:1;overflow:auto;margin-top:16px;}.notes ul{list-style:none;}.notes li{position:relative;padding-left:24px;margin-bottom:15px;font-size:18px;line-height:1.5;color:#EDE6D6;}'
+    +'.notes li::before{content:"";position:absolute;left:0;top:9px;width:9px;height:9px;background:var(--ochre);clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);}'
+    +'.notes .empty{color:var(--mut);font-style:italic;font-family:var(--disp);font-size:20px;}'
+    +'.next{font-family:var(--sans);font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--mut);padding-top:14px;border-top:1px solid rgba(239,231,216,.14);}.next b{color:var(--paper);font-weight:600;}'
+    +'.ctrl{display:flex;gap:10px;margin-top:14px;}.ctrl button{flex:1;background:rgba(239,231,216,.08);border:1px solid rgba(239,231,216,.25);color:var(--paper);font-family:var(--sans);font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;padding:13px;cursor:pointer;transition:.15s;}'
+    +'.ctrl button:hover{border-color:var(--ochre);color:var(--ochre);}</style></head><body>'
+    +'<div class="top"><span class="brand">The Founder\'s Sprint · Presenter</span><span class="pnum" id="pnum">—</span><span class="clock" id="clock">00:00</span></div>'
+    +'<div class="eyebrow">Now presenting</div><div class="cur" id="cur">—</div><div class="notes" id="notes"></div><div class="next" id="next"></div>'
+    +'<div class="ctrl"><button id="pp">‹ Prev</button><button id="nn">Next ›</button></div>'
+    +'<scr'+'ipt>var t0=Date.now();function pad(n){return String(n).padStart(2,"0");}'
+    +'setInterval(function(){var s=Math.floor((Date.now()-t0)/1000);document.getElementById("clock").textContent=pad(Math.floor(s/60))+":"+pad(s%60);},500);'
+    +'function nav(d){if(window.opener&&!window.opener.closed){window.opener.postMessage({type:"fs-nav",dir:d},"*");}}'
+    +'document.getElementById("pp").onclick=function(){nav(-1);};document.getElementById("nn").onclick=function(){nav(1);};'
+    +'window.addEventListener("keydown",function(e){if(e.key==="ArrowRight"||e.key===" "||e.key==="PageDown"){e.preventDefault();nav(1);}else if(e.key==="ArrowLeft"||e.key==="PageUp"){e.preventDefault();nav(-1);}});'
+    +'window.addEventListener("message",function(e){var m=e.data||{};if(m.type==="goto"){document.getElementById("pnum").textContent=(m.i+1)+" / "+m.total;document.getElementById("cur").textContent=m.title;document.getElementById("notes").innerHTML=m.notes||"";document.getElementById("next").innerHTML=m.next?("Next &rarr; <b>"+m.next+"</b>"):"End of deck";}});'
+    +'if(window.opener&&!window.opener.closed){window.opener.postMessage({type:"fs-ready"},"*");}'
+    +'<\/scr'+'ipt></body></html>';
+  function openPresenter(){if(presenterWin&&!presenterWin.closed){presenterWin.focus();presSync();return;}presenterWin=window.open('','fsPresenter','width=760,height=860');if(!presenterWin){alert('Please allow pop-ups for this page to open Presenter View.');return;}presenterWin.document.open();presenterWin.document.write(PRESENTER_DOC);presenterWin.document.close();setTimeout(presSync,350);}
+  window.addEventListener('message',function(e){const m=e.data||{};if(m.type==='fs-nav'){m.dir>0?next():prev();}else if(m.type==='fs-ready'){presSync();}});
+  var _pBtn=document.getElementById('presBtn'); if(_pBtn) _pBtn.addEventListener('click',openPresenter);
+  show(0);
+})();
+</script>
+<script src="/decks/_sponsors.js?v=1"></script>
+</body>
+</html>
