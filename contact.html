@@ -83,7 +83,10 @@
 
   <p>Whether you're a founder exploring coaching, an institution interested in branded cohorts, or an investor looking at the pipeline — fill out the form below and we'll get back to you within 48 hours.</p>
 
-  <form class="contact-form" id="contact-form" action="send-contact.php" method="POST">
+  <!-- Was send-contact.php. Moved to the Node API (Oct 2026) to remove the site's
+       last PHP file during the PHP2Shell RCE disclosure — see CLAUDE.md.
+       Same-origin /api/* is proxied to api.founderssprint.co by Cloudflare. -->
+  <form class="contact-form" id="contact-form" action="/api/contact" method="POST">
     <!-- Honeypot — hidden from humans, catches bots -->
     <div class="hp" aria-hidden="true">
       <label for="website">Website</label>
@@ -203,8 +206,26 @@ if (form) {
     status.className = 'form-status';
 
     try {
-      const data = new FormData(form);
-      const res = await fetch(form.action, { method: 'POST', body: data });
+      /* JSON, not FormData. The old send-contact.php read $_POST, which parses
+         multipart happily; the API behind /api/contact uses express.json(), which
+         does NOT — a FormData body would arrive as undefined and every message
+         would come back "All fields are required." Same-origin /api/* path per
+         the site convention (Cloudflare proxies it to api.founderssprint.co):
+         cross-origin calls to the Vercel URL have been observed failing on
+         mobile/Ugandan networks, and this way there is no CORS in the path. */
+      const fd = new FormData(form);
+      const payload = {
+        name:    fd.get('name')    || '',
+        email:   fd.get('email')   || '',
+        subject: fd.get('subject') || '',
+        message: fd.get('message') || '',
+        website: fd.get('website') || '',   // honeypot — the API checks it too
+      };
+      const res = await fetch(form.action, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
       const json = await res.json();
 
       if (json.ok) {

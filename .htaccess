@@ -16,6 +16,41 @@ ErrorDocument 404 /404.html
 RewriteCond %{HTTPS} off
 RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
 
+# ─── NO PHP ON THIS SITE (24 Oct 2026, PHP2Shell) ───────────────────
+# PHP2Shell — CVE-2026-109618 / CVE-2026-109619, unauthenticated RCE, CVSS 9.2,
+# exploited in the wild within days of disclosure. The interpreter on Bluehost
+# shared hosting is THEIRS, not ours: we cannot patch it, only ask and wait.
+#
+# This site's entire PHP surface was one file, send-contact.php — which took
+# anonymous POST and called session_start(), and the published interim
+# mitigation for 109619 is disabling a *session* feature. It was the exact
+# shape being scanned for. That form now lives at POST /api/contact on the Node
+# API, and the .php files are deleted.
+#
+# This block is the belt to that braces. Deleting the files fixes today; this
+# rule fixes the next time someone restores a backup, a plugin drops a .php
+# helper, or a future page is written in PHP out of habit. The site is static
+# HTML + a Node API and has no legitimate need to execute PHP, ever — so the
+# safe default is "never", enforced at the server rather than remembered.
+#
+# Two mechanisms on purpose, because either can be unavailable on shared
+# hosting and a security control that silently does nothing is worse than none.
+# mod_rewrite runs at URL-translation and will normally win, giving a 404 (a
+# 403 would confirm the file exists — free reconnaissance). If mod_rewrite is
+# off, FilesMatch/mod_authz_core still denies it, as a 403. Either way it does
+# not execute, which is the point; the status code is the lesser concern.
+#
+# Note this blocks EXECUTION and retrieval of these extensions, not the reading
+# of a .php.bak or .php.txt sibling, which Apache serves as plain text and
+# would leak source. We have none — but it is why stray .bak files anywhere on
+# the host are worth deleting rather than tolerating.
+<FilesMatch "\.(php|php[0-9]?|phar|phtml|phps|inc)$">
+  Require all denied
+</FilesMatch>
+<IfModule mod_rewrite.c>
+  RewriteRule \.(php|php[0-9]?|phar|phtml|phps)$ - [R=404,L]
+</IfModule>
+
 # ─── Staging vs production ──────────────────────────────────────────
 # Production lives at the web root (clean /… URLs). What remains reachable
 # under /beta/ after the consolidation below is kept OUT of search results so
